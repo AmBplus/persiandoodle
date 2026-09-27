@@ -11,8 +11,8 @@ declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, s
 // the frame and the pixel size. The adapter loads matching PNGs from disk before frame 0 and saves
 // the fresh ones after; the page never touches a file. Only fully opaque frames are kept, because
 // only those survive a PNG round trip bit for bit.
-const bakeStore = () => {
-  const loaded = new Map<string, ImageBitmap>(), fresh = new Map<string, HTMLCanvasElement>(), stats = { hits: 0, misses: 0, kept: 0, skipped: 0 };
+const bakeStore = (surface: (w: number, h: number) => Layer) => {
+  const loaded = new Map<string, ImageBitmap>(), fresh = new Map<string, Layer>(), stats = { hits: 0, misses: 0, kept: 0, skipped: 0 };
   let on = false; // off until an adapter loads the store: a shipped player keeps no copies
   const keyOf = (film: object, frame: number, w: number, h: number) => { const mod = window.__ANIDOODLE_SRC__?.get(film), hash = mod ? window.__BAKE_SRC__?.[mod] : undefined; return hash ? `${hash}.${frame}.${w}x${h}` : null; };
   const bake: NonNullable<Env["bake"]> = {
@@ -21,11 +21,12 @@ const bakeStore = () => {
       if (!on) return;
       const { width: w, height: h } = layer.canvas, k = keyOf(film, frame, w, h); if (!k || loaded.has(k) || fresh.has(k)) return;
       const d = layer.ctx.getImageData(0, 0, w, h).data; for (let i = 3; i < d.length; i += 4) if (d[i] !== 255) { stats.skipped++; return; }
-      const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d")!.drawImage(layer.canvas, 0, 0); fresh.set(k, c); stats.kept++;
+      const c = surface(w, h); c.ctx.drawImage(layer.canvas, 0, 0); fresh.set(k, c); stats.kept++; // same surface kind as the art: never mix raster paths
     },
   };
   const load = async (entries: Record<string, string>) => { on = true; await Promise.all(Object.entries(entries).map(async ([k, b64]) => { try { const bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); const img = await createImageBitmap(new Blob([u8], { type: "image/png" }), { premultiplyAlpha: "none", colorSpaceConversion: "none" }); if (`${img.width}x${img.height}` === k.split(".").pop()) loaded.set(k, img); } catch { /* unreadable: draw it cold */ } })); return loaded.size; }; // decoded in memory: no URL, no request
-  const take = () => { const out: Record<string, string> = {}; for (const [k, c] of fresh) out[k] = c.toDataURL("image/png").slice(22); fresh.clear(); return out; };
+  const png64 = async (c: Layer["canvas"]) => { const blob = "convertToBlob" in c ? await (c as OffscreenCanvas).convertToBlob({ type: "image/png" }) : await new Promise<Blob>((ok) => (c as HTMLCanvasElement).toBlob((b) => ok(b!), "image/png")); const u8 = new Uint8Array(await blob.arrayBuffer()); let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
+  const take = async () => { const out: Record<string, string> = {}; for (const [k, c] of fresh) out[k] = await png64(c.canvas); fresh.clear(); return out; };
   const hashes = () => [...new Set(Object.values(window.__BAKE_SRC__ ?? {}))];
   return { bake, load, take, hashes, stats };
 };
@@ -33,10 +34,10 @@ const bakeStore = () => {
 export const mountFilm = (film: Film) => {
   const canvas = document.getElementById("film") as HTMLCanvasElement, images = new Map<string, CanvasImageSource>();
   let env: Env, ctx: Ctx, current = 0;
-  const bakes = bakeStore();
   // Safari before 16.4 has no 2D OffscreenCanvas: fall back to a detached <canvas>. The core cannot tell the difference.
   const opts = film.meta.raster === "cpu" ? { willReadFrequently: true } : undefined;   // see Film.meta.raster
   const surface = (w: number, h: number): Layer => { const c = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }); return { canvas: c, ctx: c.getContext("2d", opts) as unknown as Ctx } as Layer; };
+  const bakes = bakeStore(surface);
   const mount = (scale = 1) => { canvas.width = Math.round(film.meta.W * scale); canvas.height = Math.round(film.meta.H * scale); ctx = canvas.getContext("2d", opts) as CanvasRenderingContext2D; env = { W: film.meta.W, H: film.meta.H, scale, cache: new Map(), canvas: surface, image: (n) => images.get(n), bake: bakes.bake }; return film.meta; };
   // contract rule 4: every asset is loaded AND decoded before frame 0, or the film refuses to start
   const ready = (async () => {
