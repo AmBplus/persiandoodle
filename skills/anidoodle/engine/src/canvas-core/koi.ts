@@ -14,7 +14,7 @@ import { cut, part, stagger, streakClip, streaks } from "./koiDrawKit";
 // so they bend with it. Light from the upper left.
 
 const INK = "#15122a", LIGHT: P = [-0.62, -0.78];
-const WATER = "#137582", WATER_D = "#0c5360", WATER_L = "#3aa6ad";
+export const WATER = "#137582", WATER_D = "#0c5360", WATER_L = "#3aa6ad";
 const WHITE = "#fdf8ee", WHITE_S = "#c9d6e0", HI = "#ec4a22", HI_S = "#b72c1a", SUMI = "#1b1830";
 const FIN = "#f7efe4", FIN_S = "#d5dde2";
 
@@ -30,19 +30,45 @@ const lay = (g: Gfx, p: number, shapes: P[][], fn: () => void, seed: number, w =
   const c = g.cur; c.save(); streakClip(c, streaks(shapes, w, ang, seed, reach), p); fn(); c.restore();
 };
 // the contour grows along its centreline; a closed one is drawn open until it closes
-const inkP = (g: Gfx, center: P[], color: string, o: InkOpts, alpha: number | undefined, q: number) => {
+export const inkP = (g: Gfx, center: P[], color: string, o: InkOpts, alpha: number | undefined, q: number) => {
   if (q >= 1) return alpha === undefined ? ink(g, center, color, o) : ink(g, center, color, o, alpha); if (q <= 0) return;
   const path = o.closed ? [...center, center[0]] : center, side = o.closed ? (area(center) > 0 ? -1 : 1) : o.side;
   ink(g, cut(path, q), color, { ...o, closed: false, side, taper: [o.closed ? 0.04 : (o.taper?.[0] ?? 0.12), 0.08] }, alpha ?? 1);
 };
 
-const koiBody = (): Body => body(
-  [[300, 222], [404, 292], [502, 408], [556, 556], [534, 694], [468, 792]],
+// ALIVE. The same koi, swimming: t in seconds. A carangiform swimmer: the wave travels nose to
+// tail, its amplitude growing toward the tail (the head barely yaws, the peduncle swings wide),
+// one tail beat every 2 s, the way a koi cruises. Everything hung on the body (fins, tail,
+// markings, scales, shadow) follows it for free. Undefined = the still plate, pixel for pixel.
+export type KoiLive = { t: number; amp?: number; beat?: number; pose?: KoiPose }; // amp 0..1 eases the swim in from the still pose; beat = seconds per tail beat
+// where the fish is: its spine's centroid placed at (x, y), turned by rot, scaled by k. koiWorld swims it along a path.
+export type KoiPose = { x: number; y: number; rot: number; k: number; straight?: number; bend?: number }; // straight 0..1: the plate's turning curve relaxed toward a straight cruise; bend: into a turn (+ = tail swings right of travel)
+const SPINE: P[] = [[300, 222], [404, 292], [502, 408], [556, 556], [534, 694], [468, 792]];
+export const KOI_BEAT = 2; // seconds per tail beat: every live motion's period divides 2 s, so 2 s loops
+export const SPINE_C: P = [SPINE.reduce((a, p) => a + p[0], 0) / SPINE.length, SPINE.reduce((a, p) => a + p[1], 0) / SPINE.length];
+export const SPINE_HEADING = Math.atan2(SPINE[0][1] - SPINE_C[1], SPINE[0][0] - SPINE_C[0]); // the way the plate's koi is facing
+const swim = (live: KoiLive): P[] => {
+  const ph = (2 * Math.PI * live.t) / (live.beat ?? KOI_BEAT), q = live.pose;
+  const place = (p: P): P => { if (!q) return p; const c = Math.cos(q.rot), s = Math.sin(q.rot), dx = p[0] - SPINE_C[0], dy = p[1] - SPINE_C[1]; return [q.x + (dx * c - dy * s) * q.k, q.y + (dx * s + dy * c) * q.k]; };
+  // a cruising fish is nearly straight: relax the authored curve toward a straight spine of the same
+  // length (laid back from the head along the plate's facing), then bend it into the current turn
+  const st = q?.straight ?? 0, bd = q?.bend ?? 0, ax: P = [Math.cos(SPINE_HEADING), Math.sin(SPINE_HEADING)];
+  let acc = 0; const seg = SPINE.map((p, i) => (i ? (acc += Math.hypot(p[0] - SPINE[i - 1][0], p[1] - SPINE[i - 1][1])) : 0));
+  const line = seg.map((d) => [-ax[0] * d, -ax[1] * d] as P), lc: P = [line.reduce((a, p) => a + p[0], 0) / line.length, line.reduce((a, p) => a + p[1], 0) / line.length];
+  const base = SPINE.map((p, i) => { const u = i / (SPINE.length - 1), sp: P = [SPINE_C[0] + line[i][0] - lc[0], SPINE_C[1] + line[i][1] - lc[1]], m: P = [p[0] + (sp[0] - p[0]) * st, p[1] + (sp[1] - p[1]) * st], side = bd * 70 * u * u; return [m[0] - ax[1] * side, m[1] + ax[0] * side] as P; });
+  return base.map((p, i) => {
+    const a = base[Math.max(0, i - 1)], c = base[Math.min(base.length - 1, i + 1)], dx = c[0] - a[0], dy = c[1] - a[1], l = Math.hypot(dx, dy) || 1, u = i / (base.length - 1);
+    const amp = (4 + 30 * Math.pow(u, 1.7)) * (live.amp ?? 1), off = amp * Math.sin(ph - u * 2.6);
+    return place([p[0] - (dy / l) * off, p[1] + (dx / l) * off]);
+  });
+};
+export const koiBody = (live?: KoiLive): Body => body(
+  live ? swim(live) : SPINE,
   profile([[0, 0], [0.012, 27], [0.035, 46], [0.08, 64], [0.16, 80], [0.27, 90], [0.4, 88], [0.55, 78], [0.7, 60], [0.82, 40], [0.92, 26], [1, 22]]),
 );
 
 // a fin in the body's frame: rays fan from a root between two edge points out to a rounded paddle
-const fin = (root0: P, root1: P, tip: P, spread: number, bulge: number, seed: number, rays = 8): { shape: P[]; rays: P[][] } => {
+export const fin = (root0: P, root1: P, tip: P, spread: number, bulge: number, seed: number, rays = 8): { shape: P[]; rays: P[][] } => {
   const r = rng(seed), mid = lerpP(root0, root1, 0.5), dx = tip[0] - mid[0], dy = tip[1] - mid[1], len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
   const tipAt = (a: number): P => { const k = len * (1 - a * a * 0.34) * (0.985 + r() * 0.03); return [mid[0] + ux * k + nx * (a * spread + bulge * (1 - a * a)), mid[1] + uy * k + ny * (a * spread + bulge * (1 - a * a))]; };
   const tips = Array.from({ length: rays }, (_, i) => tipAt(-1 + (2 * i) / (rays - 1)));
@@ -55,7 +81,7 @@ const fin = (root0: P, root1: P, tip: P, spread: number, bulge: number, seed: nu
 
 // the caudal fin: a centreline that keeps turning at the body's own curvature, two long lobes
 // either side of it that open out, wave, and part at a notch
-const tail = (b: Body): { shape: P[]; rays: P[][] } => {
+export const tail = (b: Body): { shape: P[]; rays: P[][] } => {
   const t1 = b.tan(1), t0 = b.tan(0.9), th0 = Math.atan2(t1[1], t1[0]), dTh = Math.atan2(t0[1] * t1[0] - t0[0] * t1[1], t0[0] * t1[0] + t0[1] * t1[1]);
   const kappa = (-dTh / 60) * 2.6, root = b.at(0.955, 0), line: P[] = [root], heads: number[] = [th0];
   for (let i = 1; i <= 26; i++) { const th = th0 + kappa * i * 10; heads.push(th); const q = line[i - 1]; line.push([q[0] + Math.cos(th) * 10, q[1] + Math.sin(th) * 10]); }
@@ -88,7 +114,7 @@ export const padShape = (cx: number, cy: number, rr: number, notch: number, seed
   for (let i = 0; i <= 40; i++) { const a = notch + 0.2 + (i / 40) * (Math.PI * 2 - 0.4); rim.push([cx + Math.cos(a) * rr * (1 + (r() - 0.5) * 0.03), cy + Math.sin(a) * rr * 0.93 * (1 + (r() - 0.5) * 0.03)]); }
   return [[cx, cy], ...rim];
 };
-const lilyPad = (g: Gfx, cx: number, cy: number, rr: number, notch: number, seed: number, k: KoiClock = ALL, el = "pad") => {
+export const lilyPad = (g: Gfx, cx: number, cy: number, rr: number, notch: number, seed: number, k: KoiClock = ALL, el = "pad") => {
   const pad = padShape(cx, cy, rr, notch, seed), rim = pad.slice(1);
   const fl = k(el, "flat"), sh = k(el, "shade"), dt = k(el, "detail"), ln = k(el, "line");
   g.group("plain", () => {
@@ -102,7 +128,7 @@ const lilyPad = (g: Gfx, cx: number, cy: number, rr: number, notch: number, seed
   });
 };
 
-const waterLily = (g: Gfx, cx: number, cy: number, s: number, seed: number, kc: KoiClock = ALL, el = "lily") => {
+export const waterLily = (g: Gfx, cx: number, cy: number, s: number, seed: number, kc: KoiClock = ALL, el = "lily") => {
   const r = rng(seed), fl = kc(el, "flat"), shd = kc(el, "shade"), dt = kc(el, "detail"), ln = kc(el, "line");
   let j = 0; // petals are laid in the order they stack: back row first
   const petal = (a: number, len: number, wid: number, col: string, sh: string, k: number) => {
@@ -124,13 +150,13 @@ const waterLily = (g: Gfx, cx: number, cy: number, s: number, seed: number, kc: 
   });
 };
 
-const ripples = (g: Gfx, cx: number, cy: number, seed: number, kc: KoiClock = ALL) => {
+export const ripples = (g: Gfx, cx: number, cy: number, seed: number, kc: KoiClock = ALL, drift = 0, scale = 1) => {
   // surface rings, broken where the light catches them: the one place the water shows its skin
   const r = rng(seed), dt = kc("ripples", "detail");
   g.group("plain", () => {
-    [58, 104, 156].forEach((rad, k) => {
-      let a = r() * 6;
-      for (let s = 0; s < 5; s++) { const span = 0.55 + r() * 0.6, pts: P[] = []; for (let i = 0; i <= 12; i++) { const t = a + (i / 12) * span; pts.push([cx + Math.cos(t) * rad * 1.35, cy + Math.sin(t) * rad * 0.62]); } inkP(g, pts, "#d9fbf6", { w: 4.4 - k * 1.1, shadow: 0, taper: [0.3, 0.3], seed: seed + k * 10 + s }, 0.85 - k * 0.18, part(dt, k * 5 + s, 15)); a += span + 0.35 + r() * 0.5; }
+    [58, 104, 156].forEach((rad0, k) => {
+      let a = r() * 6; const rad = rad0 + 48 * drift, fade = drift ? Math.max(0, Math.min(1, (rad - 58) / 30, (212 - rad) / 50)) : 1; if (fade <= 0) { for (let s = 0; s < 5; s++) r(), r(), r(); return; }
+      for (let s = 0; s < 5; s++) { const span = 0.55 + r() * 0.6, pts: P[] = []; for (let i = 0; i <= 12; i++) { const t = a + (i / 12) * span; pts.push([cx + Math.cos(t) * rad * 1.35 * scale, cy + Math.sin(t) * rad * 0.62 * scale]); } inkP(g, pts, "#d9fbf6", { w: (4.4 - k * 1.1) * Math.sqrt(scale), shadow: 0, taper: [0.3, 0.3], seed: seed + k * 10 + s }, (0.85 - k * 0.18) * fade, part(dt, k * 5 + s, 15)); a += span + 0.35 + r() * 0.5; }
     });
   });
 };
@@ -150,23 +176,19 @@ const pencilLayIn = (g: Gfx, k: KoiClock, b: Body, fins: { shape: P[] }[], cau: 
   });
 };
 
-export const drawKoi = (ctx: Ctx, _frame: number, env: Env, clock?: KoiClock) => {
-  const g = new Gfx(ctx, env, 0, PENCIL), k = clock ?? ALL;
-  ctx.setTransform(env.scale, 0, 0, env.scale, 0, 0);
-  const b = koiBody();
-  // pectorals on the outside of the curve spread wide; the inside one is tucked and foreshortened
-  const pecR = fin(b.at(0.17, 0.9), b.at(0.285, 0.9), b.at(0.33, 2.85), 70, 16, 71, 9);
-  const pecL = fin(b.at(0.18, -0.9), b.at(0.27, -0.9), b.at(0.35, -2.25), 44, -10, 72, 8);
-  const pelR = fin(b.at(0.53, 0.9), b.at(0.6, 0.9), b.at(0.66, 1.95), 30, 6, 73, 6);
-  const pelL = fin(b.at(0.54, -0.9), b.at(0.6, -0.9), b.at(0.67, -1.8), 26, -5, 74, 6);
-  const cau = tail(b);
-  const fins = [pecR, pecL, pelR, pelL];
-  if (clock) { // the process only: a bare sheet of marker paper, and the lay-in on it
-    ctx.fillStyle = "#fbf9f3"; ctx.fillRect(0, 0, 1080, 1080);
-    pencilLayIn(g, k, b, fins, cau, [padShape(905, 205, 168, 2.3, 3100), padShape(890, 905, 120, 3.6, 3300), padShape(120, 640, 88, 0.2, 3400)], [880, 195, 1.15]);
-  }
-  water(g, k);
-
+// pectorals on the outside of the curve spread wide; the inside one is tucked and foreshortened
+// live: the pectorals scull, out of phase with each other, a half beat behind the tail
+export const koiFins = (b: Body, live?: KoiLive) => { const sc = live ? Math.sin((2 * Math.PI * live.t) / KOI_BEAT - 1.4) * (live.amp ?? 1) : 0; return [
+  fin(b.at(0.17, 0.9), b.at(0.285, 0.9), b.at(0.33 - 0.03 * sc, 2.85 + 0.35 * sc), 70, 16, 71, 9),
+  fin(b.at(0.18, -0.9), b.at(0.27, -0.9), b.at(0.35 + 0.03 * sc, -2.25 + 0.3 * sc), 44, -10, 72, 8),
+  fin(b.at(0.53, 0.9), b.at(0.6, 0.9), b.at(0.66, 1.95), 30, 6, 73, 6),
+  fin(b.at(0.54, -0.9), b.at(0.6, -0.9), b.at(0.67, -1.8), 26, -5, 74, 6),
+]; };
+// the red hi markings, in the body's (t, s) frame: [t, s, half-length, half-width, seed]
+export const KOI_HI: [number, number, number, number, number][] = [[0.105, -0.05, 0.075, 0.95, 11], [0.36, -0.25, 0.1, 1.2, 12], [0.47, 0.35, 0.07, 0.9, 13], [0.66, -0.1, 0.085, 1.15, 14], [0.82, 0.3, 0.05, 0.9, 15]];
+// THE FISH: its floor shadow, fins, body and markings, dorsal, head and tail, on whatever b is.
+// Split out of drawKoi so the same fish can be posed anywhere (koiWorld swims it through a pond).
+export const drawFish = (g: Gfx, k: KoiClock, b: Body, fins: ReturnType<typeof koiFins>, cau: ReturnType<typeof tail>) => {
   // the fish's shadow on the pond floor, flat and hard, down-right away from the light
   const floor = [b.outline, cau.shape, ...fins.map((f) => f.shape)].map((s) => s.map(([x, y]) => [x + 30, y + 40] as P));
   g.group("plain", () => lay(g, k("floor", "shade"), floor, () => floor.forEach((s) => fillShape(g, s, "#083b45", 0.5)), 5001, 34, 0.9));
@@ -194,7 +216,7 @@ export const drawKoi = (ctx: Ctx, _frame: number, env: Env, clock?: KoiClock) =>
       if (bsh >= 1) fillShape(g, bsL, WHITE);
       // red hi: head crown, a saddle across the back, a patch toward the tail. Crisp back edges.
       const hf = k("hi", "flat"), hs = k("hi", "shade");
-      const patches: [number, number, number, number, number][] = [[0.105, -0.05, 0.075, 0.95, 11], [0.36, -0.25, 0.1, 1.2, 12], [0.47, 0.35, 0.07, 0.9, 13], [0.66, -0.1, 0.085, 1.15, 14], [0.82, 0.3, 0.05, 0.9, 15]];
+      const patches = KOI_HI;
       patches.forEach(([t, s, dt, ds, seed], pi) => {
         const r = rng(seed * 17), pts: P[] = [];
         for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2, kk = 0.8 + r() * 0.35; pts.push(b.at(t + Math.cos(a) * dt * kk, s + Math.sin(a) * ds * kk)); }
@@ -264,11 +286,30 @@ export const drawKoi = (ctx: Ctx, _frame: number, env: Env, clock?: KoiClock) =>
     inkP(g, tailEdge, INK, { w: 4.4, light: LIGHT, shadow: 0.85, seed: 1710, side: -1, taper: [0.04, 0.04], min: 0.3 }, undefined, tln);
   });
 
-  ripples(g, 300, 196, 2100, k);
-  lilyPad(g, 905, 205, 168, 2.3, 3100, k, "pad0");
-  waterLily(g, 880, 195, 1.15, 3200, k);
-  lilyPad(g, 890, 905, 120, 3.6, 3300, k, "pad1");
-  lilyPad(g, 120, 640, 88, 0.2, 3400, k, "pad2");
+};
+
+export const drawKoi = (ctx: Ctx, _frame: number, env: Env, clock?: KoiClock, live?: KoiLive) => {
+  const g = new Gfx(ctx, env, 0, PENCIL), k = clock ?? ALL;
+  ctx.setTransform(env.scale, 0, 0, env.scale, 0, 0);
+  const b = koiBody(live);
+  const fins = koiFins(b, live), cau = tail(b);
+  if (clock) { // the process only: a bare sheet of marker paper, and the lay-in on it
+    ctx.fillStyle = "#fbf9f3"; ctx.fillRect(0, 0, 1080, 1080);
+    pencilLayIn(g, k, b, fins, cau, [padShape(905, 205, 168, 2.3, 3100), padShape(890, 905, 120, 3.6, 3300), padShape(120, 640, 88, 0.2, 3400)], [880, 195, 1.15]);
+  }
+  water(g, k);
+
+  drawFish(g, k, b, fins, cau);
+
+  // live: the pads ride the swell the fish leaves, each on its own phase; the rings drift out from the nose
+  const bob = (i: number): P => (live ? [(live.amp ?? 1) * 3 * Math.sin((2 * Math.PI * live.t) / (2 * KOI_BEAT) + i * 2.1), (live.amp ?? 1) * 4 * Math.sin((2 * Math.PI * live.t) / (2 * KOI_BEAT) + i * 2.1 + 1.2)] : [0, 0]);
+  if (live) { const nose = b.at(0, 0); ripples(g, nose[0], nose[1] - 26, 2100, k, (live.t / KOI_BEAT) % 1); }
+  else ripples(g, 300, 196, 2100, k);
+  const [p0, p1, p2] = [bob(0), bob(1), bob(2)];
+  lilyPad(g, 905 + p0[0], 205 + p0[1], 168, 2.3, 3100, k, "pad0");
+  waterLily(g, 880 + p0[0], 195 + p0[1], 1.15, 3200, k);
+  lilyPad(g, 890 + p1[0], 905 + p1[1], 120, 3.6, 3300, k, "pad1");
+  lilyPad(g, 120 + p2[0], 640 + p2[1], 88, 0.2, 3400, k, "pad2");
   g.paper("paper", 0.05);
 };
 
@@ -276,4 +317,11 @@ export const koi: Film = {
   meta: { title: "Koi · marker comic", W: 1080, H: 1080, fps: 30, bpm: 120, durationFrames: 1 },
   assets: { images: {} },
   shots: [{ id: "koi", start: 0, end: 1, draw: drawKoi }],
+};
+
+// the koi, alive: a 4 s loop (two tail beats; the pads' swell is one period), for the launch film and loops
+export const koiAlive: Film = {
+  meta: { title: "Koi · marker comic, alive", W: 1080, H: 1080, fps: 30, bpm: 120, durationFrames: 120, kind: "loop" },
+  assets: { images: {} },
+  shots: [{ id: "swim", start: 0, end: 120, draw: (ctx, f, env) => drawKoi(ctx, f, env, undefined, { t: f / 30 }) }],
 };

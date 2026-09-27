@@ -10,7 +10,7 @@ export const beatsPerBar = (m: Meter) => (m === "3/4" ? 3 : m === "4/4" ? 4 : m 
 export type Role = "melody" | "inner" | "bass" | "accomp" | "color" | "drum";
 /** t, d in beats from the piece start; p = MIDI; v = written velocity 0..1 (performance shapes it). */
 export type Note = { t: number; d: number; p: number; v: number; role: Role; roll?: number; kind?: string };
-export type InstId = "piano" | "musicBox" | "bell" | "celesta" | "marimba" | "vibes" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "pulse" | "triangle" | "noiseDrum" | "kick" | "snare" | "hat" | "bass" | "vinyl";
+export type InstId = "piano" | "musicBox" | "bell" | "celesta" | "marimba" | "vibes" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "pulse" | "triangle" | "noiseDrum" | "kick" | "snare" | "hat" | "bass" | "vinyl" | "warmPad" | "softPluck" | "sub";
 export type Part = { id: string; inst: InstId; role: Role; notes: Note[]; gainDb?: number; pan?: number; opts?: Record<string, number | boolean | string>; send?: number };
 export type Section = {
   id: string; bars: number; mood: MoodId | [MoodId, MoodId, number]; key: string; mode: ModeId; melody: MelodyType[];
@@ -23,7 +23,9 @@ export type MusicPlan = { style: StyleId; tempo: number; meter: Meter; sections:
   /** tempo-arch depth per phrase (1 = +-2.5 %); final ritard end-tempo ratio (1 = none) */ rubato?: number; ritard?: number;
   /** room override (the guards' bad fixture uses it; films normally take the style's room) */ space?: { er?: number; late?: number; rt60?: number; hp?: number } };
 export type Chord = { t: number; name: string };
-export type Piece = { title: string; plan: MusicPlan; parts: Part[]; harmony: Chord[]; tail: number; seed: number;
+/** Bus moves (lofiKit): `duck` pumps the named parts on every onset of the `by` part; `tape` wobbles and saturates the master. */
+export type PieceFx = { clean?: boolean /* skip the lo-fi master tone (low-pass, shelf, saturation) */; duck?: { by: string; parts: string[]; depth?: number; release?: number }; tape?: { wowCents?: number; wowHz?: number; flutterCents?: number; flutterHz?: number; drive?: number } };
+export type Piece = { title: string; plan: MusicPlan; parts: Part[]; harmony: Chord[]; tail: number; seed: number; fx?: PieceFx;
   /** a shorter complete form of the same music, chosen automatically when the film is too short for this one */ shortForm?: () => Piece };
 
 // ---------------------------------------------------------------- notation

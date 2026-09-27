@@ -7,6 +7,7 @@ import { perform, type Performance, type Played } from "./perform";
 import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
 import * as I from "./instruments";
 import { room, Biquad, db } from "./dsp";
+import { warmPad, softPluck, sub, duckCurve, tape } from "./lofiKit";
 import { loudness, truePeak } from "./meter";
 import { STYLES } from "./tables";
 import { rng as mkRng } from "../core";
@@ -36,6 +37,9 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number) =>
     case "hat": return I.hat(keys, sr, n, o, r);
     case "bass": return I.bass(keys, sr, n, o);
     case "vinyl": return I.vinyl(keys, sr, n, o, r);
+    case "warmPad": return warmPad(keys, sr, n, o, r);
+    case "softPluck": return softPluck(keys, sr, n, o);
+    case "sub": return sub(keys, sr, n, o);
     default: throw new Error(`no instrument ${pt.inst}`);
   }
 };
@@ -46,12 +50,16 @@ export const renderPiece = (piece: Piece, sr: number, o: RenderOpts = {}): Rende
   const n = o.seconds ? Math.round(o.seconds * sr) : Math.ceil((perf.lastOnset + piece.tail) * sr);
   const L = new Float32Array(n), R = new Float32Array(n), haloL = new Float32Array(n), stems: Record<string, [Float32Array, Float32Array]> = {};
   const sends: [Float32Array, Float32Array, number][] = [];
+  // the pump: one gain curve from the ducking part's onsets, applied to every ducked part before the mix
+  const dk = piece.fx?.duck, byIdx = dk ? piece.parts.findIndex((p) => p.id === dk.by) : -1;
+  const pump = dk && byIdx >= 0 ? duckCurve(perf.parts[byIdx].keys.map((k) => k.t), sr, n, dk.depth ?? 0.4, dk.release ?? 0.28) : null;
   piece.parts.forEach((pt, pi) => {
     if (o.only && !o.only(pt)) return;
     const keys = perf.parts[pi].keys; if (!keys.length) return;
     let sL: Float32Array, sR: Float32Array;
     if (pt.inst === "piano") { const r = renderPiano(keys, perf.pedal, sr, n, o.piano ?? PIANO_REAL, piece.seed + pi); sL = r.L; sR = r.R; if ((o.piano ?? PIANO_REAL).pedal) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
     else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi); sL = r.L; sR = r.R; }
+    if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     const g = db(pt.gainDb ?? 0);
     if (pt.pan) { const a = Math.max(0, pt.pan), b = Math.max(0, -pt.pan); for (let i = 0; i < n; i++) { sL[i] *= 1 - a * 0.6; sR[i] *= 1 - b * 0.6; } }
     for (let i = 0; i < n; i++) { sL[i] *= g; sR[i] *= g; L[i] += sL[i]; R[i] += sR[i]; }
@@ -75,7 +83,8 @@ export const renderPiece = (piece: Piece, sr: number, o: RenderOpts = {}): Rende
   }
   // ---- master: DC/rumble high-pass (4th-order Butterworth at 30 Hz), lo-fi tone, end fade
   for (const q of [0.5412, 1.3066]) { Biquad.make(sr, "hp", 30, q).run(L); Biquad.make(sr, "hp", 30, q).run(R); }
-  if (style.id === "lofi") { for (const c of [L, R]) { Biquad.make(sr, "lp", 8500, 0.6).run(c); Biquad.make(sr, "highshelf", 5000, 0.7, -3).run(c); for (let i = 0; i < n; i++) c[i] = Math.tanh(c[i] * 1.2) / 1.2; } }
+  if (style.id === "lofi" && !piece.fx?.clean) { for (const c of [L, R]) { Biquad.make(sr, "lp", 8500, 0.6).run(c); Biquad.make(sr, "highshelf", 5000, 0.7, -3).run(c); for (let i = 0; i < n; i++) c[i] = Math.tanh(c[i] * 1.2) / 1.2; } }
+  if (piece.fx?.tape) tape(L, R, sr, piece.fx.tape);
   const fade = Math.min(n, Math.round(0.25 * sr)); for (let i = 0; i < fade; i++) { const g = 0.5 - 0.5 * Math.cos((Math.PI * i) / fade); L[n - 1 - i] *= g; R[n - 1 - i] *= g; }
   let gainDb = 0, masterMode = o.master ?? "auto";
   if (masterMode === "auto") masterMode = style.master;
