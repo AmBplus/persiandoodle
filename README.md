@@ -2,6 +2,10 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle: an artist's table of code-drawn doodles, with the name writing itself in calligraphy">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>The launch film, 77 seconds. Every frame and every sound in it was made with anidoodle, in code.</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>Hand-drawn art, written as code.</strong></p>
