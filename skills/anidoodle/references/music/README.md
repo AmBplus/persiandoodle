@@ -8,6 +8,12 @@ before anything ships.
 Code: `engine/src/canvas-core/music/`. Tool: `engine/tools/music.mjs`. The old music-box recipe
 lives on, verbatim, as the default style preset: [`styles/music-box.md`](styles/music-box.md).
 
+Style pages:
+- [`styles/music-box.md`](styles/music-box.md): the default. Plucked, no sustain, no reverb tail.
+- [`styles/lofi-electronic.md`](styles/lofi-electronic.md): chill, upbeat, clean lo-fi electronic,
+  the launch film's sound. It covers the `lofiElectronic` builder, sections, landing on the home
+  chord, film fit, seamless loops and the stem balance meter.
+
 ## The pipeline
 
 ```
@@ -66,9 +72,15 @@ MusicPlan + notes (you write)  ->  perform  ->  instruments (one stem per part) 
    - **Dense styles** (chiptune, lo-fi, drive): **-14 LUFS** through a look-ahead true-peak limiter.
 
 A film's `audio` is `filmAudio(piece, seconds)`, which returns `(sampleRate) => [L, R]` at exactly
-the film's length. `engine/src/canvas-core/score.ts` is the scaffold example.
+the film's length. It fits the score first (`fitScore`, below), so the music ends on its phrase at
+the last frame and is never chopped. Any film mix that renders a score (sound effects included) must
+fit it the same way. `engine/src/canvas-core/score.ts` is the scaffold example.
 
 ## Any length, never hard-coded
+
+`fitScore(piece, seconds)` first calls the piece's own `refit(seconds)` if it has one. A
+lofiElectronic piece adds or removes whole loop cycles of its `stretch` section, so it still lands
+on its outro. Then it runs `fitToDuration`.
 
 `fitToDuration(piece, seconds)` tries every form:
 - with some `optional` sections dropped (dropping music costs more than nudging the tempo);
@@ -86,7 +98,7 @@ Example: the nocturne "Window Light" gives
 - intro, theme, theme (in octaves), build, coda at 60 s;
 - six theme/climax cycles with rotating variations at 180 s.
 
-## Styles (11) and moods (15)
+## Styles (12) and moods (15)
 
 Both are rows of numbers in `tables.ts`. A brief names rows, never adjectives. Each row stays
 `unconfirmed` until a human has listened to 8 seconds of it; the listener's words then go into
@@ -104,6 +116,7 @@ Both are rows of numbers in `tables.ts`. A brief names rows, never adjectives. E
 | ambient | 50-80 | awe, calm, dread (highest ghost risk) | gentle |
 | chiptune | 120-160 | joy, playful, drive, tension | dense |
 | lofi | 70-90, swing 55-62 % | nostalgic, calm, wistful | dense |
+| lofiElectronic ([page](styles/lofi-electronic.md)) | 80-100, swing 52-56 % | calm, joy, hopeful, nostalgic | dense |
 | drive | 110-140 | drive, triumph, tension, awe | dense |
 
 Moods: joy, playful, tender, wistful, melancholy, hopeful, curious, tension, dread, awe, triumph,
@@ -149,7 +162,13 @@ sequence, theme transformation.
    node tools/music.mjs score <piece>
    node tools/music.mjs render <piece> out.wav --seconds 45 --fit
    ```
-6. **8 seconds to a human.** Include the most important mood change.
+6. **Balance the stems** (dense styles):
+   ```
+   node tools/music.mjs stems <piece>
+   ```
+   It prints each part's RMS against the piece's `stemTargets` and flags anything more than 3 dB off.
+   Fix the part's gain, then master. LUFS alone hid a sub 7-10 dB too hot on the launch score.
+7. **8 seconds to a human.** Include the most important mood change.
 
 **Peaks are a composing problem.** Octaves in both hands landing on one downbeat make a true peak
 that caps a gentle master. Fix it in the notes:
