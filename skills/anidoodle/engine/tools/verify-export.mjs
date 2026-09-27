@@ -5,19 +5,27 @@
 // colour to assert, and a one-shot film has no seam to hide.
 //
 //   node tools/verify-export.mjs <film> [--file out/x.mp4] [--adapter html-player]
-//     [--width W]               expected pixel width (default: the film's own; height follows the aspect)
+//     [--width W]               expected pixel width of a .gif/.webm/.apng made with render --width
+//                               (default: the film's own; height follows the aspect). Not for .mp4:
+//                               render always writes the MP4 at the film's size (x --scale), so
+//                               --width on an MP4 is refused rather than silently ignored
 //     [--first-frame #rrggbb]   the average colour the decoded first frame must have (tol: --tol N, default 8)
 //     [--loop]                  the last-to-first seam must read like any other step of the loop
-//     [--fidelity-psnr N]       decoded frame 0 must sit within N dB of the source frame (renders it once)
+//     [--fidelity-psnr N]       a decoded frame must sit within N dB of the source frame (renders it once)
+//     [--frame N]               which frame --fidelity-psnr compares (default 0)
+//     [--delivery]              this file ships: a near-blank frame 0 (the platform thumbnail) FAILS
+//                               instead of warning; fix with render --poster-frame N
 //
-// Always checked: the file decodes, its pixel size, its exact frame count, and its duration
-// against the film's meta. Everything else is asked for explicitly.
+// Always checked: the file decodes, its pixel size, its exact frame count, its duration against
+// the film's meta, and for an MP4 the score: an audio stream exactly when the film has a score,
+// as long as the picture, and not silent. Everything else is asked for explicitly.
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defaultOutput } from "./names.mjs";
+import { firstFrameBlank } from "./thumb.mjs";
 
-const VAL = new Set(["file", "adapter", "width", "first-frame", "tol", "fidelity-psnr", "scale"]);
+const VAL = new Set(["file", "adapter", "width", "first-frame", "tol", "fidelity-psnr", "scale", "frame"]);
 const pos = [], opt = {};
 for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) opt[a.slice(2)] = VAL.has(a.slice(2)) ? process.argv[++i] : true; else pos.push(a); }
 const film = pos[0] ?? "fixtures";
@@ -51,6 +59,10 @@ const N = meta.durationFrames, FW = Math.round(meta.W * SCALE), FH = Math.round(
 const file = resolve(opt.file ?? defaultOutput(film));
 console.log(`VERIFY-EXPORT   film "${meta.title}"   file ${file}`);
 if (!existsSync(file)) die(`${file} not found`);
+const isMp4 = /\.(mp4|m4v|mov)$/i.test(file);
+if (opt.width && isMp4) die(`--width does not apply to an MP4: render writes it at the film's own size (x --scale); use --scale to check a scaled render`);
+const FRAME = opt.frame === undefined ? 0 : Number(opt.frame);
+if (!Number.isInteger(FRAME) || FRAME < 0 || FRAME >= N) die(`--frame wants a frame number in [0, ${N - 1}], got '${opt.frame}'`);
 
 // ---------------------------------------------------------------- 1. the container
 head(1, "CONTAINER  the file is the film's size, length and duration");
@@ -64,8 +76,30 @@ const dur = Number(ffprobe(["-show_entries", "format=duration", "-of", "csv=p=0"
 const wantDur = N / meta.fps, slack = 1 / meta.fps + 0.05;
 say(Math.abs(dur - wantDur) <= slack, `duration ${dur.toFixed(3)} s`, `expected ${wantDur.toFixed(3)} s +/- ${slack.toFixed(3)} (container rounding)`);
 
+// ---------------------------------------------------------------- 1b. the score, in an MP4
+if (isMp4) {
+  head("1b", "SOUND  the score is in the file, as long as the picture, and audible");
+  const a = ffprobe(["-select_streams", "a", "-show_entries", "stream=codec_name,duration,sample_rate,channels", "-of", "csv=p=0", file]).split("\n").filter(Boolean);
+  const hasAudio = meta.hasAudio ?? Boolean(await s.audio?.(48000)); // older pages / other adapters: ask the score itself
+  if (!hasAudio) say(a.length === 0, "no audio stream (the film has no score)", a.length ? `found ${a.length}: ${a.join(" | ")}` : "");
+  else if (!a.length) say(false, "an audio stream (the film has a score)", "none found: was it a range render?");
+  else {
+    const [acodec, rate, ch, adur] = a[0].split(","), ad = Number(adur);
+    say(a.length === 1, `one audio stream (${acodec}, ${rate} Hz, ${ch} ch)`, a.length > 1 ? `found ${a.length}` : "");
+    say(Math.abs(ad - wantDur) <= slack + 0.05, `audio duration ${ad.toFixed(3)} s`, `picture is ${wantDur.toFixed(3)} s +/- ${(slack + 0.05).toFixed(3)} (AAC priming)`);
+    const vd = spawnSync("ffmpeg", ["-v", "info", "-i", file, "-map", "0:a:0", "-af", "volumedetect", "-f", "null", "-"], { encoding: "utf8" });
+    const mx = Number(((vd.stdout + vd.stderr).match(/max_volume:\s*(-?[0-9.]+|-inf) dB/) ?? [])[1]);
+    say(Number.isFinite(mx) && mx > -40 && mx <= 0, `audio peak ${Number.isFinite(mx) ? mx.toFixed(1) : "-inf"} dBFS`, "audible (> -40 dBFS) and not clipped past 0");
+  }
+}
+
 // ---------------------------------------------------------------- 2. the first frame's colour
 head(2, "FIRST FRAME  what the audience's first instant actually looks like");
+const thumb = firstFrameBlank(file);
+if (thumb.unknown) note("thumbnail check skipped", thumb.detail);
+else if (opt.delivery) say(!thumb.blank, "frame 0 (the platform thumbnail) is legible, not near-blank", thumb.detail + (thumb.blank ? "  -> render --poster-frame N" : ""));
+else if (thumb.blank) note("WARNING frame 0 is near-blank", `${thumb.detail}; platforms show frame 0 as the thumbnail: render --poster-frame N (pass --delivery to fail on this)`);
+else note("frame 0 is not blank", thumb.detail);
 const avg = spawnSync("ffmpeg", ["-v", "error", "-i", file, "-vf", "select=eq(n\\,0),scale=1:1", "-vsync", "0", "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], { maxBuffer: 1 << 16 });
 if (avg.status !== 0 || avg.stdout.length < 3) die(`ffmpeg could not average frame 0: ${avg.stderr.toString().trim()}`);
 const hex = `#${[...avg.stdout.subarray(0, 3)].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
@@ -80,13 +114,13 @@ if (opt["first-frame"]) {
 // ---------------------------------------------------------------- 3. fidelity to the source, if asked
 if (opt["fidelity-psnr"]) {
   head(3, "FIDELITY  the decoded frame is the frame the source drew");
-  const src = resolve(TMP, "source-0.png"), dec = resolve(TMP, "decoded-0.png");
-  writeFileSync(src, (await s.frame(0, 0)).png);
-  const r = spawnSync("ffmpeg", ["-v", "error", "-i", file, "-vf", "select=eq(n\\,0)", "-vsync", "0", "-frames:v", "1", "-y", dec], { encoding: "utf8" });
-  if (r.status !== 0) die(`ffmpeg could not lift frame 0: ${r.stderr.trim()}`);
+  const src = resolve(TMP, `source-${FRAME}.png`), dec = resolve(TMP, `decoded-${FRAME}.png`);
+  writeFileSync(src, (await s.frame(FRAME, 0)).png);
+  const r = spawnSync("ffmpeg", ["-v", "error", "-i", file, "-vf", `select=eq(n\\,${FRAME})`, "-vsync", "0", "-frames:v", "1", "-y", dec], { encoding: "utf8" });
+  if (r.status !== 0) die(`ffmpeg could not lift frame ${FRAME}: ${r.stderr.trim()}`);
   const ps = spawnSync("ffmpeg", ["-v", "error", "-i", dec, "-i", src, "-lavfi", "psnr=stats_file=-", "-f", "null", "-"], { encoding: "utf8" });
   const m = (ps.stdout + ps.stderr).match(/psnr_avg:([0-9.]+|inf)/), v = m ? (m[1] === "inf" ? Infinity : Number(m[1])) : NaN;
-  say(v >= +opt["fidelity-psnr"], `decoded frame 0 vs source frame 0: ${v === Infinity ? "inf" : v.toFixed(2)} dB`, `bar ${opt["fidelity-psnr"]} dB`);
+  say(v >= +opt["fidelity-psnr"], `decoded frame ${FRAME} vs source frame ${FRAME}: ${v === Infinity ? "inf" : v.toFixed(2)} dB`, `bar ${opt["fidelity-psnr"]} dB`);
 }
 
 // ---------------------------------------------------------------- 4. the seam, if it loops
