@@ -21,7 +21,9 @@ Code: `engine/src/canvas-core/music/sfxKit.ts` (the kit), `sfxMix.ts` (placement
   key ticks are twenty different ticks. `mixSfx` gives each cue its own seed from (kind, frame), so
   inserting a cue never changes the others.
 - **Tuned where it is tonal.** chime, riser, `press:confirm` and `impact:bloom` follow the film's
-  key (`plan.key`, e.g. `"C"`, `"Eb"`, `"Am"`). A sparkle in the wrong key sounds like a mistake.
+  key. A sparkle in the wrong key sounds like a mistake, so there is **no default key or tempo**.
+  Pass `plan.score: { piece, tempo? }` (key, bpm and bar come from the film's piece) or set
+  `plan.key` / `plan.bpm`. A tuned kind with no key, or a riser with no bpm, throws.
 
 ## The kit
 
@@ -55,7 +57,7 @@ the plan throws and names the earliest legal frame.
 ```ts
 import { filmSfx, launchLofi3, filmAudio, type SfxPlan } from "./music";
 const plan: SfxPlan = {
-  fps: 30, frames: 450, bpm: 90, beatZeroS: 0, key: "C", seed: 7,
+  fps: 30, frames: 450, score: { piece: launchLofi3() }, beatZeroS: 0, seed: 7,  // key, bpm, bar from the score
   cues: [
     { frame: 12, kind: "tick" },                                          // ...one per typed character
     { frame: 157, kind: "press", variant: "thock", snap: "beat", label: "Generate" },

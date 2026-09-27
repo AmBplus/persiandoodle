@@ -63,7 +63,7 @@ const baseline = (M) => {
 
 // The demo: 15 s of the launch score's first bars with the kit on top, the story of the film's opening.
 const FPS = 30, DEMO_FRAMES = 450;
-export const demoPlan = () => {
+export const demoPlan = (M) => {
   const cues = [];
   // typing "make a koi that swims" at a human cadence
   const text = "make a koi that swims"; let f = 12;
@@ -82,7 +82,7 @@ export const demoPlan = () => {
     { frame: 400, kind: "riser", variant: "soft", beats: 4, label: "the build" },
     { frame: 400, kind: "impact", variant: "bloom", snap: "bar", label: "the reveal" },
   );
-  return { fps: FPS, frames: DEMO_FRAMES, bpm: 90, beatZeroS: 0, beatsPerBar: 4, key: "C", seed: 7, cues };
+  return { fps: FPS, frames: DEMO_FRAMES, score: { piece: M.launchLofi3() }, beatZeroS: 0, seed: 7, cues }; // key, bpm, bar length come from the score
 };
 const demoMusic = (M) => { const r = M.renderPiece(M.launchLofi3(), SR); return [r.L.slice(0, Math.round((DEMO_FRAMES / FPS) * SR)), r.R.slice(0, Math.round((DEMO_FRAMES / FPS) * SR))]; };
 
@@ -111,7 +111,7 @@ const kit = async (outdir) => {
     rows.push([kind, info.use, vs]);
   }
   for (const [k, [L, R]] of Object.entries(baseline(M))) { writeAudio(join(dir, `baseline-${k}.mp3`), L, R); meters.baseline[k] = { peakDb: +dB(peakOf(L, R)).toFixed(1), centroidHz: Math.round(M.centroid([L, R], SR).energyWeighted), lengthS: +(L.length / SR).toFixed(2) }; }
-  const plan = demoPlan(), music = demoMusic(M), mix = M.mixSfx(music, plan, SR);
+  const plan = demoPlan(M), music = demoMusic(M), mix = M.mixSfx(music, plan, SR);
   writeAudio(join(dir, "demo.mp3"), mix.L, mix.R);
   writeAudio(join(dir, "demo-sfx-only.mp3"), mix.sfx[0], mix.sfx[1]);
   writeAudio(join(dir, "demo-music-only.mp3"), music[0], music[1]);
@@ -133,7 +133,7 @@ const test = async () => {
   const all = M.SFX_KINDS.flatMap((k) => M.sfxVariants(k).map((v) => [k, v]));
   ok(M.SFX_KINDS.length >= 14, `>= 14 kinds (got ${M.SFX_KINDS.length})`);
   for (const [k, v] of all) {
-    const a = M.renderSfx(k, { variant: v, seed: 11 }, SR), b = M.renderSfx(k, { variant: v, seed: 11 }, SR), c = M.renderSfx(k, { variant: v, seed: 12 }, SR), tag = `${k}:${v}`;
+    const a = M.renderSfx(k, { variant: v, seed: 11, key: "C", bpm: 90 }, SR), b = M.renderSfx(k, { variant: v, seed: 11, key: "C", bpm: 90 }, SR), c = M.renderSfx(k, { variant: v, seed: 12, key: "C", bpm: 90 }, SR), tag = `${k}:${v}`;
     ok(md5(a.L, a.R) === md5(b.L, b.R), `${tag} deterministic`);
     ok(md5(a.L, a.R) !== md5(c.L, c.R), `${tag} varies with seed`);
     let finite = true; for (let i = 0; i < a.L.length; i++) if (!Number.isFinite(a.L[i]) || !Number.isFinite(a.R[i])) { finite = false; break; }
@@ -158,10 +158,24 @@ const test = async () => {
   for (let i = 0; i < N; i++) re[i] = bell.L[i] + bell.R[i];
   M.fft(re, im); let best = 0, bk = 0; for (let k = 10; k < N / 2; k++) { const m = re[k] * re[k] + im[k] * im[k]; if (m > best) { best = m; bk = k; } }
   ok(Math.abs((bk * SR) / N - 880) < 3, `chime in A rings on 880 Hz (got ${((bk * SR) / N).toFixed(1)})`);
+  // no silent defaults: tuned / tempo-synced kinds need a key / bpm, from the plan or the film's score
+  throws(() => M.renderSfx("chime"), /tuned and needs a key.*no default key/, "chime without a key");
+  throws(() => M.renderSfx("press", { variant: "confirm" }), /needs a key/, "press:confirm without a key");
+  throws(() => M.renderSfx("impact", { variant: "bloom" }), /needs a key/, "impact:bloom without a key");
+  throws(() => M.renderSfx("riser", { key: "C" }), /needs a bpm.*no default tempo/, "riser without a bpm");
+  ok(M.renderSfx("press", {}).L.length > 0 && M.renderSfx("riser", { variant: "air", lengthS: 2 }).L.length > 0, "untuned kinds render without key/bpm");
+  throws(() => M.mixSfx(null, { fps: 30, frames: 300, cues: [{ frame: 10, kind: "chime" }] }, SR), /cue #0 \(chime.*is tuned: set plan.key/, "plan cue: chime without a key names the cue");
+  const noct = M.nocturne(), fromScore = M.placeSfx({ fps: 30, frames: 300, score: { piece: noct }, cues: [{ frame: 10, kind: "chime", variant: "bell" }, { frame: 200, kind: "riser", beats: 2 }] }, SR);
+  const rp = M.resolveSfxPlan({ fps: 30, frames: 300, score: { piece: noct }, cues: [] });
+  ok(rp.key === "Ab" && rp.bpm === noct.plan.tempo && rp.beatsPerBar === 3, `plan.score gives key/bpm/bar (got ${rp.key} ${rp.bpm} ${rp.beatsPerBar})`);
+  ok(Math.abs(fromScore[1].sound.hit / SR - 2 * 60 / noct.plan.tempo) < 0.002, "a riser in a scored plan takes the score's tempo");
+  { const b2 = fromScore[0].sound, N2 = 1 << 16, re2 = new Float64Array(N2), im2 = new Float64Array(N2); for (let i = 0; i < N2; i++) re2[i] = b2.L[i] + b2.R[i]; M.fft(re2, im2); let bb = 0, kk = 0; for (let k = 10; k < N2 / 2; k++) { const m = re2[k] * re2[k] + im2[k] * im2[k]; if (m > bb) { bb = m; kk = k; } }
+    ok(Math.abs((kk * SR) / N2 - 830.6) < 3, `a bell under the Ab nocturne rings on Ab5 (got ${((kk * SR) / N2).toFixed(1)})`); }
+  ok(M.resolveSfxPlan({ fps: 30, frames: 300, key: "D", score: { piece: noct }, cues: [] }).key === "D", "an explicit plan.key beats the score's");
   // tempo sync: a 4-beat riser at 120 bpm lasts 2 s and its hit is its end
-  const rz = M.renderSfx("riser", { beats: 4, bpm: 120, seed: 3 }, SR); ok(Math.abs(rz.hit / SR - 2) < 0.002, `riser 4 beats @120 = 2 s (got ${(rz.hit / SR).toFixed(3)})`);
+  const rz = M.renderSfx("riser", { beats: 4, bpm: 120, key: "G", seed: 3 }, SR); ok(Math.abs(rz.hit / SR - 2) < 0.002, `riser 4 beats @120 = 2 s (got ${(rz.hit / SR).toFixed(3)})`);
   // the demo: deterministic, clean, every cue audible
-  const plan = demoPlan(), music = demoMusic(M), m1 = M.mixSfx(music, plan, SR), m2 = M.mixSfx(music, plan, SR);
+  const plan = demoPlan(M), music = demoMusic(M), m1 = M.mixSfx(music, plan, SR), m2 = M.mixSfx(music, plan, SR);
   ok(md5(m1.L, m1.R) === md5(m2.L, m2.R), "demo mix deterministic");
   ok(m1.L.length === Math.round((DEMO_FRAMES / FPS) * SR), "demo mix is exactly the film length");
   ok(m1.dbtp <= -0.9, `demo true peak <= -1 dBTP (got ${m1.dbtp.toFixed(2)})`);
@@ -179,7 +193,7 @@ const test = async () => {
   throws(() => M.renderSfx("tick", { variant: "loud" }), /no variant "loud"/, "unknown variant");
   throws(() => M.mixSfx(null, { ...base, cues: [{ frame: 1, kind: "kazoo" }] }, SR), /unknown kind/, "unknown kind in a plan");
   throws(() => M.mixSfx(null, { ...base, cues: [{ frame: 2, kind: "whoosh" }] }, SR), /pre-roll starts before frame 0; move it to frame >= \d+/, "whoosh pre-roll before 0");
-  throws(() => M.mixSfx(null, { ...base, bpm: 90, cues: [{ frame: 30, kind: "riser", beats: 8 }] }, SR), /pre-roll/, "riser pre-roll before 0");
+  throws(() => M.mixSfx(null, { ...base, bpm: 90, key: "C", cues: [{ frame: 30, kind: "riser", beats: 8 }] }, SR), /pre-roll/, "riser pre-roll before 0");
   for (const s of [-1, 1.5, 2 ** 33, NaN, "7"]) throws(() => M.renderSfx("pop", { seed: s }), /seed must be an integer/, `bad seed ${String(s)}`);
   throws(() => M.mixSfx(null, { ...base, seed: -3, cues: [] }, SR), /seed must be an integer/, "bad plan seed");
   throws(() => M.mixSfx(null, { ...base, cues: [{ frame: 300, kind: "pop" }] }, SR), /frame must be 0\.\.299/, "cue after the film");
@@ -198,7 +212,7 @@ const test = async () => {
 
 const [cmd, ...args] = process.argv.slice(2);
 if (cmd === "list") { const M = await load(); for (const k of M.SFX_KINDS) { const i = M.sfxInfo(k); console.log(`${k.padEnd(8)} [${i.variants.join(", ")}]  level ${i.levelLufs} LUFS(win), duck ${i.duckDb} dB\n         ${i.use}`); } }
-else if (cmd === "one") { const M = await load(), out = args.pop(), [kind, variant, seed] = args; const s = M.renderSfx(kind, { variant, seed: seed ? Number(seed) : undefined }, SR); writeAudio(out, s.L, s.R); console.log(`${kind}:${s.variant} seed ${s.seed}: ${(s.L.length / SR).toFixed(2)} s, hit @ ${(s.hit / SR).toFixed(3)} s, ${s.lufs.toFixed(1)} LUFS(win)`); }
+else if (cmd === "one") { const M = await load(), out = args.pop(), [kind, variant, seed] = args; const s = M.renderSfx(kind, { variant, seed: seed ? Number(seed) : undefined, key: process.env.KEY, bpm: process.env.BPM ? Number(process.env.BPM) : undefined }, SR); writeAudio(out, s.L, s.R); console.log(`${kind}:${s.variant} seed ${s.seed}: ${(s.L.length / SR).toFixed(2)} s, hit @ ${(s.hit / SR).toFixed(3)} s, ${s.lufs.toFixed(1)} LUFS(win)`); }
 else if (cmd === "kit" && args[0]) await kit(args[0]);
 else if (cmd === "test") await test();
 else { console.log("usage: node tools/sfx.mjs list | one <kind> [variant] [seed] <out> | kit <outdir> | test"); process.exit(cmd ? 1 : 0); }

@@ -2,9 +2,11 @@
 // ducked under the cues that matter, one final master (a look-ahead true-peak ceiling), and an
 // audibility guarantee: every cue is measured against the ducked score at its own moment and the
 // mix FAILS if a cue sits more than minDb under it (a cue nobody hears is a bug, not a choice).
-import { renderSfx, validateSfx, SFX, SFX_KINDS, type SfxKind, type SfxOpts, type SfxSound } from "./sfxKit";
+import { renderSfx, validateSfx, sfxNeeds, SFX, SFX_KINDS, type SfxKind, type SfxOpts, type SfxSound } from "./sfxKit";
 import { kWeight, winLufs, mixSeed, strSeed, secs, type SfxStereo } from "./sfxCore";
 import { db } from "./dsp";
+import { MODES } from "./theory";
+import type { Piece } from "./plan";
 import { loudness, truePeak } from "./meter";
 
 export type SfxSnap = "none" | "bar" | "beat" | "8th" | "16th";
@@ -24,8 +26,10 @@ export type SfxPlan = {
   seed?: number;
   /** tempo grid: bpm, the time of beat 1 in seconds (beatZeroS), beats per bar. */
   bpm?: number; beatZeroS?: number; beatsPerBar?: number; snap?: SfxSnap;
-  /** key for the tuned kinds ("C", "Eb", "Am"). */
+  /** key for the tuned kinds ("C", "Eb", "Am"). No default: set it, or pass `score`. */
   key?: string;
+  /** the film's score: key (first section), bpm (tempo, or the fitted tempo) and beats per bar come from it unless set above. */
+  score?: { piece: Piece; tempo?: number };
   duck?: { attackS?: number; releaseS?: number; maxDb?: number };
   /** audibility floor in dB (cue loudness minus score loudness over the cue's window). Default -6. */
   minDb?: number;
@@ -39,7 +43,17 @@ export type SfxMix = { L: Float32Array; R: Float32Array; sfx: SfxStereo; music: 
 const GRID: Record<Exclude<SfxSnap, "none">, number> = { bar: 0, beat: 1, "8th": 0.5, "16th": 0.25 };
 const name = (c: SfxCue, i: number) => `cue #${i} (${c.kind}${c.variant ? ":" + c.variant : ""}${c.label ? ` "${c.label}"` : ""} @ frame ${c.frame})`;
 
-export const validateSfxPlan = (p: SfxPlan) => {
+/** A plan with key / bpm / beatsPerBar filled in from its score (explicit plan values win). */
+export const resolveSfxPlan = (p: SfxPlan): SfxPlan => {
+  if (!p.score) return p;
+  const pl = p.score.piece?.plan, sec = pl?.sections?.[0];
+  if (!pl || !sec) throw new Error("sfx plan: score.piece has no plan/sections to take the key and tempo from");
+  const minor = (MODES[sec.mode]?.intervals ?? []).includes(3);
+  return { ...p, key: p.key ?? `${sec.key}${minor ? "m" : ""}`, bpm: p.bpm ?? p.score.tempo ?? pl.tempo, beatsPerBar: p.beatsPerBar ?? Number(String(pl.meter).split("/")[0]) };
+};
+
+export const validateSfxPlan = (plan: SfxPlan) => {
+  const p = resolveSfxPlan(plan);
   if (!Number.isSafeInteger(p.fps) || p.fps <= 0) throw new Error(`sfx plan: fps must be a positive integer, got ${String(p.fps)}`);
   if (!Number.isSafeInteger(p.frames) || p.frames <= 0) throw new Error(`sfx plan: frames must be a positive integer, got ${String(p.frames)}`);
   if (p.seed !== undefined && (!Number.isSafeInteger(p.seed) || p.seed < 0 || p.seed > 0xffffffff)) throw new Error(`sfx plan: seed must be an integer 0..4294967295, got ${String(p.seed)}`);
@@ -55,13 +69,17 @@ export const validateSfxPlan = (p: SfxPlan) => {
     if ((snap !== "none" || c.beats !== undefined) && p.bpm === undefined && c.bpm === undefined) throw new Error(`sfx plan: ${name(c, i)}: snap/beats need a bpm (plan.bpm)`);
     if (c.duckDb !== undefined && (!Number.isFinite(c.duckDb) || c.duckDb < 0 || c.duckDb > 18)) throw new Error(`sfx plan: ${name(c, i)}: duckDb must be 0..18`);
     try { validateSfx(c.kind, optsOf(p, c, 0)); } catch (e) { throw new Error(`sfx plan: ${name(c, i)}: ${(e as Error).message}`); }
+    const o = optsOf(p, c, 0), need = sfxNeeds(c.kind, c.variant ?? SFX[c.kind].variants[0], o);
+    if (need.key && o.key === undefined) throw new Error(`sfx plan: ${name(c, i)} is tuned: set plan.key, cue.key, or plan.score (the film's piece); there is no default key`);
+    if (need.bpm && o.bpm === undefined) throw new Error(`sfx plan: ${name(c, i)} is tempo-synced: set plan.bpm, cue.bpm, or plan.score (the film's piece); there is no default tempo`);
   });
 };
 const optsOf = (p: SfxPlan, c: SfxCue, seed: number): SfxOpts => ({ seed: c.seed ?? seed, variant: c.variant, pitch: c.pitch, lengthS: c.lengthS, beats: c.beats, bpm: c.bpm ?? p.bpm, key: c.key ?? p.key, dir: c.dir, gainDb: c.gainDb });
 
 /** Render and place every cue. Throws if a cue's pre-roll (whoosh approach, riser build) would start before 0. */
-export const placeSfx = (p: SfxPlan, sr: number): PlacedCue[] => {
-  validateSfxPlan(p);
+export const placeSfx = (plan: SfxPlan, sr: number): PlacedCue[] => {
+  validateSfxPlan(plan);
+  const p = resolveSfxPlan(plan);
   const seen = new Map<string, number>(), filmS = p.frames / p.fps;
   return p.cues.map((cue, i) => {
     const k = `${cue.kind}@${cue.frame}`, occ = seen.get(k) ?? 0; seen.set(k, occ + 1);

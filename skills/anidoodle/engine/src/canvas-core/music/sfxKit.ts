@@ -27,12 +27,12 @@ export type SfxSound = { L: Float32Array; R: Float32Array; sr: number; kind: Sfx
   /** [a, b) samples where the sound speaks (used for ducking and the audibility check). */
   window: [number, number]; lufs: number };
 
-type Ctx = { sr: number; r: Rng; P: number; o: SfxOpts; dir: number; key: { pc: number; minor: boolean }; bpm: number;
+type Ctx = { sr: number; r: Rng; P: number; o: SfxOpts; dir: number; key: { pc: number; minor: boolean } | null; bpm: number;
   /** x jittered by +-amt (relative). */ j: (x: number, amt: number) => number };
 type Made = { bus: Bus; hit: number };
 type Def = { variants: readonly string[]; level: number; duckDb: number; use: string; make: (c: Ctx, v: string) => Made };
 
-const keyHz = (c: Ctx, octave: number, semis = 0) => 440 * Math.pow(2, (c.key.pc + semis + 12 * (octave + 1) - 69) / 12);
+const keyHz = (c: Ctx, octave: number, semis = 0) => 440 * Math.pow(2, (c.key!.pc + semis + 12 * (octave + 1) - 69) / 12);
 const PENTA = { major: [0, 2, 4, 7, 9], minor: [0, 3, 5, 7, 10] };
 /** Glockenspiel-bar partials: a bright tuned strike that sits above a lo-fi mix. */
 const glock = (f: number, tau: number, a: number, t0 = 0): Mode[] => [
@@ -327,7 +327,7 @@ const impact: Def = {
       // a breath in before it: a reversed swell that stops on the hit
       for (const side of [0, 1]) { const s = pink(r, pre); sweep(s, sr, (t) => 400 * Math.pow(8, t / 0.28), 1, "lp"); shape(s, sr, (t) => Math.pow(t / 0.28, 3)); b.add(s, 0, 0.8, side ? 0.4 : -0.4); }
       // and a tuned shimmer on the key: root, 3rd, 5th, 9th in the upper octaves, spread across the field
-      const third = c.key.minor ? 3 : 4;
+      const third = c.key!.minor ? 3 : 4;
       [[keyHz(c, 5), -0.6], [keyHz(c, 5, third), 0.6], [keyHz(c, 5, 7), -0.3], [keyHz(c, 6, 2), 0.3], [keyHz(c, 6), 0]].forEach(([f, p], k) => {
         const ms = glock(f * c.P, 1.5, 1, 0.02 + k * 0.012).map((m) => ({ ...m, att: 0.03 }));
         b.add(modal(sr, n, ms), pre, 0.09, p);
@@ -342,7 +342,7 @@ const chime: Def = {
   variants: ["sparkle", "bell", "glint"], level: -17, duckDb: 1.5,
   use: "magic / success, tuned to the film's key: a rising pentatonic sparkle (sparkle), one bell (bell), a tiny glint on a highlight (glint)",
   make(c, v) {
-    const { sr, r } = c, n = secs(sr, v === "bell" ? 6 : v === "glint" ? 2 : 4), b = new Bus(sr, n), scale = PENTA[c.key.minor ? "minor" : "major"];
+    const { sr, r } = c, n = secs(sr, v === "bell" ? 6 : v === "glint" ? 2 : 4), b = new Bus(sr, n), scale = PENTA[c.key!.minor ? "minor" : "major"];
     if (v === "bell") {
       b.add(modal(sr, n, glock(keyHz(c, 5) * c.P, 1.4, 1)), 0, 1, -0.1);
       b.add(modal(sr, n, glock(keyHz(c, 6, 7) * c.P, 0.9, 1, 0.004)), 0, 0.3, 0.3);
@@ -483,6 +483,14 @@ export const validateSfx = (kind: string, o: SfxOpts = {}) => {
 };
 
 /**
+ * What a sound needs from the film: a key (tuned kinds) and a bpm (tempo-synced kinds). Never
+ * defaulted: an effect tuned to a key the score isn't in, or pulsing at a tempo it isn't at, is wrong.
+ */
+export const sfxNeeds = (kind: SfxKind, variant: string, o: SfxOpts = {}) => ({
+  key: kind === "chime" || (kind === "riser" && variant !== "air") || (kind === "press" && variant === "confirm") || (kind === "impact" && variant === "bloom"),
+  bpm: kind === "riser" && !(variant === "air" && o.lengthS !== undefined),
+});
+/**
  * Render one sound. Pure in (kind, opts, sr). The level is calibrated: the kind's target loudness
  * over its speaking window, +-1 dB of per-seed variation, + opts.gainDb; sample peak capped at -1 dBFS.
  */
@@ -490,7 +498,10 @@ export const renderSfx = (kind: SfxKind, o: SfxOpts = {}, sr = 48000): SfxSound 
   validateSfx(kind, o);
   if (!Number.isSafeInteger(sr) || sr < 22050 || sr > 192000) throw new Error(`sfx: sample rate must be an integer 22050..192000, got ${sr}`);
   const d = SFX[kind], variant = o.variant ?? d.variants[0], seed = o.seed ?? 1, r = mkRng((seed ^ 0x5f3759df) >>> 0);
-  const c: Ctx = { sr, r, P: Math.pow(2, (o.pitch ?? 0) / 12), o, dir: o.dir ?? 1, key: parseKey(o.key ?? "C"), bpm: o.bpm ?? 90, j: (x, amt) => x * (1 + (r() * 2 - 1) * amt) };
+  const need = sfxNeeds(kind, variant, o);
+  if (need.key && o.key === undefined) throw new Error(`sfx: ${kind}:${variant} is tuned and needs a key (opts.key, or in a plan: plan.key or plan.score = the film's piece); there is no default key`);
+  if (need.bpm && o.bpm === undefined) throw new Error(`sfx: ${kind}:${variant} is tempo-synced and needs a bpm (opts.bpm, or in a plan: plan.bpm or plan.score); there is no default tempo`);
+  const c: Ctx = { sr, r, P: Math.pow(2, (o.pitch ?? 0) / 12), o, dir: o.dir ?? 1, key: o.key === undefined ? null : parseKey(o.key), bpm: o.bpm ?? NaN, j: (x, amt) => x * (1 + (r() * 2 - 1) * amt) };
   const made = d.make(c, variant), [L, R] = finish(made.bus, made.hit);
   const kL = kWeight(L, sr), kR = kWeight(R, sr), window = speakingWindow(kL, kR, sr), now = winLufs(kL, kR, window[0], window[1]);
   let g = d.level + (r() * 2 - 1) + (o.gainDb ?? 0) - now;
