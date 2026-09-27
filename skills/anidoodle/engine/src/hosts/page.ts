@@ -22,9 +22,31 @@ export const mountFilm = (film: Film) => {
   const seek = (frame: number) => { const t0 = performance.now(); const shot = renderFrame(film, ctx, frame, env); ctx.getImageData(0, 0, 1, 1); current = frame; return { shot, ms: performance.now() - t0 }; }; // getImageData forces the deferred raster so the timing is real
   const hash = () => { const d = ctx.getImageData(0, 0, canvas.width, canvas.height).data; let h = 0x811c9dc5; for (let i = 0; i < d.length; i++) { h ^= d[i]; h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16); };
   const b64 = (u8: Uint8Array) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
+  // MOTION BLUR. One output frame as the average of subframes spread over a one-frame shutter
+  // centred on it, confined to its own shot so nothing bleeds across a cut. The average is taken
+  // in LINEAR light: blur is light integration, and averaging in sRGB darkens every moving edge.
+  // hosts may keep time; the core never does.
+  const toLin = new Float32Array(256);
+  for (let i = 0; i < 256; i++) { const s = i / 255; toLin[i] = s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); }
+  const fromLin = (l: number) => { const v = l <= 0.0031308 ? l * 12.92 : 1.055 * Math.pow(l, 1 / 2.4) - 0.055; return Math.max(0, Math.min(255, Math.round(v * 255))); };
+  const blur = (frame: number, samples: number) => {
+    const n = Math.max(0, Math.min(film.meta.durationFrames - 1, Math.round(frame))), shot = film.shots.find((s) => n >= s.start && n < s.end);
+    if (!shot || samples < 2) return { shot: shot?.id ?? null, ms: 0 };
+    const t0 = performance.now(), w = canvas.width, h = canvas.height, acc = new Float64Array(w * h * 4);
+    for (let i = 0; i < samples; i++) {
+      const t = Math.min(shot.end - 1, Math.max(shot.start, n + (i + 0.5) / samples - 0.5));
+      renderFrame(film, ctx, t, env);
+      const d = ctx.getImageData(0, 0, w, h).data;
+      for (let p = 0; p < d.length; p += 4) { acc[p] += toLin[d[p]]; acc[p + 1] += toLin[d[p + 1]]; acc[p + 2] += toLin[d[p + 2]]; acc[p + 3] += d[p + 3]; }
+    }
+    const img = ctx.createImageData(w, h), o = img.data, inv = 1 / samples;
+    for (let p = 0; p < o.length; p += 4) { o[p] = fromLin(acc[p] * inv); o[p + 1] = fromLin(acc[p + 1] * inv); o[p + 2] = fromLin(acc[p + 2] * inv); o[p + 3] = Math.round(acc[p + 3] * inv); }
+    ctx.putImageData(img, 0, 0); current = n;
+    return { shot: shot.id, ms: performance.now() - t0 };
+  };
   const audio = (sr: number) => { if (!film.audio) return null; const [L, R] = film.audio(sr); if (L.length !== R.length) throw new Error("audio channels have different lengths"); const pcm = new Float32Array(L.length * 2); for (let i = 0; i < L.length; i++) { pcm[i * 2] = L[i]; pcm[i * 2 + 1] = R[i]; } return { sampleRate: sr, frames: L.length, float32: b64(new Uint8Array(pcm.buffer)) }; };
   const warm = () => film.shots.forEach((s) => { seek(s.start); seek(s.start + ((s.end - s.start) >> 1)); }); // first + middle frame of every shot: builds tiles, pre-allocates the layer pool
-  window.FILM = { meta: { ...film.meta, shots: film.shots.map(({ id, start, end }) => ({ id, start, end })) }, ready, mount, seek, hash, audio, warm, png: () => canvas.toDataURL("image/png").slice(22), frame: () => current };
+  window.FILM = { meta: { ...film.meta, shots: film.shots.map(({ id, start, end }) => ({ id, start, end })) }, ready, mount, seek, hash, audio, warm, blur, png: () => canvas.toDataURL("image/png").slice(22), frame: () => current };
 
   // ---- the player: click or space to play, arrows to step, ?frame=N to open on a frame
   ready.then(() => {

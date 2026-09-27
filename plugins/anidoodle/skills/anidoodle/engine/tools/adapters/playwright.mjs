@@ -16,6 +16,8 @@ export const open = async ({ pw, browser: found }, pagePath, { scale = 1, worker
     // -> { png: Buffer, shot, drawMs, captureMs }
     frame: async (n, w = n) => { const t0 = Date.now(); const r = await pick(w).evaluate((f) => { const s = window.FILM.seek(f); const t = performance.now(); const png = window.FILM.png(); return { ...s, png, enc: performance.now() - t }; }, n); return { png: Buffer.from(r.png, "base64"), shot: r.shot, drawMs: r.ms, encodeMs: r.enc, roundTripMs: Date.now() - t0 }; },
     hash: (n, w = 0) => pick(w).evaluate((f) => { window.FILM.seek(f); return window.FILM.hash(); }, n),
+    // motion-blurred frame: `samples` subframes averaged in the page (see hosts/page.ts blur)
+    blur: async (n, samples, w = n) => { const t0 = Date.now(); const r = await pick(w).evaluate(([f, s]) => { const r = window.FILM.blur(f, s); const t = performance.now(); const png = window.FILM.png(); return { ...r, png, enc: performance.now() - t }; }, [n, samples]); return { png: Buffer.from(r.png, "base64"), shot: r.shot, drawMs: r.ms, encodeMs: r.enc, roundTripMs: Date.now() - t0 }; },
     audio: (sr) => pages[0].evaluate((s) => window.FILM.audio(s), sr),
     close: () => browser.close(),
   };

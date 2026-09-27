@@ -138,7 +138,7 @@ export class Gfx {
   // `drawn`: union of every device box composited onto `main` since construction. Read-only for the
   // art; the web profile (bake.ts) crops a part into a sprite by it. Setting it changes no pixel.
   drawn: Rect | null = null;
-  cur: Ctx; private pool: Tracked[] = []; private stack: [number, number, number][] = [[0, 0, 1]]; private box: Rect | null = null;
+  cur: Ctx; private pool: Tracked[] = []; private stack: [number, number, number, number][] = [[0, 0, 1, 0]]; private box: Rect | null = null;
   constructor(public main: Ctx, public env: Env, public frame: number, public medium: Medium) {
     this.cur = main; this.base(main);
     // surfaces outlive the frame: allocating six full-size canvases per frame is pure churn
@@ -147,17 +147,17 @@ export class Gfx {
   private get m() { return this.stack[this.stack.length - 1]; }
   private get DW() { return Math.round(this.env.W * this.env.scale); }
   private get DH() { return Math.round(this.env.H * this.env.scale); }
-  private base(c: Ctx) { const [x, y, s] = this.m, k = this.env.scale; c.setTransform(k * s, 0, 0, k * s, k * x, k * y); }
+  private base(c: Ctx) { const [x, y, s, r] = this.m, k = this.env.scale; if (r === 0) { c.setTransform(k * s, 0, 0, k * s, k * x, k * y); return; } const co = Math.cos(r), si = Math.sin(r); c.setTransform(k * s * co, k * s * si, -k * s * si, k * s * co, k * x, k * y); }
   private dev(c: Ctx) { c.setTransform(1, 0, 0, 1, 0, 0); }
   private clip(r: Rect, pad = 0): Rect { return [Math.max(0, Math.floor(r[0] - pad)), Math.max(0, Math.floor(r[1] - pad)), Math.min(this.DW, Math.ceil(r[2] + pad)), Math.min(this.DH, Math.ceil(r[3] + pad))]; }
   private join(a: Rect | null, b: Rect): Rect { return a ? [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])] : b; }
   // local points -> device box, with `pad` local units of slack (line weight, displacement, blur)
-  private boxOf(pts: P[], pad: number): Rect { const [tx, ty, s] = this.m, k = this.env.scale; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; } return this.clip([k * (tx + (x0 - pad) * s), k * (ty + (y0 - pad) * s), k * (tx + (x1 + pad) * s), k * (ty + (y1 + pad) * s)]); }
+  private boxOf(pts: P[], pad: number): Rect { const [tx, ty, s, r] = this.m, k = this.env.scale; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; } x0 -= pad; y0 -= pad; x1 += pad; y1 += pad; if (r === 0) return this.clip([k * (tx + x0 * s), k * (ty + y0 * s), k * (tx + x1 * s), k * (ty + y1 * s)]); const co = Math.cos(r), si = Math.sin(r), cs = [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]; let a0 = 1e9, b0 = 1e9, a1 = -1e9, b1 = -1e9; for (const [x, y] of cs) { const ax = k * (tx + s * (co * x - si * y)), by = k * (ty + s * (si * x + co * y)); if (ax < a0) a0 = ax; if (by < b0) b0 = by; if (ax > a1) a1 = ax; if (by > b1) b1 = by; } return this.clip([a0, b0, a1, b1]); }
   mark(pts: P[], pad = 4) { this.box = this.join(this.box, this.boxOf(pts, pad)); }
   touch(x0: number, y0: number, x1: number, y1: number) { this.mark([[x0, y0], [x1, y1]], 0); } // for raw ctx drawing inside a group
   layer(): Tracked { let L = this.pool.pop(); if (!L) { L = this.env.canvas(this.DW, this.DH) as Tracked; L.dirty = null; } this.dev(L.ctx); L.ctx.globalCompositeOperation = "source-over"; L.ctx.globalAlpha = 1; if (L.dirty) { const d = L.dirty; L.ctx.clearRect(d[0], d[1], d[2] - d[0], d[3] - d[1]); L.dirty = null; } return L; }
   release(L: Tracked, dirty: Rect | null) { L.dirty = dirty ? this.join(L.dirty ?? null, dirty) : L.dirty; this.pool.push(L); }
-  push(x: number, y: number, s: number) { const [px, py, ps] = this.m; this.stack.push([px + x * ps, py + y * ps, ps * s]); this.base(this.cur); }
+  push(x: number, y: number, s: number, r = 0) { const [px, py, ps, pr] = this.m; if (pr === 0) { this.stack.push([px + x * ps, py + y * ps, ps * s, r]); this.base(this.cur); return; } const co = Math.cos(pr), si = Math.sin(pr); this.stack.push([px + ps * (co * x - si * y), py + ps * (si * x + co * y), ps * s, pr + r]); this.base(this.cur); }
   pop() { this.stack.pop(); this.base(this.cur); }
 
   path(c: Ctx, pts: P[]) { c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath(); }
