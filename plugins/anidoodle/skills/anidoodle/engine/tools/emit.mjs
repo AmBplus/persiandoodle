@@ -50,7 +50,7 @@ console.log(`       ${out}  (${(ship.bytes / 1024).toFixed(0)} KB, self-containe
 // ---------------------------------------------------------------- 1. static
 head(1, "SHIP-WORTHY  the file reaches outside itself for nothing");
 const html = readFileSync(out, "utf8");
-pageChecks(html).forEach((c) => say(c.ok, c.label, c.detail));
+pageChecks(html, ship.assets).forEach((c) => say(c.ok, c.label, c.detail));
 say(statSync(out).size === ship.bytes, "the file on disk is the file that was built", `${statSync(out).size} bytes`);
 
 // ---------------------------------------------------------------- 2 & 3. run it

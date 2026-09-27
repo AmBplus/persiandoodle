@@ -8,7 +8,8 @@
     "still": "node tools/still.mjs",
     "gate": "node tools/gate.mjs",
     "emit": "node tools/emit.mjs",
-    "render": "node tools/render.mjs"
+    "render": "node tools/render.mjs",
+    "test": "node tools/test.mjs"
   },
   "dependencies": {
     "esbuild": "^0.25.0"

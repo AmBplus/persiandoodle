@@ -29,8 +29,9 @@ export const loadRegistry = () => {
 
   const byId = new Map(), shadowed = [];
   for (const s of legacy) byId.set(s.id, s);
-  // A house style (a hand matched from someone's image) or a recreation/study USES a hand; it is not a new one.
-  scanned.splice(0, scanned.length, ...scanned.filter((s) => !s.house && !s.recreationOf && !s.study));
+  // A house style (a hand matched from someone's image), a recreation/study, or a scene drawn in an
+  // existing hand (`sceneOf: "<hand id>"`) USES a hand; it is not a new one.
+  scanned.splice(0, scanned.length, ...scanned.filter((s) => !s.house && !s.recreationOf && !s.study && !s.sceneOf));
   // "<plate>Draw" is the drawing film of an existing hand, not a new hand: fold it into its parent.
   const drawOf = (s) => (s.id.endsWith("Draw") && byId.has(s.id.slice(0, -4)) ? s.id.slice(0, -4) : null);
   for (const s of scanned.filter(drawOf)) byId.set(drawOf(s), { ...byId.get(drawOf(s)), drawFilm: s.id });

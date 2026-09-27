@@ -13,6 +13,11 @@ export type Env = {
   canvas(w: number, h: number): Layer; // the ONLY way the core obtains an offscreen surface
   image?(name: string): CanvasImageSource | undefined; // assets are decoded by the ADAPTER before frame 0
   cache: Map<string, unknown>;
+  // OPTIONAL, host-provided: a store of finished plate frames that outlives the page (the adapters
+  // keep it on disk, keyed by a hash of the plate's source, so it can never hand back stale art).
+  // get() returns the exact pixels renderFrame would draw for (film, frame) at w x h, or nothing;
+  // put() offers a freshly drawn one. A core that never calls it draws exactly the same frames.
+  bake?: { get(film: object, frame: number, w: number, h: number): CanvasImageSource | undefined; put(film: object, frame: number, layer: Layer): void };
 };
 
 // ---------------------------------------------------------------- deterministic randomness

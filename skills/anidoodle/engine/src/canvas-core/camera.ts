@@ -11,7 +11,7 @@
 //   accelerate gently and arrive gently; linear reads as mechanical, ease-out alone reads as
 //   interrupted. The ease lives on the key the segment LEAVES.
 // - PARALLAX IS ONE NUMBER. The camera sits at distance D = 1/zoom from the hero plane (z = 0);
-//   a plane at depth z scales by zoom/(1 + z*zoom) and moves with it. Near planes swing wide, far
+//   a plane at depth z scales by 1/(D + z) and moves with it. Near planes swing wide, far
 //   ones barely stir, and every element at a depth agrees with every other, because there is only
 //   one camera. Positive z recedes; a negative z crosses the lens (grass across the glass).
 // - A CLOSE SHOT MUST NOT FATTEN THE LINE. Ink is authored at some view; at zoom S the same nib
@@ -80,6 +80,7 @@ export class Camera {
   private keys: CamKey[];
   private path?: (f: number) => Cam;
   private monoZoom: boolean;
+  private zoomPath?: (f: number) => number; // the monotone zoom path, built once from the keys (they never change)
   // centre: the frame's centre in logical px (usually [W/2, H/2]); every projection goes through it
   constructor(readonly centre: P, keys: CamKey[] = [], opts: { monoZoom?: boolean; path?: (f: number) => Cam } = {}) {
     this.keys = [...keys]; // authored order, strictly increasing: a camera path is a cue table
@@ -100,7 +101,7 @@ export class Camera {
   private channel(f: number, get: (k: CamKey) => number | undefined, log2: boolean): number {
     const ks = this.keys.map((k, i) => ({ k, v: get(k), i })).filter((e) => e.v !== undefined) as { k: CamKey; v: number; i: number }[];
     if (!ks.length) throw new Error("camera keys never set this channel");
-    if (log2 && this.monoZoom && ks.length > 1) return monoPath(ks.map((e) => [e.k.f, e.v] as const), { log2: true })(f);
+    if (log2 && this.monoZoom && ks.length > 1) return (this.zoomPath ??= monoPath(ks.map((e) => [e.k.f, e.v] as const), { log2: true }))(f);
     if (f <= ks[0].k.f) return ks[0].v;
     if (f >= ks[ks.length - 1].k.f) return ks[ks.length - 1].v;
     let i = 0; while (f >= ks[i + 1].k.f) i++;

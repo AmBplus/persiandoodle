@@ -18,6 +18,7 @@ import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 import { buildPage } from "./build-page.mjs";
 import { detect } from "./detect.mjs";
+import { overlay } from "./overlay.mjs";
 
 const VAL = new Set(["out", "ref", "ref-crop", "workers"]);
 const pos = [], opt = {};
@@ -28,7 +29,7 @@ const outDir = resolve(opt.out ?? `out/${name}`); mkdirSync(outDir, { recursive:
 const log = []; const say = (s = "") => { console.log(s); log.push(s); };
 
 // ---------------------------------------------------------------- 1. the score, in node
-const probe = (await build({ stdin: { contents: `export { LESSON, ${name} as film } from "./src/canvas-core/${name}"; export { validate, PHASE_NAME } from "./src/canvas-core/drawingScore";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral" })).outputFiles[0].text;
+const probe = (await build({ stdin: { contents: `export { LESSON, ${name} as film } from "./src/canvas-core/${name}"; export { validate, PHASE_NAME } from "./src/canvas-core/drawingScore";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins: [overlay] })).outputFiles[0].text;
 const M = await import("data:text/javascript;base64," + Buffer.from(probe).toString("base64"));
 const S = M.LESSON.score(), V = M.validate(S), plan = M.film.plan(), fps = M.film.meta.fps, N = M.film.meta.durationFrames;
 say(`LESSON ${S.title}  (${S.medium})`);
