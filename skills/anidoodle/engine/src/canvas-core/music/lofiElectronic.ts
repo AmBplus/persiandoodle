@@ -117,8 +117,8 @@ export const refitLofi = (spec: LofiSpec, seconds: number): LofiSpec => {
   if (si < 0 || want <= 0) return spec;
   const from = lofiLayout(secs)[si].from, b0 = secs[si].bars;
   let best: { spec: LofiSpec; cost: number } | null = null;
-  for (let k = -Math.floor((b0 - 1) / len); k <= 64; k++) {
-    const bars = b0 + k * len; if (bars < 1) continue;
+  for (let k = -Math.floor(b0 / len); k <= 64; k++) {
+    const bars = b0 + k * len; // 0 = the section drops out for a short film
     const land = typeof spec.land === "number" && spec.land >= from + b0 ? spec.land + k * len : spec.land;
     const s2: LofiSpec = { ...spec, land, sections: secs.map((s, i) => (i === si ? { ...s, bars } : s)) };
     const p = lofiElectronic({ ...s2 }), t = perform(p, spec.bpm, { expressive: true }).lastOnset, tempo = spec.bpm * (t / want);
