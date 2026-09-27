@@ -2,6 +2,10 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle:コードで描いたいたずら描きが並ぶ画家の机。名前そのものが書道のように、自ら書きあがっていく。">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>ローンチフィルム、77秒。すべてのフレームとすべての音は anidoodle でコードから作られています。</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>手描きのアートを、コードで書く。</strong></p>

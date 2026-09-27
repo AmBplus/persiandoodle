@@ -2,6 +2,10 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle: la mesa de un artista llena de garabatos dibujados en código, mientras el nombre se escribe solo en caligrafía">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>La película de lanzamiento, 77 segundos. Cada fotograma y cada sonido se hizo con anidoodle, en código.</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>Arte dibujado a mano, escrito en código.</strong></p>
