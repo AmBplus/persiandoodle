@@ -79,3 +79,10 @@ header before any code:
   vermilion; no black anywhere (the darkest note is the contour).
 - **NOT**: `paintedOil` models form in depth; this hand keeps the ground flat and decorative with
   one step of shadow. The subject is the film's own koi, never the painting's branch.
+
+The reference itself ships at `engine/assets/refs/vangogh-almond-blossom.jpg`, the one image in
+the repo not drawn by code: public domain (Van Gogh died in 1890; a faithful photograph of a 2D
+public-domain work), downloaded from Wikimedia Commons and kept byte-identical, with its source,
+licence and sha256 in `engine/assets/refs/PROVENANCE.json`. The launch films show it only as the
+picture the user attaches in the chat; `adaptAlmond.ts` never reads it. Any reference you ship
+this way gets the same record, and only a work that is actually public domain qualifies.

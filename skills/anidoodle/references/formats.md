@@ -16,6 +16,8 @@ node <skill>/engine/tools/scaffold.mjs ~/art --film intro      # something that 
   post, 2550x3300 letter at 300 dpi.
 - **`node tools/still.mjs hero --out out/hero.png`** draws it twice and prints `reproducible`
   when both hashes agree. That line is the receipt that the same file will come back tomorrow.
+  Several frames of a moving piece in one browser: `--frames 0,450,900` (or `0-900:150`), with
+  `--sheet out/sheet.jpg` for a contact sheet at 0.4 scale (`working-method.md`).
 - **Transparent background**: skip the paper fill and the page stays clear, so a spot
   illustration or an icon drops onto any website colour. Leave `g.paper()` off as well: over
   clear pixels it lays its grain down as a grey veil. Carry the tooth in the marks instead
@@ -60,10 +62,27 @@ the craft table, then show it.
 | APNG | `node tools/render.mjs <name> --out out/x.apng [--width 512]` | alpha loops that play in every browser |
 | HTML | `node tools/emit.mjs <name> --out out/x.html` | the piece itself: one offline file that redraws it, with sound, on a double-click |
 
+Render options that hold for every moving format:
+
+- `--poster-frame N [--poster-fade 6]`: platforms show frame 0 as the thumbnail. The file opens
+  on frame N (the wall of styles, the logo, the prompt written big) and dissolves into the real
+  opening by frame 6. The frame count and the score are unchanged. A delivery whose frame 0 is
+  near-blank gets a warning after the encode.
+- `--blur N`: motion blur, each output frame the average of N subframes over a one-frame shutter,
+  in linear light and weighted by alpha (so a transparent WebM or APNG gets no dark fringe). Held
+  frames come out unchanged; stepped art (`meta.step` > 1, `onTwos`) is never blurred.
+- `--from F --to T`: frames `[F, T)` only, silent, written to `out/<name>.<F>-<T>.<ext>`, never
+  over the finished film. For checking a passage, not for shipping.
+- `--hashes out/x.md5`: the md5 of every frame handed to the encoder, for frame-exact
+  comparisons of two renders before any codec blurs the difference.
+
 After any encode, `node tools/verify-export.mjs <name> [--first-frame #hex] [--fidelity-psnr 40]`
-proves the file on disk is the film: size, exact frame count, duration, and optionally the first
-frame's average colour and its fidelity to the source frame. All of it is opt-in beyond the
-container facts, so transparent and non-uniform pieces pass cleanly.
+proves the file on disk is the film: size, exact frame count, duration, the score (an audio
+stream exactly when the film has one, as long as the picture, not silent), and optionally the
+first frame's average colour and its fidelity to the source frame (`--frame N` picks which
+frame `--fidelity-psnr` compares; default 0). All of it is opt-in beyond the container facts,
+so transparent and non-uniform pieces pass cleanly. For a file that ships, add `--delivery`: a
+near-blank frame 0 then FAILS instead of warning; the fix is `render --poster-frame N`.
 
 A still needs a browser only (`npx playwright-core install chromium`). Anything that moves also needs
 `ffmpeg`. `gate.mjs` runs on all of them and marks the checks that do not apply to the piece,

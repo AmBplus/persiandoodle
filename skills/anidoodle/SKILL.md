@@ -117,12 +117,13 @@ node tools/emit.mjs intro --out out/intro.html                     # one self-co
 | Tool | What it does |
 |---|---|
 | `scaffold.mjs` | a project with a still and/or film; `--duration`, `--format` or `--size`, `--fps`, `--bpm` |
-| `still.mjs` / `render.mjs` | one frame, drawn twice with its hash / the whole piece in any format, then a determinism probe |
+| `still.mjs` / `render.mjs` | frames drawn twice with hashes (`--frames a,b,c --sheet` in one browser) / the piece in any format (`--from/--to`, `--poster-frame`, `--hashes`) |
 | `gate.mjs` | determinism, contract, dead air, artifact; `--self-test` proves it can fail |
 | `registry.mjs` / `gallery.mjs` | the style list from the plates themselves / the gallery sheet |
 | `docs-check.mjs` | fails when any doc's style count, length or path disagrees with the code |
-| `verify-export.mjs` | opt-in QA on the rendered file: frame count, duration, first-frame colour, loop seam |
-| `music.mjs` | renders and meters a score (loudness, range, onsets, brightness) |
+| `verify-export.mjs` | QA on the rendered file: frames, duration, score; opt-in first frame, loop seam, `--delivery` |
+| `test.mjs` (`npm test`) | unit suites in `engine/test/`, no browser |
+| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score; `render`, `meter` |
 | `sfx.mjs` | the sound-effects kit: `list`, `one`, `kit <dir>`, `test` |
 
 Four backends, one art core: `playwright`, `html-player`, `remotion`, `hyperframes`.
