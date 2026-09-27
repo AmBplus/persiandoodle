@@ -12,6 +12,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildPage } from "../build-page.mjs";
 import { detect } from "../detect.mjs";
+import { loadBakes, saveBakes } from "../bake-cache.mjs";
 
 export const name = "html-player";
 export const describe = () => "a single self-contained HTML file that plays the film in any browser, offline";
@@ -24,23 +25,26 @@ export const probe = () => {
 };
 
 // what makes a self-contained page worth shipping: nothing in it may reach outside itself
-export const pageChecks = (html) => {
-  const has = (re) => { const m = html.match(re); return m ? m.length : 0; };
-  const assets = html.match(/window\.__ASSETS__=([^;]*);/);
+// A film may declare assets (a photo the user brought): build-page inlines exactly those into the
+// manifest, and that is the ONLY place a binary may sit. `declared` = the film's asset names.
+export const pageChecks = (html, declared = []) => {
+  const assets = html.match(/window\.__ASSETS__=(\{.*?\});(?=window\.|<\/script>)/), rest = assets ? html.replace(assets[0], "") : html;
+  const has = (re) => { const m = rest.match(re); return m ? m.length : 0; };
+  let names = null; try { names = assets ? Object.keys(JSON.parse(assets[1])) : null; } catch { names = null; }
   return [
     { ok: has(/https?:\/\//g) === 0, label: "no http(s) reference of any kind", detail: `${has(/https?:\/\//g)} found` },
     { ok: has(/<(img|audio|video|source|link|iframe)\b/gi) === 0, label: "no external element (img, audio, video, link)", detail: `${has(/<(img|audio|video|source|link|iframe)\b/gi)} found` },
     { ok: has(/@font-face/gi) === 0, label: "no web font", detail: `${has(/@font-face/gi)} found` },
-    { ok: has(/data:[a-z]+\/[a-z0-9.+-]+;base64/gi) === 0, label: "no embedded binary asset", detail: `${has(/data:[a-z]+\/[a-z0-9.+-]+;base64/gi)} found` },
+    { ok: has(/data:[a-z]+\/[a-z0-9.+-]+;base64/gi) === 0, label: "no embedded binary outside the asset manifest", detail: `${has(/data:[a-z]+\/[a-z0-9.+-]+;base64/gi)} found` },
     { ok: has(/fetch\(|XMLHttpRequest|importScripts/g) === 0, label: "no network call in the bundle", detail: `${has(/fetch\(|XMLHttpRequest|importScripts/g)} found` },
-    { ok: assets ? assets[1].trim() === "{}" : false, label: "the asset manifest is empty", detail: assets ? assets[1].trim() : "manifest absent" },
+    { ok: !!names && names.length === declared.length && declared.every((n) => names.includes(n)), label: declared.length ? `the asset manifest holds exactly the film's ${declared.length} declared asset(s)` : "the asset manifest is empty", detail: names ? (names.join(", ") || "{}") : "manifest absent or unreadable" },
     { ok: /window\.FILM\s*=/.test(html), label: "exposes window.FILM so any host can drive it", detail: "" },
     { ok: /audio\s*[:(]/.test(html), label: "any score is synthesized in the page, never loaded", detail: "" },
   ];
 };
 
 export const open = async (film, opts = {}) => {
-  const { scale = 1, workers = 1 } = opts;
+  const { scale = 1, workers = 1 } = opts, useBakes = opts.bakeCache === true && process.env.ANIDOODLE_BAKE_CACHE !== "0"; // OFF by default: the gate proves the source, not a cache
   const p = probe();
   if (!p.ok) throw new Error(`html-player: ${p.why}`);
   const out = resolve(`dist/${film}.html`);
@@ -49,13 +53,15 @@ export const open = async (film, opts = {}) => {
 
   const browser = await p.env.pw.lib.chromium.launch({ executablePath: p.env.browser.executablePath, args: ["--disable-background-timer-throttling"] });
   const context = await browser.newContext({ viewport: { width: 640, height: 640 }, deviceScaleFactor: 1 });
-  const pages = [];
+  const pages = [], bv = browser.version();
   for (let i = 0; i < workers; i++) {
     const page = await context.newPage(), errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("request", (r) => { if (!r.url().startsWith("file:") && !r.url().startsWith("data:")) errors.push(`page reached the network: ${r.url()}`); }); /* the page is supposed to be offline: prove it at run time, not just by reading it */
     await page.goto(pathToFileURL(out).href + "?adapter=html-player");
-    await page.evaluate(async (s) => { await window.FILM.ready; window.FILM.mount(s); window.FILM.warm(); }, scale);
+    await page.evaluate(async (s) => { await window.FILM.ready; window.FILM.mount(s); }, scale);
+    if (useBakes) await loadBakes(page, bv);
+    await page.evaluate(() => window.FILM.warm());
     if (errors.length) throw new Error("page failed: " + errors.join("; "));
     pages.push(page);
   }
@@ -66,7 +72,7 @@ export const open = async (film, opts = {}) => {
     frame: async (n, w = 0) => { const r = await pick(w).evaluate((f) => { const s = window.FILM.seek(f); return { ...s, png: window.FILM.png() }; }, n); return { png: Buffer.from(r.png, "base64"), shot: r.shot, drawMs: r.ms }; },
     hash: (n, w = 0) => pick(w).evaluate((f) => { window.FILM.seek(f); return window.FILM.hash(); }, n),
     audio: (sr) => pages[0].evaluate((s) => window.FILM.audio(s), sr),
-    artifact: () => ({ path: out, kind: "self-contained HTML player", bytes: statSync(out).size, meta: built.meta, checks: pageChecks(html) }),
-    close: () => browser.close(),
+    artifact: () => ({ path: out, kind: "self-contained HTML player", bytes: statSync(out).size, meta: built.meta, checks: pageChecks(html, built.assets ?? []) }),
+    close: async () => { if (useBakes) for (const p of pages) await saveBakes(p, bv).catch(() => 0); await browser.close(); },
   };
 };

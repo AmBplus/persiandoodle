@@ -12,6 +12,7 @@ import { buildPage } from "./build-page.mjs";
 import { detect } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
 import { loadRegistry, ENGINE, ROOT } from "./registry.mjs";
+import { overlay } from "./overlay.mjs";
 
 process.chdir(ENGINE); // buildPage and the host pages resolve src/ against cwd, like every tool here
 const GALLERY = resolve(ROOT, "assets/gallery");
@@ -40,7 +41,7 @@ const findFont = (ff) => {
 
 // A still.mjs-style probe: bundle the film, read meta, no browser. Enough for --dry to say which
 // frame is the last.
-const metaOf = async (film) => (await import("data:text/javascript;base64," + Buffer.from((await (await import("esbuild")).build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral" })).outputFiles[0].text).toString("base64"))).film.meta;
+const metaOf = async (film) => (await import("data:text/javascript;base64," + Buffer.from((await (await import("esbuild")).build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins: [overlay] })).outputFiles[0].text).toString("base64"))).film.meta;
 
 const cols = Math.ceil(Math.sqrt(tiles.length)), rows = Math.ceil(tiles.length / cols);
 const plan = (font) => `grid ${cols}x${rows} of ${CELL}px tiles, ${font.ok ? `labels in ${font.font}` : `no labels (${font.why}) -> LEGEND.md`}`;

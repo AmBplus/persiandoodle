@@ -319,7 +319,7 @@ const audio2 = (sr: number): [Float32Array, Float32Array] => {
 const shot = (id: keyof typeof T2, draw: (ctx: Ctx, env: Env, f: number) => void) => ({ id, start: T2[id][0], end: T2[id][1], draw: (ctx: Ctx, local: number, env: Env) => draw(ctx, env, T2[id][0] + local) });
 export const launch2: Film = {
   meta: { title: "anidoodle · launch, cut 2", W, H, fps: FPS, bpm: 90, durationFrames: N, raster: "cpu", kind: "launch" },
-  assets: { images: { almond: "../../../../anidoodle-research/launch-film/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in refs/PROVENANCE.json
+  assets: { images: { almond: "assets/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in engine/assets/refs/PROVENANCE.json
   shots: [
     shot("open", sceneOpen), shot("ask", sceneAsk), shot("code", sceneCode), shot("swim", sceneSwim), shot("wall", sceneWall), shot("brick", sceneBrick),
     shot("hand", sceneHand), shot("loop", sceneLoop), shot("web", sceneWeb), shot("film", sceneFilm), shot("words", sceneWords), shot("end", sceneEnd),

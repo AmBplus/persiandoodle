@@ -67,7 +67,7 @@ const rowSpan = PER_ROW * PITCH;
 // the punch-ins: which card, when. A card is found by (row, k) at the moment the punch starts.
 export type Punch = { row: number; k: number; t0: number };
 const final = (film: Film) => Math.max(0, film.meta.durationFrames - 1);
-const thumb = (env: Env, c: Card, px: number) => plateLayer(env, `wall:${c.id}`, c.film, final(c.film), px);
+const thumb = (env: Env, c: Card, px: number) => plateLayer(env, `wall:${c.id}`, c.film, final(c.film), px, true); // a finished plate: persistable
 
 // camera over the wall: centre (wall coords), zoom, and the wall's own rotation (it untilts as the camera arrives on a card)
 export type WallCam = { c: P; z: number; rot: number };

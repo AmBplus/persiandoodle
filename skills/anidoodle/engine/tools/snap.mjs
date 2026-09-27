@@ -10,6 +10,7 @@ import { dirname, join, resolve } from "node:path";
 import { buildPage } from "./build-page.mjs";
 import { detect } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
+import { overlay } from "./overlay.mjs";
 
 const VAL = new Set(["shot", "samples", "scale", "out"]);
 const pos = [], opt = {};
@@ -40,7 +41,7 @@ const onlyPlugin = opt.only ? (() => {
 })() : [];
 
 // the film's own shots and meta, read through the same shim in --only mode
-const probe = (await build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins: onlyPlugin })).outputFiles[0].text;
+const probe = (await build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins: [...onlyPlugin, overlay] })).outputFiles[0].text;
 const f = (await import("data:text/javascript;base64," + Buffer.from(probe).toString("base64"))).film;
 const targets = shotId ? [f.shots.find((s) => s.id === shotId) ?? die(`film '${film}' has no shot '${shotId}' (has: ${f.shots.map((s) => s.id).join(", ")})`)] : f.shots;
 

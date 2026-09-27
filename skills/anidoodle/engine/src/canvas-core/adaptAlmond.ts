@@ -8,7 +8,7 @@ import { KOI_HI, koiBody, koiFins, padShape, tail } from "./koi";
 // A KOI IN THE ALMOND-BLOSSOM HAND · adapted from a picture the user brought.
 //
 // REFERENCE: Vincent van Gogh, Almond Blossom (1890), public domain (Wikimedia Commons; sha256 and
-// source in anidoodle-research/launch-film/refs/PROVENANCE.json). What is borrowed is the HAND.
+// source in engine/assets/refs/PROVENANCE.json). What is borrowed is the HAND.
 // The subject (a flowering branch against the sky), the composition (branches crossing the whole
 // field from the lower edge) and the blossoms themselves are not taken. The subject here is the
 // launch film's own koi, in its own pond, laid out as in koi.ts, so the same fish can be seen
@@ -172,7 +172,7 @@ const build = (k: number): Proc => {
 let PROC: Proc | null = null;
 const proc = () => (PROC ??= fit(build, N - 31));
 
-export const STYLE = { id: "adaptAlmond", name: "Almond-blossom hand, adapted", family: "paint", medium: "opaque oil in short patterned strokes on canvas, a broken dark blue-green contour, thick lead-white lights", nearest: "paintedOil", hero: "the launch film's koi, repainted in a hand borrowed from a public-domain painting" };
+export const STYLE = { id: "adaptAlmond", name: "Almond-blossom hand, adapted", family: "paint", medium: "opaque oil in short patterned strokes on canvas, a broken dark blue-green contour, thick lead-white lights", nearest: "paintedOil", hero: "the launch film's koi, repainted in a hand borrowed from a public-domain painting", house: "styles/house/almond-blossom.json" };
 
 export const adaptAlmond: Film = {
   meta: { title: "Koi · the almond-blossom hand (adapted)", W, H, fps: 30, bpm: 120, durationFrames: N, raster: "cpu" },

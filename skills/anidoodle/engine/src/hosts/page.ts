@@ -4,15 +4,40 @@
 import type { Ctx, Env, Layer } from "../canvas-core/core";
 import { Film, renderFrame, validate } from "../canvas-core/film";
 
-declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string> } }
+declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string> } }
+
+// THE BAKE STORE (Env.bake). A finished plate frame, keyed by the hash of the source that draws it
+// (build-page.mjs hashes each film module's whole import closure, plus the engine's own renderer),
+// the frame and the pixel size. The adapter loads matching PNGs from disk before frame 0 and saves
+// the fresh ones after; the page never touches a file. Only fully opaque frames are kept, because
+// only those survive a PNG round trip bit for bit.
+const bakeStore = () => {
+  const loaded = new Map<string, ImageBitmap>(), fresh = new Map<string, HTMLCanvasElement>(), stats = { hits: 0, misses: 0, kept: 0, skipped: 0 };
+  let on = false; // off until an adapter loads the store: a shipped player keeps no copies
+  const keyOf = (film: object, frame: number, w: number, h: number) => { const mod = window.__ANIDOODLE_SRC__?.get(film), hash = mod ? window.__BAKE_SRC__?.[mod] : undefined; return hash ? `${hash}.${frame}.${w}x${h}` : null; };
+  const bake: NonNullable<Env["bake"]> = {
+    get: (film, frame, w, h) => { if (!on) return undefined; const k = keyOf(film, frame, w, h), img = k ? loaded.get(k) : undefined; if (img) stats.hits++; else stats.misses++; return img; },
+    put: (film, frame, layer) => {
+      if (!on) return;
+      const { width: w, height: h } = layer.canvas, k = keyOf(film, frame, w, h); if (!k || loaded.has(k) || fresh.has(k)) return;
+      const d = layer.ctx.getImageData(0, 0, w, h).data; for (let i = 3; i < d.length; i += 4) if (d[i] !== 255) { stats.skipped++; return; }
+      const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d")!.drawImage(layer.canvas, 0, 0); fresh.set(k, c); stats.kept++;
+    },
+  };
+  const load = async (entries: Record<string, string>) => { on = true; await Promise.all(Object.entries(entries).map(async ([k, b64]) => { try { const bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); const img = await createImageBitmap(new Blob([u8], { type: "image/png" }), { premultiplyAlpha: "none", colorSpaceConversion: "none" }); if (`${img.width}x${img.height}` === k.split(".").pop()) loaded.set(k, img); } catch { /* unreadable: draw it cold */ } })); return loaded.size; }; // decoded in memory: no URL, no request
+  const take = () => { const out: Record<string, string> = {}; for (const [k, c] of fresh) out[k] = c.toDataURL("image/png").slice(22); fresh.clear(); return out; };
+  const hashes = () => [...new Set(Object.values(window.__BAKE_SRC__ ?? {}))];
+  return { bake, load, take, hashes, stats };
+};
 
 export const mountFilm = (film: Film) => {
   const canvas = document.getElementById("film") as HTMLCanvasElement, images = new Map<string, CanvasImageSource>();
   let env: Env, ctx: Ctx, current = 0;
+  const bakes = bakeStore();
   // Safari before 16.4 has no 2D OffscreenCanvas: fall back to a detached <canvas>. The core cannot tell the difference.
   const opts = film.meta.raster === "cpu" ? { willReadFrequently: true } : undefined;   // see Film.meta.raster
   const surface = (w: number, h: number): Layer => { const c = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }); return { canvas: c, ctx: c.getContext("2d", opts) as unknown as Ctx } as Layer; };
-  const mount = (scale = 1) => { canvas.width = Math.round(film.meta.W * scale); canvas.height = Math.round(film.meta.H * scale); ctx = canvas.getContext("2d", opts) as CanvasRenderingContext2D; env = { W: film.meta.W, H: film.meta.H, scale, cache: new Map(), canvas: surface, image: (n) => images.get(n) }; return film.meta; };
+  const mount = (scale = 1) => { canvas.width = Math.round(film.meta.W * scale); canvas.height = Math.round(film.meta.H * scale); ctx = canvas.getContext("2d", opts) as CanvasRenderingContext2D; env = { W: film.meta.W, H: film.meta.H, scale, cache: new Map(), canvas: surface, image: (n) => images.get(n), bake: bakes.bake }; return film.meta; };
   // contract rule 4: every asset is loaded AND decoded before frame 0, or the film refuses to start
   const ready = (async () => {
     const problems = validate(film); if (problems.length) throw new Error("timeline: " + problems.join("; "));
@@ -25,28 +50,52 @@ export const mountFilm = (film: Film) => {
   // MOTION BLUR. One output frame as the average of subframes spread over a one-frame shutter
   // centred on it, confined to its own shot so nothing bleeds across a cut. The average is taken
   // in LINEAR light: blur is light integration, and averaging in sRGB darkens every moving edge.
+  // It is also ALPHA-WEIGHTED (premultiplied): a transparent subframe carries no colour, so a
+  // sticker's moving edge fades out instead of picking up a dark fringe from the zero RGB that
+  // canvas keeps under alpha 0. Opaque pixels take exactly the unweighted path.
+  // STEPPED ART (meta.step > 1, or onTwos) holds each drawing for `step` frames, so the shutter
+  // would straddle two drawings and smear a pose into its neighbour: such films are not blurred.
   // hosts may keep time; the core never does.
   const toLin = new Float32Array(256);
   for (let i = 0; i < 256; i++) { const s = i / 255; toLin[i] = s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); }
   const fromLin = (l: number) => { const v = l <= 0.0031308 ? l * 12.92 : 1.055 * Math.pow(l, 1 / 2.4) - 0.055; return Math.max(0, Math.min(255, Math.round(v * 255))); };
   const blur = (frame: number, samples: number) => {
     const n = Math.max(0, Math.min(film.meta.durationFrames - 1, Math.round(frame))), shot = film.shots.find((s) => n >= s.start && n < s.end);
-    if (!shot || samples < 2) return { shot: shot?.id ?? null, ms: 0 };
+    if (!shot || samples < 2 || (film.meta.step ?? (film.meta.onTwos ? 2 : 1)) > 1) { const r = seek(n); return { shot: r.shot, ms: r.ms }; }
     const t0 = performance.now(), w = canvas.width, h = canvas.height, acc = new Float64Array(w * h * 4);
     for (let i = 0; i < samples; i++) {
       const t = Math.min(shot.end - 1, Math.max(shot.start, n + (i + 0.5) / samples - 0.5));
       renderFrame(film, ctx, t, env);
       const d = ctx.getImageData(0, 0, w, h).data;
-      for (let p = 0; p < d.length; p += 4) { acc[p] += toLin[d[p]]; acc[p + 1] += toLin[d[p + 1]]; acc[p + 2] += toLin[d[p + 2]]; acc[p + 3] += d[p + 3]; }
+      for (let p = 0; p < d.length; p += 4) { const a = d[p + 3], k = a / 255; acc[p] += toLin[d[p]] * k; acc[p + 1] += toLin[d[p + 1]] * k; acc[p + 2] += toLin[d[p + 2]] * k; acc[p + 3] += a; }
     }
-    const img = ctx.createImageData(w, h), o = img.data, inv = 1 / samples;
-    for (let p = 0; p < o.length; p += 4) { o[p] = fromLin(acc[p] * inv); o[p + 1] = fromLin(acc[p + 1] * inv); o[p + 2] = fromLin(acc[p + 2] * inv); o[p + 3] = Math.round(acc[p + 3] * inv); }
+    const img = ctx.createImageData(w, h), o = img.data, inv = 1 / samples, full = 255 * samples;
+    for (let p = 0; p < o.length; p += 4) {
+      const A = acc[p + 3]; if (A === 0) continue; // nothing was ever drawn here: stays transparent black
+      const c = A === full ? inv : 255 / A; // premultiplied average, un-premultiplied by the mean alpha
+      o[p] = fromLin(acc[p] * c); o[p + 1] = fromLin(acc[p + 1] * c); o[p + 2] = fromLin(acc[p + 2] * c); o[p + 3] = Math.round(A * inv);
+    }
     ctx.putImageData(img, 0, 0); current = n;
     return { shot: shot.id, ms: performance.now() - t0 };
   };
   const audio = (sr: number) => { if (!film.audio) return null; const [L, R] = film.audio(sr); if (L.length !== R.length) throw new Error("audio channels have different lengths"); const pcm = new Float32Array(L.length * 2); for (let i = 0; i < L.length; i++) { pcm[i * 2] = L[i]; pcm[i * 2 + 1] = R[i]; } return { sampleRate: sr, frames: L.length, float32: b64(new Uint8Array(pcm.buffer)) }; };
   const warm = () => film.shots.forEach((s) => { seek(s.start); seek(s.start + ((s.end - s.start) >> 1)); }); // first + middle frame of every shot: builds tiles, pre-allocates the layer pool
-  window.FILM = { meta: { ...film.meta, shots: film.shots.map(({ id, start, end }) => ({ id, start, end })) }, ready, mount, seek, hash, audio, warm, blur, png: () => canvas.toDataURL("image/png").slice(22), frame: () => current };
+  // POSTER. Platforms show frame 0 as the thumbnail, so a delivery may open on a chosen frame (the
+  // wall of styles, the logo) and dissolve into the film's real opening over `fade` frames. The
+  // poster frame is drawn once into its own surface; frame n < fade is the real frame n with the
+  // poster laid over it at 1 - n/fade. Frame 0 IS the poster. Nothing else changes, not the score.
+  let posterOf: { key: string; img: CanvasImageSource } | null = null;
+  const poster = (frame: number, posterFrame: number, fade: number, samples = 1) => {
+    const n = Math.round(frame), u = fade > 0 ? 1 - n / fade : n === 0 ? 1 : 0, key = `${posterFrame}/${samples}/${canvas.width}x${canvas.height}`;
+    if (u > 0 && posterOf?.key !== key) {
+      samples > 1 ? blur(posterFrame, samples) : seek(posterFrame);
+      const c = document.createElement("canvas"); c.width = canvas.width; c.height = canvas.height; c.getContext("2d")!.drawImage(canvas, 0, 0); posterOf = { key, img: c };
+    }
+    const r = samples > 1 ? blur(n, samples) : seek(n);
+    if (u > 0 && posterOf) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = Math.min(1, u); ctx.globalCompositeOperation = "source-over"; if (u >= 1) ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(posterOf.img, 0, 0); ctx.restore(); }
+    current = n; return r;
+  };
+  window.FILM = { meta: { ...film.meta, hasAudio: typeof film.audio === "function", shots: film.shots.map(({ id, start, end }) => ({ id, start, end })) }, ready, mount, seek, hash, audio, warm, blur, poster, bakes: { load: bakes.load, take: bakes.take, hashes: bakes.hashes, stats: () => bakes.stats }, png: () => canvas.toDataURL("image/png").slice(22), frame: () => current };
 
   // ---- the player: click or space to play, arrows to step, ?frame=N to open on a frame
   ready.then(() => {
