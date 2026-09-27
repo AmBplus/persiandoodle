@@ -7,26 +7,27 @@ product. The rules they serve are in `launch-video.md`.
 
 `launchTemplate.ts` turns data into a film: two or three prompts answered by plates drawing
 themselves in a chat thread, a type frame between them, and an end card with your install lines.
-`launchExample.ts` is a complete one for a made-up product. Copy it:
+`launchExample.ts` is a complete one for a made-up product. Copy its shape, not its contents:
+the plates and the score are the product's own, made for its brief.
 
 ```ts
 import { C } from "./launchKit";
 import { makeLaunchFilm } from "./launchTemplate";
-import { lighthouseDraw } from "./lighthouseDraw";
-import { foxDraw } from "./foxDraw";
-import { launchLofi3 } from "./music/pieces/launch";
+import { dashboardSketch, onboardingSketch } from "./myProductPlates"; // drawn for YOUR subject
+import { myProductScore } from "./myProductScore";                      // composed for YOUR brief
 
 export const myLaunch = makeLaunchFilm({
   title: "Your Product", subtitle: "the one line it lives by",
   asks: [
-    { prompt: "a lighthouse at sunset, as a print", plate: lighthouseDraw, label: "print · drawn in code" },
-    { prompt: "now a fox at dusk", plate: foxDraw, label: "a second answer, same thread" },
+    { prompt: "sketch my dashboard, as a print", plate: dashboardSketch, label: "print · drawn in code" },
+    { prompt: "now the onboarding screen", plate: onboardingSketch, label: "a second answer, same thread" },
   ],
   words: [[{ text: "IDEA IN.", style: "ink", color: C.ink }, { text: "ART OUT.", style: "ink", color: C.accent }]],
   tagline: "One sentence that says what it is",
   install: ["npm install your-product", "your-product init"],
-  bpm: 90, askBeats: 6, typeBeats: 4, endBeats: 8, claimBar: 4,
-  score: launchLofi3,
+  bpm: 96, // the tempo of the score you composed; the brief sets it, there is no default
+  askBeats: 6, typeBeats: 4, endBeats: 8, claimBar: 4,
+  score: myProductScore, // or null for a silent film
 });
 ```
 
@@ -46,8 +47,15 @@ answers and scrolling, a gentle lean onto each new card, full-frame word pages b
 and the end card blooming open and holding. The corner mark (your name, hand-lettered) steps
 aside before any lean. Real holds are declared, so the gate passes; the score is set to -14
 LUFS with the true peak at or under -1 dBTP (`musicBed`; a very dynamic piece stops at the
-peak ceiling first). Plates can be any film of this engine: a style plate, a `*Draw` drawing
-film, or a scene you built.
+peak ceiling first).
+
+**The plates and the score are made for this product, every time.** A style is a recipe applied
+to the user's subject (`references/styles.md`): draw their dashboard, their mascot, their
+product's world in the chosen hand, as a still plus its `*Draw` film. anidoodle's own plates
+(the lighthouse and fox in `launchExample.ts`) are placeholders, never a user's film. The score
+is composed for the brief's style, mood and length (`references/music/compose.md`); `score` is
+required (`null` means silent), `bpm` has no default, and the template refuses anidoodle's own
+pieces, by identity and by title.
 
 | Spec field | Meaning |
 |---|---|
@@ -55,9 +63,9 @@ film, or a scene you built.
 | `asks[]` | 1-3 of `{ prompt, plate, label, from?, to?, crop? }` |
 | `words[i]` | the type frame after `asks[i]` (not after the last ask; it flows into the end card) |
 | `tagline`, `install[]`, `footer` | the end card; install lines are shown exactly as given |
-| `bpm`, `fps`, `askBeats`, `typeBeats`, `endBeats` | the beat grid and each part's length in beats |
+| `bpm` (required), `fps`, `askBeats`, `typeBeats`, `endBeats` | the beat grid (a beat is 60 x fps / bpm frames) and each part's length in beats |
 | `claimBar` | land the end card on this bar's downbeat; throws if it cannot |
-| `score` or `audio` | a composed piece as a bed, or your own mix |
+| `score` (required) or `audio` | a piece composed for this product, as a bed; `null` for silence; or your own finished mix |
 
 The template refuses a feature list (more than 3 asks) and an end card too short to read.
 
@@ -103,4 +111,5 @@ zooms to each click, with the pointer and input log driving the page's own state
 `launch2.ts` is anidoodle's content timeline (chat, koi with its code streaming, the wall, the
 brick balloon, the almond hand, the embroidery loop, the web tour, the butterfly film, the end
 card); `launch3.ts` is the cut: data segments spliced with type frames, 77 s on the score's 29
-bars. Study them for pacing; build yours on the template.
+bars. Study them for pacing, then build yours on the template with your own pictures and your
+own music; anidoodle's launch is one example of the grammar, not a skin to reuse.

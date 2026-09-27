@@ -45,7 +45,7 @@ say why in one line. Write the answers into a short brief before drawing.
 <!-- KITS: one line each from the music (B) and sound (C) tracks; keep this block short -->
 - Music, lo-fi electronic (chill, upbeat, clean; no ePiano): lofiElectronic() in engine/src/canvas-core/music; balance with node tools/music.mjs stems <piece> before mastering. See references/music/styles/lofi-electronic.md.
 - Sound effects: references/music/sound-design.md. 14 layered, seeded effects cued by film frame (filmSfx); the score ducks, and every cue must be within 6 dB of it. Effects only on real direction changes, one riser + one impact per film.
-- Launch films: `launchTemplate.ts` renders your product's launch from data (prompts, plates, words, install lines); habits that save tokens are in `references/working-method.md`.
+- Launch films: `launchTemplate.ts` renders a product's launch from data: prompts, plates drawn for it, a score composed for it, words, install lines; habits that save tokens are in `references/working-method.md`.
 
 ## The seven laws
 
@@ -79,7 +79,7 @@ on the moving file.**
 
 **Film.** (1) **The story in three sentences** (setup, transformation, payoff) and the token; for
 longer films, a spine plus one line per chapter. If you cannot write it, stop. (2) **The grid**:
-at 120 bpm and 30 fps a beat is 15 frames; one cue table holds every frame number and a checker
+a beat is 60 x fps / bpm frames, the bpm from the brief's score; one cue table holds every frame number and a checker
 runs at load. (3) **Real reference** for anything that exists. (4) **ONE look still**, the hardest
 frame, critiqued in writing. ✋ **Approval.** (5) **ONE 8-second music sample.** ✋ **Approval.**
 (6) **Build the whole film**; mechanical checks run continuously. (7) **Review once** from the

@@ -29,6 +29,12 @@ that invents its subject draws a mascot of a product, not the product.
    brand colours mapped onto palette roles, approved and banned claims, shapes, platforms. The
    storyboard and every word on screen quote the brief, never memory.
 
+## Made for this product, every frame and every note
+
+The film's pictures are drawn for this product's subject in the style recipe the brief picked
+(`references/styles.md`); its score is composed for this brief. anidoodle's own plates and
+pieces are examples of the craft, never material for someone else's film.
+
 ## The story
 
 - **One sentence the film proves**, written before anything else. anidoodle's: "you can create
@@ -78,8 +84,10 @@ that invents its subject draws a mascot of a product, not the product.
 ## Sound
 
 - **Music first, heard as an mp3 by a human** before it scores anything (you cannot hear it).
-  anidoodle's launch runs chill lo-fi electronic, upbeat and clean, no synth ePiano:
-  `references/music/styles/lofi-electronic.md`.
+  Compose it for THIS brand: pick the style and a mood per section from the brief (energy,
+  audience, where it runs), then write the notes (`references/music/compose.md`). anidoodle's own
+  launch chose chill lo-fi electronic, one example (`references/music/styles/lofi-electronic.md`);
+  never reuse our score or a stock piece.
 - **Balance by stem RMS, not only LUFS**: an integrated -14 LUFS hid a sub 7-10 dB too hot.
 - **Cut on downbeats, not every beat.** Land the claim on a chord (launch3's lands on bar 26,
   the home chord); `beatGrid().solve()` fits a flexible segment so it does.
