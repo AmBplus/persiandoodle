@@ -52,7 +52,10 @@ export const toScreen = (cam: Cam, p: P, W = 1920, H = 1080): P => [W / 2 + (p[0
 // ---------------------------------------------------------------- plates, live
 // Draw frame `frame` of `film` into a surface sized for `px` device pixels across. Sub-films get
 // their own cache (their bake keys must never meet the launch film's) and the surface is reused.
-export const plateLayer = (env: Env, key: string, film: Film, frame: number, px = 1080): Layer => {
+// `persist`: a frame that is drawn the same way in every session (a finished plate on the wall)
+// may be served from the host's disk store (env.bake) instead of being drawn again: the 31-card
+// wall costs a minute to draw cold. Same pixels either way; without a store it simply draws.
+export const plateLayer = (env: Env, key: string, film: Film, frame: number, px = 1080, persist = false): Layer => {
   const res = px / film.meta.W, scale = res, lk = `plate:${key}:${px}`;
   let rec = env.cache.get(lk) as { L: Layer; sub: Env; last: number } | undefined;
   if (!rec) {
@@ -61,7 +64,12 @@ export const plateLayer = (env: Env, key: string, film: Film, frame: number, px 
     env.cache.set(lk, rec);
   }
   const f = Math.max(0, Math.min(film.meta.durationFrames - 1, Math.round(frame)));
-  if (rec.last !== f) { renderFrame(film, rec.L.ctx, f, rec.sub); rec.last = f; }
+  if (rec.last !== f) {
+    const L = rec.L, hit = persist ? env.bake?.get(film, f, L.canvas.width, L.canvas.height) : undefined;
+    if (hit) { const c = L.ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = "copy"; c.drawImage(hit, 0, 0); c.globalCompositeOperation = "source-over"; }
+    else { renderFrame(film, L.ctx, f, rec.sub); if (persist) env.bake?.put(film, f, L); }
+    rec.last = f;
+  }
   return rec.L;
 };
 // a surface the launch film draws into itself (a scene inside a scene), same reuse rule

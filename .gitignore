@@ -3,6 +3,7 @@ skills/anidoodle/engine/node_modules/
 skills/anidoodle/engine/out/
 skills/anidoodle/engine/dist/
 skills/anidoodle/engine/.tmp/
+skills/anidoodle/engine/.cache/
 **/*.log
 .DS_Store
 

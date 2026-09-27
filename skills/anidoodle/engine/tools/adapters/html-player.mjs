@@ -12,6 +12,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildPage } from "../build-page.mjs";
 import { detect } from "../detect.mjs";
+import { loadBakes, saveBakes } from "../bake-cache.mjs";
 
 export const name = "html-player";
 export const describe = () => "a single self-contained HTML file that plays the film in any browser, offline";
@@ -40,7 +41,7 @@ export const pageChecks = (html) => {
 };
 
 export const open = async (film, opts = {}) => {
-  const { scale = 1, workers = 1 } = opts;
+  const { scale = 1, workers = 1 } = opts, useBakes = opts.bakeCache === true && process.env.ANIDOODLE_BAKE_CACHE !== "0"; // OFF by default: the gate proves the source, not a cache
   const p = probe();
   if (!p.ok) throw new Error(`html-player: ${p.why}`);
   const out = resolve(`dist/${film}.html`);
@@ -49,13 +50,15 @@ export const open = async (film, opts = {}) => {
 
   const browser = await p.env.pw.lib.chromium.launch({ executablePath: p.env.browser.executablePath, args: ["--disable-background-timer-throttling"] });
   const context = await browser.newContext({ viewport: { width: 640, height: 640 }, deviceScaleFactor: 1 });
-  const pages = [];
+  const pages = [], bv = browser.version();
   for (let i = 0; i < workers; i++) {
     const page = await context.newPage(), errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("request", (r) => { if (!r.url().startsWith("file:") && !r.url().startsWith("data:")) errors.push(`page reached the network: ${r.url()}`); }); /* the page is supposed to be offline: prove it at run time, not just by reading it */
     await page.goto(pathToFileURL(out).href + "?adapter=html-player");
-    await page.evaluate(async (s) => { await window.FILM.ready; window.FILM.mount(s); window.FILM.warm(); }, scale);
+    await page.evaluate(async (s) => { await window.FILM.ready; window.FILM.mount(s); }, scale);
+    if (useBakes) await loadBakes(page, bv);
+    await page.evaluate(() => window.FILM.warm());
     if (errors.length) throw new Error("page failed: " + errors.join("; "));
     pages.push(page);
   }
@@ -67,6 +70,6 @@ export const open = async (film, opts = {}) => {
     hash: (n, w = 0) => pick(w).evaluate((f) => { window.FILM.seek(f); return window.FILM.hash(); }, n),
     audio: (sr) => pages[0].evaluate((s) => window.FILM.audio(s), sr),
     artifact: () => ({ path: out, kind: "self-contained HTML player", bytes: statSync(out).size, meta: built.meta, checks: pageChecks(html) }),
-    close: () => browser.close(),
+    close: async () => { if (useBakes) for (const p of pages) await saveBakes(p, bv).catch(() => 0); await browser.close(); },
   };
 };
