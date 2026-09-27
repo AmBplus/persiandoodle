@@ -2,6 +2,10 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle : une table d'artiste couverte de gribouillis dessinés en code, où le nom s'écrit lui-même en calligraphie">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>Le film de lancement, 77 secondes. Chaque image et chaque son ont été faits avec anidoodle, en code.</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>De l'art dessiné à la main, écrit en code.</strong></p>

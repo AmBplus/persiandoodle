@@ -2,6 +2,10 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle: 코드로 그린 낙서들이 놓인 작가의 책상, 그 위에 이름이 캘리그래피로 스스로 쓰이는 모습">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>런칭 필름, 77초. 모든 프레임과 모든 소리를 anidoodle로, 코드로 만들었습니다.</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>코드로 쓰는 손그림.</strong></p>
