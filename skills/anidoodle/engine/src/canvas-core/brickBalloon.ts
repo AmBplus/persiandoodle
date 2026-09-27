@@ -347,7 +347,7 @@ const drawFrame = (ctx: Ctx, fr: number, env: Env) => {
   if (f < T.fallB) drawMosaic(ctx, env, f);
 };
 
-export const STYLE = { id: "brickBalloon", name: "Toy brick, from crayon, flying", family: "rendered", medium: "the crayon balloon turned into a toy-brick mosaic, rebuilt in moulded ABS bricks, then flown over a brick world", nearest: "toyBrick", hero: "the crayon hot-air balloon rebuilt in bricks, lifting off" };
+export const STYLE = { id: "brickBalloon", name: "Toy brick, from crayon, flying", family: "rendered", medium: "the crayon balloon turned into a toy-brick mosaic, rebuilt in moulded ABS bricks, then flown over a brick world", nearest: "toyBrick", hero: "the crayon hot-air balloon rebuilt in bricks, lifting off", sceneOf: "toyBrick" };
 
 export const brickBalloon: Film = {
   meta: { title: "Balloon · crayon to bricks, and away", W, H, fps: FPS, bpm: 90, durationFrames: N, raster: "cpu" },

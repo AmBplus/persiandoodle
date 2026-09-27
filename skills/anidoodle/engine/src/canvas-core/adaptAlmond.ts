@@ -172,7 +172,7 @@ const build = (k: number): Proc => {
 let PROC: Proc | null = null;
 const proc = () => (PROC ??= fit(build, N - 31));
 
-export const STYLE = { id: "adaptAlmond", name: "Almond-blossom hand, adapted", family: "paint", medium: "opaque oil in short patterned strokes on canvas, a broken dark blue-green contour, thick lead-white lights", nearest: "paintedOil", hero: "the launch film's koi, repainted in a hand borrowed from a public-domain painting" };
+export const STYLE = { id: "adaptAlmond", name: "Almond-blossom hand, adapted", family: "paint", medium: "opaque oil in short patterned strokes on canvas, a broken dark blue-green contour, thick lead-white lights", nearest: "paintedOil", hero: "the launch film's koi, repainted in a hand borrowed from a public-domain painting", house: "styles/house/almond-blossom.json" };
 
 export const adaptAlmond: Film = {
   meta: { title: "Koi · the almond-blossom hand (adapted)", W, H, fps: 30, bpm: 120, durationFrames: N, raster: "cpu" },
