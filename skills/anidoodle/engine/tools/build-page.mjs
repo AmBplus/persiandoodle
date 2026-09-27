@@ -56,6 +56,6 @@ export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
 <style>html,body{margin:0;height:100%;background:#1b1a1a;display:grid;place-items:center}canvas{max-width:100vw;max-height:100vh;aspect-ratio:${film.meta.W}/${film.meta.H};cursor:pointer;background:#fff}</style></head>
 <body><canvas id="film"></canvas><script>window.__ASSETS__=${JSON.stringify(assets)};window.__BAKE_SRC__=${JSON.stringify(bakeSrc)};</script><script>${js.replace(/<\/script/g, "<\\/script")}</script></body></html>`;
   mkdirSync(join(out, ".."), { recursive: true }); writeFileSync(out, html);
-  return { out, bytes: html.length, meta: film.meta };
+  return { out, bytes: html.length, meta: film.meta, assets: Object.keys(film.assets.images) };
 };
 if (import.meta.url === `file://${process.argv[1]}`) { const title = process.argv[2] ?? "fixtures"; const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }

@@ -12,7 +12,7 @@ declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, s
 // the fresh ones after; the page never touches a file. Only fully opaque frames are kept, because
 // only those survive a PNG round trip bit for bit.
 const bakeStore = () => {
-  const loaded = new Map<string, HTMLImageElement>(), fresh = new Map<string, HTMLCanvasElement>(), stats = { hits: 0, misses: 0, kept: 0, skipped: 0 };
+  const loaded = new Map<string, ImageBitmap>(), fresh = new Map<string, HTMLCanvasElement>(), stats = { hits: 0, misses: 0, kept: 0, skipped: 0 };
   let on = false; // off until an adapter loads the store: a shipped player keeps no copies
   const keyOf = (film: object, frame: number, w: number, h: number) => { const mod = window.__ANIDOODLE_SRC__?.get(film), hash = mod ? window.__BAKE_SRC__?.[mod] : undefined; return hash ? `${hash}.${frame}.${w}x${h}` : null; };
   const bake: NonNullable<Env["bake"]> = {
@@ -24,7 +24,7 @@ const bakeStore = () => {
       const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d")!.drawImage(layer.canvas, 0, 0); fresh.set(k, c); stats.kept++;
     },
   };
-  const load = async (entries: Record<string, string>) => { on = true; await Promise.all(Object.entries(entries).map(async ([k, b64]) => { const img = new Image(); img.src = "data:image/png;base64," + b64; try { await img.decode(); if (`${img.naturalWidth}x${img.naturalHeight}` === k.split(".").pop()) loaded.set(k, img); } catch { /* unreadable: draw it cold */ } })); return loaded.size; };
+  const load = async (entries: Record<string, string>) => { on = true; await Promise.all(Object.entries(entries).map(async ([k, b64]) => { try { const bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); const img = await createImageBitmap(new Blob([u8], { type: "image/png" }), { premultiplyAlpha: "none", colorSpaceConversion: "none" }); if (`${img.width}x${img.height}` === k.split(".").pop()) loaded.set(k, img); } catch { /* unreadable: draw it cold */ } })); return loaded.size; }; // decoded in memory: no URL, no request
   const take = () => { const out: Record<string, string> = {}; for (const [k, c] of fresh) out[k] = c.toDataURL("image/png").slice(22); fresh.clear(); return out; };
   const hashes = () => [...new Set(Object.values(window.__BAKE_SRC__ ?? {}))];
   return { bake, load, take, hashes, stats };
