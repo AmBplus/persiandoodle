@@ -8,7 +8,7 @@ import { KOI_HI, koiBody, koiFins, padShape, tail } from "./koi";
 // A KOI IN THE ALMOND-BLOSSOM HAND · adapted from a picture the user brought.
 //
 // REFERENCE: Vincent van Gogh, Almond Blossom (1890), public domain (Wikimedia Commons; sha256 and
-// source in anidoodle-research/launch-film/refs/PROVENANCE.json). What is borrowed is the HAND.
+// source in engine/assets/refs/PROVENANCE.json). What is borrowed is the HAND.
 // The subject (a flowering branch against the sky), the composition (branches crossing the whole
 // field from the lower edge) and the blossoms themselves are not taken. The subject here is the
 // launch film's own koi, in its own pond, laid out as in koi.ts, so the same fish can be seen

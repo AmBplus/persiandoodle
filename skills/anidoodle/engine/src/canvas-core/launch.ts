@@ -422,7 +422,7 @@ const withRail = (draw: (ctx: Ctx, env: Env, f: number) => void) => (ctx: Ctx, e
 const shot = (id: keyof typeof T, draw: (ctx: Ctx, env: Env, f: number) => void) => ({ id, start: T[id][0], end: T[id][1], draw: (ctx: Ctx, local: number, env: Env) => draw(ctx, env, T[id][0] + local) });
 export const launch: Film = {
   meta: { title: "anidoodle · launch", W, H, fps: FPS, bpm: 90, durationFrames: N, raster: "cpu", kind: "launch" },
-  assets: { images: { almond: "../../../../anidoodle-research/launch-film/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in refs/PROVENANCE.json
+  assets: { images: { almond: "assets/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in engine/assets/refs/PROVENANCE.json
   shots: [
     shot("type", withRail(sceneOpen)), shot("gen", withRail(sceneOpen)), shot("draw", withRail(sceneDraw)), shot("swim", withRail(sceneSwim)),
     shot("run", withRail(sceneRun)), shot("brick", withRail(sceneBrick)), shot("ref", withRail(sceneRef)), shot("emb", withRail(sceneEmb)),

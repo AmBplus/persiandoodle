@@ -61,7 +61,7 @@ const push: Tr = (ctx, env, l) => {
 const TR: [string, Tr][] = [["sweep", sweep], ["bloom", bloom], ["flip", flip], ["push", push]];
 export const typeOptions: Film = {
   meta: { title: "type frame options", W, H, fps: 30, bpm: 90, durationFrames: LEN * TR.length, raster: "cpu" },
-  assets: { images: { almond: "../../../../anidoodle-research/launch-film/refs/vangogh-almond-blossom.jpg" } },
+  assets: { images: { almond: "assets/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in engine/assets/refs/PROVENANCE.json
   shots: TR.map(([id, fn], i) => ({ id, start: i * LEN, end: (i + 1) * LEN, draw: (ctx: Ctx, l: number, env: Env) => fn(ctx, env, l) })),
 };
 
