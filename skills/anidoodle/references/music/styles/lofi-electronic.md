@@ -93,7 +93,8 @@ beat.
 ## Mixing: balance by stem RMS, then master
 
 ```
-node tools/music.mjs stems <file>.ts#<export>
+node tools/music.mjs check <file>.ts#<export>              # the whole gate, stems included
+node tools/music.mjs stems <file>.ts#<export>              # the stem table alone, while you balance
 node tools/music.mjs render <file>.ts#<export> out.mp3 --stems
 ```
 

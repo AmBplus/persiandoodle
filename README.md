@@ -101,7 +101,7 @@ No samples and no recordings. The notes are written as data, and every sound is 
 | [Cinematic, awe](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electronic](assets/audio/sampler-drive-electronic-8s.mp3) | more moods and instruments |
 | [The nocturne's theme in 15 seconds](assets/audio/fit-theme-15s.mp3) | the composer picks the form that fits the length |
 
-Also in the box: **lo-fi electronic**, chill and upbeat, with warm detuned pads, a soft plucked lead and a little tape wobble (it scores the launch film; [the recipe](skills/anidoodle/references/music/styles/lofi-electronic.md)), and a **sound-effects kit**: fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)).
+Also in the box: **lo-fi electronic**, chill and upbeat, with warm detuned pads, a soft plucked lead and a little tape wobble (the launch film's score was composed in it; [the vocabulary](skills/anidoodle/references/music/styles/lofi-electronic.md)), and a **sound-effects kit**: fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)). A style is a vocabulary to compose from, never ready-made notes: every film gets a score written for it.
 
 ## Web pages that notice you
 
@@ -227,7 +227,7 @@ Four backends share one art core, and the core stays blissfully unaware of which
 
 ## The example film
 
-`skills/anidoodle/example/` holds **Mechanical Lepidoptera**: 1,410 frames, 47 seconds, a clockwork butterfly that drafts itself, comes alive in watercolour, and leaves its blueprint in the grass. It is the whole engine in one piece: control points placed by hand over real anatomy, a cache key that names every input a pixel depends on, a score built from the recipe, and one unbroken move from built to alive. The style plates sit beside the engine in `skills/anidoodle/engine/src/canvas-core/`, each with its recipe written at the top. Open any of them, change a number, and watch what moves.
+`skills/anidoodle/example/` holds **Mechanical Lepidoptera**: 1,410 frames, 47 seconds, a clockwork butterfly that drafts itself, comes alive in watercolour, and leaves its blueprint in the grass. It is the whole engine in one piece: control points placed by hand over real anatomy, a cache key that names every input a pixel depends on, a score composed for it, and one unbroken move from built to alive. The style plates sit beside the engine in `skills/anidoodle/engine/src/canvas-core/`, each with its recipe written at the top. Open any of them, change a number, and watch what moves.
 
 ## Honest by design
 

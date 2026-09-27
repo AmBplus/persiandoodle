@@ -101,7 +101,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [영화 음악·경외감](assets/audio/sampler-cinematic-awe-8s.mp3) · [로파이](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [마림바](assets/audio/sampler-marimba-curious-8s.mp3) · [일렉트로닉](assets/audio/sampler-drive-electronic-8s.mp3) | 더 많은 분위기와 악기 |
 | [15초로 맞춘 녹턴 주제](assets/audio/fit-theme-15s.mp3) | 작곡기가 길이에 맞는 형식을 골라요 |
 
-그리고 **로파이 일렉트로닉**도 있어요. 따뜻하게 디튠한 패드, 부드럽게 튕기는 리드, 살짝 흔들리는 테이프 질감으로 차분하면서도 경쾌해요 (런칭 영상의 음악이 바로 이거예요. [레시피](skills/anidoodle/references/music/styles/lofi-electronic.md)). **효과음 키트**도 있어요. 여러 겹으로 만든 시드 기반 효과음 열네 가지가 정확한 프레임에 맞춰 울리고, 그때마다 음악이 살짝 물러나요 ([사운드 디자인](skills/anidoodle/references/music/sound-design.md)).
+그리고 **로파이 일렉트로닉**도 있어요. 따뜻하게 디튠한 패드, 부드럽게 튕기는 리드, 살짝 흔들리는 테이프 질감으로 차분하면서도 경쾌해요 (런칭 영상의 음악도 이 스타일로 작곡했어요. [어휘](skills/anidoodle/references/music/styles/lofi-electronic.md)). **효과음 키트**도 있어요. 여러 겹으로 만든 시드 기반 효과음 열네 가지가 정확한 프레임에 맞춰 울리고, 그때마다 음악이 살짝 물러나요 ([사운드 디자인](skills/anidoodle/references/music/sound-design.md)). 스타일은 작곡에 쓰는 어휘일 뿐, 미리 만들어 둔 음표가 아니에요. 모든 영상은 그 영상을 위해 쓴 스코어를 받아요.
 
 ## 나를 알아채는 웹페이지
 
@@ -227,7 +227,7 @@ Node 20 이상이 필요해요. 스틸컷은 위에서 설치한 브라우저만
 
 ## 예제 영화
 
-`skills/anidoodle/example/` 폴더에는 **Mechanical Lepidoptera**가 들어있어요: 1,410개 프레임, 47초 분량으로, 스스로 설계도를 그리다가 수채화 속에서 살아나고, 풀밭에 자신의 청사진을 남기고 떠나는 태엽 나비 이야기예요. 엔진 전체가 이 한 작품 안에 담겨 있어요. 실제 해부 구조 위에 손으로 찍은 제어점, 픽셀 하나가 무엇에 의존하는지 전부 이름 붙인 캐시 키, 레시피로 만든 스코어, 그리고 설계도에서 생명으로 끊김 없이 이어지는 움직임까지요. 스타일 플레이트는 `skills/anidoodle/engine/src/canvas-core/` 안에 엔진과 나란히 놓여 있고, 각각 맨 위에 레시피가 적혀 있어요. 아무거나 열어서 숫자 하나만 바꿔보면, 뭐가 움직이는지 바로 보여요.
+`skills/anidoodle/example/` 폴더에는 **Mechanical Lepidoptera**가 들어있어요: 1,410개 프레임, 47초 분량으로, 스스로 설계도를 그리다가 수채화 속에서 살아나고, 풀밭에 자신의 청사진을 남기고 떠나는 태엽 나비 이야기예요. 엔진 전체가 이 한 작품 안에 담겨 있어요. 실제 해부 구조 위에 손으로 찍은 제어점, 픽셀 하나가 무엇에 의존하는지 전부 이름 붙인 캐시 키, 이 작품을 위해 작곡한 스코어, 그리고 설계도에서 생명으로 끊김 없이 이어지는 움직임까지요. 스타일 플레이트는 `skills/anidoodle/engine/src/canvas-core/` 안에 엔진과 나란히 놓여 있고, 각각 맨 위에 레시피가 적혀 있어요. 아무거나 열어서 숫자 하나만 바꿔보면, 뭐가 움직이는지 바로 보여요.
 
 ## 설계부터 정직하게
 

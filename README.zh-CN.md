@@ -101,8 +101,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [电影感·敬畏](assets/audio/sampler-cinematic-awe-8s.mp3) · [低保真](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [马林巴](assets/audio/sampler-marimba-curious-8s.mp3) · [电子乐](assets/audio/sampler-drive-electronic-8s.mp3) | 更多情绪与乐器 |
 | [15 秒版夜曲主题](assets/audio/fit-theme-15s.mp3) | 作曲器会选择适合时长的曲式 |
 
-另外还有**低保真电子乐**：温暖的失谐铺底、轻柔的拨弦主旋律和一点磁带晃动，放松又轻快（发布片的配乐就是它，[配方](skills/anidoodle/references/music/styles/lofi-electronic.md)）；
-以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。
+另外还有**低保真电子乐**：温暖的失谐铺底、轻柔的拨弦主旋律和一点磁带晃动，放松又轻快（发布片的配乐就是用这种风格创作的，[词汇表](skills/anidoodle/references/music/styles/lofi-electronic.md)）；
+以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。风格是用来作曲的词汇，从来不是现成的音符：每部片子都有专门为它写的配乐。
 
 ## 会注意到你的网页
 
@@ -228,7 +228,7 @@ node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, d
 
 ## 示例短片
 
-`skills/anidoodle/example/` 目录里放着**机械鳞翅目**（Mechanical Lepidoptera）：1,410 帧，47 秒，一只机械蝴蝶自己画出自己的图纸，在水彩中苏醒过来，又把蓝图留在了草丛里。这一部作品，就是整个引擎的缩影：控制点是按照真实解剖结构手工摆放的，缓存键记录了每个像素依赖的每一个输入，配乐按照配方生成，从画成到活过来，是一气呵成的一个动作。风格样图和引擎放在一起，都在 `skills/anidoodle/engine/src/canvas-core/` 里，每一张的顶部都写着自己的配方。随便打开一个，改一个数字，看看会发生什么变化。
+`skills/anidoodle/example/` 目录里放着**机械鳞翅目**（Mechanical Lepidoptera）：1,410 帧，47 秒，一只机械蝴蝶自己画出自己的图纸，在水彩中苏醒过来，又把蓝图留在了草丛里。这一部作品，就是整个引擎的缩影：控制点是按照真实解剖结构手工摆放的，缓存键记录了每个像素依赖的每一个输入，配乐专为它创作，从画成到活过来，是一气呵成的一个动作。风格样图和引擎放在一起，都在 `skills/anidoodle/engine/src/canvas-core/` 里，每一张的顶部都写着自己的配方。随便打开一个，改一个数字，看看会发生什么变化。
 
 ## 诚实是设计出来的
 

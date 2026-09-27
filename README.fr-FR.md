@@ -101,7 +101,7 @@ Ni échantillons ni enregistrements. Les notes sont écrites comme des données 
 | [Cinématique, émerveillement](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Électronique](assets/audio/sampler-drive-electronic-8s.mp3) | d'autres ambiances et instruments |
 | [Le thème du nocturne en 15 secondes](assets/audio/fit-theme-15s.mp3) | Le compositeur choisit la forme adaptée à la durée |
 
-Et aussi : **la lo-fi électronique**, détendue et enjouée, avec des nappes chaudes et désaccordées, une mélodie pincée tout en douceur et un léger flottement de bande (c'est la musique du film de lancement ; [la recette](skills/anidoodle/references/music/styles/lofi-electronic.md)), et un **kit de bruitages** : quatorze effets superposés et déterministes, calés sur l'image exacte, la musique s'effaçant sous chacun d'eux ([le design sonore](skills/anidoodle/references/music/sound-design.md)).
+Et aussi : **la lo-fi électronique**, détendue et enjouée, avec des nappes chaudes et désaccordées, une mélodie pincée tout en douceur et un léger flottement de bande (la musique du film de lancement a été composée dans ce style ; [le vocabulaire](skills/anidoodle/references/music/styles/lofi-electronic.md)), et un **kit de bruitages** : quatorze effets superposés et déterministes, calés sur l'image exacte, la musique s'effaçant sous chacun d'eux ([le design sonore](skills/anidoodle/references/music/sound-design.md)). Un style est un vocabulaire avec lequel composer, jamais des notes toutes faites : chaque film reçoit une musique écrite pour lui.
 
 ## Des pages web qui vous remarquent
 
@@ -227,7 +227,7 @@ Quatre moteurs de rendu partagent un même noyau artistique, et ce noyau ignore 
 
 ## Le film d'exemple
 
-`skills/anidoodle/example/` contient **Mechanical Lepidoptera** : 1 410 images, 47 secondes, un papillon mécanique qui se dessine lui-même au trait technique, prend vie à l'aquarelle, et laisse son plan dans l'herbe. C'est tout le moteur réuni dans une seule pièce : des points de contrôle placés à la main sur une anatomie réelle, une clé de cache qui nomme chaque entrée dont dépend un pixel, une bande-son construite à partir de la recette, et un mouvement ininterrompu du plan à la vie. Les planches de style se trouvent à côté du moteur dans `skills/anidoodle/engine/src/canvas-core/`, chacune avec sa recette écrite en haut. Ouvrez-en une, changez un chiffre, et regardez ce qui bouge.
+`skills/anidoodle/example/` contient **Mechanical Lepidoptera** : 1 410 images, 47 secondes, un papillon mécanique qui se dessine lui-même au trait technique, prend vie à l'aquarelle, et laisse son plan dans l'herbe. C'est tout le moteur réuni dans une seule pièce : des points de contrôle placés à la main sur une anatomie réelle, une clé de cache qui nomme chaque entrée dont dépend un pixel, une bande-son composée pour elle, et un mouvement ininterrompu du plan à la vie. Les planches de style se trouvent à côté du moteur dans `skills/anidoodle/engine/src/canvas-core/`, chacune avec sa recette écrite en haut. Ouvrez-en une, changez un chiffre, et regardez ce qui bouge.
 
 ## Honnête par conception
 

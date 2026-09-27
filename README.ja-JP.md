@@ -101,8 +101,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [シネマティック・畏敬](assets/audio/sampler-cinematic-awe-8s.mp3) · [ローファイ](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [マリンバ](assets/audio/sampler-marimba-curious-8s.mp3) · [エレクトロニック](assets/audio/sampler-drive-electronic-8s.mp3) | ほかのムードと楽器 |
 | [15秒に収めたノクターンのテーマ](assets/audio/fit-theme-15s.mp3) | 長さに合う構成を作曲家が選ぶ |
 
-さらに、**ローファイ・エレクトロニック**。温かくデチューンしたパッド、やわらかく爪弾くリード、かすかなテープの揺れで、落ち着いていて軽快（ローンチ映像の音楽もこれ。[レシピ](skills/anidoodle/references/music/styles/lofi-electronic.md)）。
-そして**効果音キット**。重ねて作るシード付きの効果音が十四種、フレーム単位で鳴り、そのたびに音楽が一歩引く（[サウンドデザイン](skills/anidoodle/references/music/sound-design.md)）。
+さらに、**ローファイ・エレクトロニック**。温かくデチューンしたパッド、やわらかく爪弾くリード、かすかなテープの揺れで、落ち着いていて軽快（ローンチ映像の音楽はこのスタイルで作曲した。[語彙](skills/anidoodle/references/music/styles/lofi-electronic.md)）。
+そして**効果音キット**。重ねて作るシード付きの効果音が十四種、フレーム単位で鳴り、そのたびに音楽が一歩引く（[サウンドデザイン](skills/anidoodle/references/music/sound-design.md)）。スタイルは作曲に使う語彙であって、できあいの音符ではない。どの映像にも、その映像のために書いたスコアがつく。
 
 ## あなたに気づくウェブページ
 
@@ -228,7 +228,7 @@ Node 20以降が必要。一枚絵なら上記のブラウザだけで足りる�
 
 ## サンプルのショートフィルム
 
-`skills/anidoodle/example/`には**Mechanical Lepidoptera(機械仕掛けの鱗翅目)**が入っている。1,410フレーム、47秒、自ら製図されていくぜんまい仕掛けの蝶が、水彩の中で命を得て、草の上に自分の設計図を残していく。これはエンジンのすべてが詰まった一作だ。実際の解剖学的構造の上に手で置かれた制御点、1ピクセルが依存するすべての入力に名前をつけるキャッシュキー、レシピから組み立てられたスコア、そして「組み立てられた状態」から「命を得た状態」へと途切れなく移り変わる動き。スタイルプレートは`skills/anidoodle/engine/src/canvas-core/`にエンジンと並んで置かれていて、それぞれの先頭にレシピが書かれている。どれでも開いて、数字をひとつ変えて、何が動くか見てみてほしい。
+`skills/anidoodle/example/`には**Mechanical Lepidoptera(機械仕掛けの鱗翅目)**が入っている。1,410フレーム、47秒、自ら製図されていくぜんまい仕掛けの蝶が、水彩の中で命を得て、草の上に自分の設計図を残していく。これはエンジンのすべてが詰まった一作だ。実際の解剖学的構造の上に手で置かれた制御点、1ピクセルが依存するすべての入力に名前をつけるキャッシュキー、この作品のために作曲されたスコア、そして「組み立てられた状態」から「命を得た状態」へと途切れなく移り変わる動き。スタイルプレートは`skills/anidoodle/engine/src/canvas-core/`にエンジンと並んで置かれていて、それぞれの先頭にレシピが書かれている。どれでも開いて、数字をひとつ変えて、何が動くか見てみてほしい。
 
 ## 正直に設計されている
 
