@@ -101,6 +101,8 @@ No samples and no recordings. The notes are written as data, and every sound is 
 | [Cinematic, awe](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electronic](assets/audio/sampler-drive-electronic-8s.mp3) | more moods and instruments |
 | [The nocturne's theme in 15 seconds](assets/audio/fit-theme-15s.mp3) | the composer picks the form that fits the length |
 
+Also in the box: **lo-fi electronic**, chill and upbeat, with warm detuned pads, a soft plucked lead and a little tape wobble (it scores the launch film; [the recipe](skills/anidoodle/references/music/styles/lofi-electronic.md)), and a **sound-effects kit**: fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)).
+
 ## Web pages that notice you
 
 <p align="center">
@@ -108,6 +110,12 @@ No samples and no recordings. The notes are written as data, and every sound is 
 </p>
 
 Interactive illustrations for real sites: a mascot that follows the cursor and reacts to buttons, a hero that draws itself as the page scrolls, a form companion that covers its eyes at the password field. One small ES module and a `<ani-doodle>` element, no framework, with reduced-motion and keyboard paths. Each frame is still a fact, given the input that led to it.
+
+## Launch your product, drawn in code
+
+The film at the top of this page was made with anidoodle, and the kit it was made with ships with it. Give it your product's name, the prompts a user would type, the pictures that answer them, a few words and your install lines. It cuts a launch film on the beat: a chat that types itself, answers that bloom open and draw themselves, full-frame lettering, and an end card that holds your install lines long enough to copy.
+
+The rules come from four cuts of our own launch and from the craft of the best ones out there: say what it is within five seconds, never put words over the art, cut on the downbeat, make the first frame the thumbnail. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [the kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## Bring your own image
 
@@ -139,6 +147,7 @@ Ask how to draw something, or bring a drawing, and anidoodle rebuilds it as a le
 | **Web pages** | Interactive illustrations that watch the cursor, react to clicks and forms, or draw themselves as the page scrolls. |
 | **Learning** | Drawing lessons: step sheets and timelapses that teach how a picture is built, with what to look for and the common mistakes. |
 | **Characters** | One character, built once and kept identical across shots, poses and styles. |
+| **Your launch** | A launch film for your product from a template: your prompts, your pictures, your words and your install lines, cut to a score. |
 
 Ask in plain words, *"a risograph lighthouse for our careers page, 1600×900"* or *"a chalkboard explainer of how our pricing tiers stack up"*, and anidoodle routes it to the right workflow and style recipe, asking only for what the request leaves open.
 
@@ -207,6 +216,7 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
 ```
 
 Node 20 or newer. Stills need only the browser above; anything that moves also uses `ffmpeg`.

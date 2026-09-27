@@ -101,6 +101,8 @@ Ni échantillons ni enregistrements. Les notes sont écrites comme des données 
 | [Cinématique, émerveillement](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Électronique](assets/audio/sampler-drive-electronic-8s.mp3) | d'autres ambiances et instruments |
 | [Le thème du nocturne en 15 secondes](assets/audio/fit-theme-15s.mp3) | Le compositeur choisit la forme adaptée à la durée |
 
+Et aussi : **la lo-fi électronique**, détendue et enjouée, avec des nappes chaudes et désaccordées, une mélodie pincée tout en douceur et un léger flottement de bande (c'est la musique du film de lancement ; [la recette](skills/anidoodle/references/music/styles/lofi-electronic.md)), et un **kit de bruitages** : quatorze effets superposés et déterministes, calés sur l'image exacte, la musique s'effaçant sous chacun d'eux ([le design sonore](skills/anidoodle/references/music/sound-design.md)).
+
 ## Des pages web qui vous remarquent
 
 <p align="center">
@@ -108,6 +110,12 @@ Ni échantillons ni enregistrements. Les notes sont écrites comme des données 
 </p>
 
 Des illustrations interactives pour de vrais sites : une mascotte qui suit le curseur et réagit aux boutons, une image d'en-tête qui se dessine au défilement de la page, un compagnon de formulaire qui se cache les yeux devant le champ du mot de passe. Un petit module ES et un élément `<ani-doodle>` suffisent, sans framework, avec prise en charge de la réduction des animations et du clavier. Chaque image est déterminée par les entrées qui l'ont précédée.
+
+## Lancez votre produit, dessiné en code
+
+Le film en haut de cette page a été fait avec anidoodle, et le kit qui a servi à le faire est livré avec. Donnez-lui le nom de votre produit, les demandes qu'un utilisateur taperait, les images qui y répondent, quelques mots et vos lignes d'installation. Il monte un film de lancement en rythme : une conversation qui se tape toute seule, des réponses qui s'ouvrent comme une tache d'encre et se dessinent, du lettrage plein écran et un carton final qui garde vos lignes d'installation assez longtemps pour les copier.
+
+Les règles viennent de quatre montages de notre propre lancement et du savoir-faire des meilleurs : dire ce que c'est en cinq secondes, ne jamais poser de texte sur l'illustration, couper sur le temps fort, faire de la première image la miniature. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [le kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## Apportez votre propre image
 
@@ -139,6 +147,7 @@ Demandez comment dessiner quelque chose, ou apportez un de vos dessins, et anido
 | **Pages web** | Des illustrations interactives qui suivent le curseur, réagissent aux clics et aux formulaires, ou se dessinent au fil du défilement. |
 | **Apprentissage** | Des leçons de dessin en étapes et en accéléré, pour comprendre la construction d’une image, les points à observer et les erreurs courantes. |
 | **Personnages** | Un personnage créé une fois, qui reste identique d’un plan, d’une pose et d’un style à l’autre. |
+| **Votre lancement** | Un film de lancement pour votre produit à partir d'un modèle : vos demandes, vos images, vos mots et vos lignes d'installation, montés sur une musique. |
 
 Demandez avec vos propres mots, *« un phare en risographie pour notre page carrières, 1600×900 »* ou *« un schéma à la craie qui explique comment s'articulent nos formules tarifaires »*, et anidoodle l'oriente vers le bon flux de travail et la bonne recette de style, en ne vous questionnant que sur ce que la demande laisse ouvert.
 
@@ -207,6 +216,7 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
 ```
 
 Node 20 ou plus récent. Les images fixes n'ont besoin que du navigateur ci-dessus ; tout ce qui bouge utilise aussi `ffmpeg`.

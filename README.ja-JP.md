@@ -101,6 +101,9 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [シネマティック・畏敬](assets/audio/sampler-cinematic-awe-8s.mp3) · [ローファイ](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [マリンバ](assets/audio/sampler-marimba-curious-8s.mp3) · [エレクトロニック](assets/audio/sampler-drive-electronic-8s.mp3) | ほかのムードと楽器 |
 | [15秒に収めたノクターンのテーマ](assets/audio/fit-theme-15s.mp3) | 長さに合う構成を作曲家が選ぶ |
 
+さらに、**ローファイ・エレクトロニック**。温かくデチューンしたパッド、やわらかく爪弾くリード、かすかなテープの揺れで、落ち着いていて軽快（ローンチ映像の音楽もこれ。[レシピ](skills/anidoodle/references/music/styles/lofi-electronic.md)）。
+そして**効果音キット**。重ねて作るシード付きの効果音が十四種、フレーム単位で鳴り、そのたびに音楽が一歩引く（[サウンドデザイン](skills/anidoodle/references/music/sound-design.md)）。
+
 ## あなたに気づくウェブページ
 
 <p align="center">
@@ -108,6 +111,12 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 </p>
 
 実際のサイトで使えるインタラクティブなイラスト。カーソルを追ってボタンに反応するマスコット、スクロールに合わせて描き上がるヒーロー画像、パスワード欄では目を覆うフォームの相棒。小さなESモジュールひとつと`<ani-doodle>`要素だけで動き、フレームワークは不要。動きを抑える設定とキーボード操作にも対応する。各フレームは、そこに至る入力によって決まる。
+
+## 自分のプロダクトを、コードで描いてローンチする
+
+このページ冒頭の映像は anidoodle で作ったもので、そのときのキットも同梱している。プロダクト名、ユーザーが打ち込むプロンプト、それに応える絵、少しの言葉、インストール用の行を渡すと、拍に合わせてローンチ映像を編集する。ひとりでに入力されるチャット、インクのように開いて描き上がる回答、画面いっぱいのレタリング、そしてインストール行をコピーできるだけ長く見せるエンドカード。
+
+ルールは、自分たちのローンチ映像を四度編集した経験と、優れたローンチ映像の技法から来ている。五秒以内に何なのかを伝える、絵の上に文字を置かない、強拍で切り替える、最初のフレームをサムネイルにする。 → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [キット](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## 自分の画像を持ち込む
 
@@ -139,6 +148,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | **ウェブページ** | カーソルを追い、クリックやフォームに反応し、スクロールに合わせて描き上がるインタラクティブなイラスト。 |
 | **学習** | 絵の組み立て方を、注目すべき点やよくある間違いとともに教える作画手順シートとタイムラプス。 |
 | **キャラクター** | 一度作ったキャラクターを、カットやポーズ、スタイルが変わっても同じ姿に保てる。 |
+| **あなたのローンチ** | テンプレートから作るプロダクトのローンチ映像。プロンプト、絵、言葉、インストール行を渡せば、音楽に合わせて編集される。 |
 
 「採用ページ用にリソグラフ風の灯台のイラストがほしい、1600×900で」とか「料金プランの違いを黒板スタイルで説明する図を作って」というように、ふだんの言葉でお願いすればいい。anidoodleがそれを適切なワークフローとスタイルのレシピに振り分けて、足りない情報だけを聞き返してくる。
 
@@ -207,6 +217,7 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
 ```
 
 Node 20以降が必要。一枚絵なら上記のブラウザだけで足りるが、動くものにはすべて`ffmpeg`も使う。
