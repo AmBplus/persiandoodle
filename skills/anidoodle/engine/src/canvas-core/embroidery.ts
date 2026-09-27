@@ -37,28 +37,28 @@ import { LIGHT, drawShadows, drawThreads, fishbone, headOf, knot, knots, linenLa
 // line with a direction, and tone comes from the direction of the stitches, not from colour fills.
 
 const W = 1080, H = 1080, N = 540, HOLD = 30;
-const EMB_M: Medium = { nib: 1, taper: 0, pressure: 0, retrace: false, wobble: 0, rough: 0 };
-const HC: P = [540, 548], RO = 470, RI = 446;           // the hoop
-const C: P = [540, 584], R = 294;                       // the wreath
-const G = { dark: "#4d6636", olive: "#6c7f3e", sage: "#8ea46a", light: "#b3c690", stem: "#5b6f3b", grey: "#8c9a79" };
-const WHITE = "#f7f3eb", SHELL = "#dcd4c3", BUTTER = "#f1c33d", OCHRE = "#cf8a1e";
+export const EMB_M: Medium = { nib: 1, taper: 0, pressure: 0, retrace: false, wobble: 0, rough: 0 };
+export const HC: P = [540, 548], RO = 470, RI = 446;           // the hoop
+export const C: P = [540, 584], R = 294;                       // the wreath
+export const G = { dark: "#4d6636", olive: "#6c7f3e", sage: "#8ea46a", light: "#b3c690", stem: "#5b6f3b", grey: "#8c9a79" };
+export const WHITE = "#f7f3eb", SHELL = "#dcd4c3", BUTTER = "#f1c33d", OCHRE = "#cf8a1e";
 const BLUE = "#6f98d2", BLUE2 = "#a2bfe6", LAV = "#8f7bc0", LAV2 = "#66529a";
-const POPPY = ["#f08566", "#e2553b", "#c43b2d", "#8b211c"];
-const GOLD = "#e4a62c", UMBER = "#2e231c", FUZZ = "#b0782f", SILVER = "#cfd6db";
+export const POPPY = ["#f08566", "#e2553b", "#c43b2d", "#8b211c"];
+export const GOLD = "#e4a62c", UMBER = "#2e231c", FUZZ = "#b0782f", SILVER = "#cfd6db";
 
-const rad = (d: number) => (d * Math.PI) / 180;
-const polar = (deg: number, r = R): P => [C[0] + Math.cos(rad(deg)) * r, C[1] + Math.sin(rad(deg)) * r];
-const unit = (x: number, y: number): P => { const l = Math.hypot(x, y) || 1; return [x / l, y / l]; };
-const rot = (p: P, a: number): P => [p[0] * Math.cos(a) - p[1] * Math.sin(a), p[0] * Math.sin(a) + p[1] * Math.cos(a)];
-const add = (a: P, b: P, k = 1): P => [a[0] + b[0] * k, a[1] + b[1] * k];
+export const rad = (d: number) => (d * Math.PI) / 180;
+export const polar = (deg: number, r = R): P => [C[0] + Math.cos(rad(deg)) * r, C[1] + Math.sin(rad(deg)) * r];
+export const unit = (x: number, y: number): P => { const l = Math.hypot(x, y) || 1; return [x / l, y / l]; };
+export const rot = (p: P, a: number): P => [p[0] * Math.cos(a) - p[1] * Math.sin(a), p[0] * Math.sin(a) + p[1] * Math.cos(a)];
+export const add = (a: P, b: P, k = 1): P => [a[0] + b[0] * k, a[1] + b[1] * k];
 // the wreath line: a gentle wave on the circle. dir = +1 grows with increasing angle (left branch)
 const wreathR = (deg: number) => R + 7 * Math.sin(rad(deg) * 3);
-const onWreath = (deg: number): P => polar(deg, wreathR(deg));
-const grow = (deg: number, dir: 1 | -1): P => { const a = onWreath(deg), b = onWreath(deg + dir * 1); return unit(b[0] - a[0], b[1] - a[1]); };
-const outward = (deg: number): P => [Math.cos(rad(deg)), Math.sin(rad(deg))];
+export const onWreath = (deg: number): P => polar(deg, wreathR(deg));
+export const grow = (deg: number, dir: 1 | -1): P => { const a = onWreath(deg), b = onWreath(deg + dir * 1); return unit(b[0] - a[0], b[1] - a[1]); };
+export const outward = (deg: number): P => [Math.cos(rad(deg)), Math.sin(rad(deg))];
 
 // ---------------------------------------------------------------- plants
-type Section = { id: string; a: number; b: number; sts: St[] };
+export type Section = { id: string; a: number; b: number; sts: St[] };
 const LEFT = { from: 102, to: 262, dir: 1 as const }, RIGHT = { from: 78, to: -30, dir: -1 as const };
 const branchPath = (b: typeof LEFT | typeof RIGHT): P[] => { const out: P[] = []; for (let d = b.from; b.dir > 0 ? d <= b.to : d >= b.to; d += b.dir * 2) out.push(onWreath(d)); return out; };
 // the two stems cross at the bottom, where they were tied
@@ -92,18 +92,18 @@ const outlineOf = (l: Leaf): P[] => {
 const litSide = (l: Leaf): number => { const a = l.mid[0], b = l.mid[l.mid.length - 1], u = unit(b[0] - a[0], b[1] - a[1]); return -u[1] * LIGHT[0] + u[0] * LIGHT[1] > 0 ? -1 : 1; };
 
 // POPPY: four petals seen three-quarter from above, the back pair larger, the front pair overlapping
-const PC: P = add(polar(127, R + 8), [0, 0]);
+export const PC: P = add(polar(127, R + 8), [0, 0]);
 const petal = (cDeg: number, half: number, rad0: number, seed: number) => {
   const arc: P[] = [], r = rng(seed), ph = r() * 6;
   for (let k = 0; k <= 18; k++) { const f = k / 18, a = rad(cDeg - half + f * 2 * half), rr = rad0 * (1 + 0.07 * Math.sin(a * 7 + ph) - 0.2 * Math.pow(Math.abs(f - 0.5) * 2, 2.4)); const v = rot([Math.cos(a) * rr, Math.sin(a) * rr * 0.8], rad(-12)); arc.push(add(PC, v)); }
   const inner = (a: number): P => add(PC, rot([Math.cos(rad(a)) * 11, Math.sin(rad(a)) * 9], rad(-12)));
   return { arc, outline: [inner(cDeg - half * 0.5), ...arc, inner(cDeg + half * 0.5)], target: (p: P): P => lerpP(PC, p, 0.2) };
 };
-const PETALS = [petal(-128, 62, 80, 1), petal(-42, 58, 76, 2), petal(150, 60, 70, 3), petal(48, 62, 72, 4)];
+export const PETALS = [petal(-128, 62, 80, 1), petal(-42, 58, 76, 2), petal(150, 60, 70, 3), petal(48, 62, 72, 4)];
 
 // DAISY: rays from an inner to an outer radius, satin across each ray, then a knotted disc.
 // `T` maps the flower's own disc into the page, which is how the three-quarter view is authored.
-const daisy = (T: (p: P) => P, n: number, r0: number, r1: number, seed: number, face = 1): St[] => {
+export const daisy = (T: (p: P) => P, n: number, r0: number, r1: number, seed: number, face = 1): St[] => {
   const out: St[] = [], r = rng(seed);
   for (let i = 0; i < n; i++) {
     const a = (i / n) * Math.PI * 2 + r() * 0.12, len = (r1 - r0) * (0.86 + r() * 0.2), dir: P = [Math.cos(a), Math.sin(a)], bend = (r() - 0.5) * 0.3;
@@ -113,8 +113,8 @@ const daisy = (T: (p: P) => P, n: number, r0: number, r1: number, seed: number, 
   }
   return out;
 };
-const disc = (T: (p: P) => P, r: number, seed: number): St[] => knots(0, 0, r, r, 2.3, (u, v) => (u * 0.6 + v * 0.8 > 0.25 ? OCHRE : BUTTER), seed).map((k) => ({ ...k, a: T(k.a) }));
-const faceOn = (c: P, k = 1, squash = 1, tilt = 0) => (p: P): P => add(c, rot([p[0] * k, p[1] * k * squash], rad(tilt)));
+export const disc = (T: (p: P) => P, r: number, seed: number): St[] => knots(0, 0, r, r, 2.3, (u, v) => (u * 0.6 + v * 0.8 > 0.25 ? OCHRE : BUTTER), seed).map((k) => ({ ...k, a: T(k.a) }));
+export const faceOn = (c: P, k = 1, squash = 1, tilt = 0) => (p: P): P => add(c, rot([p[0] * k, p[1] * k * squash], rad(tilt)));
 
 // FORGET-ME-NOTS: five round petals, a yellow eye, clustered on short stalks
 const forgetMeNots = (deg: number, side: number, seed: number): { stems: St[]; petals: St[]; eyes: St[] } => {
@@ -131,7 +131,7 @@ const forgetMeNots = (deg: number, side: number, seed: number): { stems: St[]; p
   return { stems, petals, eyes };
 };
 // LAVENDER: a bare stem, then a spike of knots in whorls, tighter to the tip
-const lavender = (deg: number, seed: number): { stem: St[]; spike: St[] } => {
+export const lavender = (deg: number, seed: number): { stem: St[]; spike: St[] } => {
   const r = rng(seed), base = onWreath(deg), o = outward(deg), g = grow(deg, deg >= 90 ? 1 : -1), d = unit(o[0] * 0.8 + g[0] * 0.6, o[1] * 0.8 + g[1] * 0.6), n: P = [-d[1], d[0]], len = 96 + r() * 16, bend = (r() - 0.5) * 0.3;
   const path = [base, add(add(base, d, len * 0.5), n, bend * 10), add(add(base, d, len), n, bend * 22)], spine = resample(smooth(path, false, 6), 40);
   const spike: St[] = [];
@@ -141,9 +141,9 @@ const lavender = (deg: number, seed: number): { stem: St[]; spike: St[] } => {
 };
 
 // ---------------------------------------------------------------- the bee
-const BEE: P = [650, 300], HEAD = rad(33), BS = 1.42;
+export const BEE: P = [650, 300], HEAD = rad(33), BS = 1.42;
 const B = (x: number, y: number): P => add(BEE, rot([x * BS, y * BS], HEAD));
-const bee = () => {
+export const bee = () => {
   const abdomen: St[] = [], thorax: St[] = [], head: St[] = [], legs: St[] = [], wings: St[] = [], r = rng(77);
   // abdomen: six bands, satin across the body, the band edges bowing toward the tail with the roundness
   const x0 = 1, x1 = -66, hw = (u: number) => 21 * Math.pow(Math.sin(Math.PI * clamp(0.1 + u * 0.88)), 0.6) * (1 - 0.25 * u);
@@ -175,7 +175,7 @@ const bee = () => {
 const FLIGHT: P[] = [[262, 300], [290, 226], [352, 186], [398, 222], [372, 262], [334, 232], [366, 176], [436, 146], [500, 160], [542, 196], [566, 226]];
 
 // ---------------------------------------------------------------- the timeline: one cue table
-const build = (): Section[] => {
+export const build = (): Section[] => {
   const leaves = LEAVES.map(leafOf), bigLeaves = leaves.filter((l) => l.big), small = leaves.filter((l) => !l.big);
   const fmn = [forgetMeNots(150, 1, 11), forgetMeNots(213, -1, 12), forgetMeNots(47, 1, 13), forgetMeNots(-3, -1, 14)];
   const lav = [lavender(167, 21), lavender(233, 22), lavender(63, 23), lavender(8, 24)];
@@ -224,10 +224,10 @@ const timeline = (secs: Section[]): Timed[] => secs.flatMap((s) => {
 ((): void => { let t = 5; for (const s of build()) { if (s.a !== t || s.b <= s.a) throw new Error(`embroidery: section ${s.id} ${s.a}-${s.b} does not follow ${t}`); t = s.b; } if (t !== 505 || N % 15 || N - HOLD !== 510) throw new Error("embroidery: timeline does not end at 505 before the park and hold"); })();
 
 // ---------------------------------------------------------------- the sheet in the hoop
-const cached = <T,>(env: Env, key: string, fn: () => T): T => { let v = env.cache.get(key) as T | undefined; if (v === undefined) { v = fn(); env.cache.set(key, v); } return v; };
-const DWH = (env: Env): [number, number] => [Math.round(env.W * env.scale), Math.round(env.H * env.scale)];
+export const cached = <T,>(env: Env, key: string, fn: () => T): T => { let v = env.cache.get(key) as T | undefined; if (v === undefined) { v = fn(); env.cache.set(key, v); } return v; };
+export const DWH = (env: Env): [number, number] => [Math.round(env.W * env.scale), Math.round(env.H * env.scale)];
 const STRIDE = 180;                                                    // stitches per cached checkpoint
-const drawRun = (L: Layer, env: Env, sts: St[], lastP = 1) => {
+export const drawRun = (L: Layer, env: Env, sts: St[], lastP = 1) => {
   if (!sts.length) return;
   const g = new Gfx(L.ctx, env, 0, EMB_M); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const s of sts) { x0 = Math.min(x0, s.a[0], s.b[0]); y0 = Math.min(y0, s.a[1], s.b[1]); x1 = Math.max(x1, s.a[0], s.b[0]); y1 = Math.max(y1, s.a[1], s.b[1]); }
   g.group("plain", () => { g.touch(x0 - 8, y0 - 8, x1 + 10, y1 + 10); drawShadows(g.cur, sts, lastP); }, { blur: 0.9 });
@@ -243,13 +243,13 @@ const checkpoint = (env: Env, all: Timed[], k: number): Layer | null => {
   return L;
 };
 
-const ground = (env: Env): Layer => linenLayer(env, "hoop", 4.2, [224, 211, 186], (x, y) => {
+export const ground = (env: Env): Layer => linenLayer(env, "hoop", 4.2, [224, 211, 186], (x, y) => {
   const d = Math.hypot(x - HC[0], y - HC[1]);
   if (d < RI) return 1.03 - 0.05 * (d / RI) ** 2;                    // drum-tight inside the hoop
   const fold = Math.sin((x * 0.8 + y * 0.35) * 0.012 + Math.sin(y * 0.01) * 1.6);   // slack cloth outside it, in soft folds
   return 0.84 + 0.07 * fold;
 });
-const hoop = (env: Env): Layer => cached(env, `emb:hoop:${env.scale}:${env.W}x${env.H}`, () => {
+export const hoop = (env: Env): Layer => cached(env, `emb:hoop:${env.scale}:${env.W}x${env.H}`, () => {
   const [dw, dh] = DWH(env), L = env.canvas(dw, dh), c = L.ctx, s = env.scale; c.setTransform(s, 0, 0, s, 0, 0);
   const ring = (dx: number, dy: number, r0: number, r1: number) => { c.beginPath(); c.arc(HC[0] + dx, HC[1] + dy, r1, 0, Math.PI * 2); c.arc(HC[0] + dx, HC[1] + dy, r0, 0, Math.PI * 2, true); };
   // the ring's shadow: inside at upper left, outside at lower right; soft by stacking offset copies
@@ -274,7 +274,7 @@ const hoop = (env: Env): Layer => cached(env, `emb:hoop:${env.scale}:${env.W}x${
 });
 
 // the needle, and the working thread from its eye
-const needle = (c: Ctx, tip: P, dir: P, colour: string, parked: boolean) => {
+export const needle = (c: Ctx, tip: P, dir: P, colour: string, parked: boolean) => {
   const len = 52, back = add(tip, dir, -len), n: P = [-dir[1], dir[0]], tail = add(back, dir, -4);
   c.save(); c.lineCap = "round";
   const thread = parked ? [tail, add(tail, [-40, 30]), add(tail, [-10, 76]), add(tail, [-62, 96])] : [tail, add(add(tail, dir, -30), n, 18), add(add(tail, dir, -58), n, 8), add(add(tail, dir, -84), n, 30)];
