@@ -8,6 +8,7 @@ export * from "./render";
 export * from "./meter";
 export * from "./guards";
 export * from "./score-text";
+export * from "./lofiElectronic";
 export * as instruments from "./instruments";
 import { nocturne, pianoPhrase8 } from "./pieces/nocturne";
 import { launchLofi, launchLofi2, launchLofi3 } from "./pieces/launch";

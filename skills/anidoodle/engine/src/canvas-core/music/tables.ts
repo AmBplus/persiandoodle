@@ -4,7 +4,7 @@
 import type { ModeId } from "./theory";
 
 export type MelodyType = "arpeggio" | "stepwise" | "hook" | "ostinato" | "drone" | "callResponse" | "counterMelody" | "sequence" | "themeTransformation";
-export type Family = "piano" | "musicBox" | "celesta" | "mallets" | "pluck" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "chip" | "drums" | "organ" | "bass";
+export type Family = "piano" | "musicBox" | "celesta" | "mallets" | "pluck" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "chip" | "drums" | "organ" | "bass" | "pad";
 export type Range = [number, number];
 export type Mood = {
   id: MoodId; modes: ModeId[]; tempo: Range; meters: string[]; harmonicRhythmBars: Range; register: Range;
@@ -36,7 +36,7 @@ export const MOODS: Record<MoodId, Mood> = {
 export const REFUSED_BLENDS: [MoodId, MoodId][] = [["joy", "dread"], ["playful", "melancholy"], ["calm", "tension"]];
 export const ARCS: Record<string, MoodId[]> = { rise: ["melancholy", "hopeful", "triumph"], turn: ["joy", "tension", "joy"], fallAndReturn: ["tender", "melancholy", "tender"], wonder: ["curious", "awe"], comic: ["playful", "tension", "playful"] };
 
-export type StyleId = "musicBox" | "nocturne" | "drive" | "cinematic" | "chiptune" | "lofi" | "folk" | "minimalist" | "jazz" | "lullaby" | "ambient";
+export type StyleId = "musicBox" | "nocturne" | "drive" | "cinematic" | "chiptune" | "lofi" | "lofiElectronic" | "folk" | "minimalist" | "jazz" | "lullaby" | "ambient";
 export type Style = { id: StyleId; tempo: Range; meters: string[]; families: Family[]; moods: MoodId[]; master: "gentle" | "dense"; arrangement: string; guards: string[]; reverb: "none" | "room" | "hall"; swing?: Range };
 export const STYLES: Record<StyleId, Style> = {
   musicBox: { id: "musicBox", tempo: [110, 130], meters: ["12/8"], families: ["musicBox", "fmBell"], moods: ["joy", "curious", "tender", "playful", "wistful"], master: "gentle", reverb: "room", arrangement: "melody -> +bass -> +arp -> +octave sparkle -> bell", guards: ["pluck-only instruments", "more notes, never longer notes"] },
@@ -45,6 +45,7 @@ export const STYLES: Record<StyleId, Style> = {
   cinematic: { id: "cinematic", tempo: [60, 120], meters: ["4/4", "3/4"], families: ["strings", "piano", "harp", "fmBell", "drums"], moods: ["awe", "triumph", "melancholy", "tension", "hopeful"], master: "gentle", reverb: "hall", arrangement: "layered by register slot; crescendos over 4-8 bars", guards: ["max 4 families at once outside climaxes"] },
   chiptune: { id: "chiptune", tempo: [120, 160], meters: ["4/4"], families: ["chip"], moods: ["joy", "playful", "drive", "tension"], master: "dense", reverb: "none", arrangement: "2 pulses, triangle bass, noise drums; fast arpeggios fake chords", guards: ["<= 4 voices", "no reverb", "PolyBLEP pulses"] },
   lofi: { id: "lofi", tempo: [70, 90], meters: ["4/4"], families: ["ePiano", "drums", "bass"], moods: ["nostalgic", "calm", "wistful"], master: "dense", reverb: "room", swing: [0.55, 0.62], arrangement: "4 or 8 bar loop with small variations", guards: ["no 2 consecutive identical 8-bar blocks", "master low-pass <= 9 kHz allowed"] },
+  lofiElectronic: { id: "lofiElectronic", tempo: [80, 100], meters: ["4/4"], families: ["pad", "pluck", "bass", "drums"], moods: ["calm", "joy", "hopeful", "nostalgic"], master: "dense", reverb: "room", swing: [0.52, 0.56], arrangement: "4-bar chord loop; sections add and remove layers (intro, groove, hook, half-time, breakdown, drop, outro); a chosen bar lands on the home chord", guards: ["no ePiano, no vinyl, no bit-crush: clean", "balance by stem RMS vs targets, not LUFS alone"] },
   folk: { id: "folk", tempo: [80, 120], meters: ["6/8", "3/4", "4/4"], families: ["guitar", "harp", "fmBell"], moods: ["calm", "wistful", "joy", "nostalgic"], master: "gentle", reverb: "room", arrangement: "fingerpicked pattern + lead", guards: ["strum spread 10-30 ms low to high"] },
   minimalist: { id: "minimalist", tempo: [100, 140], meters: ["4/4", "12/8"], families: ["mallets", "piano"], moods: ["curious", "tension", "awe"], master: "gentle", reverb: "room", arrangement: "interlocking ostinatos; one change every 8-16 bars", guards: ["a change at least every 16 bars"] },
   jazz: { id: "jazz", tempo: [90, 180], meters: ["4/4"], families: ["piano", "bass", "drums"], moods: ["playful", "nostalgic", "romantic", "curious"], master: "gentle", reverb: "room", swing: [0.6, 0.67], arrangement: "walking bass on quarters, comping off the beat", guards: ["7th chords required"] },

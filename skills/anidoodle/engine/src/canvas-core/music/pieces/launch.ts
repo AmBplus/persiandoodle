@@ -14,6 +14,7 @@
 // [the live page] · 30-33 hook + sparkle [the film] · 34-35 breakdown, drums out [the reveal] ·
 // 36 everything back [All in pure code.] · 37-38 outro, Cmaj9 held [the end card].
 import { line, type Note, type Piece, type Role } from "../plan";
+import { lofiElectronic, type LofiChord, type LofiSpec } from "../lofiElectronic";
 
 export const LAUNCH_BPM = 90, LAUNCH_BARS = 39;
 const L = (t: number, s: string, role: Role, v = 0.7, extra: { roll?: number } = {}) => line(t, s, { role, v, bpb: 4, ...extra });
@@ -66,24 +67,26 @@ export const launchLofi2 = (): Piece => {
 // 11-13 hook [bricks] · 14-15 half-time [Van Gogh] · 16 sparkle [LOOPS] · 17-21 groove, hook from
 // 19 [INTERACTIVE, the site] · 22-23 sparkle [FILMS, the film] · 24-25 breakdown [the five words] ·
 // 26 everything back [All in pure code.] · 27-28 home [the end card].
+// Written on the lo-fi electronic style API (lofiElectronic.ts); its audio is bit-identical to the
+// hand-written v6 (md5 of renderPiece at 48 kHz d20789f2344e6fff0d2a380c7c7825d2, guarded by tools/music-unit.mjs).
 export const LAUNCH3_BARS = 29;
-export const launchLofi3 = (): Piece => {
-  const B = LAUNCH3_BARS, last = B - 1, ci = (b: number) => (b < 2 ? -1 : b % 4);
-  const bars = (fn: (b: number, c: number) => string | null, role: Role, v: number, extra: { roll?: number } = {}): Note[] => { const out: Note[] = []; for (let b = 0; b < B; b++) { const x = fn(b, ci(b)); if (x) out.push(...L(b * 4, x, role, v, extra)); } return out; };
-  const full: [number, number][] = [[2, 13], [16, 23], [26, 26]], half: [number, number][] = [[14, 15]];
-  const pad = bars((b, c) => (b >= 27 ? `${PAD[2]}:4@.75` : c < 0 ? `${PAD_INTRO[b]}:4@.8` : `${PAD[c]}:4`), "accomp", 0.62, { roll: 0.03 });
-  const sub = bars((b, c) => (c < 0 || inRanges(b, [[24, 25]]) ? null : b >= 27 ? "C2:4" : SUB[c]), "bass", 0.85);
-  const kick = bars((b) => (inRanges(b, full) ? KICK[b % 2] : inRanges(b, half) ? "C4:2 r:2" : null), "drum", 0.85);
-  const snare = bars((b) => (inRanges(b, full) ? "r:1 C4:2 C4:1" : inRanges(b, half) ? "r:2 C4:2" : null), "drum", 0.7);
-  const ghost = bars((b) => (inRanges(b, full) ? (b % 2 ? "r:1.75 C4:.25@.45 r:2" : "r:3.75 C4:.25@.5") : null), "drum", 0.5);
-  const hats = bars((b) => (inRanges(b, full) ? HATS : inRanges(b, half) ? "C4:1@.6 C4:1@.35 C4:1@.6 C4:1@.35" : null), "drum", 0.5);
-  const lead = bars((b, c) => (inRanges(b, [[6, 13], [19, 21], [26, 26]]) ? HOOK[c] : b === last ? "C5:4" : null), "melody", 0.72);
-  const sparkle = bars((b, c) => (inRanges(b, [[8, 10], [16, 16], [22, 25]]) ? SPARK[c] : null), "color", 0.5);
-  const harmony = Array.from({ length: B }, (_, b) => ({ t: b * 4, name: b < 2 ? ["Cmaj9", "Am9"][b] : b >= 27 ? "Cmaj9" : ["Dm9", "G13", "Cmaj9", "Am9"][b % 4] }));
-  const base = launchLofi();
-  return { ...base, title: "anidoodle launch, cut 3", harmony, plan: { ...base.plan, sections: [{ ...base.plan.sections[0], bars: B }] },
-    parts: base.parts.map((pt) => ({ ...pt, notes: ({ pad, lead, sparkle, sub, kick, snare, ghost, hat: hats } as Record<string, Note[]>)[pt.id] })) };
-};
+/** The launch loop ii-V-I-vi in C: Dm9 G13 Cmaj9 Am9, rootless pads, a 4-bar hook and sparkle answer. */
+export const LAUNCH_PROGRESSION: LofiChord[] = [
+  { name: "Dm9", pad: PAD[0], root: "D2", walk: "A1", hook: HOOK[0], sparkle: SPARK[0] },
+  { name: "G13", pad: PAD[1], root: "G1", walk: "D2", hook: HOOK[1], sparkle: SPARK[1] },
+  { name: "Cmaj9", pad: PAD[2], root: "C2", walk: "G1", hook: HOOK[2], sparkle: SPARK[2] },
+  { name: "Am9", pad: PAD[3], root: "A1", walk: "E2", hook: HOOK[3], sparkle: SPARK[3] },
+];
+export const launchLofi3Spec = (): LofiSpec => ({
+  title: "anidoodle launch, cut 3", seed: 2027, bpm: LAUNCH_BPM, key: "C", progression: LAUNCH_PROGRESSION, home: 2, land: "claim",
+  intro: [{ name: "Cmaj9", pad: PAD_INTRO[0] }, { name: "Am9", pad: PAD_INTRO[1] }], outroNote: "C5",
+  sections: [
+    { kind: "intro", bars: 2 }, { kind: "groove", bars: 4 }, { kind: "hook", bars: 2 }, { kind: "hook", bars: 3, sparkle: true }, { kind: "hook", bars: 3 },
+    { kind: "half", bars: 2 }, { kind: "groove", bars: 1, sparkle: true }, { kind: "groove", bars: 2 }, { kind: "hook", bars: 3 },
+    { kind: "groove", bars: 2, sparkle: true }, { kind: "breakdown", bars: 2, sparkle: true }, { kind: "drop", bars: 1, id: "claim" }, { kind: "outro", bars: 2 },
+  ],
+});
+export const launchLofi3 = (): Piece => lofiElectronic(launchLofi3Spec());
 
 export const launchLofi = (): Piece => {
   const full: [number, number][] = [[2, 18], [23, 33], [36, 36]], half: [number, number][] = [[19, 22]], last = LAUNCH_BARS - 1;
