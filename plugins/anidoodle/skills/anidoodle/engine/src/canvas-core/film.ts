@@ -41,10 +41,22 @@ export const validate = (film: Film): string[] => {
 };
 
 export const shotAt = (film: Film, frame: number): Shot | undefined => film.shots.find((s) => frame >= s.start && frame < s.end);
+// Every frame starts from a DEFAULT context, whatever the last frame left behind: a lineJoin, a dash,
+// a font or an unmatched save() leaking from frame 86 into frame 109 makes 109 depend on the order
+// frames were asked for (measured on brickBalloon inside the launch film). reset() is the whole
+// state in one call; the fallback names every property a 2D context carries.
+const freshState = (ctx: Ctx) => {
+  const c = ctx as Ctx & { reset?: () => void };
+  if (typeof c.reset === "function") { c.reset(); return; }
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = "#000"; ctx.strokeStyle = "#000"; ctx.lineWidth = 1; ctx.lineCap = "butt"; ctx.lineJoin = "miter"; ctx.miterLimit = 10;
+  ctx.setLineDash([]); ctx.lineDashOffset = 0; ctx.font = "10px sans-serif"; ctx.textAlign = "start"; ctx.textBaseline = "alphabetic"; ctx.direction = "inherit";
+  ctx.shadowBlur = 0; ctx.shadowColor = "rgba(0, 0, 0, 0)"; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "low";
+};
 export const renderFrame = (film: Film, ctx: Ctx, frame: number, env: Env): string | null => {
   const s = shotAt(film, Math.max(0, Math.min(film.meta.durationFrames - 1, Math.round(frame))));
   if (!s) return null;
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.clearRect(0, 0, env.W * env.scale, env.H * env.scale);
+  freshState(ctx); ctx.clearRect(0, 0, env.W * env.scale, env.H * env.scale);
   s.draw(ctx, frame - s.start, env);
   return s.id;
 };

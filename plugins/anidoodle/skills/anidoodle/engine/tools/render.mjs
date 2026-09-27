@@ -1,11 +1,19 @@
 // node tools/render.mjs [film] [--scale 1] [--workers 4] [--out out/x.mp4|.gif|.webm|.apng] [--gif-fps 15] [--width 640]
 //                       [--blur N] [--from F] [--to F]
-// --blur N  motion blur: every output frame is the average of N subframes over a one-frame
-//           shutter, integrated in linear light inside the page. Fast pans and dolly moves stop
-//           juddering; stills and stepped (on-twos) art are unchanged because their subframes are
-//           identical. Costs N times the draw time. The default path (--blur 1) is untouched.
+// --blur N  motion blur (N an integer >= 1): every output frame is the average of N subframes over
+//           a one-frame shutter, integrated in linear light and weighted by alpha inside the page.
+//           Fast pans and dolly moves stop juddering; held frames come out unchanged because their
+//           subframes are identical. Stepped art (meta.step > 1 or onTwos) is NOT blurred: the
+//           shutter would straddle two drawings. Costs N times the draw time. --blur 1 is untouched.
 // --from/--to  render only frames [from, to): for checking a passage, not for shipping. A range
-//           render is silent (the score would not line up) and says so.
+//           render is silent (the score would not line up), says so, and by default writes
+//           out/<film>.<from>-<to>.<ext> so it can never overwrite the finished film.
+// --hashes file  also write "frame md5" of every PNG handed to the encoder: two renders compared
+//           frame by frame, before any codec can blur the difference.
+// --poster-frame N [--poster-fade 6]  platforms show frame 0 as the thumbnail: open on frame N (the
+//           wall of styles, the logo) and dissolve into the real opening by frame 6. The frame
+//           count and the score are unchanged. A delivery whose frame 0 is near-blank gets a
+//           warning after the encode (verify-export --delivery makes it a failure).
 // Auto-detects a backend, renders every frame through it, encodes with ffmpeg, then VERIFIES.
 //   .mp4   the film, with its score
 //   .gif   loops and README heroes: silent, loops forever, ONE palette built from the whole piece
@@ -15,6 +23,7 @@
 //   .apng  animated PNG, alpha kept, loops forever, plays in every browser
 // --width only applies to the silent formats; the MP4 is always the film's own size.
 import { spawn, execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { join, resolve } from "node:path";
@@ -23,11 +32,18 @@ import { detect } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
 import { defaultOutput } from "./names.mjs";
 import { float32Wav } from "./audio.mjs";
+import { firstFrameBlank } from "./thumb.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
 const film = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "fixtures";
-const BLUR = Math.max(1, Number(arg("blur", 1)));
-const scale = Number(arg("scale", 1)), fmt = (arg("out", "").match(/\.(gif|webm|apng)$/i)?.[1] ?? "mp4").toLowerCase(), workers = Number(arg("workers", Math.max(1, Math.min(4, Math.floor(cpus().length / 2))))), out = resolve(arg("out", defaultOutput(film)));
+const BLUR = Number(arg("blur", 1));
+if (!Number.isInteger(BLUR) || BLUR < 1) { console.error(`--blur wants a whole number of subframes >= 1, got '${arg("blur")}'`); process.exit(2); }
+const scale = Number(arg("scale", 1)), fmt = (arg("out", "").match(/\.(gif|webm|apng)$/i)?.[1] ?? "mp4").toLowerCase(), workers = Number(arg("workers", Math.max(1, Math.min(4, Math.floor(cpus().length / 2)))));
+const HASHES = arg("hashes", null) ? new Map() : null;
+const RANGE_ASKED = process.argv.includes("--from") || process.argv.includes("--to");
+const POSTER = arg("poster-frame", null) === null ? null : Number(arg("poster-frame")), FADE = Number(arg("poster-fade", 6));
+if (POSTER !== null && (!Number.isInteger(POSTER) || POSTER < 0)) { console.error(`--poster-frame wants a frame number >= 0, got '${arg("poster-frame")}'`); process.exit(2); }
+if (!Number.isInteger(FADE) || FADE < 0) { console.error(`--poster-fade wants a whole number of frames >= 0, got '${arg("poster-fade")}'`); process.exit(2); }
 
 const env = detect();
 console.log("backends found:"); for (const [k, v] of Object.entries(env.report)) console.log(`  ${k.padEnd(11)} ${v}`);
@@ -40,6 +56,15 @@ const t0 = Date.now(), session = await playwright.open(env, page.out, { scale, w
 const FROM = Math.max(0, Number(arg("from", 0))), TO = Math.min(N, Number(arg("to", N)));
 if (!Number.isInteger(FROM) || !Number.isInteger(TO) || TO <= FROM) { console.error(`bad range: [${FROM}, ${TO}) of ${N}`); process.exit(2); }
 const ranged = FROM !== 0 || TO !== N;
+// a passage never lands on the finished film's path: default to out/<film>.<from>-<to>.<ext>, and refuse an explicit --out that IS the film
+const full = resolve(defaultOutput(film).replace(/\.mp4$/, `.${fmt}`));
+const out = resolve(arg("out", ranged ? `out/${film}.${FROM}-${TO}.${fmt}` : full));
+if (ranged && out === resolve(defaultOutput(film))) { console.error(`refusing to write a range render over the finished film ${out}; pick another --out or drop --from/--to`); process.exit(2); }
+if (RANGE_ASKED && !ranged) console.log("range covers the whole film: rendering it complete, with its score");
+if (POSTER !== null && POSTER >= N) { console.error(`--poster-frame ${POSTER} is past the film's last frame ${N - 1}`); process.exit(2); }
+if (POSTER !== null) console.log(`poster: frame 0 is frame ${POSTER}, dissolving into the opening by frame ${Math.max(1, FADE)}`);
+const posterAt = (n) => POSTER !== null && n < Math.max(1, FADE); // frames the poster dissolve touches
+const drawAt = (n, w) => (posterAt(n) ? session.poster(n, POSTER, FADE, BLUR, w) : BLUR > 1 ? session.blur(n, BLUR, w) : session.frame(n, w));
 console.log(`film: "${meta.title}" ${meta.W}x${meta.H} @ ${meta.fps} fps, ${N} frames, ${meta.bpm} bpm, scale ${scale}, ${session.workers} page(s)`);
 if (BLUR > 1) console.log(`motion blur: ${BLUR} subframes per frame, one-frame shutter, linear light`);
 if (ranged) console.log(`range render: frames [${FROM}, ${TO}) of ${N}, silent by design`);
@@ -65,9 +90,10 @@ const done = new Promise((res, rej) => ff.on("close", (c) => (c ? rej(new Error(
 const cost = [], pending = new Map(); let next, write;
 const pump = async () => { while (pending.has(write)) { const b = pending.get(write); pending.delete(write); if (!ff.stdin.write(b)) await new Promise((r) => ff.stdin.once("drain", r)); write++; } };
 next = FROM; write = FROM;
-await Promise.all(Array.from({ length: session.workers }, async (_, w) => { while (next < TO) { const n = next++; while (n - write > session.workers * 3) await new Promise((r) => setTimeout(r, 5)); const f = BLUR > 1 ? await session.blur(n, BLUR, w) : await session.frame(n, w); cost.push({ n, shot: f.shot, draw: f.drawMs, enc: f.encodeMs, rt: f.roundTripMs }); pending.set(n, f.png); await pump(); } }));
+await Promise.all(Array.from({ length: session.workers }, async (_, w) => { while (next < TO) { const n = next++; while (n - write > session.workers * 3) await new Promise((r) => setTimeout(r, 5)); const f = await drawAt(n, w); if (HASHES) HASHES.set(n, createHash("md5").update(f.png).digest("hex")); cost.push({ n, shot: f.shot, draw: f.drawMs, enc: f.encodeMs, rt: f.roundTripMs }); pending.set(n, f.png); await pump(); } }));
 await pump(); ff.stdin.end(); await done;
 const wall = (Date.now() - t0) / 1000;
+if (HASHES) { const hf = resolve(arg("hashes")); mkdirSync(join(hf, ".."), { recursive: true }); writeFileSync(hf, [...HASHES].sort((a, b) => a[0] - b[0]).map(([n, h]) => `${n} ${h}`).join("\n") + "\n"); console.log(`frame hashes -> ${hf}`); }
 
 // ---- frame cost
 const stat = (xs) => { const s = [...xs].sort((a, b) => a - b); return { med: s[s.length >> 1], p95: s[Math.floor(s.length * 0.95)], max: s[s.length - 1] }; };
@@ -80,9 +106,11 @@ console.log(`  wall clock: ${wall.toFixed(1)} s for ${TO - FROM} frames = ${((TO
 // ---- verify: same frame, different order, different page. Standard = visually identical; hash equality is the cheap first test.
 const probe = [...new Set([0, ...meta.shots.flatMap((s) => [s.start, s.end - 1]), ...((k) => Array.from({ length: k }, (_, i) => Math.round(i * (N - 1) / (k - 1 || 1))))(Math.min(6, N)), N - 1])].filter((n) => n >= FROM && n < TO).sort((a, b) => a - b), fwd = [], rev = [];
 if (!probe.length) probe.push(FROM);
-for (const n of probe) fwd.push(await session.hash(n, 0)); for (const n of [...probe].reverse()) rev.unshift(await session.hash(n, session.workers - 1));
+const hashOf = (n, w) => (posterAt(n) ? session.posterHash(n, POSTER, FADE, BLUR, w) : BLUR > 1 ? session.blurHash(n, BLUR, w) : session.hash(n, w)); // probe what was WRITTEN: poster dissolve, blurred frame
+for (const n of probe) fwd.push(await hashOf(n, 0)); for (const n of [...probe].reverse()) rev.unshift(await hashOf(n, session.workers - 1));
 const same = probe.filter((_, i) => fwd[i] === rev[i]).length;
-console.log(`\ndeterminism: ${same}/${probe.length} probe frames hash-identical (forward on page 0 vs reversed on page ${session.workers - 1})${same === probe.length ? "" : "  -> fall back to PSNR > 45 dB in the Phase 2 gate"}`);
+console.log(`\ndeterminism: ${same}/${probe.length} probe frames${BLUR > 1 ? ` (blurred, ${BLUR} subframes)` : ""} hash-identical (forward on page 0 vs reversed on page ${session.workers - 1})${same === probe.length ? "" : "  -> fall back to PSNR > 45 dB in the Phase 2 gate"}`);
 await session.close();
 const pr = execFileSync("ffprobe", ["-v", "error", "-show_entries", "stream=codec_type,codec_name,width,height,nb_frames,duration", "-of", "csv=p=0", out]).toString().trim().split("\n");
 console.log(`\noutput: ${out}`); pr.forEach((l) => console.log(`  ${l}`));
+if (fmt === "mp4" && !ranged) { const t = firstFrameBlank(out); if (t.blank) console.log(`\nWARNING  frame 0 is near-blank (${t.detail}). Platforms use frame 0 as the thumbnail: re-render with --poster-frame N (a legible frame: the wall, the logo).`); }

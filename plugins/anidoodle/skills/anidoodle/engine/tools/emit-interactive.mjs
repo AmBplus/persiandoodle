@@ -22,6 +22,7 @@ import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 import { detect } from "./detect.mjs";
+import { overlay } from "./overlay.mjs";
 
 const VAL = new Set(["out", "module", "page", "title", "shot"]);
 const pos = [], opt = {};
@@ -35,7 +36,7 @@ const out = resolve(opt.out ?? `out/${kebab}.html`), modOut = resolve(opt.module
 // ---------------------------------------------------------------- build
 const buildModule = async (piece, tag = piece.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()) => (await build({
   stdin: { contents: `import { mount, define } from "./src/hosts/interactive"; import { ${piece} } from "./src/canvas-core/${piece}"; export const piece = ${piece}; export { mount, define }; define({ ${JSON.stringify(tag)}: ${piece} });`, resolveDir: process.cwd(), loader: "ts" },
-  bundle: true, format: "esm", target: "es2020", minify: true, write: false, legalComments: "none",
+  bundle: true, format: "esm", target: "es2020", minify: true, write: false, legalComments: "none", plugins: [overlay],
 })).outputFiles[0].text;
 const js = await buildModule(name, kebab);
 const defaultPage = () => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${opt.title ?? name}</title>

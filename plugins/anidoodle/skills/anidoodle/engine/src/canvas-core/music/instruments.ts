@@ -214,7 +214,7 @@ export const snare = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): O
 export const hat = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, [gl, gr] = pan(num(o, "pan", 0.3));
   for (const k of keys) { const i0 = Math.round(k.t * sr), dec = k.kind === "o" ? 0.2 : 0.03, len = Math.min(n - i0, Math.ceil(dec * 6 * sr)), hp = new SVF(sr, 7200, 0.7);
-    for (let i = 0; i < len; i++) { const t = i / sr; hp.tick(gauss(r)); const y = hp.hp * Math.exp(-t / dec) * k.v * 0.09; out.L[i0 + i] += y * gl; out.R[i0 + i] += y * gr; } }
+    for (let i = 0; i < len; i++) { const t = i / sr; hp.tick(gauss(r)); let y = hp.hp * Math.exp(-t / dec) * k.v * 0.09; if (typeof o.crush === "number") { const q = Math.pow(2, (o.crush as number) - 1) * 4; y = Math.round(y * q) / q; } out.L[i0 + i] += y * gl; out.R[i0 + i] += y * gr; } }
   return out;
 };
 /** Warm bass: sine + harmonics, a pluck envelope, and a little saturation so phones hear the line (phone rule). */
