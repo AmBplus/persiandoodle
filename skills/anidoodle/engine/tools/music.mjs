@@ -4,7 +4,11 @@
 // true peak (4x), onsets/s (spectral flux), spectral centroid; plus note-data numbers.
 //
 //   node tools/music.mjs list
-//   node tools/music.mjs render <piece> <out.wav> [--seconds 45] [--flat] [--tempo 66] [--fit]
+//   node tools/music.mjs render <piece> <out.wav|out.mp3> [--seconds 45] [--flat] [--tempo 66] [--fit] [--loop] [--stems]
+//   node tools/music.mjs stems <piece> [--seconds 45] [--fit]   # each part's stem RMS vs its target, flags > 3 dB off
+//     (--fit uses fitScore: the piece's refit, e.g. lofiElectronic adds loop cycles so it still ends on its outro;
+//      --loop renders a seamless loop, automatic for a plan.loop piece. LUFS alone once hid a sub 7-10 dB too hot:
+//      balance a mix by its stems, then master.)
 //   node tools/music.mjs meter <file.wav|file.mp4> [more files]
 //   node tools/music.mjs samples <outdir>          # the whole deliverable set + meters.json + .m4a
 //   node tools/music.mjs score <piece>                # the text score, bar by bar
@@ -60,12 +64,13 @@ const renderOne = (M, spec) => {
   let piece = M.PIECES[spec.piece]();
   let tempo = spec.tempo ?? piece.plan.tempo;
   let form;
-  if (spec.fit) { const f = M.fitToDuration(piece, spec.seconds); piece = f.piece; tempo = f.tempo; form = `${f.form}: ${f.piece.plan.sections.map((x) => x.id).join(", ")}`; }
+  if (spec.fit) { const f = M.fitScore(piece, spec.seconds); piece = f.piece; tempo = f.tempo; form = `${f.form}: ${f.piece.plan.sections.map((x) => x.id).join(", ")}`; }
   const opts = { seconds: spec.seconds, tempo };
   if (spec.flat) Object.assign(opts, { expressive: false, piano: M.PIANO_FLAT, flatVelocity: 0.6 });
-  const t0 = Date.now(), r = M.renderPiece(piece, SR, opts), ms = Date.now() - t0;
+  const loop = spec.loop || piece.plan.loop, go = () => (loop ? M.renderLoop(piece, SR) : M.renderPiece(piece, SR, opts));
+  const t0 = Date.now(), r = go(), ms = Date.now() - t0;
   // determinism: a second render must be bit-identical
-  const r2 = M.renderPiece(piece, SR, opts); let same = true; for (let i = 0; i < r.L.length; i += 7) if (r.L[i] !== r2.L[i] || r.R[i] !== r2.R[i]) { same = false; break; }
+  const r2 = go(); let same = true; for (let i = 0; i < r.L.length; i += 7) if (r.L[i] !== r2.L[i] || r.R[i] !== r2.R[i]) { same = false; break; }
   return { r, piece, tempo, ms, deterministic: same, form };
 };
 
@@ -90,8 +95,18 @@ const main = async () => {
   if (cmd === "list") { console.log(Object.keys(M.PIECES).join("\n")); return; }
   if (cmd === "render") {
     const [name, out] = args; const { r, tempo, ms, deterministic, piece } = renderOne(M, { piece: name, seconds: val("--seconds", undefined), tempo: val("--tempo", undefined), flat: flag("--flat"), fit: flag("--fit") });
-    writeWavFloat(out, r.L, r.R); const m = M.measure(decode(out), SR);
-    console.log(JSON.stringify({ file: out, tempo, renderMs: ms, deterministic, gainDb: r.gainDb, problems: M.planProblems(piece), ...m, shortTerm: undefined }, null, 1)); return;
+    const mp3 = out.endsWith(".mp3"), wav = mp3 ? out.replace(/\.mp3$/, ".wav") : out;
+    writeWavFloat(wav, r.L, r.R);
+    if (mp3) { execFileSync("ffmpeg", ["-v", "error", "-y", "-i", wav, "-c:a", "libmp3lame", "-b:a", "256k", out]); unlinkSync(wav); }
+    const m = M.measure(decode(out), SR);
+    console.log(JSON.stringify({ file: out, tempo, renderMs: ms, deterministic, gainDb: r.gainDb, loopS: r.loopS, problems: M.planProblems(piece), ...m, shortTerm: undefined }, null, 1));
+    if (flag("--stems")) printStems(M, piece, tempo, val("--seconds", undefined));
+    return;
+  }
+  if (cmd === "stems") {
+    const [name] = args; let piece = M.PIECES[name](), tempo = piece.plan.tempo, seconds = val("--seconds", undefined);
+    if (flag("--fit")) { const f = M.fitScore(piece, seconds); piece = f.piece; tempo = f.tempo; }
+    printStems(M, piece, tempo, seconds); return;
   }
   if (cmd === "meter") { for (const f of args) { const m = M.measure(decode(f), SR), ff = ffmpegEbu(f); console.log(basename(f), `LUFS ${fmt(m.lufs)} (ffmpeg ${fmt(ff.I)}) LRA ${fmt(m.lra)} (ffmpeg ${fmt(ff.LRA)}) TP ${fmt(m.dbtp)} dBTP (ffmpeg ${fmt(ff.TP)}) onsets/s ${fmt(m.onsetsPerS, 2)} centroid ${fmt(m.centroidHz, 0)} Hz (energy-wtd ${fmt(m.centroidEnergyHz, 0)}) dur ${fmt(m.durationS, 2)} lastOnset ${fmt(m.lastOnsetS, 2)}`); } return; }
   if (cmd === "score") { console.log(M.scoreText(M.PIECES[args[0]]())); return; }
@@ -146,6 +161,18 @@ const main = async () => {
     const merged = prev ? { ...prev, results: [...prev.results.filter((x) => !results.some((y) => y.file === x.file)), ...results], reference: reference ?? prev.reference } : { generated: "tools/music.mjs samples", sampleRate: SR, results, reference, probe: probe(M) };
     writeFileSync(join(dir, "meters.json"), JSON.stringify(merged, null, 1));
   }
+};
+
+/** Stem balance: each part's unmastered stem RMS (active samples) vs piece.stemTargets. Measured at 24 kHz, as the targets were. */
+const STEM_SR = 24000;
+const printStems = (M, piece, tempo, seconds) => {
+  const b = M.measureStems(piece, STEM_SR, { tempo, seconds });
+  console.log(`stem balance: ${piece.title} (unmastered stem RMS over active samples vs target, tolerance +-${b.tolDb} dB)`);
+  for (const r of b.rows) console.log(`  ${r.id.padEnd(9)} ${fmt(r.rmsDb).padStart(6)} dB  ${r.targetDb === null ? "(no target)" : `target ${fmt(r.targetDb).padStart(6)}  off ${(r.offDb >= 0 ? "+" : "") + fmt(r.offDb)}  ${r.ok ? "ok" : `FLAG: ${r.offDb > 0 ? "too hot" : "too quiet"}`}`}`);
+  if (!Object.keys(piece.stemTargets ?? {}).length) console.log("  (this piece declares no stemTargets)");
+  console.log(b.pass ? "stems PASS" : "stems FAIL: fix the part gains (Part.gainDb / LofiSpec.levels), then master. LUFS alone once hid a sub 7-10 dB too hot.");
+  if (!b.pass) process.exitCode = 1;
+  return b;
 };
 
 /** Piano realism probes (ADVISORY 4.1): single notes, matched loudness where it matters. */
