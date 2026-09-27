@@ -7,7 +7,8 @@
 // returning either); or the name of a shipped demo (listening references, never a film's score).
 //
 //   node tools/music.mjs vocab [style]              # the style vocabularies: palette, grooves, harmony, melody, arrangement
-//   node tools/music.mjs novelty <piece>            # similarity to every shipped piece; FAILS above the threshold or on a reused fragment
+//   node tools/music.mjs check <piece> [--fit --seconds N]  # everything: key/mode, warnings, master, ghost/reverb/masking guards, stems, novelty
+//   node tools/music.mjs novelty <piece> [more ...]  # vs every shipped piece (and pairwise when several); FAILS above the threshold or on a reused fragment
 //   node tools/music.mjs list                       # shipped demos and fixtures
 //   node tools/music.mjs render <piece> <out.wav|out.mp3> [--seconds 45] [--flat] [--tempo 66] [--fit] [--loop] [--stems]
 //   node tools/music.mjs stems <piece> [--seconds 45] [--fit]   # each part's stem RMS vs its target, flags > 3 dB off
@@ -118,21 +119,36 @@ const main = async () => {
   if (cmd === "vocab") { if (args[0] === "--md") vocabMarkdown(M); else printVocab(M, args[0]); return; }
   if (cmd === "calibrate") { calibrate(M); return; }
   if (cmd === "novelty") {
-    const pc = await getPiece(M, args[0]), fam = Object.values(M.DEMO_FAMILIES).find((f) => f.includes(args[0])) ?? [args[0]];
-    const v = M.novelty(pc.make(), M.DEMOS, fam, val("--threshold", undefined));
-    console.log(`novelty: ${args[0]} vs ${v.rows.length} shipped pieces (fail above ${v.threshold}, or on any reused 6-note fragment)`);
-    for (const r of v.rows.slice(0, 5)) console.log(`  ${r.name.padEnd(22)} ${r.score.toFixed(3)}  ${r.reusedFragments ? `REUSED ${r.reusedFragments} fragment(s)  ` : ""}${Object.entries(r.by).map(([k, x]) => `${k} ${x}`).join(" ")}`);
-    console.log(v.pass ? "novelty PASS" : `novelty FAIL: too close to ${v.worst.name}. Change what the numbers point at (the rhythm of the lead, the groove, the chord colours, the form), not just the key.`);
-    if (!v.pass) process.exitCode = 1; return;
+    const refs = args.filter((a) => !a.startsWith("--") && !/^[\d.]+$/.test(a)), pcs = [];
+    for (const ref of refs) pcs.push(await getPiece(M, ref));
+    let fail = false;
+    for (const pc of pcs) { const fam = Object.values(M.DEMO_FAMILIES).find((f) => f.includes(pc.name)) ?? [pc.name]; fail = !printNovelty(M, pc.name, M.novelty(pc.make(), M.DEMOS, fam, val("--threshold", undefined)), "shipped pieces") || fail; }
+    if (pcs.length > 1) { // pairwise: scores meant for different products must not be siblings either
+      const corpus = Object.fromEntries(pcs.map((p) => [p.name, p.make]));
+      for (const pc of pcs) fail = !printNovelty(M, pc.name, M.novelty(pc.make(), corpus, [pc.name], val("--threshold", undefined)), "each other") || fail;
+    }
+    if (fail) process.exitCode = 1; return;
+  }
+  if (cmd === "check") {
+    const pc = await getPiece(M, args[0]); let piece = pc.make(), tempo = piece.plan.tempo, seconds = val("--seconds", undefined);
+    if (flag("--fit")) { const f = M.fitScore(piece, seconds); piece = f.piece; tempo = f.tempo; }
+    const r = piece.plan.loop ? M.renderLoop(piece, SR) : M.renderPiece(piece, SR, { seconds, tempo });
+    const ok = [report(M, r, piece), printStems(M, piece, tempo, seconds)?.ok !== false];
+    if (!pc.demo) { const fam = [args[0]]; ok.push(printNovelty(M, args[0], M.novelty(piece, M.DEMOS, fam), "shipped pieces")); }
+    console.log(ok.every(Boolean) ? "CHECK PASS: now a human listens (an mp3 or wav on a page)" : "CHECK FAIL: fix the items above, then run check again");
+    if (!ok.every(Boolean)) process.exitCode = 1; return;
   }
   if (cmd === "render") {
     const [name, out] = args, pc = await getPiece(M, name); const { r, tempo, ms, deterministic, piece } = renderOne(M, { make: pc.make, seconds: val("--seconds", undefined), tempo: val("--tempo", undefined), flat: flag("--flat"), fit: flag("--fit") });
     const mp3 = out.endsWith(".mp3"), wav = mp3 ? out.replace(/\.mp3$/, ".wav") : out;
+    if (mp3 && (piece.plan.loop || flag("--loop"))) console.log("NOTE: mp3 is not gapless (encoder padding clicks at the loop point). Ship loops as .wav (or ogg/m4a with gapless metadata).");
     writeWavFloat(wav, r.L, r.R);
     if (mp3) { execFileSync("ffmpeg", ["-v", "error", "-y", "-i", wav, "-c:a", "libmp3lame", "-b:a", "256k", out]); unlinkSync(wav); }
     const m = M.measure(decode(out), SR);
-    console.log(JSON.stringify({ file: out, tempo, renderMs: ms, deterministic, gainDb: r.gainDb, loopS: r.loopS, problems: M.planProblems(piece), ...m, shortTerm: undefined }, null, 1));
-    if (flag("--stems")) printStems(M, piece, tempo, val("--seconds", undefined));
+    console.log(JSON.stringify({ file: out, tempo, renderMs: ms, deterministic, gainDb: r.gainDb, loopS: r.loopS, ...m, shortTerm: undefined }, null, 1));
+    let good = report(M, r, piece);
+    if (flag("--stems")) good = printStems(M, piece, tempo, val("--seconds", undefined)).ok && good;
+    if (!good) process.exitCode = 1;
     return;
   }
   if (cmd === "stems") {
@@ -219,7 +235,8 @@ const printVocab = (M, id) => {
   const v = M.VOCAB[id]; if (!v) throw new Error(`no style "${id}" (have: ${Object.keys(M.VOCAB).join(", ")})`);
   console.log(`${v.name} (${v.id}): ${v.atmosphere}\ntempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(" ")}, swing ${v.swing.join("-")}, moods ${v.moods.join(", ")}`);
   const eff = (slot, x) => +(x.gainDb + (M.VOCAB_TRIM[v.id]?.[slot] ?? 0)).toFixed(1), tgt = (slot) => (v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1));
-  console.log("palette (slot: instrument, gain dB, stem target dB):"); for (const [slot, x] of Object.entries(v.palette)) console.log(`  ${slot.padEnd(8)} ${x.inst.padEnd(10)} ${String(eff(slot, x)).padStart(5)}  ${tgt(slot)} dB${Object.keys(v.alternates[slot] ?? {}).length ? `   alternates: ${Object.keys(v.alternates[slot]).join(", ")}` : ""}`);
+  console.log("palette (slot: instrument, gain dB, stem target dB):"); for (const [slot, x] of Object.entries(v.palette)) console.log(`  ${slot.padEnd(8)} ${x.inst.padEnd(10)} ${String(eff(slot, x)).padStart(5)}  ${tgt(slot)} dB${Object.keys(v.alternates[slot] ?? {}).length ? `   alternates: ${Object.entries(v.alternates[slot]).map(([n, a]) => `${n} (${a.inst}, ${a.gainDb} dB)`).join(", ")}` : ""}`);
+  for (const [slot, alts] of Object.entries(v.alternates)) if (!v.palette[slot]) console.log(`  ${slot.padEnd(8)} (no default) alternates: ${Object.entries(alts).map(([n, a]) => `${n} (${a.inst}, ${a.gainDb} dB)`).join(", ")}`);
   console.log(`stem targets ${v.calibrated ? "calibrated on a listened score" : "are starting numbers (uncalibrated: flags are advisory until a human listens)"}`);
   console.log(`grooves: ${v.grooves.map((g) => `${g} (${M.GROOVE_FAMILIES[g]})`).join("\n         ") || "none"}`);
   for (const [k, x] of Object.entries(v.harmony)) console.log(`harmony.${k}: ${Array.isArray(x) ? x.join(", ") : x}`);
@@ -238,8 +255,8 @@ const vocabMarkdown = (M) => {
   o.push("", "## Section kinds (the arrangement grammar)", "", "A kind decides which layers may sound; your lines sound only where you write them.", "");
   for (const [k, d] of Object.entries(M.KINDS)) o.push(`- \`${k}\` (drums: ${d.drums ?? "none"}, bass: ${d.bass ? "yes" : "no"}): ${d.what}`);
   for (const v of Object.values(M.VOCAB)) {
-    o.push("", `## \`${v.id}\`: ${v.name}`, "", `${v.atmosphere}. Tempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(", ")}, swing ${v.swing.join("-")}.`, "", "| Slot | Voice | Gain dB | Stem target dB | Alternates |", "|---|---|---|---|---|");
-    for (const [slot, x] of Object.entries(v.palette)) o.push(`| ${slot} | \`${x.inst}\` | ${+(x.gainDb + (M.VOCAB_TRIM[v.id]?.[slot] ?? 0)).toFixed(1)} | ${v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1)} | ${Object.keys(v.alternates[slot] ?? {}).join(", ") || "-"} |`);
+    o.push("", `## \`${v.id}\`: ${v.name}`, "", `${v.atmosphere}. Tempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(", ")}, swing ${v.swing.join("-")}.`, "", "| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |", "|---|---|---|---|---|");
+    for (const [slot, x] of Object.entries(v.palette)) o.push(`| ${slot} | \`${x.inst}\` | ${+(x.gainDb + (M.VOCAB_TRIM[v.id]?.[slot] ?? 0)).toFixed(1)} | ${v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1)} | ${Object.entries(v.alternates[slot] ?? {}).map(([n, a]) => `${n} (\`${a.inst}\`, ${a.gainDb} dB)`).join(", ") || "-"} |`);
     o.push("", `Stem targets: ${v.calibrated ? "calibrated on a listened score." : "starting numbers from a neutral test signal (advisory until a human listens)."}`, "");
     o.push(`- **Harmony language.** Modes: ${v.harmony.modes.join(", ")}. Qualities: ${v.harmony.qualities}. Tendencies: ${v.harmony.tendencies}. Harmonic rhythm: ${v.harmony.rhythm}. Voicing: ${v.harmony.voicing}. Tension and release: ${v.harmony.tension}.`);
     o.push(`- **Melody.** Range ${v.melody.range}. Contour: ${v.melody.contour}. Density: ${v.melody.density}. Motif: ${v.melody.motif}.`);
@@ -249,17 +266,40 @@ const vocabMarkdown = (M) => {
   console.log(o.join("\n"));
 };
 
+/** Key/mode problems, composer warnings, the master (did the peak cap stop it short?), and the guards. Returns pass. */
+const report = (M, r, piece) => {
+  let ok = true; const probs = M.planProblems(piece), warn = piece.warnings ?? [];
+  for (const p of probs) console.log(`PROBLEM  ${p}`); ok = ok && !probs.length;
+  for (const w of warn) console.log(`WARNING  ${w}`);
+  const lu = M.loudness([r.L, r.R], SR).integrated, tp = M.truePeak([r.L, r.R]).dbtp, target = r.masterMode === "dense" ? -14 : r.masterMode === "gentle" ? -16 : NaN;
+  console.log(`master   ${r.masterMode}: ${fmt(lu)} LUFS (target ${fmt(target)}), true peak ${fmt(tp, 2)} dBTP`);
+  if (lu < target - 0.5) console.log(`NOTE     the master stopped ${fmt(target - lu)} dB short of its target: the true-peak ceiling (-1 dBTP) capped the gain. Peaks are a composing problem: stagger the bass under the loudest downbeat, roll the big chord, don't double the climax note, soften the one loudest hit.`);
+  const g = M.guardReport(r, SR, r.L.length / SR);
+  console.log(`guards   ghost ${g.ghost.pass ? "PASS" : "FAIL"} (${g.ghost.failures}/${g.ghost.windows} windows formless) | reverb ${g.reverb.pass ? "PASS" : "FAIL"} (worst tail ${fmt(g.reverb.worstDb)} dB vs dry) | masking ${g.masking ? `${g.masking.pass ? "PASS" : "FAIL"} (melody clear in ${Math.round(g.masking.shareOfBarsClear * 100)} % of bars, worst ${fmt(g.masking.worstMarginDb)} dB)` : "n/a (no melody)"}`);
+  if (g.masking && !g.masking.pass) console.log(`FIX      masking: the melody must beat every other part in 500 Hz-4 kHz by 3 dB in 80 % of its bars. Guards win over stem targets: raise the lead (levels.lead, up to +${M.LEAD_HEADROOM_DB} dB over its target is allowed), thin or lower what sits in its register, or move it.`);
+  if (!g.ghost.pass) console.log("FIX      ghost: sustained sound with too few onsets and no cadence. Add a rhythmic layer or motif, shorten tails, cadence.");
+  if (!g.reverb.pass) console.log("FIX      reverb: the late tail sits too close to the dry sound. Lower sends (voices' send) or the space mood control.");
+  return ok && g.ghost.pass && g.reverb.pass && (!g.masking || g.masking.pass);
+};
+const printNovelty = (M, name, v, what) => {
+  console.log(`novelty: ${name} vs ${v.rows.length} ${what} (fail above ${v.threshold}, or on any reused 6-note melody fragment)`);
+  for (const r of v.rows.slice(0, 5)) console.log(`  ${r.name.padEnd(22)} ${r.score.toFixed(3)}  ${r.reusedFragments ? `REUSED ${r.reusedFragments} fragment(s)  ` : ""}${Object.entries(r.by).map(([k, x]) => `${k} ${x}`).join(" ")}`);
+  console.log(v.pass ? "novelty PASS" : `novelty FAIL: too close to ${v.worst.name}. Change what the numbers point at (the lead's rhythm, the contour, the groove, the chord colours, the form), not just the key.`);
+  console.log("  (idioms are fine: a ii-V-I, a plagal cadence, a two-chord vamp are vocabulary. What fails is the same music: a multi-bar progression WITH its rhythm, groove, contour and form, or a quoted melody.)");
+  return v.pass;
+};
+
 /** Stem balance: each part's unmastered stem RMS (active samples) vs piece.stemTargets. Measured at 24 kHz, as the targets were. */
 const STEM_SR = 24000;
 const printStems = (M, piece, tempo, seconds) => {
   const b = M.measureStems(piece, STEM_SR, { tempo, seconds });
-  console.log(`stem balance: ${piece.title} (unmastered stem RMS over active samples vs target, tolerance +-${b.tolDb} dB)`);
+  console.log(`stem balance: ${piece.title} (unmastered stem RMS over active samples vs target, +-${b.tolDb} dB; the lead may sit up to +${b.headroom.lead ?? 0} dB more for the masking guard; targets already include your mood controls' shifts)`);
   for (const r of b.rows) console.log(`  ${r.id.padEnd(9)} ${fmt(r.rmsDb).padStart(6)} dB  ${r.targetDb === null ? "(no target)" : `target ${fmt(r.targetDb).padStart(6)}  off ${(r.offDb >= 0 ? "+" : "") + fmt(r.offDb)}  ${r.ok ? "ok" : `FLAG: ${r.offDb > 0 ? "too hot" : "too quiet"}`}`}`);
   if (!Object.keys(piece.stemTargets ?? {}).length) console.log("  (this piece declares no stemTargets)");
   const cal = M.VOCAB[piece.plan.style]?.calibrated !== false;
   console.log(b.pass ? "stems PASS" : `stems ${cal ? "FAIL" : "OFF TARGET (advisory: this style's targets are uncalibrated starting numbers)"}: fix the part gains (Material.levels), then master. LUFS alone once hid a sub 7-10 dB too hot.`);
   if (!b.pass && cal) process.exitCode = 1;
-  return b;
+  return { ...b, ok: b.pass || !cal };
 };
 
 /** Piano realism probes (ADVISORY 4.1): single notes, matched loudness where it matters. */

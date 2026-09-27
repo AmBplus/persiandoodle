@@ -70,7 +70,7 @@ pass(`${Object.keys(M.VOCAB).length} style vocabularies compose, render (true pe
   pass(`lofiElectronic (calibrated on the listened launch score): stems within +-3 dB, worst ${w.id} ${w.offDb.toFixed(1)} dB`); }
 
 // 6. The lesson: a sub 9 dB hot still masters to -14 LUFS; only the stem meter sees it.
-{ const hot = M.composePiece({ ...base, levels: { bass: 3 } }), r = M.renderPiece(hot, SR), lu = M.loudness([r.L, r.R], SR).integrated, b = M.measureStems(hot, SR), sub = b.rows.find((x) => x.id === "bass");
+{ const hot = M.composePiece({ ...base, levels: { bass: 9 } }), r = M.renderPiece(hot, SR), lu = M.loudness([r.L, r.R], SR).integrated, b = M.measureStems(hot, SR), sub = b.rows.find((x) => x.id === "bass");
   assert(Math.abs(lu + 14) <= 1 && !b.pass && sub.offDb > 7, "the stem meter must flag a hot sub that LUFS passes");
   pass(`hot sub: mix ${lu.toFixed(1)} LUFS (passes), stem meter flags bass +${sub.offDb.toFixed(1)} dB`); }
 
@@ -90,7 +90,35 @@ for (const secs of [70, 90, 110]) {
 }
 { const a = M.filmAudio(M.launchLofi3(), 40)(16000); assert.equal(a[0].length, 40 * 16000); pass("filmAudio: exactly the film's length"); }
 
-// 9. Novelty: the copy Alex heard scores as a copy; the shipped demos stay apart; a reused fragment fails.
+// 9. Composer-facing fixes (from the blind composer's report).
+{ const t = M.testMaterial(M.VOCAB.playful, { bars: 4 }), sec = t.sections[0];
+  const once = M.composePiece({ ...t, sections: [{ ...sec, lead: sec.lead.slice(0, 2) }] });
+  assert(once.warnings.some((w) => /plays once/.test(w)), "a short line must warn");
+  const looped = M.composePiece({ ...t, sections: [{ ...sec, lead: sec.lead.slice(0, 2), loopLines: true }] });
+  assert.equal(looped.warnings.length, 0); assert.equal(looped.parts.find((p) => p.id === "lead").notes.length, 2 * once.parts.find((p) => p.id === "lead").notes.length);
+  pass("lines: a short line warns; loopLines repeats it to fill the section");
+  const lv = (x) => M.composePiece({ ...t, levels: x }).parts.find((p) => p.id === "lead").gainDb;
+  assert(Math.abs(lv({ lead: 2 }) - lv({}) - 2) < 1e-9); pass("levels: a dB offset on top of the calibrated gain");
+  const vsum = (en) => M.composePiece({ ...t, sections: [{ ...sec, energy: en }] }).parts.flatMap((p) => p.notes).reduce((a, n) => a + n.v, 0);
+  assert(vsum(0.2) < vsum(0.5) && vsum(0.8) > vsum(0.5)); pass("section energy scales the dynamics of every part");
+  const lit = { main: { kick: ["C4:4", "r:2 C4:2"] } }, mk = (from) => M.composePiece({ ...t, grooves: lit, sections: [{ kind: "hook", bars: from, harmony: ["c0"], lead: sec.lead.slice(0, from) }, { kind: "hook", bars: 2, harmony: ["c0"], lead: sec.lead.slice(0, 2) }] });
+  const kicks = (p, bar) => p.parts.find((x) => x.id === "kick").notes.filter((n) => n.t >= bar * 4 && n.t < bar * 4 + 4).map((n) => n.t - bar * 4);
+  assert.deepEqual(kicks(mk(1), 1), [0]); assert.deepEqual(kicks(mk(2), 2), [0]); pass("written grooves cycle from each section's first bar");
+  const orch = (key, tonic) => M.composePiece(M.testMaterial(M.VOCAB.orchestral, { bars: 2, key, tonic })).parts.find((p) => p.id === "perc").opts.pitch % 12;
+  assert.equal(orch("C", 0), 0); assert.equal(orch("D", 2), 2); pass("timpani in a drum lane is tuned to the key");
+  const mod = M.composePiece({ ...t, sections: [sec, { ...sec, key: "D" }] }); assert.deepEqual(mod.plan.sections.map((x) => x.key), ["C", "D"]); pass("per-section key: the key check reads each key region");
+  // the blind composer's case: Db lydian whose notes lean on Ab (the same pitch set as Ab major), tonic ~12 % of note time
+  const lp = (key, mode, src) => ({ title: "k", seed: 1, tail: 1, harmony: [], plan: { style: "ambient", tempo: 70, meter: "4/4", sections: [{ id: "a", bars: 5, mood: "awe", key, mode, melody: ["stepwise"], dyn: [0.5, 0.5] }] }, parts: [{ id: "m", inst: "fmBell", role: "melody", notes: M.line(0, src, { role: "melody", bpb: 4 }) }] });
+  const src = "Db4:2 Ab4:2 | Ab4:2 Eb4:2 | Eb4:1 F4:2 G4:1 | G4:1 Bb4:2 C5:1 | C5:1 Eb5:1 r:2";
+  assert(M.detectMode(M.line(0, src, { role: "melody", bpb: 4 }), ["lydian", "major", "aeolian", "dorian", "mixolydian"])[0].tonic !== "Db", "fixture must fool the raw detector");
+  assert.deepEqual(M.planProblems(lp("Db", "lydian", src)), []); assert(M.planProblems(lp("E", "major", src)).length > 0);
+  pass("Db lydian leaning on Ab is accepted (scale fits, tonic heard); a wrong key is still flagged");
+  const st = { lead: [new Float32Array([0.3 * 10 ** ((-16.5 + 5) / 20) / 0.3]), new Float32Array(1)] };
+  assert(M.stemBalance(st, { lead: -16.5 }).pass); assert(!M.stemBalance({ lead: [new Float32Array([10 ** ((-16.5 + 7) / 20)]), new Float32Array(1)] }, { lead: -16.5 }).pass); pass("stems: the lead may sit +3 dB over tolerance (guards win), not more");
+  const w = M.composePiece(M.testMaterial(M.VOCAB.world, { bars: 4 })), wr = M.renderPiece(w, SR), g = M.guardReport(wr, SR, wr.L.length / SR);
+  assert(Number.isFinite(g.lufs) && g.ghost.windows > 0); pass(`guards run on a 7/8 score (${g.ghost.windows} windows)`); }
+
+// 10. Novelty: the copy Alex heard scores as a copy; the shipped demos stay apart; a reused fragment fails.
 { const d = M.novelty(M.daylightCopy(), M.DEMOS);
   assert(!d.pass && d.worst.name.startsWith("launchLofi") && d.worst.score > 0.6, `daylight copy scored ${d.worst.score} vs ${d.worst.name}`);
   pass(`novelty: Daylight vs ${d.worst.name} = ${d.worst.score} (threshold ${d.threshold}): FAIL, as Alex heard it`);
