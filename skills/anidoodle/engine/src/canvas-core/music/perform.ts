@@ -64,7 +64,7 @@ export const perform = (p: Piece, tempo: number, o: PerformOpts): Performance =>
         const hi = n.role === "melody" ? 1 + 0.06 * ((n.p - 72) / 12) : 1;
         // written v 0.7 = mezzo; section level 0..1 maps to 0.25..0.85 of full velocity
         v = (n.v / 0.7) * (0.25 + 0.6 * lv) * (0.92 + 0.16 * arch(x)) * (grid ? 1 : metric * hi) * (isPiano ? RoleGain[n.role] : 1 / (0.25 + 0.6 * 0.75)) + vDev;
-        if (n.t > ritFrom) v *= 1 - 0.18 * clamp((n.t - ritFrom) / ritBeats, 0, 1); // the cadence relaxes
+        if (n.t > ritFrom && !plan.loop) v *= 1 - 0.18 * clamp((n.t - ritFrom) / ritBeats, 0, 1); // the cadence relaxes
         t += tDev;
         if (n.role === "melody" && isPiano) { const ld = 0.012 + 0.016 * clamp(v, 0, 1); t -= ld; leadSum += ld; leadN++; }
         if (n.roll !== undefined) t += chordIdx * n.roll; else if (chordIdx > 0 && !grid) t += chordIdx * 0.004;

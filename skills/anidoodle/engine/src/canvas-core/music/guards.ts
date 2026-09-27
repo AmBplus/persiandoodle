@@ -13,7 +13,7 @@
 import { onsets, mono, loudness } from "./meter";
 import { renderPiece, type Rendered } from "./render";
 import { pcOf } from "./theory";
-import type { Piece, Role } from "./plan";
+import { beatsPerBar, type Piece, type Role } from "./plan";
 
 export const GHOST = { maxOnsetsPerBeat: 1.0, minSustainedShare: 0.6, reverbWithinDb: -12, windowBars: 4, fallbackWindowS: 8 };
 
@@ -61,7 +61,7 @@ export const cadenceTimes = (r: Rendered) => {
 
 /** Reverb-to-dry per bar (dB). Pass: every sounding bar >= 10 dB under. */
 export const reverbCheck = (r: Rendered, sr: number) => {
-  const bpb = r.piece.plan.meter === "3/4" ? 3 : r.piece.plan.meter === "6/8" ? 2 : 4, total = r.piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0), bars: number[] = [];
+  const bpb = beatsPerBar(r.piece.plan.meter), total = r.piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0), bars: number[] = [];
   for (let b = 0; b < total; b += bpb) {
     const a = Math.round(r.perf.sec(b) * sr), e = Math.min(r.L.length, Math.round(r.perf.sec(b + bpb) * sr)); let ew = 0, ed = 0;
     for (let c = 0; c < 2; c++) for (let i = a; i < e; i++) { ew += r.wet[c][i] ** 2; ed += r.dry[c][i] ** 2; }
@@ -87,7 +87,7 @@ export const maskingCheck = (piece: Piece, sr: number, o: { seconds?: number; te
   const only = (r: Role) => ({ ...piece, parts: piece.parts.map((p) => ({ ...p, notes: p.notes.filter((n) => n.role === r) })) });
   const base = { seconds: o.seconds, tempo: o.tempo, master: "none" as const };
   const mel = renderPiece(only("melody"), sr, base);
-  const bpb = piece.plan.meter === "3/4" ? 3 : piece.plan.meter === "6/8" ? 2 : 4, total = piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0);
+  const bpb = beatsPerBar(piece.plan.meter), total = piece.plan.sections.reduce((a, s) => a + s.bars * bpb, 0);
   const spans: [number, number][] = []; for (let b = 0; b < total; b += bpb) spans.push([mel.perf.sec(b), mel.perf.sec(b + bpb)]);
   const melNotes = piece.parts.flatMap((p) => p.notes.filter((n) => n.role === "melody"));
   const sounding = spans.map((_, i) => melNotes.some((n) => n.t < (i + 1) * bpb && n.t + n.d > i * bpb));
@@ -100,7 +100,7 @@ export const maskingCheck = (piece: Piece, sr: number, o: { seconds?: number; te
 
 /** Everything at once for a rendered piece. */
 export const guardReport = (r: Rendered, sr: number, seconds: number, o: { masking?: boolean } = {}) => {
-  const bpb = r.piece.plan.meter === "3/4" ? 3 : r.piece.plan.meter === "6/8" ? 2 : 4;
+  const bpb = beatsPerBar(r.piece.plan.meter);
   const ghost = ghostCheck([r.L, r.R], sr, { bpm: r.tempo, beatsPerBar: bpb, wet: r.wet, dry: r.dry, cadences: cadenceTimes(r) });
   return { ghost: { pass: ghost.pass, failures: ghost.failures, windows: ghost.windows.length, minOnsetsPerBeat: Math.min(...ghost.windows.map((w) => w.onsetsPerBeat)), maxSustainedShare: Math.max(...ghost.windows.map((w) => w.sustainedShare)) }, reverb: reverbCheck(r, sr), masking: o.masking === false ? null : maskingCheck(r.piece, sr, { seconds, tempo: r.tempo }), lufs: loudness([r.L, r.R], sr).integrated };
 };
