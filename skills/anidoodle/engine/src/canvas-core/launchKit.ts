@@ -114,6 +114,8 @@ export type ChatState = {
   attach?: { img: CanvasImageSource; label: string } | null;
   genPress?: number; genHot?: number;       // the button: press depth 0..1, hover glow 0..1
   label?: string; labelAlpha?: number;      // the reply's byline
+  // your product: the thread's name and subline, the button's word, the accent (defaults: anidoodle's own)
+  title?: string; subtitle?: string; genLabel?: string; accent?: string;
 };
 
 export const drawChatFrame = (ctx: Ctx, s: ChatState) => {
@@ -122,8 +124,9 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState) => {
   ctx.fillStyle = C.card; rr(ctx, CHAT.x, CHAT.y, CHAT.w, CHAT.h, CHAT.r); ctx.fill();
   // the thread's head: a small ink dot and a name, nothing that belongs to anyone else
   ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(CHAT.x + 58, CHAT.y + 52, 9, 0, Math.PI * 2); ctx.fill();
-  ctx.font = SANS(600, 22); ctx.fillStyle = C.ink; ctx.textBaseline = "middle"; ctx.fillText("anidoodle", CHAT.x + 80, CHAT.y + 53);
-  ctx.font = SANS(500, 18); ctx.fillStyle = C.mute; ctx.fillText("drawn in code", CHAT.x + 196, CHAT.y + 54);
+  ctx.font = SANS(600, 22); ctx.fillStyle = C.ink; ctx.textBaseline = "middle"; ctx.fillText(s.title ?? "anidoodle", CHAT.x + 80, CHAT.y + 53);
+  const subX = s.title === undefined ? CHAT.x + 196 : CHAT.x + 80 + ctx.measureText(s.title).width + 16;
+  ctx.font = SANS(500, 18); ctx.fillStyle = C.mute; ctx.fillText(s.subtitle ?? "drawn in code", subX, CHAT.y + 54);
   ctx.fillStyle = C.line; ctx.fillRect(CHAT.x + 32, CHAT.y + 98, CHAT.w - 64, 1.5);
   // the sent message, right aligned
   if (s.sent) {
@@ -142,15 +145,17 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState) => {
   ctx.font = SANS(500, TEXT.px); ctx.textBaseline = "alphabetic";
   if (!s.typed && s.placeholder) { ctx.fillStyle = C.mute; ctx.fillText(s.placeholder, TEXT.x, TEXT.base); }
   ctx.fillStyle = C.ink; ctx.fillText(s.typed, TEXT.x, TEXT.base);
-  if (s.caret) { const x = TEXT.x + ctx.measureText(s.typed).width + 3; ctx.fillStyle = C.accent; ctx.fillRect(x, TEXT.base - 32, 3, 40); }
+  const acc = s.accent ?? C.accent;
+  if (s.caret) { const x = TEXT.x + ctx.measureText(s.typed).width + 3; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base - 32, 3, 40); }
   // Generate
   const pr = s.genPress ?? 0, hot = s.genHot ?? 0, k = 1 - 0.07 * pr, gx = GEN.x + (GEN.w * (1 - k)) / 2, gy = GEN.y + (GEN.h * (1 - k)) / 2;
-  ctx.fillStyle = hot > 0 ? mixHex(C.accent, C.accentDeep, 0.35 * hot + 0.4 * pr) : C.accent; rr(ctx, gx, gy, GEN.w * k, GEN.h * k, GEN.r * k); ctx.fill();
-  ctx.fillStyle = "#fff"; ctx.font = SANS(600, 24 * k); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText("Generate", GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1); ctx.textAlign = "left";
+  ctx.fillStyle = hot > 0 ? mixHex(acc, s.accent ? deepen(acc) : C.accentDeep, 0.35 * hot + 0.4 * pr) : acc; rr(ctx, gx, gy, GEN.w * k, GEN.h * k, GEN.r * k); ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.font = SANS(600, 24 * k); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText(s.genLabel ?? "Generate", GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1); ctx.textAlign = "left";
 };
 export const caretAt = (ctx: Ctx, typed: string): P => { ctx.font = SANS(500, TEXT.px); return [TEXT.x + ctx.measureText(typed).width, TEXT.base - 12]; };
 
 const hx = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const deepen = (h: string) => "#" + hx(h).map((v) => Math.round(v * 0.78).toString(16).padStart(2, "0")).join("");
 export const mixHex = (a: string, b: string, t: number) => { const x = hx(a), y = hx(b); return `rgb(${x.map((v, i) => Math.round(lerp(v, y[i], clamp(t)))).join(",")})`; };
 
 // the art card: paper, a hairline, and whatever layer is inside, clipped to the rounded square
@@ -160,4 +165,32 @@ export const artCard = (ctx: Ctx, x: number, y: number, s: number, L: Layer | nu
   if (L) ctx.drawImage(L.canvas, x, y, s, s);
   ctx.restore();
   ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(0,0,0,0.08)"; rr(ctx, x, y, s, s, r); ctx.stroke();
+};
+
+// ---------------------------------------------------------------- typing, the drop, the answer card
+// Human typing: the time each character lands, uneven and seeded, spaces a little slower.
+export const charTimes = (text: string, t0: number, rate: number, seed: number) => { const out: number[] = []; let t = t0; for (let i = 0; i < text.length; i++) { const h = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453, j = h - Math.floor(h); t += rate * (0.55 + j * 0.9) + (text[i] === " " ? 0.6 * rate : 0); out.push(t); } return out; };
+export const typedAt = (text: string, f: number, times: number[]) => text.slice(0, times.filter((t) => f >= t).length);
+// The drop: a bead of ink lifts off Generate and arcs to where the answer card will land.
+export type Drop = { t0: number; land: number; full: number };
+export const inkDrop = (ctx: Ctx, f: number, d: { t0: number; land: number }, to: P) => {
+  const GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
+  if (f < d.t0 - 6 || f >= d.land) return;
+  if (f < d.t0) { const w = out3(ramp(f, d.t0 - 6, d.t0)); ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(GEN_C[0], GEN.y + 6 - w * 22, 30 * (0.3 + 0.7 * w), 0, Math.PI * 2); ctx.fill(); return; }
+  const at = (g: number): P => { const u = ramp(g, d.t0, d.land), e = inOut(u); return [lerp(GEN_C[0], to[0], e), lerp(GEN.y - 16, to[1], e) - Math.sin(Math.PI * u) * 150]; };
+  for (let k = 24; k >= 0; k--) { const p = at(f - k * 0.1); ctx.fillStyle = C.ink; ctx.globalAlpha = k === 0 ? 1 : 0.22 * (1 - k / 25); ctx.beginPath(); ctx.arc(p[0], p[1], 30 * (1 - k * 0.022), 0, Math.PI * 2); ctx.fill(); }
+  ctx.globalAlpha = 1;
+};
+// The answer card in the thread: a byline, then the art, revealed by the landed drop blooming open.
+// `art` is any layer (plateLayer gives a live plate); `crop` picks a source rectangle.
+export const inkCard = (ctx: Ctx, x: number, y: number, s: number, f: number, d: Drop, art: Layer, label: string, crop?: [number, number, number, number]) => {
+  ctx.fillStyle = C.ink; ctx.globalAlpha = ramp(f, d.land, d.land + 10); ctx.beginPath(); ctx.arc(x + 9, y - 16, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.font = SANS(600, 20); ctx.textBaseline = "middle"; ctx.fillText(label, x + 26, y - 15); ctx.globalAlpha = 1;
+  const grow = out3(ramp(f, d.land, d.full)), c: P = [x + s / 2, y + s / 2];
+  softShadow(ctx, x, y, s, s, 20, grow * 1.3);
+  ctx.save(); rr(ctx, x, y, s, s, 20); ctx.clip();
+  if (grow < 1) { pathOf(ctx, blot(c, lerp(16, s * 0.8, grow) + 28 * (1 - grow), 77)); ctx.fillStyle = C.ink; ctx.fill(); pathOf(ctx, blot(c, Math.max(0, lerp(16, s * 0.8, grow) - 5), 77)); ctx.clip(); }
+  ctx.fillStyle = C.paper; ctx.fillRect(x, y, s, s);
+  if (crop) ctx.drawImage(art.canvas, ...crop, x, y, s, s); else ctx.drawImage(art.canvas, x, y, s, s);
+  ctx.restore();
 };

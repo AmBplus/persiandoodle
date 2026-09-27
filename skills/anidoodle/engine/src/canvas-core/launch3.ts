@@ -5,18 +5,17 @@
 // off to reveal the next scene. (Chosen: the ink bloom, and every word in ink.) 29 bars of the score (launchLofi3), 77 s.
 import type { Ctx, Env } from "./core";
 import type { Film } from "./film";
-import { C, blot, expo, pathOf, ramp, selfLayer } from "./launchKit";
+import { C } from "./launchKit";
 import { content2, SFX2, T2, WEB_SKIP } from "./launch2";
-import { logoBug, measure, writeOn, type KStyle } from "./kinetic";
+import { logoBug } from "./kinetic";
+import { beatGrid, makeCut, pic, type, typeFrame, type Seg, type TypeSeg } from "./launchCut";
 import { launchLofi3 } from "./music/pieces/launch";
 import { renderPiece } from "./music/render";
 import { rng } from "./core";
 
 const W = 1920, H = 1080, FPS = 30;
-type Line = { text: string; style: KStyle; color: string };
-type Seg = { kind: "pic"; from: number; to: number; len: number } | { kind: "type"; lines: Line[]; len: number; before: number; after: number };
-const pic = (from: number, to: number, len = to - from): Seg => ({ kind: "pic", from, to, len });
-const type = (lines: Line[], len: number, before: number, after = before): Seg => ({ kind: "type", lines, len, before, after });
+// The cut is data (launchCut.ts): pic(from, to, len) plays a span of content2, type(...) is a full-frame
+// word page. Re-timing the film is an edit to HEAD, never to scene code.
 // Alex on cut 3: gentler pacing; ANIMATIONS before the swim request; the koi-and-code beat much
 // shorter; the embroidery long enough to see; the site from Bit's hero on. The film beat's length is
 // solved so "All in pure code." (content T2.words[0] + 140) lands on bar 26, the score's home chord.
@@ -38,35 +37,21 @@ const HEAD: Seg[] = [
   pic(WEB_FROM, WEB_FROM + WEB_LEN),
   type([{ text: "FILMS", style: "ink", color: C.ink }], 60, WEB_FROM + WEB_LEN - 1, T2.film[0]),
 ];
-const headLen = HEAD.reduce((a, s) => a + s.len, 0), CLAIM = 26 * 80, FILM_LEN = CLAIM - 140 - headLen;
-if (FILM_LEN < 90) throw new Error(`launch3: the film beat would be ${FILM_LEN} frames; the cut before it is too long for the claim to land on bar 26`);
+// the claim lands on bar 26 (the score's home chord): the film beat takes whatever is left
+const headLen = HEAD.reduce((a, s) => a + s.len, 0), FILM_LEN = beatGrid(90, FPS).solve(26, 140 + headLen, 90);
 const SEGS: Seg[] = [...HEAD, pic(T2.film[0], T2.film[1], FILM_LEN), pic(T2.words[0], T2.words[1]), pic(T2.end[0], T2.end[1]), pic(T2.end[1] - 1, T2.end[1], 60)];
-const STARTS = (() => { let t = 0; return SEGS.map((s) => { const a = t; t += s.len; return a; }); })();
-export const N3 = STARTS[STARTS.length - 1] + SEGS[SEGS.length - 1].len;
-const at = (F: number) => { let i = SEGS.length - 1; while (i > 0 && STARTS[i] > F) i--; return { s: SEGS[i], local: F - STARTS[i] }; };
-const contentOf = (s: Extract<Seg, { kind: "pic" }>, local: number) => s.from + ((s.to - s.from) * local) / s.len;
+const CUT = makeCut(SEGS), { STARTS, at, contentOf } = CUT;
+export const N3 = CUT.N;
 // a content frame, mapped to the cut (for the sound events); events inside a cut-away go to its start
-export const cutOf = (c: number) => { for (let i = 0; i < SEGS.length; i++) { const s = SEGS[i]; if (s.kind === "pic" && c >= s.from && c < s.to) return STARTS[i] + ((c - s.from) * s.len) / (s.to - s.from); } return -1; };
+export const cutOf = CUT.cutOf;
 
 // ---------------------------------------------------------------- a type frame
 const IN = 14, OUT = 14; // gentle: the bloom opens and closes over half a second
 // Alex's pick: B, the ink bloom. The Generate drop's own ink blooms from the centre over the picture,
 // the page is inside the bloom, the word is written on it in ink by the pointed pen, and the ink
 // shrinks back to a point to show the next scene.
-const drawType = (ctx: Ctx, env: Env, s: Extract<Seg, { kind: "type" }>, local: number, F: number) => {
-  const u = expo(ramp(local, 0, IN + 2)), v = expo(ramp(local, s.len - OUT, s.len)), R = 1250 * (v > 0 ? 1 - v : u);
-  content2(ctx, env, local < s.len / 2 ? s.before : s.after);
-  if (R < 2) return;
-  const L = selfLayer(env, "sheet", Math.round(W * env.scale), Math.round(H * env.scale)), c = L.ctx;
-  c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.fillStyle = C.bg; c.fillRect(0, 0, W, H);
-  const n = s.lines.length, size = Math.min(n === 1 ? 190 : 130, ...s.lines.map((l) => (1560 / measure(l.text, 100)) * 100)), gap = size * 1.45, y0 = H / 2 - ((n - 1) * gap) / 2 + size * 0.5;
-  s.lines.forEach((l, i) => writeOn(c, env, l.text, W / 2, y0 + i * gap, size, ramp(local, IN - 2 + i * 20, IN + 16 + i * 20), l.style, { color: l.color, align: "center", seed: 7 + i }));
-  logoBug(c, env, F, 1700, 1040, 0.9, { t0: -100, fps: FPS });
-  const ctr: [number, number] = [W / 2, H / 2];
-  ctx.setTransform(env.scale, 0, 0, env.scale, 0, 0); ctx.save();
-  pathOf(ctx, blot(ctr, R + 26, 88)); ctx.fillStyle = C.ink; ctx.fill(); pathOf(ctx, blot(ctr, Math.max(0, R - 4), 88)); ctx.clip();
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(L.canvas, 0, 0); ctx.restore();
-};
+const drawType = (ctx: Ctx, env: Env, s: TypeSeg, local: number, F: number) =>
+  typeFrame(ctx, env, s.lines, local, s.len, (first) => content2(ctx, env, first ? s.before : s.after), (c) => logoBug(c, env, F, 1700, 1040, 0.9, { t0: -100, fps: FPS }), { inF: IN, outF: OUT });
 
 // ---------------------------------------------------------------- the sound
 const audio3 = (sr: number): [Float32Array, Float32Array] => {
