@@ -101,6 +101,9 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [电影感·敬畏](assets/audio/sampler-cinematic-awe-8s.mp3) · [低保真](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [马林巴](assets/audio/sampler-marimba-curious-8s.mp3) · [电子乐](assets/audio/sampler-drive-electronic-8s.mp3) | 更多情绪与乐器 |
 | [15 秒版夜曲主题](assets/audio/fit-theme-15s.mp3) | 作曲器会选择适合时长的曲式 |
 
+另外还有**低保真电子乐**：温暖的失谐铺底、轻柔的拨弦主旋律和一点磁带晃动，放松又轻快（发布片的配乐就是它，[配方](skills/anidoodle/references/music/styles/lofi-electronic.md)）；
+以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。
+
 ## 会注意到你的网页
 
 <p align="center">
@@ -108,6 +111,12 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 </p>
 
 真正能放进网站的互动插画：跟随光标、响应按钮的吉祥物，随页面滚动自行画出的主视觉，还有遇到密码栏就捂眼睛的表单伙伴。只需一个小型 ES 模块和一个 `<ani-doodle>` 元素，无需框架；也支持减少动态效果和键盘操作。给定导致当前状态的输入，每一帧都是确定的。
+
+## 用代码画出你的产品发布片
+
+本页顶部的影片就是用 anidoodle 做的，做它的那套工具也一起附带。给它你的产品名、用户会输入的提示、回应这些提示的画面、几个词和你的安装命令，它就会踩着节拍剪出一支发布片：自己打字的聊天界面、像墨迹一样绽开并自己画出来的回答、整屏的手写字，以及一张把安装命令停留足够久、方便复制的结尾卡。
+
+这些规则来自我们自己发布片的四次剪辑，以及优秀发布片的手艺：五秒内说清它是什么，文字永远不压在画面上，在强拍上切换，把第一帧做成缩略图。 → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [工具包](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## 带上你自己的图片
 
@@ -139,6 +148,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | **网页** | 会追随光标、响应点击和表单，或随着页面滚动自行绘制的互动插画。 |
 | **学习** | 用分步图和延时视频教你一幅画如何完成，还会指出该看什么、常见错误有哪些。 |
 | **角色** | 一个角色只需构建一次，在不同镜头、姿势和风格中始终保持一致。 |
+| **你的发布** | 用模板为你的产品做一支发布片：你的提示、你的画面、你的文字和安装命令，配着音乐剪好。 |
 
 用大白话说出你的需求就行，比如 *“给我们的招聘页面画一张孔版印刷风格的灯塔，1600×900”*，或者 *“用粉笔黑板风格画一张解释我们定价方案的说明图”*，anidoodle 会自动把它路由到合适的工作流和风格配方，只有在你没说清楚的地方才会追问。
 
@@ -207,6 +217,7 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
 ```
 
 需要 Node 20 及以上版本。静态图只需要上面那个浏览器；只要涉及动态效果，就还会用到 `ffmpeg`。

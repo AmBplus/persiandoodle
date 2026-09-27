@@ -60,3 +60,22 @@ both times: charcoal and broken-colour for a watercolour, wren for a scrapbook.)
 |---|---|---|---|
 | a pastel watercolour backdrop (terminal UI excluded) | jagged-coast puddles, pooled rims, bare-paper rests, spatter, gouache sparkles | `adaptAquarelle.ts`, a moon jellyfish | `styles/house/pastel-blotch.json` |
 | an explainer frame (Ritwika, f_10) | tidy torn pastel cards with soft shadows, typewriter, thin pen diagrams, one engraving | `adaptScrapbook.ts`, why sourdough rises | `styles/house/quiet-scrapbook.json` |
+| Van Gogh, *Almond Blossom* (1890, public domain) | short loaded oil strokes in turning patches, a broken blue-green contour laid last, thick ridged whites | `adaptAlmond.ts`, the launch film's koi in its pond | `styles/house/almond-blossom.json` |
+
+## A MEDIUM RECIPE, filled in (the almond proof)
+
+The analyzer's nearest plates were charcoal and storybook; by eye it was `paintedOil`, so the
+plate reuses the painted-oil kit and changes the mark. The recipe, as written in the plate's
+header before any code:
+
+- **MARK**: opaque oil, a loaded bristle brush, strokes about a finger long. The ground is laid in
+  small patches of strokes sharing a direction, the patches turning against each other. Forms are
+  painted along their length. Lights are thick and ridged.
+- **EDGE**: hard. A dark blue-green contour laid last with a small round brush, broken, heavier on
+  the shadow side. Nothing blended across an edge.
+- **ORDER**: the ground everywhere; forms in their mid tone; lights; the contour; the last whites.
+- **PAPER**: primed linen, the weave showing through the thinner ground strokes.
+- **PALETTE**: a narrow, high-key turquoise ground; sage for forms; cream and lead white; one
+  vermilion; no black anywhere (the darkest note is the contour).
+- **NOT**: `paintedOil` models form in depth; this hand keeps the ground flat and decorative with
+  one step of shadow. The subject is the film's own koi, never the painting's branch.

@@ -101,6 +101,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [영화 음악·경외감](assets/audio/sampler-cinematic-awe-8s.mp3) · [로파이](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [마림바](assets/audio/sampler-marimba-curious-8s.mp3) · [일렉트로닉](assets/audio/sampler-drive-electronic-8s.mp3) | 더 많은 분위기와 악기 |
 | [15초로 맞춘 녹턴 주제](assets/audio/fit-theme-15s.mp3) | 작곡기가 길이에 맞는 형식을 골라요 |
 
+그리고 **로파이 일렉트로닉**도 있어요. 따뜻하게 디튠한 패드, 부드럽게 튕기는 리드, 살짝 흔들리는 테이프 질감으로 차분하면서도 경쾌해요 (런칭 영상의 음악이 바로 이거예요. [레시피](skills/anidoodle/references/music/styles/lofi-electronic.md)). **효과음 키트**도 있어요. 여러 겹으로 만든 시드 기반 효과음 열네 가지가 정확한 프레임에 맞춰 울리고, 그때마다 음악이 살짝 물러나요 ([사운드 디자인](skills/anidoodle/references/music/sound-design.md)).
+
 ## 나를 알아채는 웹페이지
 
 <p align="center">
@@ -108,6 +110,12 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 </p>
 
 실제 사이트에 넣을 수 있는 인터랙티브 일러스트예요. 커서를 따라가고 버튼에 반응하는 마스코트, 스크롤할 때 스스로 그려지는 히어로 이미지, 비밀번호 칸에서 눈을 가리는 폼 친구까지요. 작은 ES 모듈 하나와 `<ani-doodle>` 요소 하나면 되고 프레임워크는 필요 없어요. 동작 줄이기 설정과 키보드 조작도 지원해요. 각 프레임은 그때까지의 입력이 정해주는 결과예요.
+
+## 내 제품을 코드로 그려서 런칭하기
+
+이 페이지 맨 위의 영상은 anidoodle로 만들었고, 그때 쓴 키트도 함께 들어 있어요. 제품 이름, 사용자가 입력할 프롬프트, 그 답이 될 그림, 짧은 문구, 설치 명령어를 넘겨주면 박자에 맞춰 런칭 영상을 편집해요. 스스로 입력되는 채팅, 잉크처럼 번지며 열리고 저절로 그려지는 답, 화면을 가득 채우는 레터링, 그리고 설치 명령어를 복사할 수 있을 만큼 오래 보여주는 엔드 카드까지요.
+
+규칙은 저희 런칭 영상을 네 번 편집하며 얻은 경험과 잘 만든 런칭 영상들의 기술에서 왔어요. 5초 안에 무엇인지 말하기, 그림 위에 글자를 올리지 않기, 강박에서 전환하기, 첫 프레임을 썸네일로 만들기. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [키트](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## 내 이미지를 가져오기
 
@@ -139,6 +147,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | **웹페이지** | 커서를 따라 움직이고 클릭과 폼에 반응하며, 페이지를 스크롤하면 스스로 그려지는 인터랙티브 일러스트. |
 | **학습** | 그림이 만들어지는 과정을 알려주는 단계별 시트와 타임랩스. 어디를 살펴봐야 하는지, 흔한 실수는 무엇인지도 배워요. |
 | **캐릭터** | 한 번 만든 캐릭터를 장면과 포즈, 스타일이 달라져도 똑같이 유지해요. |
+| **내 런칭** | 템플릿으로 만드는 제품 런칭 영상이에요. 프롬프트, 그림, 문구, 설치 명령어를 넣으면 음악에 맞춰 편집돼요. |
 
 그냥 평범한 말로 요청하면 돼요. *“채용 페이지에 쓸 리소그래프 등대 이미지, 1600×900 사이즈로”* 또는 *“요금제 단계를 한눈에 보여주는 칠판 스타일 설명 그림”* 같은 식으로요. anidoodle이 알아서 적절한 워크플로와 스타일 레시피로 연결해주고, 요청에서 빠진 부분만 되물어요.
 
@@ -207,6 +216,7 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
 ```
 
 Node 20 이상이 필요해요. 스틸컷은 위에서 설치한 브라우저만 있으면 되고, 움직이는 건 전부 `ffmpeg`도 함께 써요.

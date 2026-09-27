@@ -19,11 +19,22 @@ The test: would a proud human illustrator ship this, or is it mechanical shape-a
 | The same character drawn differently shot to shot | One character module; shots pose it, never redraw it (`workflows/character-consistency.md`) |
 | A silhouette filled with texture, no mouth line, no toes | Interior contours: mouth, eyelids, nostrils, toes, joins between forms (the detail pass below) |
 | A drawing film where the finished picture fades in | Marks made in the medium's order; the last frames are the still (`workflows/drawing-process.md`) |
+| Words laid over the art or the UI | Type gets its own frame; corner marks step aside when the camera brings UI under them |
+| A loop playing in place and called "alive" | Real travel through a world that changes as the subject moves |
+| A hard cut or a sharp swoosh between scenes | A gentle move: a bloom, a flip, a push, the card grows into the frame |
 
 **No dead air** in anything that moves: something visibly changes in every second, from frame 0.
 Check it with the tool AND by eye: a creeping camera changes every pixel and satisfies the tool
 while the eye sees a still.
 
+
+**Judge the design, not only the collisions.** A review still can have nothing overlapping and
+still fail: no hierarchy, cramped spacing, a frame that would not pass as a poster. Look at each
+review frame as a designer first, a checker second.
+
+**Preview options before full renders.** When a choice is open (a transition, a lettering
+medium, a palette), show a cheap still sheet of the options side by side and let the person
+pick. A full render per option spends the most expensive resource on the cheapest question.
 
 ## The detail pass (run it on every piece before showing it)
 

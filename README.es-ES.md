@@ -101,6 +101,8 @@ Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se s
 | [Cinemático, asombro](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electrónica](assets/audio/sampler-drive-electronic-8s.mp3) | más estados de ánimo e instrumentos |
 | [El tema del nocturno en 15 segundos](assets/audio/fit-theme-15s.mp3) | El compositor elige la forma que cabe en ese tiempo |
 
+Y además: **lo-fi electrónico**, relajado y alegre, con pads cálidos y desafinados, una melodía suave punteada y un leve vaivén de cinta (es la banda sonora del vídeo de lanzamiento; [la receta](skills/anidoodle/references/music/styles/lofi-electronic.md)), y un **kit de efectos de sonido**: catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)).
+
 ## Páginas web que se fijan en ti
 
 <p align="center">
@@ -108,6 +110,12 @@ Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se s
 </p>
 
 Ilustraciones interactivas para webs reales: una mascota que sigue el cursor y reacciona a los botones, una imagen de cabecera que se dibuja al desplazarte, un compañero de formulario que se tapa los ojos ante el campo de contraseña. Basta un pequeño módulo ES y un elemento `<ani-doodle>`, sin framework, con opciones de movimiento reducido y uso por teclado. Cada fotograma queda determinado por las entradas que lo preceden.
+
+## Lanza tu producto, dibujado con código
+
+El vídeo al principio de esta página se hizo con anidoodle, y el kit con el que se hizo viene incluido. Dale el nombre de tu producto, las peticiones que escribiría un usuario, las imágenes que las responden, unas pocas palabras y tus líneas de instalación. Monta un vídeo de lanzamiento al ritmo de la música: un chat que se escribe solo, respuestas que se abren como tinta y se dibujan solas, rótulos a pantalla completa y una tarjeta final que mantiene tus líneas de instalación el tiempo suficiente para copiarlas.
+
+Las reglas salen de cuatro montajes de nuestro propio lanzamiento y del oficio de los mejores: di qué es en cinco segundos, nunca pongas texto sobre la ilustración, corta en el tiempo fuerte, haz que el primer fotograma sea la miniatura. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [el kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
 ## Trae tu propia imagen
 
@@ -139,6 +147,7 @@ Pregunta cómo dibujar algo, o trae un dibujo, y anidoodle lo reconstruye como l
 | **Páginas web** | Ilustraciones interactivas que siguen el cursor, reaccionan a clics y formularios, o se dibujan al desplazarte por la página. |
 | **Aprendizaje** | Lecciones de dibujo con láminas paso a paso y timelapses que enseñan cómo se construye una imagen, qué observar y qué errores evitar. |
 | **Personajes** | Un personaje creado una sola vez que se mantiene idéntico entre planos, poses y estilos. |
+| **Tu lanzamiento** | Un vídeo de lanzamiento para tu producto a partir de una plantilla: tus peticiones, tus imágenes, tus palabras y tus líneas de instalación, montado sobre una banda sonora. |
 
 Pídelo con tus propias palabras, *«un faro en risografía para nuestra página de empleo, 1600×900»* o *«un explicativo en tiza de cómo se comparan nuestros planes de precios»*, y anidoodle lo dirige al flujo de trabajo y la receta de estilo adecuados, preguntando solo por lo que la petición deje abierto.
 
@@ -207,6 +216,7 @@ node tools/still.mjs  hero  --out out/hero.png --scale 2   # a finished illustra
 node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 with score, .webm with alpha
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
+node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
 ```
 
 Node 20 o más reciente. Las imágenes fijas solo necesitan el navegador de arriba; todo lo que se mueve también usa `ffmpeg`.

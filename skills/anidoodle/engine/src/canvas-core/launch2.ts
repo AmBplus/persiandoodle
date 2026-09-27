@@ -10,8 +10,8 @@
 import type { Ctx, Env, P } from "./core";
 import type { Film } from "./film";
 import {
-  C, GEN, HOME, INPUT, MONO, REPLY, SANS, TEXT, blot, camLerp, caretAt, clamp, drawChatFrame, expo, inOut, lerp, lerpP,
-  out3, pathOf, plateLayer, pointer, press, ramp, rr, selfLayer, softShadow, useCam, type Cam,
+  C, GEN, HOME, INPUT, MONO, REPLY, SANS, TEXT, blot, camLerp, caretAt, charTimes, clamp, drawChatFrame, expo, inkDrop, inOut, lerp, lerpP,
+  out3, pathOf, plateLayer, pointer, press, ramp, rr, selfLayer, softShadow, typedAt, useCam, type Cam,
 } from "./launchKit";
 import { koiDraw } from "./koiDraw";
 import { koi } from "./koi";
@@ -36,8 +36,6 @@ export const T2 = {
 const N = T2.end[1];
 
 // ---------------------------------------------------------------- small helpers
-const charTimes = (text: string, t0: number, rate: number, seed: number) => { const out: number[] = []; let t = t0; for (let i = 0; i < text.length; i++) { const h = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453, j = h - Math.floor(h); t += rate * (0.55 + j * 0.9) + (text[i] === " " ? 0.6 * rate : 0); out.push(t); } return out; };
-const typedAt = (text: string, f: number, times: number[]) => text.slice(0, times.filter((t) => f >= t).length);
 const screen = (ctx: Ctx, env: Env) => ctx.setTransform(env.scale, 0, 0, env.scale, 0, 0);
 const GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
 // a whip: the outgoing frame smeared along the move (drawn several times, fading), the incoming following it in
@@ -100,13 +98,7 @@ const drawCard = (ctx: Ctx, env: Env, it: Extract<Item, { kind: "card" }>, x: nu
   ctx.restore(); ctx.restore();
 };
 // the drop in flight from Generate to where the new card will land
-const drawDrop = (ctx: Ctx, f: number, d: { t0: number; land: number }, to: P) => {
-  if (f < d.t0 - 6 || f >= d.land) return;
-  if (f < d.t0) { const w = out3(ramp(f, d.t0 - 6, d.t0)); ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(GEN_C[0], GEN.y + 6 - w * 22, 30 * (0.3 + 0.7 * w), 0, Math.PI * 2); ctx.fill(); return; }
-  const at = (g: number): P => { const u = ramp(g, d.t0, d.land), e = inOut(u); return [lerp(GEN_C[0], to[0], e), lerp(GEN.y - 16, to[1], e) - Math.sin(Math.PI * u) * 150]; };
-  for (let k = 24; k >= 0; k--) { const p = at(f - k * 0.1); ctx.fillStyle = C.ink; ctx.globalAlpha = k === 0 ? 1 : 0.22 * (1 - k / 25); ctx.beginPath(); ctx.arc(p[0], p[1], 30 * (1 - k * 0.022), 0, Math.PI * 2); ctx.fill(); }
-  ctx.globalAlpha = 1;
-};
+const drawDrop = (ctx: Ctx, f: number, d: { t0: number; land: number }, to: P) => inkDrop(ctx, f, d, to);
 type ChatO = { typed: string; caret: boolean; press: number; hot: number; flip?: number; hideCard?: number };
 const drawChat = (ctx: Ctx, env: Env, f: number, o: ChatO) => {
   drawChatFrame(ctx, { typed: o.typed, caret: o.caret, placeholder: "Describe what you want drawn…", genPress: o.press, genHot: o.hot });

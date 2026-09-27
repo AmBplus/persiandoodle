@@ -47,3 +47,27 @@ Stop asking the moment you can build. Two questions answered well beat six asked
 One short brief file in the project: kind, style (and why), shape(s), length, sound (style +
 moods), characters, the one-sentence idea. Everything the person said goes in their words.
 Everything you decided is marked as yours so they can veto it in one line.
+
+## Before the first full render
+
+- **Show options as one still sheet** when a choice is open (a transition, a lettering medium,
+  a palette): three to six variants side by side, picked in one message. Then render.
+- **Review stills for design**, not only for things overlapping (`references/craft-bar.md`).
+
+## Alive means real motion
+
+When someone asks for a subject to be "alive", "swimming" or "moving", an in-place loop reads as
+a GIF. The subject travels through a world that changes as it moves, and the camera follows.
+The worked example is the koi: `koi.ts` takes an optional `KoiLive` (time, amplitude, a pose on
+a path) and `koiWorld.ts` swims it through a pond much bigger than the frame, sliding under pads
+that are placed in the world, its wake spreading from its nose.
+
+The pattern:
+1. **Add motion as an optional input** to the subject's drawing function (`live?: KoiLive`).
+   With it absent, the code path is the still, untouched.
+2. **Guard the still**: render the still plate before and after with `still.mjs` and compare
+   the md5 it prints. The still must stay pixel-identical; if it moves, the refactor leaked.
+3. **Place the world in world units**, not screen units, so the scenery changes as the subject
+   moves; let the camera follow (`references/camera.md`).
+4. **Frame 0 of the living version equals the still** (same pose, same framing), so a film can
+   hand over from the still card to the living one without a seam.
