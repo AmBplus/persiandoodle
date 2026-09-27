@@ -16,7 +16,8 @@ const say = (ok, label, detail = "") => { if (!ok) fails++; console.log(`  ${ok 
 console.log(`DOCS-CHECK   ${ROOT}\n             registry: ${COUNT} styles\n`);
 
 // ---------------------------------------------------- 1. SKILL.md holds its own shape
-const skillFile = join(ROOT, "SKILL.md"), skill = readFileSync(skillFile, "utf8");
+// Windows checkouts with core.autocrlf get CRLF files; normalize so the frontmatter regex holds.
+const skillFile = join(ROOT, "SKILL.md"), skill = readFileSync(skillFile, "utf8").replace(/\r\n/g, "\n");
 const lines = skill.endsWith("\n") ? skill.split("\n").length - 1 : skill.split("\n").length;
 say(lines <= 150, `SKILL.md is ${lines} lines`, "limit 150");
 const desc = skill.match(/^---\n[\s\S]*?\n---/)?.[0].match(/^description:\s*(.+)$/m)?.[1].trim();
