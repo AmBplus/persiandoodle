@@ -127,7 +127,9 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     // the pointer comes in for the press and glides back out; it never pops
     const off: P = [1780, 1140], on: P = [GEN_C[0] + 18, GEN_C[1] + 6];
     if (l >= t.b - 4 && l < t.up + 24) pointer(ctx, l < t.up + 4 ? lerpP(off, on, out3(ramp(l, t.b - 4, t.down))) : lerpP(on, off, inOut(ramp(l, t.up + 4, t.up + 24))), pr * 0.8);
-    const show = 1 - clamp(lean * 3); if (show > 0) { ctx.globalAlpha = show; bug(ctx, env); ctx.globalAlpha = 1; }
+    // the mark is gone BEFORE the lean moves the composer under it, and back only once the camera has left
+    const show = lean > 0 && l > ASK / 2 ? 1 - ramp(l, t.drop.full - 18, t.drop.full - 10) : i > 0 && l < 24 ? ramp(l, 16, 24) : 1;
+    if (show > 0) { ctx.globalAlpha = show; bug(ctx, env); ctx.globalAlpha = 1; }
   };
   // ---------------------------------------------------------------- the end card
   const endPage = (c: Ctx, env: Env, e: number) => {
