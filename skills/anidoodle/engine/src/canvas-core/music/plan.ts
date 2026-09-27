@@ -4,13 +4,15 @@
 import { midi, type ModeId, MODES, detectMode, pcOf } from "./theory";
 import { MOODS, STYLES, REFUSED_BLENDS, type MoodId, type StyleId, type MelodyType } from "./tables";
 
-export type Meter = "3/4" | "4/4" | "6/8" | "12/8";
-export const beatsPerBar = (m: Meter) => (m === "3/4" ? 3 : m === "4/4" ? 4 : m === "6/8" ? 2 : 4);
+export type Meter = "2/4" | "3/4" | "4/4" | "5/4" | "6/8" | "7/8" | "9/8" | "12/8";
+/** Beats per bar. Simple meters count quarters (7/8 = 3.5 quarters, write eighths as .5); compound meters (6/8, 9/8, 12/8) count dotted quarters (write eighths as 1/3). */
+export const beatsPerBar = (m: Meter) => ({ "2/4": 2, "3/4": 3, "4/4": 4, "5/4": 5, "6/8": 2, "7/8": 3.5, "9/8": 3, "12/8": 4 })[m];
+export const isCompound = (m: Meter) => m === "6/8" || m === "9/8" || m === "12/8";
 
 export type Role = "melody" | "inner" | "bass" | "accomp" | "color" | "drum";
 /** t, d in beats from the piece start; p = MIDI; v = written velocity 0..1 (performance shapes it). */
 export type Note = { t: number; d: number; p: number; v: number; role: Role; roll?: number; kind?: string };
-export type InstId = "piano" | "musicBox" | "bell" | "celesta" | "marimba" | "vibes" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "pulse" | "triangle" | "noiseDrum" | "kick" | "snare" | "hat" | "bass" | "vinyl" | "warmPad" | "softPluck" | "sub";
+export type InstId = "piano" | "musicBox" | "bell" | "celesta" | "marimba" | "vibes" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "pulse" | "triangle" | "noiseDrum" | "kick" | "snare" | "hat" | "bass" | "vinyl" | "warmPad" | "softPluck" | "sub" | "organ" | "brass" | "woodwind" | "choir" | "timpani" | "leadSynth" | "bowedSolo";
 export type Part = { id: string; inst: InstId; role: Role; notes: Note[]; gainDb?: number; pan?: number; opts?: Record<string, number | boolean | string>; send?: number };
 export type Section = {
   id: string; bars: number; mood: MoodId | [MoodId, MoodId, number]; key: string; mode: ModeId; melody: MelodyType[];

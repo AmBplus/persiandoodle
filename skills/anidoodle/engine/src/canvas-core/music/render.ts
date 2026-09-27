@@ -6,6 +6,7 @@ import { type Piece, type Part, resequence, beatsPerBar } from "./plan";
 import { perform, type Performance, type Played } from "./perform";
 import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
 import * as I from "./instruments";
+import * as O from "./orchestra";
 import { room, Biquad, db } from "./dsp";
 import { warmPad, softPluck, sub, duckCurve, tape } from "./lofiKit";
 import { loudness, truePeak, stemBalance } from "./meter";
@@ -40,6 +41,13 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number) =>
     case "warmPad": return warmPad(keys, sr, n, o, r);
     case "softPluck": return softPluck(keys, sr, n, o);
     case "sub": return sub(keys, sr, n, o);
+    case "organ": return O.organ(keys, sr, n, o);
+    case "brass": return O.brass(keys, sr, n, o);
+    case "woodwind": return O.woodwind(keys, sr, n, o, r);
+    case "choir": return O.choir(keys, sr, n, o, r);
+    case "timpani": return O.timpani(keys, sr, n, o, r);
+    case "leadSynth": return O.leadSynth(keys, sr, n, o);
+    case "bowedSolo": return O.bowedSolo(keys, sr, n, o, r);
     default: throw new Error(`no instrument ${pt.inst}`);
   }
 };
@@ -100,7 +108,11 @@ export const master = (L: Float32Array, R: Float32Array, sr: number, masterMode:
   const tp = truePeak([L, R]).dbtp;
   if (tp > -1) {
     if (masterMode === "gentle") { const cut = tp + 1.05; gainDb -= cut; for (let i = 0; i < n; i++) { L[i] *= db(-cut); R[i] *= db(-cut); } }
-    else { limiter(L, R, sr, db(-1.3)); const again = target - loudness([L, R], sr).integrated; if (again > 0) { const g = db(Math.min(again, 1)); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } limiter(L, R, sr, db(-1.3)); } }
+    else {
+      limiter(L, R, sr, db(-1.3)); const again = target - loudness([L, R], sr).integrated; if (again > 0) { const g = db(Math.min(again, 1)); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } limiter(L, R, sr, db(-1.3)); }
+      const tp2 = truePeak([L, R]).dbtp; // harsh waveforms (pulses) can still overshoot between samples: a last static trim
+      if (tp2 > -1) { const cut = tp2 + 1.05; gainDb -= cut; for (let i = 0; i < n; i++) { L[i] *= db(-cut); R[i] *= db(-cut); } }
+    }
   }
   return gainDb;
 };
