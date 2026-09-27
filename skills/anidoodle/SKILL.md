@@ -35,12 +35,17 @@ say why in one line. Write the answers into a short brief before drawing.
 | A loop, sticker, animated logo, ambient header | Loop workflow below, `references/formats.md` |
 | A story film, any length | Film workflow below, `references/workflows/long-film.md` |
 | An explainer or an infographic | `references/workflows/explainer.md` |
-| A launch or product video (their screenshots welcome) | `references/workflows/launch-video.md` |
+| A launch or product video (their screenshots welcome) | `references/workflows/launch-video.md`; build it on `references/workflows/launch-video-kit.md` |
 | An interactive web animation that reacts to the UI | `references/workflows/interactive.md` |
 | A drawing lesson, or "how do I draw this?" | `references/workflows/teach-drawing.md` |
 | A character kept identical in any style (woodcut to toy brick) | `references/workflows/character-consistency.md`, `references/anatomy.md` |
 | A style matched from their image | `references/workflows/adapt-a-style.md` |
 | A score or soundtrack | `references/music/README.md` |
+
+<!-- KITS: one line each from the music (B) and sound (C) tracks; keep this block short -->
+- Music, lo-fi electronic (chill, upbeat, clean; no ePiano): lofiElectronic() in engine/src/canvas-core/music; balance with node tools/music.mjs stems <piece> before mastering. See references/music/styles/lofi-electronic.md.
+- Sound effects: references/music/sound-design.md. 14 layered, seeded effects cued by film frame (filmSfx); the score ducks, and every cue must be within 6 dB of it. Effects only on real direction changes, one riser + one impact per film.
+- Launch films: `launchTemplate.ts` renders your product's launch from data (prompts, plates, words, install lines); habits that save tokens are in `references/working-method.md`.
 
 ## The seven laws
 
@@ -119,6 +124,7 @@ node tools/emit.mjs intro --out out/intro.html                     # one self-co
 | `docs-check.mjs` | fails when any doc's style count, length or path disagrees with the code |
 | `verify-export.mjs` | opt-in QA on the rendered file: frame count, duration, first-frame colour, loop seam |
 | `music.mjs` | renders and meters a score (loudness, range, onsets, brightness) |
+| `sfx.mjs` | the sound-effects kit: `list`, `one`, `kit <dir>`, `test` |
 
 Four backends, one art core: `playwright`, `html-player`, `remotion`, `hyperframes`.
 → `references/backends-and-adapters.md`
