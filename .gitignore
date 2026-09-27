@@ -26,7 +26,8 @@ skills/anidoodle/engine/src/hosts/page-lessonClawd*.ts
 skills/anidoodle/engine/src/canvas-core/clawd*.ts
 skills/anidoodle/engine/src/hosts/page-clawd*.ts
 
-# working copy of the worked example, for the launch film (source of truth: example/)
+# old local working copy of the worked example (source of truth: example/). Not needed any more:
+# tools/overlay.mjs resolves example/src at build time. A local copy here SHADOWS the example.
 skills/anidoodle/engine/src/canvas-core/butterfly/
 skills/anidoodle/engine/src/canvas-core/mechanicalLepidoptera.ts
 skills/anidoodle/engine/src/hosts/page-mechanicalLepidoptera.ts
