@@ -180,8 +180,8 @@ Follow [`compose.md`](compose.md). In short:
 1. brief -> numbers (length, picture beats, feeling);
 2. one style + one mood + five mood controls;
 3. compose YOUR harmony, bass lines, motif(s), groove choice and form as `Material`;
-4. `node tools/music.mjs render <file>.ts#<export> out.mp3 --stems` (loudness, peak, stems);
-5. `node tools/music.mjs novelty <file>.ts#<export>` must PASS;
+4. `node tools/music.mjs check <file>.ts#<export>` must PASS (key, master, ghost/reverb/masking guards, stems, novelty);
+5. `node tools/music.mjs render <file>.ts#<export> out.wav` (use wav for loops: mp3 is not gapless);
 6. 8 seconds (then the whole piece) to a human, as an mp3 on a page.
 
 Hand-written `Piece`s (the nocturne, the samplers) are still valid for styles without a vocabulary
