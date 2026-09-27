@@ -63,3 +63,11 @@ export const detectMode = (notes: { p: number; d: number }[], modes: ModeId[] = 
   }
   return res.sort((a, b) => b.score - a.score).slice(0, 3);
 };
+
+/** How well a declared tonic + mode explains some notes: the share of note time inside the scale, and the tonic's own share (its dominance). */
+export const modeFit = (notes: { p: number; d: number }[], tonicPc: number, mode: ModeId) => {
+  const h = new Array(12).fill(0); for (const n of notes) h[((n.p % 12) + 12) % 12] += n.d;
+  const tot = h.reduce((a, b) => a + b, 0) || 1, iv = new Set(MODES[mode].intervals.map((x) => (x + tonicPc) % 12));
+  let inS = 0; for (let k = 0; k < 12; k++) if (iv.has(k)) inS += h[k];
+  return { inScale: inS / tot, tonicShare: h[((tonicPc % 12) + 12) % 12] / tot };
+};

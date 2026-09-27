@@ -79,8 +79,8 @@ export const launchLofi3Material = (): Material => {
     chords: { Dm9: { voicing: PAD[0], bass: SUB[0] }, G13: { voicing: PAD[1], bass: SUB[1] }, Cmaj9: { voicing: PAD[2], bass: SUB[2] }, Am9: { voicing: PAD[3], bass: SUB[3] } },
     motifs: Object.fromEntries([...HOOK.map((h, i) => [hk(i), h]), ...SPARK.map((x, i) => [sp(i), x])]),
     grooves: {
-      main: { kick: [KICK[0], KICK[1]], snare: ["r:1 C4:2 C4:1"], ghost: ["r:3.75 C4:.25@.5", "r:1.75 C4:.25@.45 r:2"], hat: [HATS] },
-      half: { kick: ["C4:2 r:2"], snare: ["r:2 C4:2"], hat: ["C4:1@.6 C4:1@.35 C4:1@.6 C4:1@.35"] },
+      main: { kick: [KICK[0], KICK[1]], snare: ["r:1 C4:2 C4:1"], ghost: ["r:3.75 C4:.25@.5", "r:1.75 C4:.25@.45 r:2"], hat: [HATS], cycle: "piece" },
+      half: { kick: ["C4:2 r:2"], snare: ["r:2 C4:2"], hat: ["C4:1@.6 C4:1@.35 C4:1@.6 C4:1@.35"], cycle: "piece" },
     },
     sections: [
       { kind: "intro", bars: 2, harmony: ["Cmaj9", "Am9"], chordVel: 0.8 },

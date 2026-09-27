@@ -13,7 +13,9 @@ export type GrooveFamily = "bounce" | "fourFloor" | "halfTime" | "broken" | "shu
 /** A generated groove: the composer picks the family and its knobs. */
 export type GrooveChoice = { family: GrooveFamily; density?: number; variation?: number; fill?: boolean; accent?: number };
 /** A written groove: one or more bars of notation per lane, cycled by the absolute bar number. */
-export type LiteralGroove = { kick?: string[]; snare?: string[]; ghost?: string[]; hat?: string[]; perc?: string[] };
+/** A written groove: one or more bars of notation per lane. Bars cycle from each section's first bar (`cycle: "piece"` cycles on the piece's bar count instead).
+ *  The written pitch is ignored by unpitched drums (kick, snare, hat, noise): write C4. A pitched voice in a drum lane (timpani) is tuned to the key. */
+export type LiteralGroove = { kick?: string[]; snare?: string[]; ghost?: string[]; hat?: string[]; perc?: string[]; cycle?: "section" | "piece" };
 export type Groove = GrooveChoice | LiteralGroove;
 export type Lane = "kick" | "snare" | "ghost" | "hat" | "perc";
 export type DrumBar = Partial<Record<Lane, string | null>>;
@@ -179,6 +181,6 @@ export const isLiteral = (g: Groove): g is LiteralGroove => !("family" in g);
 /** One bar of any groove (literal lanes cycle on the absolute bar). */
 export const drumBar = (g: Groove, meter: Meter, seed: number, abs: number, pos: number, len: number, energy?: number): DrumBar => {
   if (!isLiteral(g)) return grooveBar(g, meter, seed, abs, pos, len, energy);
-  const pick = (xs?: string[]) => (xs && xs.length ? xs[abs % xs.length] || null : null);
+  const k = g.cycle === "piece" ? abs : pos, pick = (xs?: string[]) => (xs && xs.length ? xs[k % xs.length] || null : null);
   return { kick: pick(g.kick), snare: pick(g.snare), ghost: pick(g.ghost), hat: pick(g.hat), perc: pick(g.perc) };
 };

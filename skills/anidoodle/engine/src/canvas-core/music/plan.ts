@@ -1,7 +1,7 @@
 // MusicPlan and notes as data (spec 08 section 2), a small bar-checked notation so a composer
 // writes real lines instead of arrays of numbers, the plan validator, and `arrange`, which fits
 // a piece to ANY film duration (tempo inside the style's range, then repeat or drop sections).
-import { midi, type ModeId, MODES, detectMode, pcOf } from "./theory";
+import { midi, type ModeId, MODES, detectMode, pcOf, modeFit } from "./theory";
 import { MOODS, STYLES, REFUSED_BLENDS, type MoodId, type StyleId, type MelodyType } from "./tables";
 
 export type Meter = "2/4" | "3/4" | "4/4" | "5/4" | "6/8" | "7/8" | "9/8" | "12/8";
@@ -31,6 +31,7 @@ export type PieceFx = { clean?: boolean /* skip the lo-fi master tone (low-pass,
 export type Piece = { title: string; plan: MusicPlan; parts: Part[]; harmony: Chord[]; tail: number; seed: number; fx?: PieceFx;
   /** a shorter complete form of the same music, chosen automatically when the film is too short for this one */ shortForm?: () => Piece;
   /** rebuild the same music for a film `seconds` long so it still ends on its phrase (lofiElectronic: loop cycles added or removed); `fitScore` calls it before fitToDuration */ refit?: (seconds: number) => Piece;
+  /** composer-facing notes from compose (a line shorter than its section, ...): printed by tools/music.mjs check */ warnings?: string[];
   /** mix targets: RMS dBFS of each part's stem, measured over its active samples (`stemBalance`) */ stemTargets?: Record<string, number>;
   /** the arrangement as bar ranges, for the score and the docs (the plan may keep a single dynamics section) */ arrangement?: { id: string; kind: string; from: number; bars: number }[] };
 
@@ -74,8 +75,11 @@ export const planProblems = (p: Piece): string[] => {
     if (notes.length) {
       const top = detectMode(notes, [s.mode, "major", "aeolian", "dorian", "mixolydian", "lydian"]);
       const want = pcOf(s.key.replace(/m$/, ""));
-      const hit = top.slice(0, 2).some((c) => pcOf(c.tonic) === want && c.mode === s.mode) || top.slice(0, 2).some((c) => c.mode === s.mode);
-      if (!hit) probs.push(`${s.id}: declared ${s.key} ${s.mode}, notes measure ${top.map((c) => `${c.tonic} ${c.mode}`).join(" / ")}`);
+      const hit = top.slice(0, 2).some((c) => pcOf(c.tonic) === want && c.mode === s.mode);
+      // a mode shares its notes with its relatives (D dorian = C major): accept the declared tonic when its scale explains the notes
+      // as well as the winner does and the tonic is heard (>= 8 % of note time). Otherwise the tonic is not dominant enough.
+      const fit = modeFit(notes, want, s.mode), best = modeFit(notes, pcOf(top[0].tonic), top[0].mode);
+      if (!hit && !(fit.inScale >= best.inScale - 0.02 && fit.tonicShare >= 0.08)) probs.push(`${s.id}: declared ${s.key} ${s.mode}, notes measure ${top.map((c) => `${c.tonic} ${c.mode}`).join(" / ")} (tonic ${s.key} is ${Math.round(fit.tonicShare * 100)} % of note time, ${Math.round(fit.inScale * 100)} % in scale): make the tonic heard (bass on it at section starts and cadences) and state the mode's colour note`);
     }
     b0 = hi;
   }

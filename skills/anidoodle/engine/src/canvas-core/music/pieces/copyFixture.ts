@@ -18,8 +18,8 @@ export const daylightCopyMaterial = (): Material => ({
     s0: "r:1 A5:.5 C#6:.5 E6:2", s1: "r:1 F#5:.5 A5:.5 C#6:2", s2: "r:1 F#6:.5 D6:.5 B5:2", s3: "C#6:1 B5:1 A5:2",
   },
   grooves: {
-    main: { kick: ["C4:1.5 C4:1@.75 C4:1.5@.9", "C4:1.5 C4:.5@.6 C4:.5@.7 C4:1.25@.9 C4:.25@.5"], snare: ["r:1 C4:2 C4:1"], ghost: ["r:3.75 C4:.25@.5", "r:1.75 C4:.25@.45 r:2"], hat: [HATS] },
-    half: { kick: ["C4:2 r:2"], snare: ["r:2 C4:2"], hat: ["C4:1@.6 C4:1@.35 C4:1@.6 C4:1@.35"] },
+    main: { kick: ["C4:1.5 C4:1@.75 C4:1.5@.9", "C4:1.5 C4:.5@.6 C4:.5@.7 C4:1.25@.9 C4:.25@.5"], snare: ["r:1 C4:2 C4:1"], ghost: ["r:3.75 C4:.25@.5", "r:1.75 C4:.25@.45 r:2"], hat: [HATS], cycle: "piece" },
+    half: { kick: ["C4:2 r:2"], snare: ["r:2 C4:2"], hat: ["C4:1@.6 C4:1@.35 C4:1@.6 C4:1@.35"], cycle: "piece" },
   },
   sections: [
     { kind: "intro", bars: 2, harmony: ["Gmaj9", "A13"], chordVel: 0.8 },

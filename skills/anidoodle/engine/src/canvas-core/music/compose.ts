@@ -5,7 +5,8 @@
 // compose. Workflow and craft: references/music/compose.md. Vocabularies: vocab.ts.
 import { line, beatsPerBar, type Note, type Piece, type Part, type Role, type Meter } from "./plan";
 import type { ModeId } from "./theory";
-import type { MoodId, StyleId } from "./tables";
+import type { MoodId, StyleId, MelodyType } from "./tables";
+import { pcOf } from "./theory";
 import { perform } from "./perform";
 import { drumBar, type Groove, type Lane } from "./grooves";
 import { VOCAB_TRIM, VOCAB_TARGET_FIX } from "./vocabTrim";
@@ -19,11 +20,14 @@ export type ComposedSection = {
   id?: string; kind: SectionKind; bars: number;
   /** chord names per bar (keys of `chords`), cycled to fill the section; a bar may hold two: "Dm9 G13" splits it */
   harmony: string[];
+  /** lines play ONCE from the section's first bar (harmony cycles, lines do not); a shorter line leaves rests, unless `loopLines` */
   lead?: LineSpec; counter?: LineSpec; arp?: LineSpec;
+  /** repeat each line to fill the section (a 2-bar motif in an 8-bar section plays 4 times) */ loopLines?: boolean;
+  /** modulate: this section's key and mode (default the piece's); the key check reads each key region separately */ key?: string; mode?: ModeId;
   /** override the chords' bass lines for this section (one bar of notation, or one per bar) */ bass?: string | string[];
   /** a key of `grooves`, or null for no drums; default by kind (main / half / build / none) */ groove?: string | null;
   /** chord velocity scale (0..1.2), e.g. 0.8 for a softer intro */ chordVel?: number;
-  /** 0..1, scales generated groove density in this section */ energy?: number;
+  /** 0..1 (0.5 = as written): the section's dynamics for EVERY part (velocity x 0.55..1.45, about -5..+3 dB) and the density of generated grooves */ energy?: number;
   /** play the section this many times (refit changes it for the stretch section) */ repeat?: number; stretch?: boolean;
 };
 export type Material = {
@@ -31,8 +35,11 @@ export type Material = {
   chords: Record<string, ComposedChord>; motifs?: Record<string, string>; grooves?: Record<string, Groove>;
   sections: ComposedSection[];
   /** swap a slot's voice for one of the style's alternates by name, or give your own Voice */ voices?: Partial<Record<Slot, string | Voice>>;
-  /** gainDb per slot, after measuring stems */ levels?: Partial<Record<Slot, number>>;
-  moodControls?: MoodControls; swing?: number; dyn?: [number, number]; tail?: number; loop?: boolean;
+  /** dB OFFSET per slot, added to the voice's calibrated gain (after trims and mood): +2 = two dB louder. Set from the stem meter. */ levels?: Partial<Record<Slot, number>>;
+  moodControls?: MoodControls;
+  /** 0.5 straight .. 0.67 hard swing (default the style's lower bound) */ swing?: number;
+  /** the piece's dynamic level [start, end] 0..1, ramped over the whole piece (default [0.62, 0.66]); section `energy` shapes it locally */ dyn?: [number, number];
+  /** seconds of ring-out after the last onset (default 3.2) */ tail?: number; loop?: boolean;
 };
 
 const need = (ok: unknown, msg: string) => { if (!ok) throw new Error(`compose: ${msg} The style supplies sound, never notes: compose it yourself (references/music/compose.md).`); };
@@ -89,13 +96,22 @@ export const composePiece = (m: Material): Piece => {
       for (const ln of lanes) if (bar[ln]) push(ln, line(b * bpb, bar[ln]!, { role: "drum", v: vel[ln], bpb }));
     }
   }
+  const warnings: string[] = [];
   for (const x of lay) for (const slot of ["lead", "counter", "arp"] as Slot[]) {
     const spec = x.s[slot as "lead" | "counter" | "arp"]; if (!spec) continue;
-    const ns = line(x.from * bpb, lineOf(spec), { role: role(slot), v: vel[slot], bpb });
+    let src = lineOf(spec); const barsOf = (t: string) => t.split("|").filter((z) => z.trim()).length, lb = barsOf(src);
+    if (lb < x.s.bars) {
+      if (x.s.loopLines) { const reps = Math.ceil(x.s.bars / lb), all = Array.from({ length: reps }, () => src).join(" | ").split("|").map((z) => z.trim()).filter(Boolean); src = all.slice(0, x.s.bars).join(" | "); }
+      else if (x.pass === 0) warnings.push(`section "${x.id}": the ${slot} is ${lb} bar(s) in a ${x.s.bars}-bar section; it plays once, then rests (set loopLines: true to repeat it)`);
+    }
+    const ns = line(x.from * bpb, src, { role: role(slot), v: vel[slot], bpb });
     need(ns.every((n) => n.t < x.to * bpb - 1e-9), `the ${slot} line of section "${x.id}" is longer than its ${x.s.bars} bars.`);
     push(slot, ns);
   }
 
+  // ---- section energy: dynamics for every part (0.5 = as written, exactly)
+  for (const x of lay) { const en = x.s.energy; if (en === undefined || en === 0.5) continue; const f = 0.55 + 0.9 * en, a = x.from * bpb, z = x.to * bpb;
+    for (const ns of Object.values(notes)) for (const n of ns!) if (n.t >= a - 1e-9 && n.t < z - 1e-9) n.v *= f; }
   // ---- parts from the palette (+ alternates, levels, mood)
   const mood = m.moodControls ? fullMood(m.moodControls) : null, targets: Record<string, number> = {};
   const slots = [...BASE_SLOTS, ...(["arp", "perc"] as Slot[]).filter((s) => notes[s]?.length)];
@@ -109,20 +125,28 @@ export const composePiece = (m: Material): Piece => {
     v = resolveVoice(v, m.bpm);
     let dGain = 0; if (mood) { const r = moodVoice(slot, v, mood); v = r.voice; dGain = r.dGain; }
     const lv = m.levels?.[slot];
-    const trim = pick !== undefined ? 0 : VOCAB_TRIM[vocab.id]?.[slot] ?? 0, gainDb = lv !== undefined ? lv : trim ? v.gainDb + trim : v.gainDb;
+    const trim = pick !== undefined ? 0 : VOCAB_TRIM[vocab.id]?.[slot] ?? 0; let gainDb = trim ? v.gainDb + trim : v.gainDb; if (lv) gainDb += lv;
+    // a timpani (or any pitched drum voice) playing a drum lane is tuned to the key: the tonic in its low register
+    if (v.inst === "timpani" && role(slot) === "drum" && typeof pick !== "object") { const tp = pcOf(m.key.replace(/m$/, "")), lo = typeof v.opts?.pitch === "number" ? (v.opts.pitch as number) - 5 : slot === "kick" ? 31 : 38; /* the tonic nearest the voice's own register */ v = { ...v, opts: { ...(v.opts ?? {}), pitch: lo + ((tp - (lo % 12) + 12) % 12) } }; }
     if (vocab.stemTargets[slot] !== undefined) targets[slot] = vocab.stemTargets[slot] + dGain + (pick === undefined ? VOCAB_TARGET_FIX[vocab.id]?.[slot] ?? 0 : 0); // a mood that lifts the hats lifts their target too
     const p: Part = { id: slot, inst: v.inst, role: v.role, notes: notes[slot] ?? [], gainDb };
     if (v.opts) p.opts = v.opts; if (v.send !== undefined) p.send = v.send; if (v.pan !== undefined) p.pan = v.pan;
     parts.push(p);
   }
-  const e = mood ? mood.energy - 0.5 : 0, dyn = m.dyn ?? [0.62, 0.66];
+  const e = mood ? mood.energy - 0.5 : 0, dyn0 = m.dyn ?? [0.62, 0.66], dyn: [number, number] = mood ? [dyn0[0] + e * 0.2, dyn0[1] + e * 0.2] : dyn0;
+  // key regions: one plan section per run of sections in the same key and mode (a single one when the piece never modulates)
+  const keyOf = (x: (typeof lay)[number]) => `${x.s.key ?? m.key}|${x.s.mode ?? m.mode}`, regions: { from: number; to: number; key: string; mode: ModeId }[] = [];
+  for (const x of lay) { const r = regions[regions.length - 1]; if (r && `${r.key}|${r.mode}` === keyOf(x)) r.to = x.to; else regions.push({ from: x.from, to: x.to, key: x.s.key ?? m.key, mode: x.s.mode ?? m.mode }); }
+  const lvl = (b: number) => dyn[0] + ((dyn[1] - dyn[0]) * b) / B;
+  const planSections = regions.length === 1 ? [{ id: "a", bars: B, mood: m.mood, key: m.key, mode: m.mode, melody: ["stepwise", "hook"] as MelodyType[], dyn, ending: "tail" as const, repeatable: false }]
+    : regions.map((r, i) => ({ id: `key${i}`, bars: r.to - r.from, mood: m.mood, key: r.key, mode: r.mode, melody: ["stepwise", "hook"] as MelodyType[], dyn: [lvl(r.from), lvl(r.to)] as [number, number], ending: "tail" as const, repeatable: false }));
   const piece: Piece = {
     title: m.title, seed: m.seed, tail: m.tail ?? 3.2, harmony, parts,
     plan: { style: m.style, tempo: m.bpm, meter, swing: m.swing ?? vocab.swing[0], ritard: m.loop ? 1 : 0.92, loop: m.loop,
-      sections: [{ id: "a", bars: B, mood: m.mood, key: m.key, mode: m.mode, melody: ["stepwise", "hook"], dyn: mood ? [dyn[0] + e * 0.2, dyn[1] + e * 0.2] : dyn, ending: "tail", repeatable: false }] },
+      sections: planSections },
     fx: mood ? moodFx(vocab.fx, mood) : vocab.fx, stemTargets: targets,
     arrangement: lay.map((x) => ({ id: x.id, kind: x.s.kind, from: x.from, bars: x.s.bars })),
-    refit: m.loop ? undefined : (seconds: number) => composePiece(refitMaterial(m, seconds)),
+    warnings, refit: m.loop ? undefined : (seconds: number) => composePiece(refitMaterial(m, seconds)),
   };
   return piece;
 };

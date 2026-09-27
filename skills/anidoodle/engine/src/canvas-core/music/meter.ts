@@ -112,7 +112,9 @@ export type StemRow = { id: string; rmsDb: number; targetDb: number | null; offD
  * LESSON (the launch score): integrated LUFS of the mix looked right while the sub sat 7-10 dB too hot.
  * Loudness says how loud the whole is, never which part is wrong. Meter the stems.
  */
-export const stemBalance = (stems: Record<string, [Float32Array, Float32Array]>, targets: Record<string, number>, tolDb = 3) => {
-  const rows: StemRow[] = Object.entries(stems).map(([id, [L]]) => { const rmsDb = stemRms(L), t = targets[id] ?? null, off = t === null ? null : rmsDb - t; return { id, rmsDb, targetDb: t, offDb: off, ok: off === null || Math.abs(off) <= tolDb }; });
-  return { rows, pass: rows.every((r) => r.ok), tolDb };
+/** Guards win over stem targets: the melody must clear the masking guard, so the lead may sit up to `LEAD_HEADROOM_DB` above its target before it is flagged. */
+export const LEAD_HEADROOM_DB = 3;
+export const stemBalance = (stems: Record<string, [Float32Array, Float32Array]>, targets: Record<string, number>, tolDb = 3, headroom: Record<string, number> = { lead: LEAD_HEADROOM_DB }) => {
+  const rows: StemRow[] = Object.entries(stems).map(([id, [L]]) => { const rmsDb = stemRms(L), t = targets[id] ?? null, off = t === null ? null : rmsDb - t; return { id, rmsDb, targetDb: t, offDb: off, ok: off === null || (off >= -tolDb && off <= tolDb + (headroom[id] ?? 0)) }; });
+  return { rows, pass: rows.every((r) => r.ok), tolDb, headroom };
 };
