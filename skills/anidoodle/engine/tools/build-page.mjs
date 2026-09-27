@@ -1,11 +1,14 @@
 // Build ONE self-contained HTML file: the art core + film, bundled, with every asset in the
 // manifest inlined as a data URI. No network, no server, no sibling files.
 import { build } from "esbuild";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { extname, join } from "node:path";
+import { overlay, resolveOverlay } from "./overlay.mjs";
 
 const MIME = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".woff2": "font/woff2" };
-export const buildPage = async ({ entry, out, title, plugins = [] }) => {
+export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
+  const plugins = [...extra, overlay]; // extra first: a caller's shim (snap --only) outranks the overlay
+  if (!existsSync(entry)) entry = resolveOverlay("./" + entry, process.cwd()) ?? entry; // e.g. the example's own host page
   const js = (await build({ entryPoints: [entry], bundle: true, format: "iife", target: "es2020", minify: true, write: false, legalComments: "none", plugins })).outputFiles[0].text;
   // read the manifest out of the film module itself, so the page and the film can never disagree
   const probe = (await build({ stdin: { contents: `export { ${title} as film } from "./src/canvas-core/${title}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins })).outputFiles[0].text;

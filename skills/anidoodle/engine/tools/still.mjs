@@ -9,6 +9,7 @@ import { dirname, resolve } from "node:path";
 import { buildPage } from "./build-page.mjs";
 import { detect } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
+import { overlay } from "./overlay.mjs";
 
 const VAL = new Set(["shot", "out", "scale", "frame"]);
 const pos = [], opt = {};
@@ -23,7 +24,7 @@ if (!env.pw.ok || !env.browser.ok) die(`no browser to draw in.\n  playwright: ${
 const page = await buildPage({ entry: `src/hosts/page-${film}.ts`, out: resolve(`dist/${film}.html`), title: film });
 const session = await playwright.open(env, page.out, { scale, workers: 1 });
 const meta = await session.info();
-const probe = (await import("data:text/javascript;base64," + Buffer.from((await (await import("esbuild")).build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral" })).outputFiles[0].text).toString("base64"))).film;
+const probe = (await import("data:text/javascript;base64," + Buffer.from((await (await import("esbuild")).build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins: [overlay] })).outputFiles[0].text).toString("base64"))).film;
 const shots = opt.shot ? [probe.shots.find((s) => s.id === opt.shot) ?? die(`no shot '${opt.shot}' (has: ${probe.shots.map((s) => s.id).join(", ")})`)] : probe.shots;
 
 console.log(`film: "${meta.title}" ${meta.W}x${meta.H}, scale ${scale}`);

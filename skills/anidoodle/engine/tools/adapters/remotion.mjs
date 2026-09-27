@@ -13,6 +13,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
+import { overlay } from "../overlay.mjs";
 
 const require = createRequire(import.meta.url);
 const tryRequire = (id) => { try { return require(id); } catch { return null; } };
@@ -35,7 +36,7 @@ export const probe = () => {
 // build-page.mjs reads it: bundled on its own, with no host attached, so nothing can disagree.
 const loadFilm = async (film) => {
   const { build } = await import("esbuild");
-  const out = (await build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral" })).outputFiles[0].text;
+  const out = (await build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins: [overlay] })).outputFiles[0].text;
   return (await import("data:text/javascript;base64," + Buffer.from(out).toString("base64"))).film;
 };
 
