@@ -11,6 +11,7 @@
 // The gate NEVER writes to out/. It renders into .tmp/gate/ and it only ever READS the MP4 it is
 // pointed at, so running it can never damage a finished film.
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { readdirSync } from "node:fs";
@@ -103,14 +104,19 @@ const run = async () => {
   if (!p.ok) { console.log("\nGATE: CANNOT RUN"); process.exit(2); }
 
   head(1, "DETERMINISM  the same frame, drawn two different ways, is the same frame");
-  const s1 = await mod.open(film, { scale: SCALE, workers: 1 });
+  // session 1 is COLD (no warm-up draws) and forward; session 2 is warmed and reversed. A frame that
+  // depends on what was drawn before it (leaked context state, a cache key missing a term) differs.
+  const s1 = await mod.open(film, { scale: SCALE, workers: 1, warm: false });
   const meta = await s1.info();
   const N = meta.durationFrames;
   const bounds = [...new Set([0, N - 1, ...(meta.shots ?? []).flatMap((s) => [s.start, s.end - 1])])];
   const extra = Math.max(0, SAMPLES - bounds.length);
   const spread = Array.from({ length: extra }, (_, i) => Math.round(((i + 1) * (N - 1)) / (extra + 1)));
   const frames = [...new Set([...bounds, ...spread])].sort((a, b) => a - b);
-  const h1 = []; for (const f of frames) h1.push(await s1.hash(f, 0)); // forward, one page
+  // the PNGs themselves are kept: if two hashes disagree, the pixels compared are THOSE pixels, not
+  // a fresh redraw that may not reproduce the history that made them differ
+  const md5 = (b) => createHash("md5").update(b).digest("hex"), p1 = [], p2 = new Array(frames.length);
+  const h1 = []; for (const f of frames) { const png = (await s1.frame(f, 0)).png; p1.push(png); h1.push(md5(png)); } // forward, one cold page
   const art = s1.artifact?.() ?? null;
   const aud1 = await s1.audio(48000);
   await s1.close();
@@ -118,7 +124,7 @@ const run = async () => {
   const W2 = 3;
   const s2 = await mod.open(film, { scale: SCALE, workers: W2 });
   const h2 = new Array(frames.length);
-  for (let i = frames.length - 1; i >= 0; i--) h2[i] = await s2.hash(frames[i], i); // reversed, spread over 3 pages
+  for (let i = frames.length - 1; i >= 0; i--) { const png = (await s2.frame(frames[i], i)).png; p2[i] = png; h2[i] = md5(png); } // reversed, spread over 3 warmed pages
   const aud2 = await s2.audio(48000);
 
   const same = frames.filter((_, i) => h1[i] === h2[i]).length;
@@ -128,9 +134,7 @@ const run = async () => {
     for (let i = 0; i < frames.length; i++) {
       if (h1[i] === h2[i]) continue;
       const a = resolve(TMP, `a${frames[i]}.png`), b = resolve(TMP, `b${frames[i]}.png`);
-      const sA = await mod.open(film, { scale: SCALE, workers: 1 });
-      writeFileSync(a, (await sA.frame(frames[i], 0)).png); await sA.close();
-      writeFileSync(b, (await s2.frame(frames[i], i)).png);
+      writeFileSync(a, p1[i]); writeFileSync(b, p2[i]);
       const v = psnr(a, b); worst = Math.min(worst, v);
       console.log(`        frame ${frames[i]}: PSNR ${v === Infinity ? "inf" : v.toFixed(2)} dB`);
     }
@@ -140,15 +144,15 @@ const run = async () => {
     // of a cache key that does not name everything its pixels depend on.
     const bad = frames.find((_, i) => h1[i] !== h2[i]);
     if (bad !== undefined) {
-      const c0 = await mod.open(film, { scale: SCALE, workers: 1 }); const cold = await c0.hash(bad, 0); await c0.close();
+      const c0 = await mod.open(film, { scale: SCALE, workers: 1, warm: false }); const cold = await c0.hash(bad, 0); await c0.close();
       const culprits = [];
       for (const pre of frames.filter((f) => f !== bad)) {
-        const c = await mod.open(film, { scale: SCALE, workers: 1 });
+        const c = await mod.open(film, { scale: SCALE, workers: 1, warm: false });
         await c.hash(pre, 0); const h = await c.hash(bad, 0); await c.close();
         if (h !== cold) culprits.push(pre);
       }
       console.log(culprits.length
-        ? `        DIAGNOSIS: frame ${bad} is ORDER-DEPENDENT. Drawing frame(s) ${culprits.join(", ")} first changes it.\n                   That is a cache key that does not name everything its pixels depend on.`
+        ? `        DIAGNOSIS: frame ${bad} is ORDER-DEPENDENT. Drawing frame(s) ${culprits.join(", ")} first changes it.\n                   That is a cache key that does not name everything its pixels depend on,\n                   or state one frame leaves behind for the next.`
         : `        DIAGNOSIS: frame ${bad} is stable within a session; the difference is between sessions.`);
     }
   }

@@ -61,7 +61,7 @@ export const open = async (film, opts = {}) => {
     await page.goto(pathToFileURL(out).href + "?adapter=html-player");
     await page.evaluate(async (s) => { await window.FILM.ready; window.FILM.mount(s); }, scale);
     if (useBakes) await loadBakes(page, bv);
-    await page.evaluate(() => window.FILM.warm());
+    if (opts.warm !== false) await page.evaluate(() => window.FILM.warm()); // warm:false = truly cold, nothing drawn before the first ask
     if (errors.length) throw new Error("page failed: " + errors.join("; "));
     pages.push(page);
   }
