@@ -103,3 +103,16 @@ export const measure = (chans: Float32Array[], sr: number): Meters => {
   const l = loudness(chans, sr), tp = truePeak(chans), on = onsets(chans, sr), c = centroid(chans, sr), dur = chans[0].length / sr;
   return { durationS: dur, lufs: l.integrated, lra: l.lra, shortMax: l.shortMax, dbtp: tp.dbtp, samplePeakDb: tp.samplePeakDb, onsetsPerS: on.length / dur, onsetCount: on.length, centroidHz: c.mean, centroidEnergyHz: c.energyWeighted, lastOnsetS: on.length ? on[on.length - 1] : 0, shortTerm: l.shortTerm };
 };
+
+/** RMS of a stem over its active samples (|x| > 1e-4), left channel, dBFS: the level a part plays at when it plays. */
+export const stemRms = (x: Float32Array, floor = 1e-4) => { let s = 0, c = 0; for (let i = 0; i < x.length; i++) { const v = x[i]; if (Math.abs(v) > floor) { s += v * v; c++; } } return c ? 10 * Math.log10(s / c + 1e-12) : -Infinity; };
+export type StemRow = { id: string; rmsDb: number; targetDb: number | null; offDb: number | null; ok: boolean };
+/**
+ * Stem balance: each part's active RMS against its target; a part more than `tolDb` off is flagged.
+ * LESSON (the launch score): integrated LUFS of the mix looked right while the sub sat 7-10 dB too hot.
+ * Loudness says how loud the whole is, never which part is wrong. Meter the stems.
+ */
+export const stemBalance = (stems: Record<string, [Float32Array, Float32Array]>, targets: Record<string, number>, tolDb = 3) => {
+  const rows: StemRow[] = Object.entries(stems).map(([id, [L]]) => { const rmsDb = stemRms(L), t = targets[id] ?? null, off = t === null ? null : rmsDb - t; return { id, rmsDb, targetDb: t, offDb: off, ok: off === null || Math.abs(off) <= tolDb }; });
+  return { rows, pass: rows.every((r) => r.ok), tolDb };
+};

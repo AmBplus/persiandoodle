@@ -8,7 +8,7 @@ import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
 import * as I from "./instruments";
 import { room, Biquad, db } from "./dsp";
 import { warmPad, softPluck, sub, duckCurve, tape } from "./lofiKit";
-import { loudness, truePeak } from "./meter";
+import { loudness, truePeak, stemBalance } from "./meter";
 import { STYLES } from "./tables";
 import { rng as mkRng } from "../core";
 
@@ -86,19 +86,47 @@ export const renderPiece = (piece: Piece, sr: number, o: RenderOpts = {}): Rende
   if (style.id === "lofi" && !piece.fx?.clean) { for (const c of [L, R]) { Biquad.make(sr, "lp", 8500, 0.6).run(c); Biquad.make(sr, "highshelf", 5000, 0.7, -3).run(c); for (let i = 0; i < n; i++) c[i] = Math.tanh(c[i] * 1.2) / 1.2; } }
   if (piece.fx?.tape) tape(L, R, sr, piece.fx.tape);
   const fade = Math.min(n, Math.round(0.25 * sr)); for (let i = 0; i < fade; i++) { const g = 0.5 - 0.5 * Math.cos((Math.PI * i) / fade); L[n - 1 - i] *= g; R[n - 1 - i] *= g; }
-  let gainDb = 0, masterMode = o.master ?? "auto";
+  let masterMode = o.master ?? "auto";
   if (masterMode === "auto") masterMode = style.master;
-  if (masterMode !== "none") {
-    const target = masterMode === "dense" ? -14 : -16;
-    gainDb = target - loudness([L, R], sr).integrated;
-    for (let i = 0; i < n; i++) { L[i] *= db(gainDb); R[i] *= db(gainDb); }
-    const tp = truePeak([L, R]).dbtp;
-    if (tp > -1) {
-      if (masterMode === "gentle") { const cut = tp + 1.05; gainDb -= cut; for (let i = 0; i < n; i++) { L[i] *= db(-cut); R[i] *= db(-cut); } }
-      else { limiter(L, R, sr, db(-1.3)); const again = target - loudness([L, R], sr).integrated; if (again > 0) { const g = db(Math.min(again, 1)); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } limiter(L, R, sr, db(-1.3)); } }
-    }
-  }
+  const gainDb = masterMode === "none" ? 0 : master(L, R, sr, masterMode as "gentle" | "dense");
   return { L, R, perf, tempo, gainDb, masterMode, stems, piece, dry, wet };
+};
+
+/** The master stage, in place. Gentle: one static gain to -16 LUFS, pulled down if the true peak passes -1 dBTP. Dense: -14 LUFS through the look-ahead limiter. Returns the gain in dB. */
+export const master = (L: Float32Array, R: Float32Array, sr: number, masterMode: "gentle" | "dense"): number => {
+  const n = L.length, target = masterMode === "dense" ? -14 : -16;
+  let gainDb = target - loudness([L, R], sr).integrated;
+  for (let i = 0; i < n; i++) { L[i] *= db(gainDb); R[i] *= db(gainDb); }
+  const tp = truePeak([L, R]).dbtp;
+  if (tp > -1) {
+    if (masterMode === "gentle") { const cut = tp + 1.05; gainDb -= cut; for (let i = 0; i < n; i++) { L[i] *= db(-cut); R[i] *= db(-cut); } }
+    else { limiter(L, R, sr, db(-1.3)); const again = target - loudness([L, R], sr).integrated; if (again > 0) { const g = db(Math.min(again, 1)); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } limiter(L, R, sr, db(-1.3)); } }
+  }
+  return gainDb;
+};
+
+/**
+ * A seamless loop of a `plan.loop` piece: rendered unmastered with its tail, the tail (reverb, delay
+ * repeats, pad release) folded back onto the start, then mastered once. Tape wow and flutter are
+ * snapped to a whole number of cycles per loop so the pitch drift meets itself at the seam.
+ */
+export const renderLoop = (piece: Piece, sr: number): Rendered & { loopS: number } => {
+  const beats = piece.plan.sections.reduce((a, s) => a + s.bars * beatsPerBar(piece.plan.meter), 0), loopS = (beats * 60) / piece.plan.tempo;
+  const snap = (hz: number) => Math.max(1, Math.round(hz * loopS)) / loopS, tp = piece.fx?.tape;
+  const p: Piece = { ...piece, plan: { ...piece.plan, loop: true, ritard: 1 }, fx: piece.fx && { ...piece.fx, tape: tp && { ...tp, wowHz: snap(tp.wowHz ?? 0.45), flutterHz: snap(tp.flutterHz ?? 6.2) } } };
+  const r = renderPiece(p, sr, { seconds: loopS + piece.tail, master: "none" }), n = Math.round(loopS * sr), L = r.L.slice(0, n), R = r.R.slice(0, n);
+  for (let i = n; i < r.L.length; i++) { L[i - n] += r.L[i]; R[i - n] += r.R[i]; }
+  const mode = STYLES[piece.plan.style].master, gainDb = master(L, R, sr, mode);
+  return { ...r, L, R, gainDb, masterMode: mode, loopS };
+};
+
+/** The score for a film `seconds` long: the piece's own `refit` first (so it still ends on a phrase), then fitToDuration for the tempo. */
+export const fitScore = (piece: Piece, seconds: number) => fitToDuration(piece.refit ? piece.refit(seconds) : piece, seconds);
+
+/** Each part's stem level against the piece's targets (unmastered, pre-room: the mix as the parts were set). */
+export const measureStems = (piece: Piece, sr: number, o: RenderOpts = {}, tolDb = 3) => {
+  const r = renderPiece(piece, sr, { ...o, stems: true, master: "none" });
+  return stemBalance(r.stems, piece.stemTargets ?? {}, tolDb);
 };
 
 /** Look-ahead peak limiter (1.5 ms look-ahead, 120 ms release), used by dense styles only. */
@@ -150,6 +178,6 @@ export const fitToDuration = (piece: Piece, seconds: number): { piece: Piece; te
 
 /** What a Film's `audio(sampleRate)` returns: [L, R] at exactly the film's length. */
 export const filmAudio = (piece: Piece, seconds: number) => (sr: number): [Float32Array, Float32Array] => {
-  const fit = fitToDuration(piece, seconds), r = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo });
+  const fit = fitScore(piece, seconds), r = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo });
   return [r.L, r.R];
 };

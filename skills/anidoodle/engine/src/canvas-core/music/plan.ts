@@ -21,12 +21,16 @@ export type Section = {
 };
 export type MusicPlan = { style: StyleId; tempo: number; meter: Meter; sections: Section[]; pickupBeats?: number; swing?: number; phraseBars?: number; sync?: string[];
   /** tempo-arch depth per phrase (1 = +-2.5 %); final ritard end-tempo ratio (1 = none) */ rubato?: number; ritard?: number;
+  /** a seamless loop (renderLoop): the end must not relax into a cadence */ loop?: boolean;
   /** room override (the guards' bad fixture uses it; films normally take the style's room) */ space?: { er?: number; late?: number; rt60?: number; hp?: number } };
 export type Chord = { t: number; name: string };
 /** Bus moves (lofiKit): `duck` pumps the named parts on every onset of the `by` part; `tape` wobbles and saturates the master. */
 export type PieceFx = { clean?: boolean /* skip the lo-fi master tone (low-pass, shelf, saturation) */; duck?: { by: string; parts: string[]; depth?: number; release?: number }; tape?: { wowCents?: number; wowHz?: number; flutterCents?: number; flutterHz?: number; drive?: number } };
 export type Piece = { title: string; plan: MusicPlan; parts: Part[]; harmony: Chord[]; tail: number; seed: number; fx?: PieceFx;
-  /** a shorter complete form of the same music, chosen automatically when the film is too short for this one */ shortForm?: () => Piece };
+  /** a shorter complete form of the same music, chosen automatically when the film is too short for this one */ shortForm?: () => Piece;
+  /** rebuild the same music for a film `seconds` long so it still ends on its phrase (lofiElectronic: loop cycles added or removed); `fitScore` calls it before fitToDuration */ refit?: (seconds: number) => Piece;
+  /** mix targets: RMS dBFS of each part's stem, measured over its active samples (`stemBalance`) */ stemTargets?: Record<string, number>;
+  /** the arrangement as bar ranges, for the score and the docs (the plan may keep a single dynamics section) */ arrangement?: { id: string; kind: string; from: number; bars: number }[] };
 
 // ---------------------------------------------------------------- notation
 // "Eb4:1 | C5:2 Bb4:.5 Ab4:.5 | [Ab2 Eb3]:1 r:2 | G5:1/3@0.8 ..." ; a token is NOTE:DUR[@VEL] or
