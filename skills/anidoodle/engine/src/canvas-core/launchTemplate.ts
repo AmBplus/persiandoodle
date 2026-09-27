@@ -11,7 +11,7 @@
 //   end:  the bloom opens onto the end card and stays: the name written on, one line, the install
 //         lines in a dark panel, held for `endBeats` (3 s or more).
 //
-// Everything is timed on a beat grid (bpm, fps). With `claimBar`, the last ask's length is solved so
+// Everything is timed on a beat grid (bpm from the brief, fps). With `claimBar`, the last ask's length is solved so
 // the end card lands on that bar's downbeat, or the build throws.
 //
 //   export const myLaunch = makeLaunchFilm({ title: "Tally", asks: [...], words: [...], ... });
@@ -26,6 +26,10 @@ import { beatGrid, bloomFrame, bloomRadius, makeCut, pic, type, typeFrame, type 
 import { measure, writeOn } from "./kinetic";
 import { renderPiece } from "./music/render";
 import { loudness, truePeak } from "./music/meter";
+import * as families from "./music/pieces/families";
+import * as launchPieces from "./music/pieces/launch";
+import * as nocturnePieces from "./music/pieces/nocturne";
+import * as samplers from "./music/pieces/samplers";
 import type { Piece } from "./music/plan";
 
 export type LaunchAsk = {
@@ -46,14 +50,24 @@ export type LaunchSpec = {
   tagline: string;           // the one line under the name on the end card
   install: string[];         // the exact lines a viewer copies; held on screen for the whole end card
   footer?: string;           // small print under the panel (where it runs, the repo)
-  bpm?: number; fps?: number; // the beat grid; default 90 bpm at 30 fps (a beat is 20 frames)
+  bpm: number; fps?: number; // the beat grid: bpm comes from the brief (the score composed for it); a beat is 60 * fps / bpm frames
   askBeats?: number; typeBeats?: number; endBeats?: number; // default 6, 4, 8
   claimBar?: number;         // land the end card on this bar's downbeat (solves the last ask)
-  score?: () => Piece;       // a composed piece at the same bpm, used as a music bed (musicBed)
-  audio?: Film["audio"];     // or your own mix; wins over score
+  // The score: a piece COMPOSED for this product's brief (references/music/compose.md), or null for
+  // a silent film. Required, so no film inherits a score by default. anidoodle's own pieces are
+  // refused: every user's film gets its own music, never ours.
+  score: (() => Piece) | null;
+  audio?: Film["audio"];     // or your own finished mix; wins over score
 };
 
 const W = 1920, H = 1080;
+// anidoodle's own pieces (the demos and our launch score) are examples of the composer, never a
+// user's soundtrack. Refused by identity and by title, so a thin wrapper does not slip through.
+const OURS: (() => Piece)[] = [...Object.values(families), ...Object.values(launchPieces), ...Object.values(nocturnePieces), ...Object.values(samplers)].filter((v): v is () => Piece => typeof v === "function");
+const refuseOurs = (score: () => Piece) => {
+  const ours = () => new Set(OURS.map((f) => { try { return f().title; } catch { return null; } }).filter(Boolean));
+  if (OURS.includes(score) || ours().has(score().title)) throw new Error(`launchTemplate: "${score().title}" is one of anidoodle's own pieces; compose a score for this product's brief (references/music/compose.md) or pass score: null`);
+};
 const TYPE_O = { lead: -4, stagger: 18 }; // the word starts as the bloom closes over the frame; lines run on without a gap
 const TOP = 170, VIEW_BOTTOM = INPUT.y - 26, BUBBLE = 58, CARD = 460;
 const GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
@@ -68,7 +82,11 @@ const askTiming = (prompt: string, i: number, ASK: number) => {
 };
 
 export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeof makeCut> } => {
-  const fps = spec.fps ?? 30, grid = beatGrid(spec.bpm ?? 90, fps), n = spec.asks.length;
+  const fps = spec.fps ?? 30, n = spec.asks.length;
+  if (!(spec.bpm > 0)) throw new Error("launchTemplate: set bpm from the brief (the tempo of the score composed for this film)");
+  if (spec.score === undefined && !spec.audio) throw new Error("launchTemplate: `score` is required: a piece composed for this product (references/music/compose.md), or null for silence");
+  if (spec.score) refuseOurs(spec.score);
+  const grid = beatGrid(spec.bpm, fps);
   const ASK = Math.round((spec.askBeats ?? 6) * grid.beat), TYPE = Math.round((spec.typeBeats ?? 4) * grid.beat), END = Math.round((spec.endBeats ?? 8) * grid.beat);
   if (n < 1 || n > 3) throw new Error("launchTemplate: 1 to 3 asks; more is a feature list, not a story");
   if (ASK < 100) throw new Error(`launchTemplate: an ask beat needs 100 frames or more (it has ${ASK}); raise askBeats`);
@@ -180,7 +198,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
   });
   holds.push([cut.N - END + 53, cut.N]); // the end card, all on: read it, screenshot it
   return {
-    meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm ?? 90, durationFrames: cut.N, raster: "cpu", kind: "launch", holds },
+    meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds },
     assets: { images: {} },
     shots: [{ id: "cut", start: 0, end: cut.N, draw }],
     audio: spec.audio ?? (spec.score ? musicBed(spec.score, cut.N, fps) : undefined),
@@ -190,7 +208,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
 
 // A music bed: the first `frames` of a composed piece, faded out over the last 1.2 s, then set to
 // `lufs` integrated (default -14, the one published cross-platform target) with the true peak held
-// at or under -1 dBTP. Pick a piece at the film's bpm so the cuts sit on its downbeats.
+// at or under -1 dBTP. Compose the piece for this film, at the film's bpm, so the cuts sit on its downbeats.
 export const musicBed = (piece: () => Piece, frames: number, fps = 30, lufs = -14) => (sr: number): [Float32Array, Float32Array] => {
   const n = Math.round((frames / fps) * sr), L = new Float32Array(n), R = new Float32Array(n), m = renderPiece(piece(), sr);
   for (let i = 0; i < n && i < m.L.length; i++) { L[i] = m.L[i]; R[i] = m.R[i]; }
