@@ -2,6 +2,10 @@
   <img src="assets/banner.gif" width="100%" alt="anidoodle：一张画满代码手绘涂鸦的画桌，anidoodle 这个名字正以书法字体自己写出自己">
 </p>
 
+https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+
+<p align="center"><sub>发布短片，77 秒。每一帧画面、每一个声音，都是用 anidoodle 以代码制作的。</sub></p>
+
 <h1 align="center">anidoodle</h1>
 
 <p align="center"><strong>手绘的艺术，用代码写成。</strong></p>
