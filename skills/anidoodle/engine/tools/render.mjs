@@ -8,6 +8,8 @@
 // --from/--to  render only frames [from, to): for checking a passage, not for shipping. A range
 //           render is silent (the score would not line up), says so, and by default writes
 //           out/<film>.<from>-<to>.<ext> so it can never overwrite the finished film.
+// --hashes file  also write "frame md5" of every PNG handed to the encoder: two renders compared
+//           frame by frame, before any codec can blur the difference.
 // --poster-frame N [--poster-fade 6]  platforms show frame 0 as the thumbnail: open on frame N (the
 //           wall of styles, the logo) and dissolve into the real opening by frame 6. The frame
 //           count and the score are unchanged. A delivery whose frame 0 is near-blank gets a
@@ -21,6 +23,7 @@
 //   .apng  animated PNG, alpha kept, loops forever, plays in every browser
 // --width only applies to the silent formats; the MP4 is always the film's own size.
 import { spawn, execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { join, resolve } from "node:path";
@@ -36,6 +39,7 @@ const film = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv
 const BLUR = Number(arg("blur", 1));
 if (!Number.isInteger(BLUR) || BLUR < 1) { console.error(`--blur wants a whole number of subframes >= 1, got '${arg("blur")}'`); process.exit(2); }
 const scale = Number(arg("scale", 1)), fmt = (arg("out", "").match(/\.(gif|webm|apng)$/i)?.[1] ?? "mp4").toLowerCase(), workers = Number(arg("workers", Math.max(1, Math.min(4, Math.floor(cpus().length / 2)))));
+const HASHES = arg("hashes", null) ? new Map() : null;
 const RANGE_ASKED = process.argv.includes("--from") || process.argv.includes("--to");
 const POSTER = arg("poster-frame", null) === null ? null : Number(arg("poster-frame")), FADE = Number(arg("poster-fade", 6));
 if (POSTER !== null && (!Number.isInteger(POSTER) || POSTER < 0)) { console.error(`--poster-frame wants a frame number >= 0, got '${arg("poster-frame")}'`); process.exit(2); }
@@ -86,9 +90,10 @@ const done = new Promise((res, rej) => ff.on("close", (c) => (c ? rej(new Error(
 const cost = [], pending = new Map(); let next, write;
 const pump = async () => { while (pending.has(write)) { const b = pending.get(write); pending.delete(write); if (!ff.stdin.write(b)) await new Promise((r) => ff.stdin.once("drain", r)); write++; } };
 next = FROM; write = FROM;
-await Promise.all(Array.from({ length: session.workers }, async (_, w) => { while (next < TO) { const n = next++; while (n - write > session.workers * 3) await new Promise((r) => setTimeout(r, 5)); const f = await drawAt(n, w); cost.push({ n, shot: f.shot, draw: f.drawMs, enc: f.encodeMs, rt: f.roundTripMs }); pending.set(n, f.png); await pump(); } }));
+await Promise.all(Array.from({ length: session.workers }, async (_, w) => { while (next < TO) { const n = next++; while (n - write > session.workers * 3) await new Promise((r) => setTimeout(r, 5)); const f = await drawAt(n, w); if (HASHES) HASHES.set(n, createHash("md5").update(f.png).digest("hex")); cost.push({ n, shot: f.shot, draw: f.drawMs, enc: f.encodeMs, rt: f.roundTripMs }); pending.set(n, f.png); await pump(); } }));
 await pump(); ff.stdin.end(); await done;
 const wall = (Date.now() - t0) / 1000;
+if (HASHES) { const hf = resolve(arg("hashes")); mkdirSync(join(hf, ".."), { recursive: true }); writeFileSync(hf, [...HASHES].sort((a, b) => a[0] - b[0]).map(([n, h]) => `${n} ${h}`).join("\n") + "\n"); console.log(`frame hashes -> ${hf}`); }
 
 // ---- frame cost
 const stat = (xs) => { const s = [...xs].sort((a, b) => a - b); return { med: s[s.length >> 1], p95: s[Math.floor(s.length * 0.95)], max: s[s.length - 1] }; };

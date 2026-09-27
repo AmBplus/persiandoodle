@@ -89,7 +89,10 @@ export const mountFilm = (film: Film) => {
     const n = Math.round(frame), u = fade > 0 ? 1 - n / fade : n === 0 ? 1 : 0, key = `${posterFrame}/${samples}/${canvas.width}x${canvas.height}`;
     if (u > 0 && posterOf?.key !== key) {
       samples > 1 ? blur(posterFrame, samples) : seek(posterFrame);
-      const c = document.createElement("canvas"); c.width = canvas.width; c.height = canvas.height; c.getContext("2d")!.drawImage(canvas, 0, 0); posterOf = { key, img: c };
+      // the copy lives on the same kind of surface the art uses (surface(): same raster opts). A plain
+      // GPU <canvas> drawn onto a meta.raster "cpu" canvas flips Chrome's raster path for the rest
+      // of the session and every later frame comes out different: measured, not guessed.
+      const c = surface(canvas.width, canvas.height); c.ctx.drawImage(canvas, 0, 0); posterOf = { key, img: c.canvas };
     }
     const r = samples > 1 ? blur(n, samples) : seek(n);
     if (u > 0 && posterOf) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = Math.min(1, u); ctx.globalCompositeOperation = "source-over"; if (u >= 1) ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(posterOf.img, 0, 0); ctx.restore(); }
