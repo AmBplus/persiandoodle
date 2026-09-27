@@ -97,6 +97,9 @@ draws itself declares `kind: "drawing"` and is judged on a finer floor; a freeze
 
 `engine/` is the portable art core plus the tooling. `engine/src/canvas-core` knows nothing
 about the DOM or any backend. `W`, `H`, `fps` and `durationFrames` come from the film's `meta`.
+Camera moves (pans, zooms, parallax, shake) come from `engine/src/canvas-core/camera.ts`:
+`references/camera.md`. `render.mjs --blur N` renders with motion blur (N subframes averaged in
+linear light per frame); the default path is untouched.
 
 ```bash
 node <skill>/engine/tools/scaffold.mjs ~/art --film intro --format 9x16 --duration 180
@@ -114,6 +117,7 @@ node tools/emit.mjs intro --out out/intro.html                     # one self-co
 | `gate.mjs` | determinism, contract, dead air, artifact; `--self-test` proves it can fail |
 | `registry.mjs` / `gallery.mjs` | the style list from the plates themselves / the gallery sheet |
 | `docs-check.mjs` | fails when any doc's style count, length or path disagrees with the code |
+| `verify-export.mjs` | opt-in QA on the rendered file: frame count, duration, first-frame colour, loop seam |
 | `music.mjs` | renders and meters a score (loudness, range, onsets, brightness) |
 
 Four backends, one art core: `playwright`, `html-player`, `remotion`, `hyperframes`.

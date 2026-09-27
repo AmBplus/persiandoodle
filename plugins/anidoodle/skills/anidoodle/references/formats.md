@@ -35,7 +35,9 @@ the craft table, then show it.
 - **Seamless loop**: drive everything from `t = local / DURATION` through functions that repeat
   a whole number of times over `[0, 1)` (`sin(2 * PI * k * t)`, integer `k`). Frame `DURATION`
   then equals frame 0 and the seam disappears. Check it: render the last frame and frame 0 and
-  compare them to a mid-loop neighbour pair.
+  compare them to a mid-loop neighbour pair, or run `node tools/verify-export.mjs <name> --loop`
+  on the rendered file, which judges the last-to-first step against the loop's own mid-loop
+  deltas.
 - **Animated logo / sticker**: 2 to 4 seconds, the mark DRAWN on (`progress` on `g.pen`,
   `letter`), a settle, a small idle. Leave the background unpainted for transparency.
 - **Ambient / idle art** (a site header that breathes, a banner): the subject never stops; the
@@ -57,6 +59,11 @@ the craft table, then show it.
 | WebM | `node tools/render.mjs <name> --out out/x.webm [--width 512]` | stickers and overlays, alpha kept (VP9) |
 | APNG | `node tools/render.mjs <name> --out out/x.apng [--width 512]` | alpha loops that play in every browser |
 | HTML | `node tools/emit.mjs <name> --out out/x.html` | the piece itself: one offline file that redraws it, with sound, on a double-click |
+
+After any encode, `node tools/verify-export.mjs <name> [--first-frame #hex] [--fidelity-psnr 40]`
+proves the file on disk is the film: size, exact frame count, duration, and optionally the first
+frame's average colour and its fidelity to the source frame. All of it is opt-in beyond the
+container facts, so transparent and non-uniform pieces pass cleanly.
 
 A still needs a browser only (`npx playwright-core install chromium`). Anything that moves also needs
 `ffmpeg`. `gate.mjs` runs on all of them and marks the checks that do not apply to the piece,
