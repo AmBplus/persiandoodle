@@ -42,8 +42,7 @@ say why in one line. Write the answers into a short brief before drawing.
 | A style matched from their image | `references/workflows/adapt-a-style.md` |
 | A score or soundtrack | `references/music/README.md` |
 
-<!-- KITS: one line each from the music (B) and sound (C) tracks; keep this block short -->
-- Music, lo-fi electronic (chill, upbeat, clean; no ePiano): lofiElectronic() in engine/src/canvas-core/music; balance with node tools/music.mjs stems <piece> before mastering. See references/music/styles/lofi-electronic.md.
+- Music: pick a style vocabulary and mood, compose your own harmony, motif and form (references/music/compose.md), then node tools/music.mjs check <score.ts#export> must PASS before a human listens. Styles give sound, never notes.
 - Sound effects: references/music/sound-design.md. 14 layered, seeded effects cued by film frame (filmSfx); the score ducks, and every cue must be within 6 dB of it. Effects only on real direction changes, one riser + one impact per film.
 - Launch films: `launchTemplate.ts` renders a product's launch from data: prompts, plates drawn for it, a score composed for it, words, install lines; habits that save tokens are in `references/working-method.md`.
 

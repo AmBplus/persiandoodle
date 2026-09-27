@@ -40,3 +40,30 @@ Do not push through. Reset:
 4. **The fresh session verifies before it trusts.** Read the files, check the disk, say what disagrees with the briefing. (Ours found that the "already built" camera was not in the source, in the first five minutes.)
 
 A reset cost us about ten minutes because the state was in files. It would have cost the project if the state had been in the conversation. And when a message arrives truncated, look for the full text in the session transcript before you guess; twice the missing half changed the job.
+
+---
+
+## Spend tokens and time where they buy something
+
+The launch film cost 188M tokens, about 99% of them cache re-reads of one 750k-token context.
+None of that was drawing. These habits cut it by an order of magnitude:
+
+- **One session per cut, with a handover file.** When a cut is done, write the state (what
+  exists, the rules the person gave, what is open, where files live) and start the next cut in a
+  fresh session that reads it. A long session re-reads its whole history on every turn.
+- **Briefed helpers, never context-inheriting forks.** A helper gets a short written brief and
+  the few files it needs. A fork inherits the whole conversation and pays for it on every call.
+- **Contact sheets at 0.3-0.5 scale** for review (`ffmpeg -vf "fps=1,scale=576:-1,tile=4x4"`),
+  full size only for the crop a sheet raised a doubt about. Never re-read a big image you have
+  already judged.
+- **Options sheet before any full render.** Transitions, type styles, palettes: one still
+  sheet with three to six variants side by side, picked in one message.
+- **Timelines as data.** Scenes on one content timeline, the cut as a list of segments
+  (`launchCut.ts`). Re-timing edits the list; scene code and its reviews stay valid.
+- **Range renders.** `render.mjs <film> --from F --to F` renders only the passage you changed
+  (it writes `out/<film>.<from>-<to>.mp4`, never over the finished film).
+<!-- TODO(A): confirm the still.mjs multi-frame flag and the plate cache name/location once they land on integ/launch-kit -->
+- **Many stills, one browser.** `still.mjs <film> --frames a,b,c` draws several frames in one
+  page; one browser per still costs seconds each.
+- **Plate cache.** Baked plates are cached on disk, so a wall of 31 live plates stops
+  re-baking (about 60 s) on every still.

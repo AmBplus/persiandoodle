@@ -7,7 +7,7 @@ export type Mode = { id: ModeId; intervals: number[]; color: string; use: string
 
 // Intervals are semitones above the tonic. `color` is the degree that makes the mode read as itself.
 export const MODES: Record<ModeId, Mode> = {
-  major: { id: "major", intervals: [0, 2, 4, 5, 7, 9, 11], color: "3, 7", use: "joy, arrival, sunlight; the music-box default", guard: "section 7 only" },
+  major: { id: "major", intervals: [0, 2, 4, 5, 7, 9, 11], color: "3, 7", use: "joy, arrival, sunlight", guard: "section 7 only" },
   aeolian: { id: "aeolian", intervals: [0, 2, 3, 5, 7, 8, 10], color: "b3, b6", use: "sadness, longing, gravity, night", guard: "tonic clarity" },
   harmonicMinor: { id: "harmonicMinor", intervals: [0, 2, 3, 5, 7, 8, 11], color: "raised 7 over V", use: "drama, fate, cadences inside minor", guard: "augmented step b6-7 only as a passing figure, max 2 per phrase" },
   melodicMinor: { id: "melodicMinor", intervals: [0, 2, 3, 5, 7, 9, 11], color: "raised 6 and 7", use: "hopeful minor, yearning lines that climb", guard: "rising lines only; falling lines revert to aeolian" },
@@ -62,4 +62,12 @@ export const detectMode = (notes: { p: number; d: number }[], modes: ModeId[] = 
     res.push({ tonic: NAMES[t], mode: md, score: inS / tot + 0.35 * (h[t] / tot) + 0.12 * (h[(t + 7) % 12] / tot) });
   }
   return res.sort((a, b) => b.score - a.score).slice(0, 3);
+};
+
+/** How well a declared tonic + mode explains some notes: the share of note time inside the scale, and the tonic's own share (its dominance). */
+export const modeFit = (notes: { p: number; d: number }[], tonicPc: number, mode: ModeId) => {
+  const h = new Array(12).fill(0); for (const n of notes) h[((n.p % 12) + 12) % 12] += n.d;
+  const tot = h.reduce((a, b) => a + b, 0) || 1, iv = new Set(MODES[mode].intervals.map((x) => (x + tonicPc) % 12));
+  let inS = 0; for (let k = 0; k < 12; k++) if (iv.has(k)) inS += h[k];
+  return { inScale: inS / tot, tonicShare: h[((tonicPc % 12) + 12) % 12] / tot };
 };
