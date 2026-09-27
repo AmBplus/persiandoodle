@@ -25,22 +25,31 @@ export const mountFilm = (film: Film) => {
   // MOTION BLUR. One output frame as the average of subframes spread over a one-frame shutter
   // centred on it, confined to its own shot so nothing bleeds across a cut. The average is taken
   // in LINEAR light: blur is light integration, and averaging in sRGB darkens every moving edge.
+  // It is also ALPHA-WEIGHTED (premultiplied): a transparent subframe carries no colour, so a
+  // sticker's moving edge fades out instead of picking up a dark fringe from the zero RGB that
+  // canvas keeps under alpha 0. Opaque pixels take exactly the unweighted path.
+  // STEPPED ART (meta.step > 1, or onTwos) holds each drawing for `step` frames, so the shutter
+  // would straddle two drawings and smear a pose into its neighbour: such films are not blurred.
   // hosts may keep time; the core never does.
   const toLin = new Float32Array(256);
   for (let i = 0; i < 256; i++) { const s = i / 255; toLin[i] = s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); }
   const fromLin = (l: number) => { const v = l <= 0.0031308 ? l * 12.92 : 1.055 * Math.pow(l, 1 / 2.4) - 0.055; return Math.max(0, Math.min(255, Math.round(v * 255))); };
   const blur = (frame: number, samples: number) => {
     const n = Math.max(0, Math.min(film.meta.durationFrames - 1, Math.round(frame))), shot = film.shots.find((s) => n >= s.start && n < s.end);
-    if (!shot || samples < 2) return { shot: shot?.id ?? null, ms: 0 };
+    if (!shot || samples < 2 || (film.meta.step ?? (film.meta.onTwos ? 2 : 1)) > 1) { const r = seek(n); return { shot: r.shot, ms: r.ms }; }
     const t0 = performance.now(), w = canvas.width, h = canvas.height, acc = new Float64Array(w * h * 4);
     for (let i = 0; i < samples; i++) {
       const t = Math.min(shot.end - 1, Math.max(shot.start, n + (i + 0.5) / samples - 0.5));
       renderFrame(film, ctx, t, env);
       const d = ctx.getImageData(0, 0, w, h).data;
-      for (let p = 0; p < d.length; p += 4) { acc[p] += toLin[d[p]]; acc[p + 1] += toLin[d[p + 1]]; acc[p + 2] += toLin[d[p + 2]]; acc[p + 3] += d[p + 3]; }
+      for (let p = 0; p < d.length; p += 4) { const a = d[p + 3], k = a / 255; acc[p] += toLin[d[p]] * k; acc[p + 1] += toLin[d[p + 1]] * k; acc[p + 2] += toLin[d[p + 2]] * k; acc[p + 3] += a; }
     }
-    const img = ctx.createImageData(w, h), o = img.data, inv = 1 / samples;
-    for (let p = 0; p < o.length; p += 4) { o[p] = fromLin(acc[p] * inv); o[p + 1] = fromLin(acc[p + 1] * inv); o[p + 2] = fromLin(acc[p + 2] * inv); o[p + 3] = Math.round(acc[p + 3] * inv); }
+    const img = ctx.createImageData(w, h), o = img.data, inv = 1 / samples, full = 255 * samples;
+    for (let p = 0; p < o.length; p += 4) {
+      const A = acc[p + 3]; if (A === 0) continue; // nothing was ever drawn here: stays transparent black
+      const c = A === full ? inv : 255 / A; // premultiplied average, un-premultiplied by the mean alpha
+      o[p] = fromLin(acc[p] * c); o[p + 1] = fromLin(acc[p + 1] * c); o[p + 2] = fromLin(acc[p + 2] * c); o[p + 3] = Math.round(A * inv);
+    }
     ctx.putImageData(img, 0, 0); current = n;
     return { shot: shot.id, ms: performance.now() - t0 };
   };
