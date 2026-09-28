@@ -161,7 +161,10 @@ into place), round iris seams, the product's own UI. Pick one per film; never mi
    first (type over art, spacing, hierarchy), then timing. Render only the changed range
    (`render.mjs --from F --to T` writes `out/<film>.<F>-<T>.mp4`, silent). Give notes in camera words ("slow this zoom to 0.7x",
    "hold the word 10 frames longer"), never "make it better".
-8. **QA**: `launch.mjs ship <film> --shapes ... --gate` runs, for EVERY shape shipped, the gate
+8. **QA**: review every shape's contact sheet against the design checklist in
+   `launch-video-kit.md` (no clipped type, no edge-cropped content, balanced per shape, coherent
+   content). `launch.mjs ship <film> --shapes ... --gate` runs, for EVERY shape shipped, `framecheck`
+   (text and cards whole on every frame), the gate
    (determinism, contract, dead air; declare real holds in `meta.holds`, each with its reason)
    and `verify-export --delivery` (size, frames, score, sync, true peak, a legible frame 0), and
    writes the poster and captions; add `verify-export <film>-<shape> --first-frame #rrggbb` for a

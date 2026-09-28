@@ -72,7 +72,8 @@ const desk = (c: LayoutContent): LaunchLayout => {
     bug: { x: W - 40, y: H - 34, px: 24 },
     type: { maxW: 1560, cap1: 190, capN: 130, minPx: MIN_PX.desk.type, cover: 1110 },
     end: { cx: W / 2, titleY: 400, titleMax: 150, titleW: 1300, tagline: [c.tagline], taglineY: 520, taglinePx: 30, taglineLH: 40, panelY: py, monoPx: 30, rowH: 60, padX: 60, lineY0: py + 55, footerPx: 24, footerY: py + ph + 60, caret: [16, 34] },
-    split: { words: { x: 130, y: 150, w: 640, h: 780 }, ui: { x: 840, y: 110, w: 960, h: 860 }, vertical: false, wordsPx: 96 },
+    // a two-column grid on the frame's centre line: words 40 %, a 100 px gutter, the live UI 46 %, equal margins
+    split: { words: { x: 150, y: 150, w: 720, h: 780 }, ui: { x: 970, y: 120, w: 800, h: 840 }, vertical: false, wordsPx: 96 },
     stage: { x: 0, y: 0, w: W, h: H }, band: null,
     roles: [],
   };

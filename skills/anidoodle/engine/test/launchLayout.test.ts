@@ -44,5 +44,8 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
   ok(shapes.every((x, i) => x.meta.W === SHAPES[(Object.keys(SHAPES) as Shape[])[i]].W && x.meta.H === SHAPES[(Object.keys(SHAPES) as Shape[])[i]].H), "each shape renders at its own frame size");
   ok(f.reshape("16x9") === f && f.reshape("9x16") === f.reshape("9x16"), "reshape returns the film itself for its own shape, and one film per shape");
   const tall = fitWords([{ text: "EVERY NUMBER, COUNTED.", style: "ink", color: "#000" }], f.reshape("9x16").layout), wide = fitWords([{ text: "EVERY NUMBER, COUNTED.", style: "ink", color: "#000" }], f.layout);
+  // a film ask (any film in a card) with its words beside it builds in every shape, its seam into the end card matched
+  const fa = makeLaunchFilm({ title: "Tally", asks: [{ prompt: content.prompts[0], plate, label: "l" }, { kind: "film", film: plate, split: [{ text: "Any film.", style: "ink", color: "#000" }] }], tagline: "t", install: ["npm i tally"], bpm: 90, score: null });
+  ok((Object.keys(SHAPES) as Shape[]).every((sh) => fa.reshape(sh).seams.every((q) => Math.hypot(q.out.p[0] - q.into.p[0], q.out.p[1] - q.into.p[1]) < 2)), "a film ask builds in every shape, the motif's seam matched");
   ok(wide.length === 1 && tall.length === 2, `a word page re-sets its lines for a narrow frame (16x9: ${wide.length} line, 9x16: ${tall.map((l) => l.text).join(" / ")})`);
 };
