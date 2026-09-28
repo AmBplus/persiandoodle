@@ -7,6 +7,7 @@ import { perform, type Performance, type Played } from "./perform";
 import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
 import * as I from "./instruments";
 import * as O from "./orchestra";
+import { timpani as kitTimpani, chokeTimes, type KitCtx } from "./drums";
 import { room, Biquad, db } from "./dsp";
 import { warmPad, softPluck, sub, duckCurve, tape } from "./lofiKit";
 import { loudness, truePeak, stemBalance } from "./meter";
@@ -17,7 +18,7 @@ export type RenderOpts = { expressive?: boolean; piano?: PianoOpts; flatVelocity
 /** dry = the pre-room mix; wet = the room's late tail (for music-box: its single reflection). Kept so the guards can measure reverb-to-dry per bar. */
 export type Rendered = { L: Float32Array; R: Float32Array; perf: Performance; tempo: number; gainDb: number; masterMode: string; stems: Record<string, [Float32Array, Float32Array]>; piece: Piece; dry: [Float32Array, Float32Array]; wet: [Float32Array, Float32Array] };
 
-const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number) => {
+const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number, ctx: KitCtx = {}) => {
   const o = pt.opts ?? {}, r = mkRng(seed);
   switch (pt.inst) {
     case "musicBox": return I.musicBox(keys, sr, n, o);
@@ -33,9 +34,7 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number) =>
     case "pulse": return I.pulse(keys, sr, n, o);
     case "triangle": return I.triangle(keys, sr, n);
     case "noiseDrum": return I.noiseDrum(keys, sr, n);
-    case "kick": return I.kick(keys, sr, n, o);
-    case "snare": return I.snare(keys, sr, n, o, r);
-    case "hat": return I.hat(keys, sr, n, o, r);
+    case "kick": case "snare": case "hat": return I.drumVoice(pt.inst, keys, sr, n, o, r, ctx);
     case "bass": return I.bass(keys, sr, n, o);
     case "vinyl": return I.vinyl(keys, sr, n, o, r);
     case "warmPad": return warmPad(keys, sr, n, o, r);
@@ -45,7 +44,7 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number) =>
     case "brass": return O.brass(keys, sr, n, o);
     case "woodwind": return O.woodwind(keys, sr, n, o, r);
     case "choir": return O.choir(keys, sr, n, o, r);
-    case "timpani": return O.timpani(keys, sr, n, o, r);
+    case "timpani": return ctx.legacy || o.legacy === true ? O.timpani(keys, sr, n, o, r) : kitTimpani(keys, sr, n, o, r);
     case "leadSynth": return O.leadSynth(keys, sr, n, o);
     case "bowedSolo": return O.bowedSolo(keys, sr, n, o, r);
     default: throw new Error(`no instrument ${pt.inst}`);
@@ -61,12 +60,13 @@ export const renderPiece = (piece: Piece, sr: number, o: RenderOpts = {}): Rende
   // the pump: one gain curve from the ducking part's onsets, applied to every ducked part before the mix
   const dk = piece.fx?.duck, byIdx = dk ? piece.parts.findIndex((p) => p.id === dk.by) : -1;
   const pump = dk && byIdx >= 0 ? duckCurve(perf.parts[byIdx].keys.map((k) => k.t), sr, n, dk.depth ?? 0.4, dk.release ?? 0.28) : null;
+  const kitCtx: KitCtx = { legacy: piece.legacy === true, style: piece.plan.style, choke: chokeTimes(piece.parts.map((pt, pi) => ({ inst: pt.inst, opts: pt.opts, keys: perf.parts[pi].keys }))) };
   piece.parts.forEach((pt, pi) => {
     if (o.only && !o.only(pt)) return;
     const keys = perf.parts[pi].keys; if (!keys.length) return;
     let sL: Float32Array, sR: Float32Array;
     if (pt.inst === "piano") { const r = renderPiano(keys, perf.pedal, sr, n, o.piano ?? PIANO_REAL, piece.seed + pi); sL = r.L; sR = r.R; if ((o.piano ?? PIANO_REAL).pedal) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
-    else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi); sL = r.L; sR = r.R; }
+    else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi, kitCtx); sL = r.L; sR = r.R; }
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     const g = db(pt.gainDb ?? 0);
     if (pt.pan) { const a = Math.max(0, pt.pan), b = Math.max(0, -pt.pan); for (let i = 0; i < n; i++) { sL[i] *= 1 - a * 0.6; sR[i] *= 1 - b * 0.6; } }

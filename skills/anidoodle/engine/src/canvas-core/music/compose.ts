@@ -8,7 +8,7 @@ import type { ModeId } from "./theory";
 import type { MoodId, StyleId, MelodyType } from "./tables";
 import { pcOf } from "./theory";
 import { perform } from "./perform";
-import { drumBar, type Groove, type Lane } from "./grooves";
+import { drumBar, laneKind, type Groove, type Lane } from "./grooves";
 import { VOCAB_TRIM, VOCAB_TARGET_FIX } from "./vocabTrim";
 import { VOCAB, KINDS, BASE_SLOTS, resolveVoice, moodVoice, moodFx, fullMood, type Slot, type Voice, type SectionKind, type MoodControls } from "./vocab";
 
@@ -40,6 +40,7 @@ export type Material = {
   /** 0.5 straight .. 0.67 hard swing (default the style's lower bound) */ swing?: number;
   /** the piece's dynamic level [start, end] 0..1, ramped over the whole piece (default [0.62, 0.66]); section `energy` shapes it locally */ dyn?: [number, number];
   /** seconds of ring-out after the last onset (default 3.2) */ tail?: number; loop?: boolean;
+  /** a shipped score frozen on the old sound (the launch film): never set this for a new piece */ legacy?: boolean;
 };
 
 /** line() with the composer's context on its error: which section, slot or chord wrote the bad bar. */
@@ -96,7 +97,7 @@ export const composePiece = (m: Material): Piece => {
       const g = m.grooves?.[gname];
       need(g, `section "${x.id}" (${x.s.kind}) needs a groove "${gname}": add grooves["${gname}"] = { family: one of ${vocab.grooves.join(", ")}, density, variation } or write it (kick/snare/ghost/hat bars), or set groove: null.`);
       const bar = drumBar(g!, meter, m.seed, b, b - x.from, x.s.bars, x.s.energy ?? 0.5);
-      for (const ln of lanes) if (bar[ln]) push(ln, lineIn(`section "${x.id}" ${ln} (bar ${b})`, b * bpb, bar[ln]!, { role: "drum", v: vel[ln], bpb }));
+      for (const ln of lanes) if (bar[ln]) push(ln, lineIn(`section "${x.id}" ${ln} (bar ${b})`, b * bpb, bar[ln]!, { role: "drum", v: vel[ln], bpb, kind: laneKind(g!, ln) }));
     }
   }
   const warnings: string[] = [];
@@ -144,7 +145,7 @@ export const composePiece = (m: Material): Piece => {
   const planSections = regions.length === 1 ? [{ id: "a", bars: B, mood: m.mood, key: m.key, mode: m.mode, melody: ["stepwise", "hook"] as MelodyType[], dyn, ending: "tail" as const, repeatable: false }]
     : regions.map((r, i) => ({ id: `key${i}`, bars: r.to - r.from, mood: m.mood, key: r.key, mode: r.mode, melody: ["stepwise", "hook"] as MelodyType[], dyn: [lvl(r.from), lvl(r.to)] as [number, number], ending: "tail" as const, repeatable: false }));
   const piece: Piece = {
-    title: m.title, seed: m.seed, tail: m.tail ?? 3.2, harmony, parts,
+    title: m.title, seed: m.seed, tail: m.tail ?? 3.2, harmony, parts, ...(m.legacy ? { legacy: true } : {}),
     plan: { style: m.style, tempo: m.bpm, meter, swing: m.swing ?? vocab.swing[0], ritard: m.loop ? 1 : 0.92, loop: m.loop,
       sections: planSections },
     fx: mood ? moodFx(vocab.fx, mood) : vocab.fx, stemTargets: targets,

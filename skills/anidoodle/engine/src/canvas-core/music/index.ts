@@ -17,6 +17,7 @@ export * from "./calibration";
 export * as instruments from "./instruments";
 export * from "./sfx";
 export * as orchestra from "./orchestra";
+export * as drums from "./drums";
 import { nocturne, pianoPhrase8 } from "./pieces/nocturne";
 import { launchLofi, launchLofi2, launchLofi3, launchLofi3Material } from "./pieces/launch";
 import { musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic } from "./pieces/samplers";
