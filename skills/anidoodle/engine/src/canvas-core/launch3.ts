@@ -72,8 +72,34 @@ const audio3 = (sr: number): [Float32Array, Float32Array] => {
   return [L, R];
 };
 
+// ---------------------------------------------------------------- holds (the approved cut, reviewed frame by frame)
+// Every stretch the dead-air gate measures as still, looked at on a contact sheet and named. HOLDS are
+// meant: something is being read or watched. LOCKED are waits the review found and did NOT excuse; the
+// film is approved and unchanged, so they stay failures for the lead to decide.
+const HOLDS3: [number, number][] = [
+  // every word page: the bloom opens, the word is written, it is read, the bloom closes onto the scene
+  ...SEGS.flatMap((s, i): [number, number][] => (s.kind === "type" ? [[STARTS[i], STARTS[i] + s.len + 1]] : [])),
+  [1, 161],      // the hook: the first prompt typed in close-up and sent; the words are the motion
+  [416, 443],    // the follow-up "now make it swim" typed into the thread
+  [884, 902],    // the crayon balloon seen whole before the wave turns it to bricks (brickBalloon's own hold, at 2x)
+  [921, 926],    // the finished mosaic rests before it lets go (brickBalloon's hold, at 2x)
+  [978, 982],    // the built balloon stands complete before the burner lights (brickBalloon's hold, at 2x)
+  [1109, 1139],  // "my koi, painted in this hand" typed, the Van Gogh reference attached
+  [1175, 1236],  // the almond-blossom koi laid in stroke by stroke inside its card: real, but small in frame
+  [1238, 1246],  // the finished almond koi seen whole before LOOPS
+  [1303, 1310],  // the embroidery loop opens on the bee resting on the poppy (embroideryAlive's own hold)
+  [1975, 2141],  // the sentence written word by word in five media, then the claim read
+  [2141, N3],    // the end card blooms open and holds, install lines on screen (the last 60 frames frozen)
+];
+const LOCKED3: [number, number, string][] = [
+  [354, 367, "dead wait: the koi card sits unchanged for 13 frames between two word pages"],
+  [1080, 1091, "dead wait: the brick flight stops and the frame freezes for 11 frames before the chat returns"],
+  [1806, 1943, "stutter: the butterfly film plays at 0.6x by repeating frames (every 2nd-3rd frame identical)"],
+  [1955, 1975, "dead wait: the butterfly fades to empty paper and the blank page waits before the sentence"],
+];
+
 export const launch3: Film = {
-  meta: { title: "anidoodle · launch, cut 3", W, H, fps: FPS, bpm: 90, durationFrames: N3, raster: "cpu", kind: "launch" },
+  meta: { title: "anidoodle · launch, cut 3", W, H, fps: FPS, bpm: 90, durationFrames: N3, raster: "cpu", kind: "launch", holds: HOLDS3, locked: LOCKED3 },
   assets: { images: { almond: "assets/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in engine/assets/refs/PROVENANCE.json
   shots: [{ id: "cut", start: 0, end: N3, draw: (ctx, F, env) => { const { s, local } = at(F); if (s.kind === "pic") content2(ctx, env, contentOf(s, local)); else drawType(ctx, env, s, local, F); } }],
   audio: audio3,

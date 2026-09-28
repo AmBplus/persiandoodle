@@ -77,6 +77,8 @@ None of that was drawing. These habits cut it by an order of magnitude:
   byte-identical, or to find the first frame it moved.
 - **Holds are declared, never absorbed.** A word being read, an end card, a loop being watched:
   put the range in `meta.holds` with its reason in a comment. The gate's dead-air check then
-  knows the stillness is meant. Anything else that sits still is a dead wait: cut it.
+  knows the stillness is meant. Anything else that sits still is a dead wait: cut it. If the
+  film is already approved, name it in `meta.locked` with its reason instead; the gate prints it
+  and keeps failing, so the decision stays visible (`launch3.ts` shows both).
 - **`npm test`** (in `engine/`) runs the unit suites in `engine/test/*.test.ts` without a
   browser (camera moves today). Run it with the gate after any engine change.
