@@ -110,7 +110,7 @@ if (mode === "calibrate") {
     const p = M.composePiece(M.testMaterial(v, { bars: 4 }));
     if (!p.parts.some((x) => KEYS.has(x.inst))) continue;
     const a = M.renderPiece({ ...p, legacy: true }, 24000, { stems: true, master: "none" }), b = M.renderPiece({ ...p, legacy: false }, 24000, { stems: true, master: "none" });
-    for (const pt of p.parts) if (KEYS.has(pt.inst)) { const d = M.stemRms(b.stems[pt.id][0]) - M.stemRms(a.stems[pt.id][0]); rows.push([v.id, pt.id, pt.inst, JSON.stringify(pt.opts ?? {}), d]); }
+    for (const pt of p.parts) if (KEYS.has(pt.inst)) { const d = M.stemRms(...b.stems[pt.id], 24000) - M.stemRms(...a.stems[pt.id], 24000); rows.push([v.id, pt.id, pt.inst, JSON.stringify(pt.opts ?? {}), d]); }
   }
   for (const r of rows) console.log(`${r[0].padEnd(15)} ${r[1].padEnd(8)} ${r[2].padEnd(12)} new-old ${r[4] >= 0 ? "+" : ""}${r[4].toFixed(1)} dB  ${r[3]}`);
   const by = {}; for (const r of rows) (by[r[2]] ??= []).push(r[4]);

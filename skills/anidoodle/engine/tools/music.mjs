@@ -214,17 +214,18 @@ const main = async () => {
 const calibrate = (M) => {
   const trim = {}, fix = {};
   for (const v of Object.values(M.VOCAB)) {
-    if (v.calibrated) continue; trim[v.id] = {}; fix[v.id] = {}; M.VOCAB_TARGET_FIX[v.id] = {};
+    // calibrated (listened) styles: the targets never move, the voices are trimmed to them (sound v2 changed their levels); no target fix
+    trim[v.id] = {}; fix[v.id] = {}; M.VOCAB_TARGET_FIX[v.id] = {};
     for (let pass = 0; pass < 3; pass++) {
       M.VOCAB_TRIM[v.id] = trim[v.id];
       const b = M.measureStems(M.composePiece(M.testMaterial(v)), STEM_SR);
-      for (const r of b.rows) if (r.offDb !== null && Number.isFinite(r.offDb)) trim[v.id][r.id] = +Math.max(-12, Math.min(12, (trim[v.id][r.id] ?? 0) - r.offDb)).toFixed(1); // capped: past 12 dB the gain is not the problem
-      if (pass === 2) { for (const r of b.rows) if (r.offDb !== null && Math.abs(r.offDb) > 1) fix[v.id][r.id] = +r.offDb.toFixed(1);
+      for (const r of b.rows) if (r.offDb !== null && Number.isFinite(r.offDb)) trim[v.id][r.id] = +Math.max(-18, Math.min(18, (trim[v.id][r.id] ?? 0) - r.offDb)).toFixed(1); // capped: past 18 dB the gain is not the problem (12 under the v1 meter, whose tails read sparse parts low)
+      if (pass === 2) { if (!v.calibrated) for (const r of b.rows) if (r.offDb !== null && Math.abs(r.offDb) > 1) fix[v.id][r.id] = +r.offDb.toFixed(1);
         console.log(v.id.padEnd(14), b.rows.filter((r) => r.offDb !== null).map((r) => `${r.id} ${r.offDb >= 0 ? "+" : ""}${r.offDb.toFixed(1)}`).join("  ")); }
     }
   }
   const file = join(here, "../src/canvas-core/music/vocabTrim.ts"), head = readFileSync(file, "utf8").split("export const VOCAB_TRIM")[0], j = (x) => JSON.stringify(x, null, 1).replace(/"(\w+)":/g, "$1:");
-  writeFileSync(file, `${head}export const VOCAB_TRIM: Record<string, Partial<Record<Slot, number>>> = ${j(trim)};\n/** Where a 12 dB trim could not reach the target (long-decaying plucks read low as active RMS), the target moves to where the voice sits. */\nexport const VOCAB_TARGET_FIX: Record<string, Partial<Record<Slot, number>>> = ${j(fix)};\n`);
+  writeFileSync(file, `${head}export const VOCAB_TRIM: Record<string, Partial<Record<Slot, number>>> = ${j(trim)};\n/** Where an 18 dB trim could not reach the target (long-decaying plucks read low as active RMS), the target moves to where the voice sits. */\nexport const VOCAB_TARGET_FIX: Record<string, Partial<Record<Slot, number>>> = ${j(fix)};\n`);
   console.log(`wrote ${file}`);
 };
 

@@ -151,8 +151,7 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
     if (style.master === "gentle" && tg && isStruck(pt.inst, pt.opts)) report.transientGr = Math.max(report.transientGr ?? 0, transientGain(sL, sR, sr, tg));
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     // corrective EQ, then match the stem's RMS back (+-3 dB cap): EQ shapes the tone, the fader keeps the calibrated balance
-    // the stem meter reads the part as the fader set it (pre-EQ): the EQ is energy-neutral in the audible band, while stemRms
-    // (left channel, -80 dB floor) also counts subsonic residue the high-pass removes, which read one harp 6.8 dB "hotter"
+    // the stem meter reads the part as the fader set it (pre-EQ, after its pan): the EQ is energy-neutral in the audible band
     const pre = o.stems ? [Float32Array.from(sL), Float32Array.from(sR)] as [Float32Array, Float32Array] : null;
     const before = audible(sL, sR, sr), e = partEq(prof, pt.inst, pt.role); runEq(sL, eqChain(sr, e)); runEq(sR, eqChain(sr, e));
     const after = audible(sL, sR, sr), mk = after > 0 && before > 0 ? Math.min(db(3), Math.max(db(-3), Math.sqrt(before / after))) : 1;
@@ -249,7 +248,7 @@ export const fitScore = (piece: Piece, seconds: number) => fitToDuration(piece.r
 /** Each part's stem level against the piece's targets (unmastered, pre-room: the mix as the parts were set). */
 export const measureStems = (piece: Piece, sr: number, o: RenderOpts = {}, tolDb = 3) => {
   const r = renderPiece(piece, sr, { ...o, stems: true, master: "none" });
-  return stemBalance(r.stems, piece.stemTargets ?? {}, tolDb);
+  return stemBalance(r.stems, piece.stemTargets ?? {}, tolDb, undefined, sr);
 };
 
 /** Look-ahead peak limiter (1.5 ms look-ahead, 120 ms release), used by dense styles only; `ceil` is linear. */

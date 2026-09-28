@@ -88,7 +88,7 @@ if (cmd === "calibrate") {
       const parts = p.parts.filter((x) => ENS.has(x.inst) && (!slot || x.id === slot)); if (!parts.length) continue;
       const only = (x) => parts.some((q) => q.id === x.id);
       const a = M.renderPiece(p, SR, { stems: true, master: "none", only }), b = M.renderPiece({ ...p, legacy: true }, SR, { stems: true, master: "none", only });
-      for (const x of parts) { const nw = M.stemRms(a.stems[x.id][0]), old = M.stemRms(b.stems[x.id][0]); out.push({ style: v.id, slot: x.id, alt: nm, inst: x.inst, kind: x.opts?.kind ?? (x.opts?.reed ? "reed" : x.opts?.cello ? "cello" : ""), d: nw - old });
+      for (const x of parts) { const nw = M.stemRms(...a.stems[x.id], SR), old = M.stemRms(...b.stems[x.id], SR); out.push({ style: v.id, slot: x.id, alt: nm, inst: x.inst, kind: x.opts?.kind ?? (x.opts?.reed ? "reed" : x.opts?.cello ? "cello" : ""), d: nw - old });
         console.log(`  ${v.id.padEnd(15)} ${x.id.padEnd(8)} ${(nm ?? "").padEnd(9)} ${x.inst.padEnd(10)} ${String(out[out.length - 1].kind).padEnd(8)} v2-legacy ${(nw - old >= 0 ? "+" : "") + (nw - old).toFixed(1)} dB`); }
     }
   }

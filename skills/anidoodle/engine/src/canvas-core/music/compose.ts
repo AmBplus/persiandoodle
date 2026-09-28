@@ -131,7 +131,8 @@ export const composePiece = (m: Material): Piece => {
     v = resolveVoice(v, m.bpm);
     let dGain = 0; if (mood) { const r = moodVoice(slot, v, mood); v = r.voice; dGain = r.dGain; }
     const lv = m.levels?.[slot];
-    const trim = pick !== undefined ? 0 : VOCAB_TRIM[vocab.id]?.[slot] ?? 0; let gainDb = trim ? v.gainDb + trim : v.gainDb; if (lv) gainDb += lv;
+    // a legacy (shipped) score keeps the gains it was listened at: no trim
+    const trim = pick !== undefined || m.legacy ? 0 : VOCAB_TRIM[vocab.id]?.[slot] ?? 0; let gainDb = trim ? v.gainDb + trim : v.gainDb; if (lv) gainDb += lv;
     // a timpani (or any pitched drum voice) playing a drum lane is tuned to the key: the tonic in its low register
     if (v.inst === "timpani" && role(slot) === "drum" && typeof pick !== "object") { const tp = pcOf(m.key.replace(/m$/, "")), lo = typeof v.opts?.pitch === "number" ? (v.opts.pitch as number) - 5 : slot === "kick" ? 31 : 38; /* the tonic nearest the voice's own register */ v = { ...v, opts: { ...(v.opts ?? {}), pitch: lo + ((tp - (lo % 12) + 12) % 12) } }; }
     if (vocab.stemTargets[slot] !== undefined) targets[slot] = vocab.stemTargets[slot] + dGain + (pick === undefined ? VOCAB_TARGET_FIX[vocab.id]?.[slot] ?? 0 : 0); // a mood that lifts the hats lifts their target too
