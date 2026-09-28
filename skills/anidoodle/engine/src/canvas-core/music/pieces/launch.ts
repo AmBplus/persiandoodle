@@ -75,7 +75,7 @@ export const LAUNCH3_BARS = 29;
 export const launchLofi3Material = (): Material => {
   const hk = (i: number) => `hook${i}`, sp = (i: number) => `spark${i}`;
   return {
-    style: "lofiElectronic", title: "anidoodle launch, cut 3", seed: 2027, mood: "calm", bpm: LAUNCH_BPM, key: "C", mode: "major", swing: 0.54, tail: 3.2,
+    style: "lofiElectronic", title: "anidoodle launch, cut 3", seed: 2027, legacy: true, mood: "calm", bpm: LAUNCH_BPM, key: "C", mode: "major", swing: 0.54, tail: 3.2,
     chords: { Dm9: { voicing: PAD[0], bass: SUB[0] }, G13: { voicing: PAD[1], bass: SUB[1] }, Cmaj9: { voicing: PAD[2], bass: SUB[2] }, Am9: { voicing: PAD[3], bass: SUB[3] } },
     motifs: Object.fromEntries([...HOOK.map((h, i) => [hk(i), h]), ...SPARK.map((x, i) => [sp(i), x])]),
     grooves: {
@@ -113,7 +113,7 @@ export const launchLofi = (): Piece => {
   const sparkle = byBar("color", 0.5, (b, ci) => (inRanges(b, [[11, 13], [23, 25], [30, 35]]) ? SPARK[ci] : null));
   const harmony = Array.from({ length: LAUNCH_BARS }, (_, b) => ({ t: b * 4, name: b < 2 ? ["Cmaj9", "Am9"][b] : b === last ? "Cmaj9" : ["Dm9", "G13", "Cmaj9", "Am9"][(b - 2) % 4] }));
   return {
-    title: "anidoodle launch, upbeat chill electronic", seed: 2027, tail: 3.2, harmony,
+    title: "anidoodle launch, upbeat chill electronic", seed: 2027, tail: 3.2, harmony, legacy: true,
     plan: { style: "lofi", tempo: LAUNCH_BPM, meter: "4/4", swing: 0.54, ritard: 0.92, sections: [{ id: "a", bars: LAUNCH_BARS, mood: "calm", key: "C", mode: "major", melody: ["stepwise", "hook"], dyn: [0.62, 0.66], ending: "tail", repeatable: false }] },
     parts: [
       { id: "pad", inst: "warmPad", role: "accomp", notes: pad, gainDb: -3, opts: { cut: 2600, attack: 0.5, release: 1.4, spread: 0.55 }, send: 0.35 },

@@ -1,6 +1,7 @@
 // The rest of the style vocabularies (vocab.ts has the type, the mood mapping and the first six).
 // Same rule: sound, grooves, harmony language, melody rules, arrangement grammar. Never notes.
 import type { StyleVocab, Voice, Slot } from "./vocab";
+import { LOFI_DUSTY } from "./lofiFx";
 
 const V = (inst: Voice["inst"], role: Voice["role"], gainDb: number, opts?: Voice["opts"], send?: number): Voice => ({ inst, role, gainDb, ...(opts ? { opts } : {}), ...(send !== undefined ? { send } : {}) });
 /** a drum kit at a level offset: soft (acoustic), tight (band), hard (electronic) */
@@ -56,8 +57,10 @@ export const VOCAB_MORE: StyleVocab[] = [
     melody: { range: "C4-C7", contour: "hooky, leaping", density: "8ths and 16ths", motif: "a 1-bar hook, answered, sequenced" },
     arrangement: { shape: "4 voices max: lead, arp, triangle bass, noise", transitions: "a drum fill, a key change", endings: "a fanfare button" }, avoid: "reverb, more than 4 voices, pads" },
   { id: "lofi", name: "dusty lo-fi hip-hop", atmosphere: "hazy, nostalgic, crackly: FM e-piano, vinyl, a lazy swung beat (the dusty cousin of lo-fi electronic)", tempo: [68, 90], meters: ["4/4"], swing: [0.55, 0.62],
-    palette: { chords: V("ePiano", "accomp", -5, { detune: 5 }), lead: V("ePiano", "melody", 4, { detune: 6, width: 0.2 }), bass: V("bass", "bass", -2), counter: V("fmBell", "color", -8), ...kit(-6, 1, { hat: V("hat", "drum", -8, { pan: 0.25 }, 0.2) }) },
-    alternates: { lead: { guitar: V("guitar", "melody", 2), flute: V("woodwind", "melody", -2) } }, fx: {},
+    palette: { chords: V("ePiano", "accomp", -3.2, { detune: 5 }, 0.45), lead: V("ePiano", "melody", 5.4, { detune: 6, width: 0.2 }, 0.35), bass: V("bass", "bass", -1.3, undefined, 0.05), counter: V("fmBell", "color", -5.1, undefined, 0.6), ...kit(-6, 1, { hat: V("hat", "drum", -5.1, { pan: 0.25 }, 0.2) }) },
+    alternates: { lead: { guitar: V("guitar", "melody", 2, undefined, 0.35), flute: V("woodwind", "melody", -2, undefined, 0.35) } },
+    // the record: keys, counter and bass breathe with the kick; tape wow/flutter/drive (mood-scaled); the dusty chain (lofiFx.ts: sampler drums, warbly keys, tape colour, vinyl, tilt, room tone)
+    fx: { duck: { by: "kick", parts: ["chords", "counter", "bass"], depth: 0.35 }, tape: { wowCents: 6, wowHz: 0.7, flutterCents: 1.2, flutterHz: 8, drive: 1.35 }, lofi: LOFI_DUSTY },
     stemTargets: T({ ...std, chords: -20, lead: -17, bass: -19, kick: -17, snare: -22, hat: -30 }), calibrated: false, grooves: ["bounce", "halfTime", "shuffle"], moods: ["nostalgic", "calm", "wistful", "sensual"],
     harmony: { modes: ["major", "dorian", "aeolian"], qualities: "maj9, m9, 13, m11", tendencies: "2-4 chord loops, ii-V drifts", rhythm: "1-2 chords a bar", voicing: "e-piano 4-note voicings", tension: "a borrowed iv" },
     melody: { range: "C4-C6", contour: "lazy, behind the beat", density: "sparse", motif: "a 2-bar sampled-sounding phrase" },
