@@ -132,7 +132,8 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
 
 ## The material format
 
-Write the score in the film's own file, e.g. `engine/src/canvas-core/<film>Score.ts`, and export it:
+Write the score in the film's own file, next to the film module: `src/canvas-core/<film>Score.ts`
+in a scaffolded project (`engine/src/canvas-core/<film>Score.ts` inside the skill), and export it:
 
 ```ts
 import type { Material } from "./music";
