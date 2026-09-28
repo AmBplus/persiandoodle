@@ -4,6 +4,11 @@ import { craftReport, contourClass, classifyCadence, syncopation, metricWeight, 
 import { line, type Piece, type Part, type Role, type InstId, type Meter, type Note } from "../src/canvas-core/music/plan";
 import type { StyleId, MoodId } from "../src/canvas-core/music/tables";
 import type { ModeId } from "../src/canvas-core/music/theory";
+import { DEMOS, FIXTURES, composePiece } from "../src/canvas-core/music/index";
+import { breach } from "../src/canvas-core/music/blind/breach";
+import { stillwater } from "../src/canvas-core/music/blind/stillwater";
+import { morningCrumb } from "../src/canvas-core/music/blind/morningCrumb";
+import { skywardKids } from "../src/canvas-core/music/blind/skywardKids";
 
 type P = { id: string; inst: InstId; role: Role; src: string };
 const piece = (o: { style?: StyleId; mood?: MoodId; key?: string; mode?: ModeId; meter?: Meter; tempo?: number; bars: number; parts: P[]; harmony?: [number, string][]; sections?: [string, number][]; loop?: boolean }): Piece => {
@@ -130,4 +135,12 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
 
   // ---------------- only real errors are errors
   ok(craftReport(leapy).findings.every((f) => f.level !== "error"), "craft never errors on taste: only impossible ranges are errors");
+
+  // ---------------- shipped music never carries an unplayable note (a craft ERROR). The fixtures are deliberately bad
+  // for other guards (ghost, novelty), not for range, so they are held to this too; add a name here only for a fixture
+  // written to fail the range check.
+  const RANGE_FIXTURES: string[] = [];
+  const shipped: [string, () => Piece][] = [...Object.entries(DEMOS), ...Object.entries(FIXTURES).filter(([k]) => !RANGE_FIXTURES.includes(k)),
+    ...([["breach", breach], ["stillwater", stillwater], ["morningCrumb", morningCrumb], ["skywardKids", skywardKids]] as const).map(([k, m]) => [`blind/${k}`, () => composePiece(m())] as [string, () => Piece])] as [string, () => Piece][];
+  for (const [k, make] of shipped) { const errs = craftReport(make()).findings.filter((f) => f.level === "error"); ok(!errs.length, `${k}: no unplayable notes${errs.length ? ` (${errs.map((f) => f.msg).join("; ")})` : ""}`); }
 };

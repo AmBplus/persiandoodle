@@ -54,7 +54,7 @@ export const guitarWistful = (): Piece => {
 /** Celesta, WONDER (curious + awe). F lydian: the B natural of the G/F chord is the magic. 3/4 at 72. */
 export const celestaWonder = (): Piece => {
   const B = 3;
-  const acc = L(0, "F3:1 [A4 C5]:1 [A4 C5]:1 | F3:1 [G4 B4 D5]:1 [G4 B4 D5]:1 | [F3 C4 A4]:3", "accomp", B, 0.5, { roll: 0.02 });
+  const acc = L(0, "F4:1 [A4 C5]:1 [A4 C5]:1 | F4:1 [G4 B4 D5]:1 [G4 B4 D5]:1 | [F4 A4 C5]:3", "accomp", B, 0.5, { roll: 0.02 });
   const mel = L(0, "C6:.5 A5:.5 F5:.5 A5:.5 C6:.5 E6:.5 | D6:1 B5:1 A5:.5 G5:.5 | A5:3", "melody", B, 0.8);
   return {
     title: "Celesta, wonder (F lydian)", seed: 9, tail: 2.4, harmony: H([[0, "F"], [3, "G/F"], [6, "F"]]),
