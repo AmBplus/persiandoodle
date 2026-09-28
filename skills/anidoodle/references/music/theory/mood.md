@@ -69,7 +69,7 @@ because the family is the emotional cue and the exact mode is colour.
 |---|---|---|---|
 | Product launch film | 30-60 s | intro, build, drop on the reveal, button | one motif, the climax on the logo or claim, a clean ending |
 | Explainer | 60-120 s | a steady groove bed, low melody density | leave the voice's band free (1-4 kHz): lead sparse and low-mid |
-| Site / app loop | 20-60 s | 4 or 8 bar loop, no cadence home at the end | low arousal, no sharp accents, seamless |
+| Site / app loop | 20-60 s | 4 or 8 bar loop, no cadence home at the end | low arousal, no sharp accents, seamless (`craft` does not ask a loop for a tension arc) |
 | Game menu / trailer | 15-60 s | ostinato + motif, stingers on hits | heroic or playful, strong hook in 2 bars |
 | Ad (15-30 s) | 15-30 s | hook in the first 2-4 s, button ending | high arousal, bright, the brand beat on the last downbeat |
 | Meditation / sleep | 45 s+ | drone + sparse motif, slow harmonic rhythm | 50-70 bpm, legato, no percussion, open ending allowed |

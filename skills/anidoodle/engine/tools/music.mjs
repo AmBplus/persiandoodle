@@ -21,6 +21,8 @@
 //   node tools/music.mjs samples <outdir>          # the whole deliverable set + meters.json + .m4a
 //   node tools/music.mjs score <piece>                # the text score, bar by bar
 //   node tools/music.mjs probe                      # piano realism probes
+//   node tools/music.mjs calibrate [--voices]       # palette trims (vocabTrim.ts); --voices: alternates' trims and your own voices' levels (vocabVoices.ts)
+//   (check/render run voices on all but one core; ANIDOODLE_THREADS=1 renders serially, ANIDOODLE_TIMING=1 prints check's stage times)
 import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { writeFileSync, readFileSync, existsSync, mkdirSync, unlinkSync } from "node:fs";

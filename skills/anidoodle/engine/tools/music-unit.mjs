@@ -214,7 +214,7 @@ for (const secs of [70, 90, 110]) {
 { const p = M.composePiece(M.testMaterial(M.VOCAB.lofiElectronic, { bars: 4 })), r = M.renderPiece(p, SR, { stems: true }), bpb = M.beatsPerBar(p.plan.meter), at = Math.round(r.perf.sec(2 * bpb + 1) * SR);
   r.L[at] = 1.5; r.stems.lead[0][at] = 1.5; const pk = M.peakReport(r, SR);
   assert.equal(pk.bar, 3); assert.equal(pk.beat, 2); assert.equal(pk.parts[0].id, "lead"); assert(pk.parts[0].notes.length > 0);
-  pass(`peak report: bar ${pk.bar} beat ${pk.beat}, ${pk.parts.map((x) => `${x.id} ${x.notes.join(" ")}`).join(", ")}`); }
+  pass(`peak report: bar ${pk.bar} beat ${pk.beat}, ${pk.parts.map((x) => `${x.id}${x.notes.length ? ` ${x.notes.join(" ")}` : ""}`).join(", ")}`); }
 { const { spawnSync } = await import("node:child_process"), { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } = await import("node:fs");
   const dir = join(import.meta.dirname, "../out/music-unit"); rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "x.wav"), "keep me");
