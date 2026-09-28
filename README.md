@@ -204,6 +204,15 @@ codex plugin marketplace add alexgreensh/anidoodle
 
 Then in the Codex TUI: `/plugins` and install anidoodle.
 
+**Grok Build:**
+
+```bash
+grok plugin marketplace add alexgreensh/anidoodle
+grok plugin install anidoodle --trust
+```
+
+`--trust` confirms the install; without it, Grok shows what the plugin can run and stops. You can also install it from the Marketplace tab in `/plugins`.
+
 **Any other agent:** anidoodle is a standard skill folder (`skills/anidoodle/SKILL.md`), so it can be copied into any harness that reads skills.
 
 Then ask for what you want: *"draw a pencil & watercolour pear for our recipes page"*. To drive the engine yourself:

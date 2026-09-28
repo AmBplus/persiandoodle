@@ -204,6 +204,15 @@ codex plugin marketplace add alexgreensh/anidoodle
 
 그다음 Codex TUI에서 `/plugins`를 열어 anidoodle을 설치하세요.
 
+**Grok Build:**
+
+```bash
+grok plugin marketplace add alexgreensh/anidoodle
+grok plugin install anidoodle --trust
+```
+
+`--trust`로 설치를 확정해요. 빼면 Grok이 플러그인이 실행할 수 있는 내용을 보여주고 멈춰요. `/plugins`의 Marketplace 탭에서도 설치할 수 있어요.
+
 **다른 에이전트:** anidoodle은 표준 스킬 폴더(`skills/anidoodle/SKILL.md`)이므로 스킬을 읽는 환경이라면 어디든 복사해서 쓸 수 있어요.
 
 그다음엔 원하는 걸 말하면 돼요: *“레시피 페이지에 쓸 연필과 수채화 스타일의 배 그림 그려줘”*. 엔진을 직접 다뤄보고 싶다면:

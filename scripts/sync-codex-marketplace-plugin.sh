@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # sync-codex-marketplace-plugin.sh
 #
-# Regenerates plugins/anidoodle/ (the Codex marketplace plugin) from the canonical skill at
-# skills/anidoodle/ and .codex-plugin/plugin.json.
+# Regenerates plugins/anidoodle/ (the self-contained plugin folder) from the canonical skill at
+# skills/anidoodle/, the Codex and Claude manifests, LICENSE, NOTICE and scripts/plugin-README.md.
+# Codex installs it from .agents/plugins/marketplace.json, Grok from .grok-plugin/marketplace.json,
+# and it is the folder submitted to directories that want a plugin without the repo's demo media.
 #
 # WHY: Codex resolves marketplace plugins only from a subdirectory (./plugins/<name>), and its
 # install copy does not follow symlinks, so the nested plugin must hold real files.
@@ -14,7 +16,8 @@ set -euo pipefail
 [ -n "${BASH_VERSION:-}" ] || { echo "ERROR: run with bash" >&2; exit 2; }
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-for marker in ".agents/plugins/marketplace.json" ".codex-plugin/plugin.json" "skills/anidoodle/SKILL.md"; do
+for marker in ".agents/plugins/marketplace.json" ".codex-plugin/plugin.json" ".claude-plugin/plugin.json" \
+              "scripts/plugin-README.md" "LICENSE" "NOTICE" "skills/anidoodle/SKILL.md"; do
   [ -e "${REPO_ROOT}/${marker}" ] || { echo "ERROR: REPO_ROOT looks wrong (missing ${marker}): ${REPO_ROOT}" >&2; exit 3; }
 done
 
@@ -25,6 +28,10 @@ trap 'rm -rf "${STAGE}"' EXIT
 
 mkdir -p "${STAGE}/.codex-plugin"
 cp "${REPO_ROOT}/.codex-plugin/plugin.json" "${STAGE}/.codex-plugin/plugin.json"
+mkdir -p "${STAGE}/.claude-plugin"
+cp "${REPO_ROOT}/.claude-plugin/plugin.json" "${STAGE}/.claude-plugin/plugin.json"
+cp "${REPO_ROOT}/scripts/plugin-README.md" "${STAGE}/README.md"
+cp "${REPO_ROOT}/LICENSE" "${REPO_ROOT}/NOTICE" "${STAGE}/"
 cd "${REPO_ROOT}"
 count=0
 while IFS= read -r f; do
@@ -35,4 +42,4 @@ done < <(git ls-files skills/)
 [ "${count}" -ge 50 ] || { echo "ERROR: only ${count} files copied; expected the whole skill" >&2; exit 4; }
 
 rm -rf "${NESTED}"; mv "${STAGE}" "${NESTED}"; trap - EXIT
-echo "Synced Codex marketplace plugin -> plugins/anidoodle (${count} tracked files, $(grep -o '"version"[^,]*' "${NESTED}/.codex-plugin/plugin.json" | head -1))"
+echo "Synced plugin folder -> plugins/anidoodle (${count} tracked files, $(grep -o '"version"[^,]*' "${NESTED}/.codex-plugin/plugin.json" | head -1))"
