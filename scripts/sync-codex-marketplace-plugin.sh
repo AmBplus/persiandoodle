@@ -38,7 +38,7 @@ cd "${REPO_ROOT}"
 # The installed plugin leaves out what only the repository needs: anidoodle's own launch films
 # (launch, launch2, launch3, launchClip and their helpers and pages), the public-domain reference
 # image they show, and the gallery sheet and the tool that rebuilds it (the docs link to it online).
-EXCLUDE='/canvas-core/(launch|launch2|launch3|launchClip|launchCode|typeOptions|typeStyles)\.ts$|/hosts/page-(launch|launch2|launch3|launchClip|typeOptions|typeStyles)\.ts$|/engine/assets/refs/|/engine/tools/gallery\.mjs$|^skills/anidoodle/assets/styles\.jpg$|/engine/package-lock\.json$'
+EXCLUDE='/canvas-core/(launch|launch2|launch3|launchClip|launchCode|typeOptions|typeStyles)\.ts$|/hosts/page-(launch|launch2|launch3|launchClip|typeOptions|typeStyles)\.ts$|/engine/assets/refs/|/engine/tools/gallery\.mjs$|^skills/anidoodle/assets/styles\.jpg$|/engine/package-lock\.json$|/music/blind/'
 count=0
 while IFS= read -r f; do
   mkdir -p "${STAGE}/$(dirname "$f")"; cp -p "$f" "${STAGE}/$f"; count=$((count + 1))
