@@ -288,7 +288,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     // press, then leans in as the items land, never closer than the window's own fit
     const a = spec.asks[i] as UiAsk, t = T[i], win = uiWindow(panelOf(i), a.ui, minPx), wc: P = [win.x + win.w / 2, win.y + win.h / 2];
     const fit = Math.max(1, Math.min((0.94 * W) / win.w, (0.92 * H) / win.h)), toward = (z: number): Cam => ({ c: inView(lerpP(HOME.c, wc, clamp((z - 1) / (fit - 1 || 1))), z), z });
-    if (l >= t.drop.t0) return toward(1 + (fit - 1) * 0.9 * inOut(ramp(l, t.drop.t0, t.len + 40))); // still moving when the ask ends
+    if (l >= t.down) return toward(1 + (fit - 1) * 0.9 * inOut(ramp(l, t.down, t.len + 40))); // from the press on, never resting; still moving when the ask ends
     const open = toward(1 + (fit - 1) * 0.5 * ramp(l, -20, t.b)); // already creeping on frame 0
     return camLerp(open, HOME, expo(ramp(l, t.b - 4, t.down)));
   };
@@ -374,7 +374,8 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   const askScene = (ctx: Ctx, env: Env, f: number, withDrop = true) => {
     const i = askOf(f), t = T[i], l = f - t.base;
     // a seam between kinds: the new scene blooms open over the last frame of the one before
-    if (t.tin && l < t.tin) bloomFrame(ctx, env, l + 2, 1e6, () => sceneOf(ctx, env, t.base - 1, i - 1), (c) => sceneOf(c, env, f, i), { close: false, inF: 14, W, H, ...bloomOpts });
+    // (+4: a bloom's first frames open by less than a pixel)
+    if (t.tin && l < t.tin) bloomFrame(ctx, env, l + 4, 1e6, () => sceneOf(ctx, env, t.base - 1, i - 1), (c) => sceneOf(c, env, f, i), { close: false, inF: 14, W, H, ...bloomOpts });
     else sceneOf(ctx, env, f, i);
     if (withDrop) motifDrop(ctx, env, f);
   };
