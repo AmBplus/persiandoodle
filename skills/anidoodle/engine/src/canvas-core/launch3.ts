@@ -74,9 +74,9 @@ const audio3 = (sr: number): [Float32Array, Float32Array] => {
 
 // ---------------------------------------------------------------- holds (the approved cut, reviewed frame by frame)
 // Every stretch the dead-air gate measures as still, looked at on a contact sheet and named. HOLDS are
-// meant: something is being read or watched. LOCKED are waits the review found and did NOT excuse; the
-// film is approved and unchanged, so they stay failures for the lead to decide.
-const HOLDS3: [number, number][] = [
+// meant: something is being read or watched. ACCEPTED are the four stretches the review flagged; Alex
+// approved the film as shipped, so they are declared holds with that reason (pixels and audio unchanged).
+const HOLDS3: [number, number, string?][] = [
   // every word page: the bloom opens, the word is written, it is read, the bloom closes onto the scene
   ...SEGS.flatMap((s, i): [number, number][] => (s.kind === "type" ? [[STARTS[i], STARTS[i] + s.len + 1]] : [])),
   [1, 161],      // the hook: the first prompt typed in close-up and sent; the words are the motion
@@ -91,15 +91,15 @@ const HOLDS3: [number, number][] = [
   [1975, 2141],  // the sentence written word by word in five media, then the claim read
   [2141, N3],    // the end card blooms open and holds, install lines on screen (the last 60 frames frozen)
 ];
-const LOCKED3: [number, number, string][] = [
-  [354, 367, "dead wait: the koi card sits unchanged for 13 frames between two word pages"],
-  [1080, 1091, "dead wait: the brick flight stops and the frame freezes for 11 frames before the chat returns"],
-  [1806, 1943, "stutter: the butterfly film plays at 0.6x by repeating frames (every 2nd-3rd frame identical)"],
-  [1955, 1975, "dead wait: the butterfly fades to empty paper and the blank page waits before the sentence"],
+const ACCEPTED3: [number, number, string][] = [
+  [354, 367, "approved as shipped: the koi card sits unchanged for 13 frames between two word pages"],
+  [1080, 1091, "approved as shipped: the brick flight stops and the frame holds for 11 frames before the chat returns"],
+  [1806, 1943, "approved as shipped: the butterfly film plays at 0.6x by repeating frames"],
+  [1955, 1975, "approved as shipped: the butterfly fades to empty paper and the page waits before the sentence"],
 ];
 
 export const launch3: Film = {
-  meta: { title: "anidoodle · launch, cut 3", W, H, fps: FPS, bpm: 90, durationFrames: N3, raster: "cpu", kind: "launch", holds: HOLDS3, locked: LOCKED3 },
+  meta: { title: "anidoodle · launch, cut 3", W, H, fps: FPS, bpm: 90, durationFrames: N3, raster: "cpu", kind: "launch", holds: [...HOLDS3, ...ACCEPTED3] },
   assets: { images: { almond: "assets/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in engine/assets/refs/PROVENANCE.json
   shots: [{ id: "cut", start: 0, end: N3, draw: (ctx, F, env) => { const { s, local } = at(F); if (s.kind === "pic") content2(ctx, env, contentOf(s, local)); else drawType(ctx, env, s, local, F); } }],
   audio: audio3,

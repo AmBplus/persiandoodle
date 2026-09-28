@@ -83,6 +83,7 @@ const deadAir = async (mp4, meta) => {
   const { still, windows: win, windowSize } = motionViolations(changed, meta);
   const merged = []; win.forEach((f) => { const l = merged[merged.length - 1]; if (l && f <= l[1]) l[1] = f + windowSize; else merged.push([f, f + windowSize]); });
   for (const [from, to, reason] of meta.locked ?? []) console.log(`        LOCKED ${from}-${to}: ${reason}; violations remain failures`);
+  for (const [from, to, reason] of meta.holds ?? []) if (reason) console.log(`        HOLD ${from}-${to}: ${reason}`);
   say(still.length === 0, "no unexplained identical consecutive frames", still.length ? still.slice(0, 20).join(", ") : "none");
   say(merged.length === 0, `no ${windowSize}-frame window under ${meta.kind === "drawing" ? "0.02" : "0.5"}% changed`, merged.map(([a, b]) => `${a}-${b}`).join(", ") || "none");
   const mvt = changed.slice(1).sort((a, b) => a - b);
