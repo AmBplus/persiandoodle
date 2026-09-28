@@ -12,7 +12,7 @@
   "subject rule": "the focal subject is painted in the same puddles but a full value step darker than the ground, in the opposite temperature (warm magentas on a cool ground in the proof), with a bare-paper reserve round it"
  },
  "params": { "puddleAlpha": 0.62, "rim": 0.8, "rimDarken": 0.72, "fringePx": 13, "firstPassBlur": 1.6, "bareRests": "one place in three" },
- "profile": { "file": "samples/adapt-teach/aquarelle/profile.json", "summary": "high key (mean L 0.84), contrast 0.23, 8 colours over 2%, chroma 0.064, no line, no measurable grain, edges 90% soft, no lattice; measured with the terminal window excluded" },
+ "profile": { "summary": "high key (mean L 0.84), contrast 0.23, 8 colours over 2%, chroma 0.064, no line, no measurable grain, edges 90% soft, no lattice; measured with the terminal window excluded" },
  "provenance": {
   "reference": "lightshot-aquarelle.png (1310x552), a pastel watercolour backdrop behind a terminal window",
   "sha256": "397bc0daeac41e18f6c3001c03582a7a8ab617a2b97377e8b7152538e6a89ae4",
@@ -22,5 +22,5 @@
   "embedded": false,
   "copied": "nothing: the reference is an abstract backdrop; the proof subject (a moon jellyfish) and its composition are new"
  },
- "proof": ["samples/adapt-teach/aquarelle/adaptAquarelle-still.png", "samples/adapt-teach/aquarelle/compare-aquarelle.png"]
+ "proof": ["node tools/still.mjs adaptAquarelle (from engine/): the plate in this hand"]
 }

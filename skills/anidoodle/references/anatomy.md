@@ -79,8 +79,7 @@ Render the figure sheet and look, at full size, for: arms that hang in a gap (mi
 girdle); rake hands; a thumb from the wrist; a face that turns but whose far eye does not narrow;
 a hand that covers the face; a pinch that does not meet; feet that float or sink; a coat that sits
 on the lap like a plate; a pointed finger that does not read as aimed. Each of those shipped in a
-draft of our figure sheet and was caught only by eye. See `samples/characters/ANATOMY-CRITIQUE.md`
-for the ones still open.
+draft of our figure sheet and was caught only by eye.
 
 ## Gate
 
