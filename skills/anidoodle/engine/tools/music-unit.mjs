@@ -94,10 +94,16 @@ pass(`${Object.keys(M.VOCAB).length} style vocabularies compose, render (true pe
 for (const secs of [70, 90, 110]) {
   const f = M.fitScore(M.launchLofi3(), secs), perf = M.perform(f.piece, f.tempo, { expressive: true }), p = f.piece;
   assert.equal(p.harmony[p.harmony.length - 1].name, "Cmaj9"); assert.equal(f.form, "full");
-  assert(Math.abs(perf.lastOnset - (secs - p.tail)) < 0.05); assert(f.tempo >= 90 * 0.88 && f.tempo <= 90 * 1.12);
+  assert(Math.abs(perf.lastOnset - (secs - p.tail)) < 0.05 || (f.tempo === 90 && M.fitsAsWritten(p, secs))); assert(f.tempo >= 90 * 0.88 && f.tempo <= 90 * 1.12);
   pass(`fit ${secs} s: ${p.plan.sections[0].bars} bars at ${f.tempo.toFixed(1)} bpm, last onset ${perf.lastOnset.toFixed(2)} s on Cmaj9`);
 }
 { const a = M.filmAudio(M.launchLofi3(), 40)(16000); assert.equal(a[0].length, 40 * 16000); pass("filmAudio: exactly the film's length"); }
+// composed to length: the fit keeps the written tempo (the final ritard must not move the picture's hits); a form that does not fit is still fitted
+{ const p = M.composePiece({ ...M.testMaterial(M.VOCAB.house, { bars: 8 }), tail: 2 }), natural = M.perform(p, p.plan.tempo, { expressive: true }).lastOnset + p.tail, bar = (4 * 60) / p.plan.tempo;
+  const kept = M.fitScore(p, Math.round(natural)), moved = M.fitScore(p, natural + 2 * bar);
+  assert.equal(kept.tempo, p.plan.tempo); assert.equal(M.perform(kept.piece, kept.tempo, { expressive: true }).sec(4 * 4), M.perform(p, p.plan.tempo, { expressive: true }).sec(4 * 4), "bar 5 lands where it was written");
+  assert(moved.tempo !== p.plan.tempo || moved.piece.plan.sections.length !== p.plan.sections.length);
+  pass(`fit: a score composed to ${Math.round(natural)} s keeps ${p.plan.tempo} bpm (natural end ${natural.toFixed(2)} s: the tail takes the difference); ${(natural + 2 * bar).toFixed(1)} s is refitted`); }
 
 // 9. Composer-facing fixes (from the blind composer's report).
 { const t = M.testMaterial(M.VOCAB.playful, { bars: 4 }), sec = t.sections[0];
@@ -143,4 +149,25 @@ for (const secs of [70, 90, 110]) {
   const r = M.novelty(quoted, { src: () => src }); assert(!r.pass && r.rows[0].reusedFragments > 0, "a transposed quote must be caught");
   pass(`novelty: a transposed 6-note quote of a shipped line fails (${r.rows[0].reusedFragments} reused fragments)`); }
 
+// 11. Speed without a changed bit: the voice cache and the parallel pool render exactly what a serial render does.
+{ const p = M.composePiece(M.testMaterial(M.VOCAB.lofi, { bars: 4 })), cache = new Map(), fresh = md5(M.renderPiece(p, SR));
+  assert.equal(md5(M.renderPiece(p, SR, { cache })), fresh); assert(cache.size > 3); assert.equal(md5(M.renderPiece(p, SR, { cache })), fresh, "a cache hit must be bit-identical");
+  const r = M.renderPiece(p, SR, { cache }), a = M.maskingCheck(p, SR, { seconds: r.L.length / SR, tempo: r.tempo, perf: r.perf }), pl = M.maskingPlan(p, { seconds: r.L.length / SR, tempo: r.tempo, perf: r.perf, cache });
+  assert.deepEqual(M.maskingFromBands(pl, Object.fromEntries(pl.roles.map((x) => [x, M.roleBandDb(p, SR, pl.opts(x), pl.spans)]))), a, "masking from cached role renders must equal the serial guard");
+  const sel = new Float64Array(Array.from({ length: 999 }, (_, i) => Math.sin(i * 7.3) * 5)), sorted = [...sel].sort((x, y) => x - y); assert.equal(M.kth(Float64Array.from(sel), 999, 899), sorted[899]);
+  pass(`voice cache: a hit renders bit-identically (md5 ${fresh.slice(0, 8)}), masking from cached role renders equals the serial guard; quickselect = sort`); }
+// the master note names where its peak is: a spike planted on the lead at bar 3 beat 2 is found there, the lead named first
+{ const p = M.composePiece(M.testMaterial(M.VOCAB.lofiElectronic, { bars: 4 })), r = M.renderPiece(p, SR, { stems: true }), bpb = M.beatsPerBar(p.plan.meter), at = Math.round(r.perf.sec(2 * bpb + 1) * SR);
+  r.L[at] = 1.5; r.stems.lead[0][at] = 1.5; const pk = M.peakReport(r, SR);
+  assert.equal(pk.bar, 3); assert.equal(pk.beat, 2); assert.equal(pk.parts[0].id, "lead"); assert(pk.parts[0].notes.length > 0);
+  pass(`peak report: bar ${pk.bar} beat ${pk.beat}, ${pk.parts.map((x) => `${x.id} ${x.notes.join(" ")}`).join(", ")}`); }
+{ const { spawnSync } = await import("node:child_process"), { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } = await import("node:fs");
+  const dir = join(import.meta.dirname, "../out/music-unit"); rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "x.wav"), "keep me");
+  const run = spawnSync(process.execPath, [join(import.meta.dirname, "music.mjs"), "render", "lofiNostalgic", join(dir, "x.mp3"), "--seconds", "4", "--verify"], { encoding: "utf8" });
+  const json = JSON.parse(run.stdout.slice(run.stdout.indexOf("{"), run.stdout.indexOf("\n}") + 2));
+  assert.equal(readFileSync(join(dir, "x.wav"), "utf8"), "keep me", "rendering x.mp3 must never touch x.wav");
+  assert(existsSync(join(dir, "x.mp3")) && readdirSync(dir).length === 2, `leftovers: ${readdirSync(dir).join(", ")}`);
+  assert.equal(json.deterministic, true, "the parallel, cached render must equal a serial one bit for bit");
+  pass("render x.mp3 leaves an existing x.wav alone (no temp left behind); the parallel cached render equals a serial one (--verify)"); }
 console.log(`music unit: ${ok.length} checks PASS in ${((Date.now() - t0) / 1000).toFixed(0)} s`);

@@ -11,7 +11,7 @@ import * as O from "./orchestra";
 import { chokeTimes, type KitCtx } from "./drums";
 import { room, Biquad, db } from "./dsp";
 import { warmPad, softPluck, sub, duckCurve, tape } from "./lofiKit";
-import { pumpCurve, lofiStem, lofiMaster, LOFI_DUSTY } from "./lofiFx";
+import { pumpCurve, lofiStem, lofiMaster, LOFI_DUSTY, type LofiFx } from "./lofiFx";
 import { loudness, truePeak, stemBalance } from "./meter";
 import { STYLES } from "./tables";
 import { rng as mkRng } from "../core";
@@ -19,7 +19,67 @@ import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter
 import { reverb, type Space } from "./mixReverb";
 import { mixProfile, partEq, ROLE_SEND, isStruck, TRANSIENT_DEFAULT, type MixProfile } from "./mixProfiles";
 
-export type RenderOpts = { /** sound v2, gentle styles only: a <= 1 dB 2:1 glue on the mix bus (spec 08 forbids a compressor on gentle masters; Alex decides) */ gentleGlue?: boolean; expressive?: boolean; piano?: PianoOpts; flatVelocity?: number; seconds?: number; tempo?: number; master?: "auto" | "gentle" | "dense" | "none"; stems?: boolean; only?: (p: Part) => boolean };
+export type RenderOpts = { /** sound v2, gentle styles only: a <= 1 dB 2:1 glue on the mix bus (spec 08 forbids a compressor on gentle masters; Alex decides) */ gentleGlue?: boolean; expressive?: boolean; piano?: PianoOpts; flatVelocity?: number; seconds?: number; tempo?: number; master?: "auto" | "gentle" | "dense" | "none"; stems?: boolean; only?: (p: Part) => boolean;
+  /** play this performance instead of performing the piece (the guards render one role of the SAME performance the mix plays) */ perf?: Performance;
+  /** reuse synthesized voices by their exact inputs (tools/music.mjs check: each part is synthesized once for the mix, the guards and the stems); output is bit-identical */ cache?: VoiceCache };
+
+/**
+ * Voice synthesis as data: one part's voice, its exact inputs. `runVoiceJob` is the only place a
+ * voice is synthesized, so a cache hit (or a worker that ran the same job) is bit-identical to a
+ * fresh synthesis. Keyed by the whole job, so a different key, option, length or seed never hits.
+ */
+export type VoiceOut = { L: Float32Array; R: Float32Array; halo?: Float32Array; /** the transient gain's reduction (dB), when the job ran it */ transientGr?: number };
+/** Per-stem processing that depends on nothing but the stem (sound v2): the lo-fi stem colour, the amp, the gentle master's transient gain. */
+type StemPost = { lofi?: LofiFx; id: string; seed: number; period?: number; amp?: number; transient?: { maxDb: number; thrDb: number; ratio: number } };
+export type VoiceJob =
+  | { kind: "voice"; inst: Part["inst"]; opts?: Part["opts"]; keys: Played[]; sr: number; n: number; seed: number; ctx: KitCtx; post?: StemPost }
+  | { kind: "piano"; keys: Played[]; pedal: Performance["pedal"]; sr: number; n: number; seed: number; opts?: Part["opts"]; v1?: PianoOpts; post?: StemPost };
+export type VoiceCache = Map<string, VoiceOut>;
+export const runVoiceJob = (j: VoiceJob): VoiceOut => {
+  let out: VoiceOut;
+  if (j.kind === "piano") { const r = j.v1 ? renderPiano(j.keys, j.pedal, j.sr, j.n, j.v1, j.seed) : renderPianoV2(j.keys, j.pedal, j.sr, j.n, j.opts ?? {}, j.seed); out = { L: r.L, R: r.R, halo: r.halo }; }
+  else out = voice({ id: "", role: "accomp", notes: [], inst: j.inst, ...(j.opts ? { opts: j.opts } : {}) }, j.keys, j.sr, j.n, j.seed, j.ctx);
+  const q = j.post; if (!q) return out;
+  if (q.lofi) lofiStem(q.lofi, q.id, out.L, out.R, j.sr, j.keys.map((k) => k.t), q.seed, q.period);
+  if (q.amp !== undefined) ampSim(out.L, out.R, j.sr, q.amp); // a guitar (or any DI) through the amp + cab
+  if (q.transient) out.transientGr = transientGain(out.L, out.R, j.sr, q.transient);
+  return out;
+};
+export const voiceJobKey = (j: VoiceJob) => JSON.stringify(j);
+const copyOut = (v: VoiceOut): VoiceOut => ({ ...v, L: Float32Array.from(v.L), R: Float32Array.from(v.R), ...(v.halo ? { halo: Float32Array.from(v.halo) } : {}) });
+/** A sound-v2 part's job: its voice, then the stem processing (renderV2 and voiceJobs both build jobs here, so their keys agree). */
+const v2Job = (piece: Piece, pt: Part, pi: number, keys: Played[], perf: Performance, sr: number, n: number, o: RenderOpts, ctx: KitCtx): VoiceJob => {
+  const style = STYLES[piece.plan.style], prof = mixProfile(style.id, piece.mix), tempo = o.tempo ?? piece.plan.tempo;
+  const lofi = piece.fx?.lofi ?? (style.id === "lofi" && !piece.fx?.clean ? LOFI_DUSTY : undefined), period = piece.plan.loop ? (piece.plan.sections.reduce((a, s) => a + s.bars * beatsPerBar(piece.plan.meter), 0) * 60) / tempo : undefined;
+  // gentle masters are one static gain: a pick or hammer spike would hold the whole mix under the ceiling, so struck stems lose their crest, not their level
+  const tg = prof.transient === undefined ? TRANSIENT_DEFAULT : prof.transient, amp = typeof pt.opts?.amp === "number" ? (pt.opts.amp as number) : undefined;
+  const transient = style.master === "gentle" && tg && isStruck(pt.inst, pt.opts) ? tg : undefined;
+  const post: StemPost | undefined = lofi || amp !== undefined || transient ? { id: pt.id, seed: piece.seed, ...(lofi ? { lofi, period } : {}), ...(amp !== undefined ? { amp } : {}), ...(transient ? { transient } : {}) } : undefined;
+  const base = pt.inst === "piano" ? (o.piano ? { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, v1: o.piano } : { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, opts: pt.opts ?? {} })
+    : { kind: "voice" as const, inst: pt.inst, opts: pt.opts, keys, sr, n, seed: piece.seed * 101 + pi, ctx };
+  return post ? { ...base, post } : base;
+};
+/** Synthesize (or reuse) one voice. The caller owns the returned arrays (it mutates them in place). */
+const synth = (j: VoiceJob, cache?: VoiceCache): VoiceOut => {
+  if (!cache) return runVoiceJob(j);
+  const k = voiceJobKey(j); let v = cache.get(k); if (!v) { v = runVoiceJob(j); cache.set(k, v); }
+  return copyOut(v);
+};
+/** The voice jobs a render will run (for a pool that synthesizes them in parallel into a cache first). Mirrors renderLegacy / renderV2 exactly. */
+export const voiceJobs = (piece: Piece, sr: number, o: RenderOpts = {}): VoiceJob[] => {
+  const expressive = o.expressive ?? true, tempo = o.tempo ?? piece.plan.tempo;
+  const perf = o.perf ?? perform(piece, tempo, { expressive, flatVelocity: o.flatVelocity });
+  const n = o.seconds ? Math.round(o.seconds * sr) : Math.ceil((perf.lastOnset + piece.tail) * sr), jobs: VoiceJob[] = [];
+  const kitCtx: KitCtx = piece.legacy ? { legacy: true } : { legacy: false, style: piece.plan.style, choke: chokeTimes(piece.parts.map((pt, pi) => ({ inst: pt.inst, opts: pt.opts, keys: perf.parts[pi].keys }))) };
+  piece.parts.forEach((pt, pi) => {
+    if (o.only && !o.only(pt)) return;
+    const keys = perf.parts[pi].keys; if (!keys.length) return;
+    if (!piece.legacy) jobs.push(v2Job(piece, pt, pi, keys, perf, sr, n, o, kitCtx));
+    else if (pt.inst === "piano") jobs.push({ kind: "piano", keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, v1: o.piano ?? PIANO_REAL });
+    else jobs.push({ kind: "voice", inst: pt.inst, opts: pt.opts, keys, sr, n, seed: piece.seed * 101 + pi, ctx: kitCtx });
+  });
+  return jobs;
+};
 /** dry = the pre-room mix; wet = the room's late tail (for music-box: its single reflection). Kept so the guards can measure reverb-to-dry per bar. */
 export type Rendered = { L: Float32Array; R: Float32Array; perf: Performance; tempo: number; gainDb: number; masterMode: string; stems: Record<string, [Float32Array, Float32Array]>; piece: Piece; dry: [Float32Array, Float32Array]; wet: [Float32Array, Float32Array];
   /** sound v2: what the chain did (gain reduction in dB) */ mixReport?: { drumBusGr?: number; glueGr?: number; limiterGr?: number; transientGr?: number; space?: string } };
@@ -67,7 +127,7 @@ export const renderPiece = (piece: Piece, sr: number, o: RenderOpts = {}): Rende
 /** The pre-v2 render, frozen: the shipped launch score renders through this bit for bit. */
 const renderLegacy = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
   const expressive = o.expressive ?? true, tempo = o.tempo ?? piece.plan.tempo, style = STYLES[piece.plan.style];
-  const perf = perform(piece, tempo, { expressive, flatVelocity: o.flatVelocity });
+  const perf = o.perf ?? perform(piece, tempo, { expressive, flatVelocity: o.flatVelocity });
   const n = o.seconds ? Math.round(o.seconds * sr) : Math.ceil((perf.lastOnset + piece.tail) * sr);
   const L = new Float32Array(n), R = new Float32Array(n), haloL = new Float32Array(n), stems: Record<string, [Float32Array, Float32Array]> = {};
   const sends: [Float32Array, Float32Array, number][] = [];
@@ -78,8 +138,8 @@ const renderLegacy = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered =>
     if (o.only && !o.only(pt)) return;
     const keys = perf.parts[pi].keys; if (!keys.length) return;
     let sL: Float32Array, sR: Float32Array;
-    if (pt.inst === "piano") { const r = renderPiano(keys, perf.pedal, sr, n, o.piano ?? PIANO_REAL, piece.seed + pi); sL = r.L; sR = r.R; if ((o.piano ?? PIANO_REAL).pedal) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
-    else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi, { legacy: true }); sL = r.L; sR = r.R; }
+    if (pt.inst === "piano") { const r = synth({ kind: "piano", keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, v1: o.piano ?? PIANO_REAL }, o.cache); sL = r.L; sR = r.R; if ((o.piano ?? PIANO_REAL).pedal) for (let i = 0; i < n; i++) haloL[i] += r.halo![i] * db(pt.gainDb ?? 0); }
+    else { const r = synth({ kind: "voice", inst: pt.inst, opts: pt.opts, keys, sr, n, seed: piece.seed * 101 + pi, ctx: { legacy: true } }, o.cache); sL = r.L; sR = r.R; }
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     const g = db(pt.gainDb ?? 0);
     if (pt.pan) { const a = Math.max(0, pt.pan), b = Math.max(0, -pt.pan); for (let i = 0; i < n; i++) { sL[i] *= 1 - a * 0.6; sR[i] *= 1 - b * 0.6; } }
@@ -125,7 +185,7 @@ const energy = (L: Float32Array, R: Float32Array) => { let e = 0; for (let i = 0
 const audible = (L: Float32Array, R: Float32Array, sr: number) => energy(Biquad.make(sr, "hp", 40, 0.7071).run(Float32Array.from(L)), Biquad.make(sr, "hp", 40, 0.7071).run(Float32Array.from(R)));
 const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
   const expressive = o.expressive ?? true, tempo = o.tempo ?? piece.plan.tempo, style = STYLES[piece.plan.style], prof: MixProfile = mixProfile(style.id, piece.mix);
-  const perf = perform(piece, tempo, { expressive, flatVelocity: o.flatVelocity });
+  const perf = o.perf ?? perform(piece, tempo, { expressive, flatVelocity: o.flatVelocity });
   const n = o.seconds ? Math.round(o.seconds * sr) : Math.ceil((perf.lastOnset + piece.tail) * sr);
   const L = new Float32Array(n), R = new Float32Array(n), haloL = new Float32Array(n), stems: Record<string, [Float32Array, Float32Array]> = {};
   const dL = new Float32Array(n), dR = new Float32Array(n); // drum bus
@@ -142,13 +202,10 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
     const keys = perf.parts[pi].keys; if (!keys.length) return;
     let sL: Float32Array, sR: Float32Array;
     // piano v2 (keysPiano.ts) unless the caller asks for the v1 model by passing RenderOpts.piano
-    if (pt.inst === "piano") { const old = !!o.piano, r = old ? renderPiano(keys, perf.pedal, sr, n, o.piano!, piece.seed + pi) : renderPianoV2(keys, perf.pedal, sr, n, pt.opts ?? {}, piece.seed + pi); sL = r.L; sR = r.R; if (old ? o.piano!.pedal : pt.opts?.pedal !== false) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
-    else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi, kitCtx); sL = r.L; sR = r.R; }
-    if (lofi) lofiStem(lofi, pt.id, sL, sR, sr, keys.map((k) => k.t), piece.seed, period);
-    if (typeof pt.opts?.amp === "number") ampSim(sL, sR, sr, pt.opts.amp); // a guitar (or any DI) through the amp + cab
-    // gentle masters are one static gain: a pick or hammer spike would hold the whole mix under the ceiling, so struck stems lose their crest, not their level
-    const tg = prof.transient === undefined ? TRANSIENT_DEFAULT : prof.transient;
-    if (style.master === "gentle" && tg && isStruck(pt.inst, pt.opts)) report.transientGr = Math.max(report.transientGr ?? 0, transientGain(sL, sR, sr, tg));
+    // the voice, then its stem processing (lo-fi colour, amp, transient gain): one job (v2Job), cached as a whole
+    const r = synth(v2Job(piece, pt, pi, keys, perf, sr, n, o, kitCtx), o.cache); sL = r.L; sR = r.R;
+    if (pt.inst === "piano" && (o.piano ? o.piano.pedal : pt.opts?.pedal !== false)) for (let i = 0; i < n; i++) haloL[i] += r.halo![i] * db(pt.gainDb ?? 0);
+    if (r.transientGr !== undefined) report.transientGr = Math.max(report.transientGr ?? 0, r.transientGr);
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     // corrective EQ, then match the stem's RMS back (+-3 dB cap): EQ shapes the tone, the fader keeps the calibrated balance
     // the stem meter reads the part as the fader set it (pre-EQ, after its pan): the EQ is energy-neutral in the audible band
@@ -232,18 +289,33 @@ export const master = (L: Float32Array, R: Float32Array, sr: number, masterMode:
  * repeats, pad release) folded back onto the start, then mastered once. Tape wow and flutter are
  * snapped to a whole number of cycles per loop so the pitch drift meets itself at the seam.
  */
-export const renderLoop = (piece: Piece, sr: number): Rendered & { loopS: number } => {
+/** What renderLoop renders before it folds the tail: the loop's piece (no ritard, tape cycles snapped) and its length. */
+export const loopSource = (piece: Piece) => {
   const beats = piece.plan.sections.reduce((a, s) => a + s.bars * beatsPerBar(piece.plan.meter), 0), loopS = (beats * 60) / piece.plan.tempo;
   const snap = (hz: number) => Math.max(1, Math.round(hz * loopS)) / loopS, tp = piece.fx?.tape;
   const p: Piece = { ...piece, plan: { ...piece.plan, loop: true, ritard: 1 }, fx: piece.fx && { ...piece.fx, tape: tp && { ...tp, wowHz: snap(tp.wowHz ?? 0.45), flutterHz: snap(tp.flutterHz ?? 6.2) } } };
-  const r = renderPiece(p, sr, { seconds: loopS + piece.tail, master: "none" }), n = Math.round(loopS * sr), L = r.L.slice(0, n), R = r.R.slice(0, n);
+  return { p, loopS, opts: { seconds: loopS + piece.tail, master: "none" as const } };
+};
+export const renderLoop = (piece: Piece, sr: number, o: { cache?: VoiceCache; stems?: boolean } = {}): Rendered & { loopS: number } => {
+  const { p, loopS, opts } = loopSource(piece);
+  const r = renderPiece(p, sr, { ...opts, cache: o.cache, stems: o.stems }), n = Math.round(loopS * sr), L = r.L.slice(0, n), R = r.R.slice(0, n);
   for (let i = n; i < r.L.length; i++) { L[i - n] += r.L[i]; R[i - n] += r.R[i]; }
   const mode = STYLES[piece.plan.style].master, gainDb = master(L, R, sr, mode, !piece.legacy);
   return { ...r, L, R, gainDb, masterMode: mode, loopS };
 };
 
-/** The score for a film `seconds` long: the piece's own `refit` first (so it still ends on a phrase), then fitToDuration for the tempo. */
-export const fitScore = (piece: Piece, seconds: number) => fitToDuration(piece.refit ? piece.refit(seconds) : piece, seconds);
+/**
+ * Does the piece as written already fit `seconds`? Its last onset plus its tail lands within
+ * max(0.5 s, one beat) of the length, and the tail keeps at least half its ring. Then a fit keeps
+ * the written tempo and form, and the tail takes up the difference: music composed to picture must
+ * not drift off its hits because the final ritard made the last bar a little longer.
+ */
+export const fitsAsWritten = (piece: Piece, seconds: number) => {
+  const slack = seconds - (perform(piece, piece.plan.tempo, { expressive: true }).lastOnset + piece.tail);
+  return Math.abs(slack) <= Math.max(0.5, 60 / piece.plan.tempo) && piece.tail + slack >= 0.5 * piece.tail;
+};
+/** The score for a film `seconds` long: as written when it already fits (fitsAsWritten), else the piece's own `refit` first (so it still ends on a phrase), then fitToDuration for the tempo. */
+export const fitScore = (piece: Piece, seconds: number) => fitToDuration(!fitsAsWritten(piece, seconds) && piece.refit ? piece.refit(seconds) : piece, seconds);
 
 /** Each part's stem level against the piece's targets (unmastered, pre-room: the mix as the parts were set). */
 export const measureStems = (piece: Piece, sr: number, o: RenderOpts = {}, tolDb = 3) => {
@@ -271,6 +343,7 @@ export const limiter = (L: Float32Array, R: Float32Array, sr: number, ceil: numb
 export const fitToDuration = (piece: Piece, seconds: number): { piece: Piece; tempo: number; order: number[]; form: string } => {
   const st = STYLES[piece.plan.style], T0 = piece.plan.tempo, lo = Math.max(st.tempo[0] * 0.9, T0 * 0.82), hi = Math.min(st.tempo[1] * 1.1, T0 * 1.18);
   const secs = piece.plan.sections, want = seconds - piece.tail;
+  if (fitsAsWritten(piece, seconds)) return { piece, tempo: T0, order: secs.map((_, i) => i), form: "full" };
   const solve = (p: Piece) => { let tempo = T0; for (let k = 0; k < 5; k++) tempo *= perform(p, tempo, { expressive: true }).lastOnset / want; return tempo; };
   const opt = secs.map((s, i) => (s.optional ? i : -1)).filter((i) => i >= 0);
   const grp = secs.map((s, i) => (s.repeatable ? i : -1)).filter((i) => i >= 0);
