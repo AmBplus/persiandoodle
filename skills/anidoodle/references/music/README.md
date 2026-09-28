@@ -13,6 +13,9 @@ notes. You compose every note, and nothing is filled in for you. There is no def
 
 Pages:
 - [`compose.md`](compose.md): the workflow, the material format, craft, and the never-reuse rule.
+- [`theory/`](theory/README.md): the craft behind it: melody, harmony, rhythm, mood mapping, form and
+  orchestration, sound (psychoacoustics for voicing and mixing). Cited, and measured by
+  `node tools/music.mjs craft`.
 - [`styles/vocabularies.md`](styles/vocabularies.md): all 21 style vocabularies, the 15 groove
   families and the section kinds. It is generated from the code.
 - [`styles/lofi-electronic.md`](styles/lofi-electronic.md): the lo-fi electronic vocabulary in

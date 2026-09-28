@@ -53,8 +53,18 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
    | `tension` | pad detune wider, string attacks shorter, lead decays shorter |
    | `space` | reverb sends, delay mix, pad release |
 
-   Controls change the sound only. Harmonic tension is yours to write (step 3).
-3. **Compose the harmony.** Work inside the style's harmony language: its modes, chord qualities,
+   Controls change the sound only. Harmonic tension is yours to write (step 4). To choose the tempo,
+   mode, register and density that make a feeling read, see [theory/mood.md](theory/mood.md): tempo
+   and mode are the strongest cues, and several cues pointing the same way make the mood unmistakable.
+3. **Sketch the arc and the motif before any chord.** Write three things down:
+   - **The tension curve.** One number 0..1 per section: it rises, dips just before the peak (a breath
+     or breakdown), peaks on the picture's key frame, then releases. This becomes each section's
+     `energy`, its layers and its harmony (leaning chords before home).
+   - **The climax.** The bar, the highest note of the piece, and the chord under it (home, full layers).
+   - **The motif.** Its rhythm (which beats it avoids, where the long note sits), its contour (one leap,
+     then steps back), and how it will develop across the form: stated, sequenced, fragmented in the
+     build, augmented at the climax, last word at the end ([theory/melody.md](theory/melody.md)).
+4. **Compose the harmony.** Work inside the style's harmony language: its modes, chord qualities,
    tendencies and voicing rule. Decide the key and mode from the mood, not from habit.
    - Write a progression **for this brief**. Choose its length (2, 3, 4, 5, 6 or 8 bars) and its
      harmonic rhythm (one chord per bar, two per bar, or one per two bars) on purpose.
@@ -63,8 +73,11 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
    - Write each chord's bass line (one bar) in the style's bass idiom: held root, root and fifth,
      walking, offbeat 8ths, a syncopated 808 figure. Make the rhythm YOURS.
    - **Tension and release as a curve.** Stable (tonic), moving away (subdominant, relative,
-     borrowed), leaning (dominant, suspension, pedal), home. Put home on the picture's key beat.
-4. **Compose the motif(s).** A motif is 2-5 notes with its own rhythm. Invent the rhythm first:
+     borrowed), leaning (dominant, suspension, pedal), home. Put home on the picture's key beat. End
+     inner sections on half or deceptive cadences, and save the full close for the end
+     ([theory/harmony.md](theory/harmony.md)).
+   - **Spread low, close high.** No close intervals below about C3 ([theory/sound.md](theory/sound.md)).
+5. **Compose the motif(s).** A motif is 2-5 notes with its own rhythm. Invent the rhythm first:
    - Which beats does it avoid?
    - Does it start on an upbeat?
    - Where is the long note?
@@ -80,13 +93,15 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
    - put it in the bass for menace, or high and quiet at the close.
 
    The phrase's high point goes in its second half. A phrase is 2 or 4 bars; a period is two phrases
-   (question, answer). The line must respect the style's range and density.
-5. **Choose or write the groove.** Pick a family from the style's list (`bounce`, `trap`,
+   (question, answer). The line must respect the style's range and density. Put chord tones on strong
+   beats, and put the feeling in appoggiaturas and suspensions that resolve by step.
+6. **Choose or write the groove.** Pick a family from the style's list (`bounce`, `trap`,
    `brushes`, `hand`, ...). Set `density` 0..1, `variation` 0..1 and `fill` (a fill on a section's
    last bar). The seed varies every bar, so no two pieces share a loop. You can also write the drum
    bars yourself as notation, one or more bars per lane: `kick`, `snare`, `ghost`, `hat`, `perc`.
-   Use a second groove for contrast (`half`, `build`).
-6. **Write the form.** Sections are `{ kind, bars, harmony, lead, counter, arp, groove, bass,
+   Use a second groove for contrast (`half`, `build`). Keep the kick and backbeat stable, and syncopate on
+   top of them ([theory/rhythm.md](theory/rhythm.md)).
+7. **Write the form.** Sections are `{ kind, bars, harmony, lead, counter, arp, groove, bass,
    chordVel, energy, repeat, stretch }`.
    - The **kind** sets which layers may sound: intro, verse, groove, hook, build, half, breakdown,
      drop, bridge, swell, breath, outro. See the arrangement grammar in vocabularies.md.
@@ -95,7 +110,33 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
      seconds, and at 30 fps a beat is `1800 / bpm` frames.
    - Mark one section `stretch: true`: a film fit repeats or drops it to reach the exact length and
      still end on your outro.
-7. **Check, render, listen:**
+   - Song and cue forms, builds, and orchestration slots: [theory/form.md](theory/form.md).
+8. **Revise with craft, before you render.** `craft` reads the notes in milliseconds:
+   ```
+   node tools/music.mjs craft <file>.ts#<export>
+   ```
+   - It prints scores (0..1) for melody, harmony, rhythm, tension and mood, the tension curve per
+     section and per bar, and each section's cadence.
+   - Each `CRAFT` line names what it saw, where (bar and beat), and a fix.
+   - Loop: read the findings, revise the notes, run `craft` again. Stop when every remaining
+     finding is one you chose on purpose (an open ending for suspense, parallel fifths in rock). Say
+     which ones in your note to the person.
+   - Compare the printed tension curve with your sketch from step 3. If the peak is not where you
+     planned it, the arrangement is wrong, not the sketch.
+
+   | `craft` says | Usual fix |
+   |---|---|
+   | leaps keep going the same way | turn back by step after a leap |
+   | nothing comes back / exact copies | develop one motif: sequence, vary the last interval, fragment |
+   | phrases don't end on chord tones | land answers on 1, 3 or 5; keep one open question |
+   | the melody peaks early | move the highest note to the second half, on the key frame |
+   | parallel 5ths (common-practice idiom) | contrary motion; hold the common tone |
+   | close intervals below their low limit | spread the voicing: 1-5-3', or lift the upper note an octave |
+   | melody under the chords | voice the chords lower, or the melody higher |
+   | no syncopation (groove idiom) | anticipate a bass or melody note by an eighth |
+   | flat tension curve / no release | change layers, register and harmony by section; release after the peak |
+   | mood cues (tempo, mode, register, density) | move the cue toward the mood, or declare the mood you wrote |
+9. **Check, render, listen:**
    ```
    node tools/music.mjs check <file>.ts#<export> [--fit --seconds 62]   # EVERYTHING, must PASS (below)
    node tools/music.mjs render <file>.ts#<export> out.mp3 --stems       # the file, plus the same report
@@ -108,6 +149,7 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
      gain short;
    - the **ghost, reverb and masking guards**;
    - the stems;
+   - craft (the step-8 report, with brightness measured from the render; only an unplayable range fails);
    - novelty.
 
    It exits non-zero on any failure. `render` prints the same report (stems with `--stems`), except
@@ -197,30 +239,29 @@ mid-bar writes its rest, `C2:3 r:1`, never a silent gap):
 - `@VEL` scales the line's velocity (0..1).
 - In a hand-written piece, a one-bar sting on any beat says so: `line(t, "G6:1", { ..., hit: true })`.
 
-## Craft notes (what makes it good, not just valid)
+## What makes it beautiful (check before you call it done)
 
-- **One idea, developed.** Most memorable scores have one motif, heard 6-12 times, never the same
-  way twice. Two motifs at most; the second answers or contrasts the first.
-- **Contrast by section:**
-  - change the density (layers in and out);
-  - change the register (the motif up an octave);
-  - change the harmonic rhythm (twice as fast into a cadence);
-  - change the groove (half-time).
-
-  A section that only repeats the previous one is dead air.
-- **Cadences on picture beats.** The strongest arrival (home chord, full layers, the motif's peak)
-  goes on the most important frame. The claim, the reveal and the logo each get a structural
-  downbeat. Use a breakdown or a breath (drums out, one bar of silence) right before it.
-- **Tension curve.** Plan energy 0..1 per section before writing notes: rise, a dip before the peak,
-  then release. Match it with density, register and harmony (leaning chords before home).
-- **Endings.** End on a phrase, never on the last frame by accident:
-  - a held home chord with the motif's last word;
-  - a button (a short tutti hit);
-  - an unresolved hold (suspense only).
-- **Mood fit.** Match the mode, tempo and brightness to the words. If the listener names a different
-  emotion from the one you declared, the choice was wrong, not the listener.
-- **Breadth.** Across projects, vary the meter, the harmonic rhythm, the groove family and the form
-  length. Two scores for two products should not be siblings.
+- [ ] **One idea, developed.** One motif, heard 6-12 times, never the same way twice. A second idea
+  answers or contrasts it.
+- [ ] **A line you could sing.** Mostly steps, leaps that turn back, arches, and one high point per
+  phrase group in its second half.
+- [ ] **Questions and answers.** Phrases in 2s and 4s. Questions end open, answers end home.
+- [ ] **Feeling in the dissonance.** Chord tones on the beats. An appoggiatura or suspension where
+  the picture needs an ache, resolved down by step.
+- [ ] **Harmony that moves smoothly.** Common tones held, voices by step, the bass contrary to the
+  tune, the low end spread.
+- [ ] **A groove that breathes.** An anchored kick and backbeat, syncopation on top, rests in the
+  melody, a fill only at section ends.
+- [ ] **An arc.** Contrast by section in density, register, harmonic rhythm and groove. A dip
+  before the peak, the peak on the key frame, then release.
+- [ ] **Cadences on picture beats.** The claim, the reveal and the logo each get a structural
+  downbeat.
+- [ ] **An ending on a phrase:** a held home chord with the motif's last word, a button, or (suspense
+  only) an unresolved hold.
+- [ ] **Mood cues aligned.** Tempo, mode, register, density, articulation and brightness all point
+  at the words. If a listener names a different emotion, the choice was wrong, not the listener.
+- [ ] **Breadth.** Across projects, vary the meter, harmonic rhythm, groove family and form length.
+  Two scores for two products should not be siblings.
 
 ## What checks what
 
@@ -233,6 +274,7 @@ mid-bar writes its rest, `C2:3 r:1`, never a silent gap):
 | reverb guard | `check`, `render` | the late tail sits within 10 dB of the dry sound |
 | masking guard | `check`, `render` | the melody doesn't clear the other parts in 500 Hz-4 kHz |
 | stems | `check`, `render --stems`, `stems` | a part is more than 3 dB off target (lead: up to +6 dB allowed); advisory for uncalibrated styles |
+| craft | `craft`, `check` | (advisory scores and fixes) melody, harmony, rhythm, tension, mood fit; fails only on a note an acoustic instrument cannot play |
 | novelty | `check`, `novelty` | similarity above 0.5 to a shipped piece (or to each other), or a reused 6-note melody fragment |
 
 `tools/music-unit.mjs` keeps the engine honest: determinism, no defaults, every vocabulary renders.

@@ -13,6 +13,8 @@ export * from "./vocab";
 export * from "./vocabTrim";
 export * from "./compose";
 export * from "./novelty";
+export * from "./craft";
+export * from "./craftTables";
 export * from "./calibration";
 export * as instruments from "./instruments";
 export * from "./sfx";
