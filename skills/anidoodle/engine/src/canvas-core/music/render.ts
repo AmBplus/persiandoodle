@@ -15,14 +15,14 @@ import { pumpCurve, lofiStem, lofiMaster, LOFI_DUSTY } from "./lofiFx";
 import { loudness, truePeak, stemBalance } from "./meter";
 import { STYLES } from "./tables";
 import { rng as mkRng } from "../core";
-import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter, ampSim } from "./mixDsp";
+import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter, ampSim, transientGain } from "./mixDsp";
 import { reverb, type Space } from "./mixReverb";
-import { mixProfile, partEq, ROLE_SEND, type MixProfile } from "./mixProfiles";
+import { mixProfile, partEq, ROLE_SEND, isStruck, TRANSIENT_DEFAULT, type MixProfile } from "./mixProfiles";
 
 export type RenderOpts = { /** sound v2, gentle styles only: a <= 1 dB 2:1 glue on the mix bus (spec 08 forbids a compressor on gentle masters; Alex decides) */ gentleGlue?: boolean; expressive?: boolean; piano?: PianoOpts; flatVelocity?: number; seconds?: number; tempo?: number; master?: "auto" | "gentle" | "dense" | "none"; stems?: boolean; only?: (p: Part) => boolean };
 /** dry = the pre-room mix; wet = the room's late tail (for music-box: its single reflection). Kept so the guards can measure reverb-to-dry per bar. */
 export type Rendered = { L: Float32Array; R: Float32Array; perf: Performance; tempo: number; gainDb: number; masterMode: string; stems: Record<string, [Float32Array, Float32Array]>; piece: Piece; dry: [Float32Array, Float32Array]; wet: [Float32Array, Float32Array];
-  /** sound v2: what the chain did (gain reduction in dB) */ mixReport?: { drumBusGr?: number; glueGr?: number; limiterGr?: number; space?: string } };
+  /** sound v2: what the chain did (gain reduction in dB) */ mixReport?: { drumBusGr?: number; glueGr?: number; limiterGr?: number; transientGr?: number; space?: string } };
 
 const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number, ctx: KitCtx = {}) => {
   // Piece.legacy is the one freeze flag: legacy pieces hand every voice `legacy: true` so a rebuilt voice keeps its old path for them
@@ -135,6 +135,7 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
   const pump = dk && byIdx >= 0 ? pumpCurve(perf.parts[byIdx].keys, tempo, sr, n, dk.depth ?? 0.4, dk.release) : null;
   // lo-fi production (lofiFx.ts): a lofi-style piece without its own profile gets the dusty one; a loop's modulations close on its length
   const lofi = piece.fx?.lofi ?? (style.id === "lofi" && !piece.fx?.clean ? LOFI_DUSTY : undefined), period = piece.plan.loop ? (piece.plan.sections.reduce((a, s) => a + s.bars * beatsPerBar(piece.plan.meter), 0) * 60) / tempo : undefined;
+  const report: NonNullable<Rendered["mixReport"]> = {};
   const kitCtx: KitCtx = { legacy: false, style: piece.plan.style, choke: chokeTimes(piece.parts.map((pt, pi) => ({ inst: pt.inst, opts: pt.opts, keys: perf.parts[pi].keys }))) };
   piece.parts.forEach((pt, pi) => {
     if (o.only && !o.only(pt)) return;
@@ -145,6 +146,9 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
     else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi, kitCtx); sL = r.L; sR = r.R; }
     if (lofi) lofiStem(lofi, pt.id, sL, sR, sr, keys.map((k) => k.t), piece.seed, period);
     if (typeof pt.opts?.amp === "number") ampSim(sL, sR, sr, pt.opts.amp); // a guitar (or any DI) through the amp + cab
+    // gentle masters are one static gain: a pick or hammer spike would hold the whole mix under the ceiling, so struck stems lose their crest, not their level
+    const tg = prof.transient === undefined ? TRANSIENT_DEFAULT : prof.transient;
+    if (style.master === "gentle" && tg && isStruck(pt.inst, pt.opts)) report.transientGr = Math.max(report.transientGr ?? 0, transientGain(sL, sR, sr, tg));
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     // corrective EQ, then match the stem's RMS back (+-3 dB cap): EQ shapes the tone, the fader keeps the calibrated balance
     // the stem meter reads the part as the fader set it (pre-EQ): the EQ is energy-neutral in the audible band, while stemRms
@@ -163,7 +167,6 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
     if (toRoom) anyRoom = true;
     if (send > 0) for (let i = 0; i < n; i++) { dst[0][i] += sL[i] * send; dst[1][i] += sR[i] * send; }
   });
-  const report: NonNullable<Rendered["mixReport"]> = {};
   // ---- drum bus: glue the kit (4:1-ish, 3-4 dB on the hits), then oversampled saturation in parallel
   if (anyDrum && prof.drumBus) {
     const b = prof.drumBus; report.drumBusGr = compress(dL, dR, sr, { ratio: b.ratio, attackMs: b.attackMs, releaseMs: b.releaseMs, targetGrDb: b.targetGrDb }).p90GrDb;

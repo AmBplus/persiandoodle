@@ -80,7 +80,11 @@ export type MixProfile = {
   space: Space | null; /** a short room for the drums (sends of role "drum"); null = drums share the main space */ drumRoom: Space | null;
   feel: FeelId;
   /** default sends per role for parts that name none (over ROLE_SEND) */ sends?: Partial<Record<Role, number>>;
+  /** gentle masters only: the transient-aware gain on plucked stems (mixDsp.transientGain; null = off) */ transient?: { maxDb: number; thrDb: number; ratio: number } | null;
 };
+/** The stems whose attacks pin a static gentle master at the true-peak ceiling: plucks, plucked basses, piano. */
+export const isStruck = (inst: InstId, opts?: Record<string, number | boolean | string>) => EQ_CLASS[inst] === "pluck" || EQ_CLASS[inst] === "piano" || (inst === "bass" && opts?.kind !== "synth");
+export const TRANSIENT_DEFAULT = { maxDb: 6, thrDb: 4, ratio: 3 };
 const conv = (rt60: number, predelayMs: number, o: Partial<Space> = {}): Space => ({ kind: "conv", rt60, predelayMs, hp: 220, lp: 8000, er: 0.45, late: 0.32, size: 0.55, highMult: 0.5, lowMult: 1.1, ...o });
 const fdn = (rt60: number, predelayMs: number, o: Partial<Space> = {}): Space => ({ kind: "fdn", rt60, predelayMs, hp: 250, lp: 7500, er: 0.4, late: 0.3, size: 0.5, highMult: 0.45, lowMult: 1.1, mod: 1, ...o });
 const plate = (rt60: number, predelayMs: number, o: Partial<Space> = {}): Space => ({ kind: "plate", rt60, predelayMs, hp: 300, lp: 9000, er: 0, late: 0.3, size: 0.5, highMult: 0.6, mod: 1, ...o });

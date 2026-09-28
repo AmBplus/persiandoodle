@@ -81,6 +81,37 @@ export const ampSim = (L: Float32Array, R: Float32Array, sr: number, drive: numb
   if (e1 > 0) { const k = Math.sqrt(e0 / e1); for (let i = 0; i < L.length; i++) { L[i] *= k; R[i] *= k; } }
 };
 
+/**
+ * Transient-aware gain for one stem (gentle styles: the plucks, plucked basses and piano, whose picks and hammers
+ * pin a static master at the -1 dBTP ceiling 2-3 dB short of -16 LUFS). A fast peak envelope (instant attack, 5 ms
+ * release) against the note's own body (a 20 ms / 150 ms mean level) says how far a sample stands above its body;
+ * only that excess comes down (above `thrDb`, at `ratio`, at most `maxDb`), with a 2 ms look-ahead so the dip lands
+ * on the pick, a 40 ms recovery, and the stem's energy matched back. The body, the decay and the balance between
+ * stems do not move: only the crest of each attack does. Not a compressor on the master (spec 08 forbids that on
+ * gentle styles); gentleGlue stays a separate, default-off decision. Returns the p99 gain reduction in dB.
+ */
+export const transientGain = (L: Float32Array, R: Float32Array, sr: number, o: { maxDb?: number; thrDb?: number; ratio?: number } = {}) => {
+  const n = L.length, maxDb = o.maxDb ?? 6, thr = o.thrDb ?? 4, k = 1 - 1 / (o.ratio ?? 3);
+  let e0 = 0; for (let i = 0; i < n; i++) e0 += L[i] * L[i] + R[i] * R[i];
+  if (e0 <= 0) return 0;
+  const rF = Math.exp(-1 / (0.005 * sr)), aS = Math.exp(-1 / (0.02 * sr)), rS = Math.exp(-1 / (0.15 * sr)), want = new Float32Array(n);
+  let fast = 0, slow = 0;
+  for (let i = 0; i < n; i++) {
+    const a = Math.max(Math.abs(L[i]), Math.abs(R[i]));
+    fast = a > fast ? a : rF * fast; slow = fast > slow ? aS * slow + (1 - aS) * fast : rS * slow + (1 - rS) * fast;
+    const over = slow > 1e-7 ? 20 * Math.log10(fast / slow) - thr : 0;
+    want[i] = over > 0 ? Math.min(maxDb, over * k) : 0;
+  }
+  // look-ahead: the reduction starts 2 ms before the peak it answers (running max over the next window), then a smooth recovery
+  const la = Math.max(1, Math.round(0.002 * sr)), rec = Math.exp(-1 / (0.04 * sr)), g = new Float32Array(n), q: number[] = [];
+  for (let i = n - 1; i >= 0; i--) { while (q.length && want[q[q.length - 1]] <= want[i]) q.pop(); q.push(i); while (q[0] > i + la) q.shift(); g[i] = want[q[0]]; }
+  let cur = 0; const grs: number[] = [];
+  for (let i = 0; i < n; i++) { cur = g[i] > cur ? g[i] : rec * cur + (1 - rec) * g[i]; const m = Math.pow(10, -cur / 20); L[i] *= m; R[i] *= m; if (cur > 0.05 && (i & 63) === 0) grs.push(cur); }
+  let e1 = 0; for (let i = 0; i < n; i++) e1 += L[i] * L[i] + R[i] * R[i];
+  if (e1 > 0) { const m = Math.sqrt(e0 / e1); for (let i = 0; i < n; i++) { L[i] *= m; R[i] *= m; } }
+  grs.sort((a, b) => a - b); return grs.length ? grs[Math.floor(grs.length * 0.99)] : 0;
+};
+
 // ---------------------------------------------------------------- compressor
 export type CompOpts = { ratio: number; attackMs: number; releaseMs: number; kneeDb?: number; /** target gain reduction on the loud passages (p90 of GR while active); the threshold is solved for it */ targetGrDb: number; maxGrDb?: number };
 /** Stereo-linked feed-forward compressor with auto threshold (solved so the loud passages see `targetGrDb`) and RMS makeup. Returns the measured GR stats. */
