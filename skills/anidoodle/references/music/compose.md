@@ -186,7 +186,8 @@ form to the exact length. `score.ts` is an empty skeleton to copy.
   - A timpani in a drum lane (orchestral, choral, suspense, world) is tuned to the tonic of `key`,
     generated grooves included (`epic`).
 
-**Notation** (bar-checked; a bar that doesn't add up throws):
+**Notation** (bar-checked; a bar that doesn't add up throws, the last bar too: a line that ends
+mid-bar writes its rest, `C2:3 r:1`, never a silent gap):
 - A token is `NOTE:DUR[@VEL]` (a pitch name with an octave, e.g. `F#4`), `[NOTE NOTE ...]:DUR` (a
   chord) or `r:DUR` (a rest).
 - Bars are separated by `|`, or given as array items.

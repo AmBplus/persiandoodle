@@ -42,6 +42,8 @@ export type Material = {
   /** seconds of ring-out after the last onset (default 3.2) */ tail?: number; loop?: boolean;
 };
 
+/** line() with the composer's context on its error: which section, slot or chord wrote the bad bar. */
+const lineIn = (where: string, ...a: Parameters<typeof line>) => { try { return line(...a); } catch (e) { throw new Error(`compose: ${where}: ${(e as Error).message}`); } };
 const need = (ok: unknown, msg: string) => { if (!ok) throw new Error(`compose: ${msg} The style supplies sound, never notes: compose it yourself (references/music/compose.md).`); };
 const fmt = (x: number) => String(+x.toFixed(4));
 const lanes: Lane[] = ["kick", "snare", "ghost", "hat", "perc"];
@@ -82,11 +84,11 @@ export const composePiece = (m: Material): Piece => {
   for (let b = 0; b < B; b++) {
     const x = at(b), cv = x.s.chordVel, names = chordAt[b], d = bpb / names.length;
     const src = names.map((n) => `${m.chords[n].voicing}:${fmt(d)}${cv !== undefined ? `@${fmt(cv)}` : ""}`).join(" ");
-    push("chords", line(b * bpb, src, { role: "accomp", v: vel.chords, bpb, roll: 0.03 }));
+    push("chords", lineIn(`section "${x.id}" chords (bar ${b})`, b * bpb, src, { role: "accomp", v: vel.chords, bpb, roll: 0.03 }));
     if (KINDS[x.s.kind].bass) {
       const ov = x.s.bass, bl = ov !== undefined ? (Array.isArray(ov) ? ov[(b - x.from) % ov.length] : ov) : names.length === 1 ? m.chords[names[0]].bass : undefined;
       need(bl !== undefined, names.length > 1 ? `bar ${b} splits into ${names.join(" + ")}: give section "${x.id}" a bass override for it.` : `chord "${names[0]}" (section "${x.id}") has no bass line: add chords["${names[0]}"].bass (one bar), or a section bass override.`);
-      if (bl) push("bass", line(b * bpb, bl, { role: "bass", v: vel.bass, bpb }));
+      if (bl) push("bass", lineIn(`section "${x.id}" bass (bar ${b}${names.length === 1 && ov === undefined ? `, chords["${names[0]}"].bass` : ""})`, b * bpb, bl, { role: "bass", v: vel.bass, bpb }));
     }
     // drums
     const def = KINDS[x.s.kind].drums, gname = x.s.groove === undefined ? def : x.s.groove;
@@ -94,7 +96,7 @@ export const composePiece = (m: Material): Piece => {
       const g = m.grooves?.[gname];
       need(g, `section "${x.id}" (${x.s.kind}) needs a groove "${gname}": add grooves["${gname}"] = { family: one of ${vocab.grooves.join(", ")}, density, variation } or write it (kick/snare/ghost/hat bars), or set groove: null.`);
       const bar = drumBar(g!, meter, m.seed, b, b - x.from, x.s.bars, x.s.energy ?? 0.5);
-      for (const ln of lanes) if (bar[ln]) push(ln, line(b * bpb, bar[ln]!, { role: "drum", v: vel[ln], bpb }));
+      for (const ln of lanes) if (bar[ln]) push(ln, lineIn(`section "${x.id}" ${ln} (bar ${b})`, b * bpb, bar[ln]!, { role: "drum", v: vel[ln], bpb }));
     }
   }
   const warnings: string[] = [];
@@ -105,7 +107,7 @@ export const composePiece = (m: Material): Piece => {
       if (x.s.loopLines) { const reps = Math.ceil(x.s.bars / lb), all = Array.from({ length: reps }, () => src).join(" | ").split("|").map((z) => z.trim()).filter(Boolean); src = all.slice(0, x.s.bars).join(" | "); }
       else if (x.pass === 0) warnings.push(`section "${x.id}": the ${slot} is ${lb} bar(s) in a ${x.s.bars}-bar section; it plays once, then rests (set loopLines: true to repeat it)`);
     }
-    const ns = line(x.from * bpb, src, { role: role(slot), v: vel[slot], bpb });
+    const ns = lineIn(`section "${x.id}" ${slot}`, x.from * bpb, src, { role: role(slot), v: vel[slot], bpb });
     need(ns.every((n) => n.t < x.to * bpb - 1e-9), `the ${slot} line of section "${x.id}" is longer than its ${x.s.bars} bars.`);
     push(slot, ns);
   }
