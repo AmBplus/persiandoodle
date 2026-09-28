@@ -93,7 +93,8 @@ const HOLDS3: [number, number, string?][] = [
 ];
 const ACCEPTED3: [number, number, string][] = [
   [354, 367, "approved as shipped: the koi card sits unchanged for 13 frames between two word pages"],
-  [1080, 1091, "approved as shipped: the brick flight stops and the frame holds for 11 frames before the chat returns"],
+  [1080, 1092, "approved as shipped: the brick flight stops and the frame holds for 12 frames before the chat returns"],
+  [1102, 1103, "approved as shipped: the returned chat settles for one frame before the reference is attached"],
   [1806, 1943, "approved as shipped: the butterfly film plays at 0.6x by repeating frames"],
   [1955, 1975, "approved as shipped: the butterfly fades to empty paper and the page waits before the sentence"],
 ];
