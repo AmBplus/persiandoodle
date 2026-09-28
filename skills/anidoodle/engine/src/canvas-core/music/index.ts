@@ -5,6 +5,7 @@ export * from "./plan";
 export * from "./perform";
 export * from "./piano";
 export * from "./render";
+export { kth } from "./mixDsp";
 export * from "./meter";
 export * from "./guards";
 export * from "./score-text";

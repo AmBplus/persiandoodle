@@ -4,12 +4,26 @@
 //   truePeak  4x oversampled (windowed-sinc polyphase), dBTP
 //   onsets    spectral flux with a max-filtered previous frame (SuperFlux-style), adaptive threshold
 //   centroid  magnitude-weighted spectral centroid, averaged over non-silent frames
-export const fft = (re: Float64Array, im: Float64Array) => {
-  const n = re.length;
-  for (let i = 1, j = 0; i < n; i++) { let bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+/** Per size: the bit-reversal swaps and, per stage, the twiddles exactly as the butterfly loop's recurrence makes them (so the tables change speed, not a single bit). */
+const FFT_PLAN = new Map<number, { swaps: Int32Array; tw: { r: Float64Array; i: Float64Array }[] }>();
+const fftPlan = (n: number) => {
+  let p = FFT_PLAN.get(n); if (p) return p;
+  const sw: number[] = [];
+  for (let i = 1, j = 0; i < n; i++) { let bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) sw.push(i, j); }
+  const tw: { r: Float64Array; i: Float64Array }[] = [];
   for (let len = 2; len <= n; len <<= 1) {
-    const ang = (-2 * Math.PI) / len, wr = Math.cos(ang), wi = Math.sin(ang);
-    for (let i = 0; i < n; i += len) { let cr = 1, ci = 0; for (let j = 0; j < len / 2; j++) { const a = i + j, b = a + len / 2, xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr; re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi; const t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t; } }
+    const ang = (-2 * Math.PI) / len, wr = Math.cos(ang), wi = Math.sin(ang), h = len / 2, r = new Float64Array(h), im = new Float64Array(h); let cr = 1, ci = 0;
+    for (let j = 0; j < h; j++) { r[j] = cr; im[j] = ci; const t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t; }
+    tw.push({ r, i: im });
+  }
+  p = { swaps: Int32Array.from(sw), tw }; FFT_PLAN.set(n, p); return p;
+};
+export const fft = (re: Float64Array, im: Float64Array) => {
+  const n = re.length, { swaps, tw } = fftPlan(n);
+  for (let s = 0; s < swaps.length; s += 2) { const i = swaps[s], j = swaps[s + 1]; let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+  for (let len = 2, st = 0; len <= n; len <<= 1, st++) {
+    const h = len / 2, twr = tw[st].r, twi = tw[st].i;
+    for (let i = 0; i < n; i += len) for (let j = 0; j < h; j++) { const cr = twr[j], ci = twi[j], a = i + j, b = a + h, xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr; re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi; }
   }
 };
 

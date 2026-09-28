@@ -34,7 +34,12 @@ export class Biquad {
     bq.b0 = b0 / a0; bq.b1 = b1 / a0; bq.b2 = b2 / a0; bq.a1 = a1 / a0; bq.a2 = a2 / a0; return bq;
   }
   tick(x: number) { const y = this.b0 * x + this.b1 * this.x1 + this.b2 * this.x2 - this.a1 * this.y1 - this.a2 * this.y2; this.x2 = this.x1; this.x1 = x; this.y2 = this.y1; this.y1 = y; return y; }
-  run(buf: Float32Array) { for (let i = 0; i < buf.length; i++) buf[i] = this.tick(buf[i]); return buf; }
+  /** tick() over a buffer, with the state in locals: the same operations in the same order, so bit-identical, several times faster */
+  run(buf: Float32Array) {
+    const { b0, b1, b2, a1, a2 } = this; let { x1, x2, y1, y2 } = this;
+    for (let i = 0; i < buf.length; i++) { const x = buf[i], y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = x; y2 = y1; y1 = y; buf[i] = y; }
+    this.x1 = x1; this.x2 = x2; this.y1 = y1; this.y2 = y2; return buf;
+  }
 }
 export const onePoleCoef = (sr: number, f: number) => 1 - Math.exp((-TAU * f) / sr);
 

@@ -115,6 +115,16 @@ export const transientGain = (L: Float32Array, R: Float32Array, sr: number, o: {
 // ---------------------------------------------------------------- compressor
 export type CompOpts = { ratio: number; attackMs: number; releaseMs: number; kneeDb?: number; /** target gain reduction on the loud passages (p90 of GR while active); the threshold is solved for it */ targetGrDb: number; maxGrDb?: number };
 /** Stereo-linked feed-forward compressor with auto threshold (solved so the loud passages see `targetGrDb`) and RMS makeup. Returns the measured GR stats. */
+/** The k-th smallest of a[0..m) (Hoare quickselect, reorders a in place): the value a sort would put at index k. */
+export const kth = (a: Float64Array, m: number, k: number) => {
+  let lo = 0, hi = m - 1;
+  while (lo < hi) {
+    const x = a[(lo + hi) >> 1]; let i = lo, j = hi;
+    while (i <= j) { while (a[i] < x) i++; while (a[j] > x) j--; if (i <= j) { const t = a[i]; a[i] = a[j]; a[j] = t; i++; j--; } }
+    if (k <= j) hi = j; else if (k >= i) lo = i; else return a[k];
+  }
+  return a[k];
+};
 export const compress = (L: Float32Array, R: Float32Array, sr: number, o: CompOpts) => {
   const n = L.length, W = o.kneeDb ?? 6, slope = 1 / o.ratio - 1;
   // detector: peak-ish level in dB (fast 1 ms attack, 40 ms release on the absolute value)
@@ -123,10 +133,11 @@ export const compress = (L: Float32Array, R: Float32Array, sr: number, o: CompOp
   if (mx < -80) return { thresholdDb: 0, p90GrDb: 0, maxGrDb: 0 };
   const gc = (x: number, T: number) => { const ov = x - T; if (2 * ov < -W) return 0; if (2 * Math.abs(ov) <= W) return (slope * (ov + W / 2) ** 2) / (2 * W); return slope * ov; };
   const ga = Math.exp(-1 / ((o.attackMs / 1000) * sr)), gr = Math.exp(-1 / ((o.releaseMs / 1000) * sr));
+  const act = new Float64Array(n + 1);
   const run = (T: number, out?: Float32Array, step = 1) => {
-    let g = 0; const act: number[] = [], ga2 = Math.pow(ga, step), gr2 = Math.pow(gr, step);
-    for (let i = 0; i < n; i += step) { const c = gc(det[i], T); g = c < g ? ga2 * g + (1 - ga2) * c : gr2 * g + (1 - gr2) * c; if (out) out[i] = g; if (det[i] > mx - 30) act.push(-g); }
-    act.sort((a, b) => a - b); return act.length ? act[Math.floor(act.length * 0.9)] : 0;
+    let g = 0, m = 0; const ga2 = Math.pow(ga, step), gr2 = Math.pow(gr, step);
+    for (let i = 0; i < n; i += step) { const c = gc(det[i], T); g = c < g ? ga2 * g + (1 - ga2) * c : gr2 * g + (1 - gr2) * c; if (out) out[i] = g; if (det[i] > mx - 30) act[m++] = -g; }
+    return m ? kth(act, m, Math.floor(m * 0.9)) : 0; // the 90th percentile: the same value a full sort puts there, in linear time
   };
   // bisection on the threshold: p90 GR is monotone in T
   let lo = mx - 40, hi = mx + 1; const step = Math.max(1, Math.floor(sr / 6000));
