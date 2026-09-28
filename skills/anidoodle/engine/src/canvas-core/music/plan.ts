@@ -12,7 +12,7 @@ export const isCompound = (m: Meter) => m === "6/8" || m === "9/8" || m === "12/
 export type Role = "melody" | "inner" | "bass" | "accomp" | "color" | "drum";
 /** t, d in beats from the piece start; p = MIDI; v = written velocity 0..1 (performance shapes it). */
 export type Note = { t: number; d: number; p: number; v: number; role: Role; roll?: number; kind?: string };
-export type InstId = "piano" | "musicBox" | "bell" | "celesta" | "marimba" | "vibes" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "pulse" | "triangle" | "noiseDrum" | "kick" | "snare" | "hat" | "bass" | "vinyl" | "warmPad" | "softPluck" | "sub" | "organ" | "brass" | "woodwind" | "choir" | "timpani" | "leadSynth" | "bowedSolo";
+export type InstId = "piano" | "musicBox" | "bell" | "celesta" | "marimba" | "vibes" | "harp" | "guitar" | "strings" | "fmBell" | "ePiano" | "pulse" | "triangle" | "noiseDrum" | "kick" | "snare" | "hat" | "bass" | "vinyl" | "warmPad" | "softPluck" | "sub" | "organ" | "brass" | "woodwind" | "choir" | "timpani" | "leadSynth" | "bowedSolo" | "glockenspiel" | "wurlitzer" | "pipeOrgan";
 export type Part = { id: string; inst: InstId; role: Role; notes: Note[]; gainDb?: number; pan?: number; opts?: Record<string, number | boolean | string>; send?: number };
 export type Section = {
   id: string; bars: number; mood: MoodId | [MoodId, MoodId, number]; key: string; mode: ModeId; melody: MelodyType[];
@@ -29,6 +29,7 @@ export type Chord = { t: number; name: string };
 /** Bus moves (lofiKit): `duck` pumps the named parts on every onset of the `by` part; `tape` wobbles and saturates the master. */
 export type PieceFx = { clean?: boolean /* skip the lo-fi master tone (low-pass, shelf, saturation) */; duck?: { by: string; parts: string[]; depth?: number; release?: number }; tape?: { wowCents?: number; wowHz?: number; flutterCents?: number; flutterHz?: number; drive?: number } };
 export type Piece = { title: string; plan: MusicPlan; parts: Part[]; harmony: Chord[]; tail: number; seed: number; fx?: PieceFx;
+  /** render with the pre-2026-09-28 voices, bit-for-bit (the shipped launch films); everything else gets the rebuilt sound */ legacy?: boolean;
   /** a shorter complete form of the same music, chosen automatically when the film is too short for this one */ shortForm?: () => Piece;
   /** rebuild the same music for a film `seconds` long so it still ends on its phrase (lofiElectronic: loop cycles added or removed); `fitScore` calls it before fitToDuration */ refit?: (seconds: number) => Piece;
   /** composer-facing notes from compose (a line shorter than its section, ...): printed by tools/music.mjs check */ warnings?: string[];
