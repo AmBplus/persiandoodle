@@ -8,7 +8,7 @@ import type { ModeId } from "./theory";
 import type { MoodId, StyleId, MelodyType } from "./tables";
 import { pcOf } from "./theory";
 import { perform } from "./perform";
-import { drumBar, type Groove, type Lane } from "./grooves";
+import { drumBar, laneKind, type Groove, type Lane } from "./grooves";
 import { VOCAB_TRIM, VOCAB_TARGET_FIX } from "./vocabTrim";
 import { VOCAB, KINDS, BASE_SLOTS, resolveVoice, moodVoice, moodFx, fullMood, type Slot, type Voice, type SectionKind, type MoodControls } from "./vocab";
 import type { MixProfile } from "./mixProfiles";
@@ -99,7 +99,7 @@ export const composePiece = (m: Material): Piece => {
       const g = m.grooves?.[gname];
       need(g, `section "${x.id}" (${x.s.kind}) needs a groove "${gname}": add grooves["${gname}"] = { family: one of ${vocab.grooves.join(", ")}, density, variation } or write it (kick/snare/ghost/hat bars), or set groove: null.`);
       const bar = drumBar(g!, meter, m.seed, b, b - x.from, x.s.bars, x.s.energy ?? 0.5);
-      for (const ln of lanes) if (bar[ln]) push(ln, lineIn(`section "${x.id}" ${ln} (bar ${b})`, b * bpb, bar[ln]!, { role: "drum", v: vel[ln], bpb }));
+      for (const ln of lanes) if (bar[ln]) push(ln, lineIn(`section "${x.id}" ${ln} (bar ${b})`, b * bpb, bar[ln]!, { role: "drum", v: vel[ln], bpb, kind: laneKind(g!, ln) }));
     }
   }
   const warnings: string[] = [];

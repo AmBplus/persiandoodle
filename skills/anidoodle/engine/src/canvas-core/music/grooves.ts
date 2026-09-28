@@ -45,11 +45,11 @@ const grid = (meter: Meter, triplet: boolean) => {
 };
 const round = (x: number) => +x.toFixed(3);
 /** Hits (step -> velocity multiplier) to one bar of notation. */
-export const stepsToLine = (hits: Map<number, number>, steps: number, per: number): string | null => {
+export const stepsToLine = (hits: Map<number, number>, steps: number, per: number, pitch?: Map<number, string>): string | null => {
   const at = [...hits.keys()].filter((s) => s >= 0 && s < steps).sort((a, b) => a - b); if (!at.length) return null;
   const d = (n: number) => (per === 3 ? `${n}/3` : String(n / per)); // exact: fractions for triplets, decimals for 16ths
   const toks: string[] = []; if (at[0] > 0) toks.push(`r:${d(at[0])}`);
-  at.forEach((s, i) => { const nx = i + 1 < at.length ? at[i + 1] : steps; toks.push(`C4:${d(nx - s)}@${round(Math.min(1, Math.max(0.05, hits.get(s)!)))}`); });
+  at.forEach((s, i) => { const nx = i + 1 < at.length ? at[i + 1] : steps; toks.push(`${pitch?.get(s) ?? "C4"}:${d(nx - s)}@${round(Math.min(1, Math.max(0.05, hits.get(s)!)))}`); });
   return toks.join(" ");
 };
 
@@ -171,13 +171,24 @@ export const grooveBar = (g: GrooveChoice, meter: Meter, seed: number, abs: numb
       break;
     }
   }
-  if (g.fill && pos === len - 1) { const f0 = steps - per; for (let s = f0; s < steps; s++) S.set(s, 0.45 + 0.5 * ((s - f0) / per)); }
+  // the fill: kit families roll down the toms (GM notes: high tom D3, mid B2 / A2, floor G2 / F2); machine and orchestral ones stay on the snare
+  const toms = new Map<number, string>();
+  if (g.fill && pos === len - 1) { const f0 = steps - per, TOMS = per === 3 ? ["D3", "A2", "F2"] : ["D3", "B2", "A2", "G2"], onToms = TOM_FILL.has(g.family);
+    for (let s = f0; s < steps; s++) { S.set(s, 0.45 + 0.5 * ((s - f0) / per)); if (onToms) toms.set(s, TOMS[s - f0]); } }
   const out: DrumBar = {};
-  for (const [lane, m] of [["kick", K], ["snare", S], ["ghost", Gh], ["hat", H], ["perc", P]] as [Lane, Map<number, number>][]) out[lane] = stepsToLine(m, steps, per);
+  for (const [lane, m] of [["kick", K], ["snare", S], ["ghost", Gh], ["hat", H], ["perc", P]] as [Lane, Map<number, number>][]) out[lane] = stepsToLine(m, steps, per, lane === "snare" ? toms : undefined);
   return out;
 };
 
 export const isLiteral = (g: Groove): g is LiteralGroove => !("family" in g);
+const TOM_FILL = new Set<GrooveFamily>(["rock", "bounce", "halfTime", "broken", "shuffle", "swing", "epic", "tension"]);
+/** What each lane of a family IS, as a note kind for the kit voice (drums.ts): a fourFloor snare lane is a clap, a swing hat lane a ride. */
+const LANE_KIND: Partial<Record<GrooveFamily, Partial<Record<Lane, string>>>> = {
+  fourFloor: { snare: "clap", perc: "open" }, skip: { snare: "clap", perc: "shaker" }, trap: { snare: "clap", perc: "open" }, halfTime: { perc: "open" }, shuffle: { perc: "open" },
+  swing: { hat: "ride", perc: "pedal" }, brushes: { ghost: "cross", perc: "sweep" }, pulse: { perc: "shaker" }, rock: { perc: "crash" }, epic: { perc: "crash" }, build: { perc: "crash" },
+  hand: { kick: "dum", ghost: "tek", perc: "ka" }, tension: { perc: "ride" },
+};
+export const laneKind = (g: Groove, lane: Lane): string => (isLiteral(g) ? undefined : LANE_KIND[g.family]?.[lane]) ?? (lane === "perc" ? "perc" : lane);
 /** One bar of any groove (literal lanes cycle on the absolute bar). */
 export const drumBar = (g: Groove, meter: Meter, seed: number, abs: number, pos: number, len: number, energy?: number): DrumBar => {
   if (!isLiteral(g)) return grooveBar(g, meter, seed, abs, pos, len, energy);

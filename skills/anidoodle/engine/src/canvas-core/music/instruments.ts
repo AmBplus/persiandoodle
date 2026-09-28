@@ -2,6 +2,7 @@
 // presses in seconds. Presets are numbers in one place (the constants at the top of each voice).
 import { type Rng, TAU, clamp, pan, SVF, Biquad, blep, onePoleCoef, gauss } from "./dsp";
 import type { Played } from "./perform";
+import { kitVoice, type KitCtx } from "./drums";
 
 type Out = { L: Float32Array; R: Float32Array };
 type Opts = Record<string, number | boolean | string>;
@@ -178,25 +179,31 @@ export const triangle = (keys: Played[], sr: number, n: number): Out => {
   }
   return out;
 };
+/** Drum-lane kinds (grooves.laneKind) to the NES channel's three sounds. */
+const NES_KIND: Record<string, "k" | "s" | "h"> = { k: "k", s: "s", h: "h", o: "s", kick: "k", dum: "k", snare: "s", ghost: "s", clap: "s", cross: "s", brush: "s", sweep: "s", tek: "s", hat: "h", open: "h", pedal: "h", ride: "h", shaker: "h", crash: "h", ka: "h" };
 /** NES noise channel: a 15-bit LFSR (long mode for snare/kick, short 93-step mode for hats). */
 export const noiseDrum = (keys: Played[], sr: number, n: number): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) };
   for (const k of keys) {
-    const kind = k.kind ?? "s", i0 = Math.round(k.t * sr); let reg = 1, acc = 0;
+    const kind = NES_KIND[k.kind ?? "s"] ?? "s", i0 = Math.round(k.t * sr); let reg = 1, acc = 0;
     const rate = kind === "h" ? 32000 : kind === "k" ? 3500 : 11000, dec = kind === "h" ? 0.028 : kind === "k" ? 0.07 : 0.11, short = kind === "h";
     const len = Math.min(n - i0, Math.ceil(dec * 6 * sr)); let out1 = 1;
     for (let i = 0; i < len; i++) {
       acc += rate / sr; while (acc >= 1) { acc -= 1; const bit = (reg ^ (reg >> (short ? 6 : 1))) & 1; reg = (reg >> 1) | (bit << 14); out1 = reg & 1 ? 1 : -1; }
       const t = i / sr, e = Math.round(Math.exp(-t / dec) * 15) / 15;
-      let y = out1 * e * k.v * (kind === "h" ? 0.07 : 0.14);
-      if (kind === "k") { const fq = 55 + 110 * Math.exp(-t / 0.03); y += Math.sin(TAU * fq * t) * Math.exp(-t / 0.09) * k.v * 0.4; }
+      let y = out1 * e * k.v * (kind === "h" ? 0.07 : kind === "k" ? 0.08 : 0.14);
+      if (kind === "k") { const fq = 55 + 110 * Math.exp(-t / 0.03); y += Math.sin(TAU * fq * t) * Math.exp(-t / 0.09) * k.v * 0.22; }
       out.L[i0 + i] += y; out.R[i0 + i] += y;
     }
   }
   return out;
 };
 
-// ---------------------------------------------------------------- drums and bass (soft kit)
+// ---------------------------------------------------------------- drums
+/** The kit lanes. New sound: drums.ts (six kit characters). A legacy piece (Piece.legacy, the shipped launch film) or `legacy: true` on the part keeps the original soft kit below, bit for bit. */
+export const drumVoice = (inst: string, keys: Played[], sr: number, n: number, o: Opts, r: Rng, ctx: KitCtx = {}): Out =>
+  ctx.legacy || o.legacy === true ? (inst === "kick" ? kick(keys, sr, n, o) : inst === "snare" ? snare(keys, sr, n, o, r) : hat(keys, sr, n, o, r)) : kitVoice(inst, keys, sr, n, o, r, ctx);
+// ---------------------------------------------------------------- legacy soft kit, and bass
 export const kick = (keys: Played[], sr: number, n: number, o: Opts): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, soft = num(o, "soft", 1);
   for (const k of keys) { const i0 = Math.round(k.t * sr), len = Math.min(n - i0, Math.ceil(0.5 * sr)); let ph = 0;
