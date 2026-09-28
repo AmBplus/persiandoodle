@@ -7,7 +7,8 @@
 // returning either); or the name of a shipped demo (listening references, never a film's score).
 //
 //   node tools/music.mjs vocab [style]              # the style vocabularies: palette, grooves, harmony, melody, arrangement
-//   node tools/music.mjs check <piece> [--fit --seconds N]  # everything: key/mode, warnings, master, ghost/reverb/masking guards, stems, novelty
+//   node tools/music.mjs check <piece> [--fit --seconds N]  # everything: key/mode, warnings, master, ghost/reverb/masking guards, stems, craft, novelty
+//   node tools/music.mjs craft <piece> [more ...] [--json]  # how it is WRITTEN: melody, harmony, rhythm, tension, mood fit (no render, advisory; errors fail)
 //   node tools/music.mjs novelty <piece> [more ...]  # vs every shipped piece (and pairwise when several); FAILS above the threshold or on a reused fragment
 //   node tools/music.mjs list                       # shipped demos and fixtures
 //   node tools/music.mjs render <piece> <out.wav|out.mp3> [--seconds 45] [--flat] [--tempo 66] [--fit] [--loop] [--stems]
@@ -129,11 +130,19 @@ const main = async () => {
     }
     if (fail) process.exitCode = 1; return;
   }
+  if (cmd === "craft") {
+    let fail = false;
+    for (const ref of args.filter((a) => !a.startsWith("--"))) { const piece = (await getPiece(M, ref)).make(), r = M.craftReport(piece);
+      if (flag("--json")) console.log(JSON.stringify({ piece: ref, ...r }, null, 1)); else console.log(`${ref}\n${M.craftText(r)}`);
+      fail = fail || r.findings.some((f) => f.level === "error"); }
+    if (fail) process.exitCode = 1; return;
+  }
   if (cmd === "check") {
     const pc = await getPiece(M, args[0]); let piece = pc.make(), tempo = piece.plan.tempo, seconds = val("--seconds", undefined);
     if (flag("--fit")) { const f = M.fitScore(piece, seconds); piece = f.piece; tempo = f.tempo; }
     const r = piece.plan.loop ? M.renderLoop(piece, SR) : M.renderPiece(piece, SR, { seconds, tempo });
     const ok = [report(M, r, piece), printStems(M, piece, tempo, seconds)?.ok !== false];
+    { const cr = M.craftReport(piece, { centroidHz: M.centroid([r.L, r.R], SR).mean }); console.log(M.craftText(cr)); ok.push(!cr.findings.some((f) => f.level === "error")); }
     if (!pc.demo) { const fam = [args[0]]; ok.push(printNovelty(M, args[0], M.novelty(piece, M.DEMOS, fam), "shipped pieces")); }
     console.log(ok.every(Boolean) ? "CHECK PASS: now a human listens (an mp3 or wav on a page)" : "CHECK FAIL: fix the items above, then run check again");
     if (!ok.every(Boolean)) process.exitCode = 1; return;
