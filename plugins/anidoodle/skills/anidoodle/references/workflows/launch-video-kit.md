@@ -46,13 +46,15 @@ muted), the camera easing out for the press, an ink drop arcing from Generate in
 and blooming open into a card where the plate draws itself live, the thread keeping earlier
 answers and scrolling, a gentle lean onto each new card, full-frame word pages between asks,
 and the end card blooming open and holding. The corner mark (your name, hand-lettered) steps
-aside before any lean. Real holds are declared, so the gate passes. The score is fitted to the
-film (`fitScore`: its stretch section repeated or dropped, the tempo trimmed) so it ends on its
-outro at the last frame, then set to -14 LUFS with the true peak at or under -1 dBTP
-(`musicBed`). Render prints the loudness and the fitted tempo beside the grid's bpm: compose at
-the film's bpm with a 1-bar stretch section (or set the Material's `tail`) so they stay within
-2 %, or the cuts drift off the downbeats. A dynamic piece stops at the peak ceiling first and
-render says how far short; `limit: true` lets a look-ahead limiter take those peaks instead.
+aside before any lean. Real holds are declared, so the gate passes. Sync wins over length: the
+score plays at the film's bpm exactly, so every cut sits on its downbeats, and the film is made
+whole bars of the score (`gridScore`: the stretch section repeated or dropped, then the end-card
+hold, which is a hold, grows or shrinks to the bar; the tail rings out in whole bars). A score in
+4/4 with no pickup, starting on frame 0. If no form fits, the build throws: compose a 1-bar
+stretch section or change askBeats/endBeats. Render refuses a beat-grid film whose score is more
+than 0.5 % off its bpm. The bed is set to -14 LUFS with the true peak at or under -1 dBTP
+(`musicBed`); a dynamic piece stops at the peak ceiling first and render says how far short;
+`limit: true` lets a look-ahead limiter take those peaks instead.
 
 **The plates and the score are made for this product, every time.** A style is a recipe applied
 to the user's subject (`references/styles.md`): draw their dashboard, their mascot, their
