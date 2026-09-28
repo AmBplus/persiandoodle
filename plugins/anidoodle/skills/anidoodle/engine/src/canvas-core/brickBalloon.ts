@@ -350,7 +350,9 @@ const drawFrame = (ctx: Ctx, fr: number, env: Env) => {
 export const STYLE = { id: "brickBalloon", name: "Toy brick, from crayon, flying", family: "rendered", medium: "the crayon balloon turned into a toy-brick mosaic, rebuilt in moulded ABS bricks, then flown over a brick world", nearest: "toyBrick", hero: "the crayon hot-air balloon rebuilt in bricks, lifting off", sceneOf: "toyBrick" };
 
 export const brickBalloon: Film = {
-  meta: { title: "Balloon · crayon to bricks, and away", W, H, fps: FPS, bpm: 90, durationFrames: N, raster: "cpu" },
+  // held: the crayon plate seen whole before the wave turns it to bricks (0-33), the finished mosaic
+  // resting before it lets go (75-82), the built balloon standing complete before the burner lights (190-194)
+  meta: { title: "Balloon · crayon to bricks, and away", W, H, fps: FPS, bpm: 90, durationFrames: N, raster: "cpu", kind: "story", holds: [[0, 34], [75, 83], [190, 195]] },
   assets: { images: {} },
   shots: [{ id: "flight", start: 0, end: N, draw: drawFrame }],
 };

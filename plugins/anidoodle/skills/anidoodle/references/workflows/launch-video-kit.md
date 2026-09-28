@@ -35,9 +35,10 @@ Add `src/hosts/page-myLaunch.ts` (three lines, copy `page-launchExample.ts`), th
 
 ```bash
 node tools/still.mjs myLaunch --frame 0 --out out/poster.png   # the first frame is the thumbnail
-node tools/render.mjs myLaunch
+node tools/still.mjs myLaunch --frames 0-420:30 --sheet out/sheet.jpg   # the cut on one sheet, one browser
+node tools/render.mjs myLaunch                  # --poster-frame N if frame 0 is quiet
 node tools/gate.mjs myLaunch
-node tools/verify-export.mjs myLaunch --file out/myLaunch.mp4
+node tools/verify-export.mjs myLaunch --file out/myLaunch.mp4 --delivery
 ```
 
 What you get: the first prompt already being typed at frame 0 in a close-up (a hook that reads
@@ -109,7 +110,9 @@ zooms to each click, with the pointer and input log driving the page's own state
 ## Worked example
 
 `launch2.ts` is anidoodle's content timeline (chat, koi with its code streaming, the wall, the
-brick balloon, the almond hand, the embroidery loop, the web tour, the butterfly film, the end
-card); `launch3.ts` is the cut: data segments spliced with type frames, 77 s on the score's 29
-bars. Study them for pacing, then build yours on the template with your own pictures and your
-own music; anidoodle's launch is one example of the grammar, not a skin to reuse.
+brick balloon, the almond hand (Van Gogh's public-domain *Almond Blossom* as the attached
+reference, `engine/assets/refs/` with its `PROVENANCE.json`; `adapt-a-style.md`), the embroidery
+loop, the web tour, the butterfly film, the end card); `launch3.ts` is the cut: data segments
+spliced with type frames, 77 s on the score's 29 bars. Study them for pacing, then build yours on
+the template with your own pictures and your own music; anidoodle's launch is one example of the
+grammar, not a skin to reuse.

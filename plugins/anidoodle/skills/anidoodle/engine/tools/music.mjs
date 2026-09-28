@@ -12,7 +12,7 @@
 //   node tools/music.mjs list                       # shipped demos and fixtures
 //   node tools/music.mjs render <piece> <out.wav|out.mp3> [--seconds 45] [--flat] [--tempo 66] [--fit] [--loop] [--stems]
 //   node tools/music.mjs stems <piece> [--seconds 45] [--fit]   # each part's stem RMS vs its target, flags > 3 dB off
-//     (--fit uses fitScore: the piece's refit, e.g. lofiElectronic adds loop cycles so it still ends on its outro;
+//     (--fit uses fitScore: the piece's refit, e.g. a composed score repeats its stretch section so it still ends on its outro;
 //      --loop renders a seamless loop, automatic for a plan.loop piece. LUFS alone once hid a sub 7-10 dB too hot:
 //      balance a mix by its stems, then master.)
 //   node tools/music.mjs meter <file.wav|file.mp4> [more files]

@@ -60,10 +60,25 @@ None of that was drawing. These habits cut it by an order of magnitude:
   sheet with three to six variants side by side, picked in one message.
 - **Timelines as data.** Scenes on one content timeline, the cut as a list of segments
   (`launchCut.ts`). Re-timing edits the list; scene code and its reviews stay valid.
-- **Range renders.** `render.mjs <film> --from F --to F` renders only the passage you changed
-  (it writes `out/<film>.<from>-<to>.mp4`, never over the finished film).
-<!-- TODO(A): confirm the still.mjs multi-frame flag and the plate cache name/location once they land on integ/launch-kit -->
-- **Many stills, one browser.** `still.mjs <film> --frames a,b,c` draws several frames in one
-  page; one browser per still costs seconds each.
-- **Plate cache.** Baked plates are cached on disk, so a wall of 31 live plates stops
-  re-baking (about 60 s) on every still.
+- **Range renders.** `render.mjs <film> --from F --to T` renders frames `[F, T)` only, silent
+  (the score would not line up), and writes `out/<film>.<F>-<T>.mp4`; it refuses an `--out`
+  that is the finished film. For review, not for shipping.
+- **Many stills, one browser.** `still.mjs <film> --frames 0,700,1500` draws every listed frame
+  in one page (one build, one launch, plates baked once); ranges work too, `--frames 0-300:50`
+  is every 50th frame from 0 to 300. Add `--sheet out/sheet.jpg` for a contact sheet of them at
+  `--sheet-scale` (default 0.4). `--out out/dir/` or `--out out/x-{frame}.png` names the PNGs.
+- **Plate cache.** Finished plate frames are kept in `engine/.cache/bakes/<browser version>/`,
+  keyed by a hash of the plate's whole import closure, so a wall of 31 live plates stops
+  re-baking (about 60 s) on every still, and an edited plate simply misses and is drawn again.
+  It is never needed: delete `.cache/` any time. `--no-bake-cache` (or `ANIDOODLE_BAKE_CACHE=0`)
+  draws every plate cold, which is what to do when you suspect the cache.
+- **Frame-exact comparisons.** `render.mjs --hashes out/x.md5` writes the md5 of every frame
+  before the encoder touches it; diff two of those files to prove an engine change left a film
+  byte-identical, or to find the first frame it moved.
+- **Holds are declared, never absorbed.** A word being read, an end card, a loop being watched:
+  put the range in `meta.holds` with its reason in a comment. The gate's dead-air check then
+  knows the stillness is meant. Anything else that sits still is a dead wait: cut it. If the
+  film is already approved, name it in `meta.locked` with its reason instead; the gate prints it
+  and keeps failing, so the decision stays visible (`launch3.ts` shows both).
+- **`npm test`** (in `engine/`) runs the unit suites in `engine/test/*.test.ts` without a
+  browser (camera moves today). Run it with the gate after any engine change.

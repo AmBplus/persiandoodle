@@ -105,6 +105,8 @@ pieces are examples of the craft, never material for someone else's film.
 - **The first frame is the thumbnail.** Platforms and players show frame 1 before play. Make
   it legible and on brand (anidoodle's is the wall of styles; the template's is the prompt, big,
   mid-sentence); never a blank, a fade from black, or a whole chat window too small to read.
+  If the story opens quiet, render with `--poster-frame N` (frame 0 shows frame N and dissolves
+  into the opening by frame 6), and ship only what passes `verify-export --delivery`.
 
 ## The process
 
@@ -112,15 +114,17 @@ pieces are examples of the craft, never material for someone else's film.
 2. **Storyboard**: one line per beat with its length in beats, the words, the transition.
 3. **Options sheet**: transitions and type styles side by side as one cheap still sheet (e.g.
    three blooms, three lettering media). The person picks; nothing is rendered in full yet.
-4. **One still per scene**, at 0.3-0.5 scale on a contact sheet, reviewed for design.
+4. **One still per scene**, at 0.3-0.5 scale on a contact sheet, reviewed for design:
+   `still.mjs <film> --frames 0,240,610 --sheet out/scenes.jpg` draws them all in one browser
+   (`references/working-method.md`).
 5. **Music as an mp3 on a page**, heard by a human. ✋ Approval.
 6. **Cut as data**: content scenes on one timeline, the cut as `pic`/`type` segments on the
    beat grid (`launchCut.ts`). Re-timing edits the list, never scene code.
 7. **Review from the render**: contact sheets per beat, cuts as before/after pairs, DESIGN
    first (type over art, spacing, hierarchy), then timing. Render only the changed range
-   (`render.mjs --from F --to F`). Give notes in camera words ("slow this zoom to 0.7x",
+   (`render.mjs --from F --to T` writes `out/<film>.<F>-<T>.mp4`, silent). Give notes in camera words ("slow this zoom to 0.7x",
    "hold the word 10 frames longer"), never "make it better".
 8. **QA**: `gate.mjs <film>` (determinism, contract, dead air; declare real holds in
-   `meta.holds`) and `verify-export.mjs <film> --file <mp4> --first-frame #rrggbb` for EVERY
-   shape shipped; meter the mix. Keep the review page updated as work lands.
+   `meta.holds`, each with its reason) and `verify-export.mjs <film> --file <mp4> --delivery
+   --first-frame #rrggbb` for EVERY shape shipped; meter the mix. Keep the review page updated as work lands.
 9. ✋ **Final approval** on the finished file.

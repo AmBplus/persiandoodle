@@ -230,7 +230,11 @@ const blockBox = (b: Block) => {
 };
 
 export const woodcut: Film = {
-  meta: { title: "Herons in rain on the drum bridge · ukiyo-e woodblock", W: 1080, H: 1080, fps: 30, bpm: 120, durationFrames: N, raster: "cpu" },   /* twelve full-size block layers: keep every surface in software so no page antialiases differently */
+  // a drawing: twelve pulls, each rubbed through by the baren, a breath between them while the next
+  // block is inked. Held: the indigo sky bokashi is fully graded by frame 304 while its rub runs to
+  // 320, then the pause before the water bokashi (304-326); the last pull's rub runs out over colour
+  // already through and the finished print is held (374 to the end).
+  meta: { title: "Herons in rain on the drum bridge · ukiyo-e woodblock", W: 1080, H: 1080, fps: 30, bpm: 120, durationFrames: N, raster: "cpu", kind: "drawing", holds: [[304, 326], [374, N]] },   /* twelve full-size block layers: keep every surface in software so no page antialiases differently */
   assets: { images: {} },
   shots: [{ id: "pulls", start: 0, end: N, draw }],
 };

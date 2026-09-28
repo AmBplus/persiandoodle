@@ -55,9 +55,11 @@ approach, a riser's build) is rendered before the frame. If it would start befor
 the plan throws and names the earliest legal frame.
 
 ```ts
-import { filmSfx, launchLofi3, filmAudio, type SfxPlan } from "./music";
+import { filmSfx, filmAudio, composePiece, type SfxPlan } from "./music";
+import { myScore } from "./myScore";                  // the Material YOU composed for this film (compose.md)
+const score = composePiece(myScore);
 const plan: SfxPlan = {
-  fps: 30, frames: 450, score: { piece: launchLofi3() }, beatZeroS: 0, seed: 7,  // key, bpm, bar from the score
+  fps: 30, frames: 450, score: { piece: score }, beatZeroS: 0, seed: 7,  // key, bpm, bar from the score
   cues: [
     { frame: 12, kind: "tick" },                                          // ...one per typed character
     { frame: 157, kind: "press", variant: "thock", snap: "beat", label: "Generate" },
@@ -67,7 +69,7 @@ const plan: SfxPlan = {
     { frame: 400, kind: "impact", variant: "bloom", snap: "bar" },
   ],
 };
-export const audio = filmSfx(filmAudio(launchLofi3(), 15), plan);   // Film.audio: score + effects
+export const audio = filmSfx(filmAudio(score, 15), plan);   // Film.audio: score + effects
 ```
 
 - `snap: "bar" | "beat" | "8th" | "16th"` moves the sync point to the tempo grid (`bpm`,
@@ -98,8 +100,8 @@ music, and its test only checked that they existed.)
   matter.
 - Ducking: the score dips before the cue's window (40 ms raised-cosine attack), holds, and comes
   back over 280 ms (1.2 s after an impact). Typing does not duck. The reveal ducks 6 dB.
-- Measured on the demo (launchLofi3, first 15 s, 33 cues): -15.5 LUFS, -1.9 dBTP, every cue audible.
-  Margins: typing +3 to +8 dB over the intro pad; groove cues -3.5 to +5 dB; the reveal +10.7 dB.
+- Measured on our own launch film's score (`launchLofi3`: a demo, never a score for your film;
+  first 15 s, 33 cues): -15.5 LUFS, -1.9 dBTP, every cue audible. Margins: typing +3 to +8 dB over the intro pad; groove cues -3.5 to +5 dB; the reveal +10.7 dB.
 
 ## Taste: when to use effects
 
