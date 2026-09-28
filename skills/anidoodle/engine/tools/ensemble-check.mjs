@@ -3,6 +3,7 @@
 //   node tools/ensemble-check.mjs check            tuning (cents), anti-clone, determinism, stereo, legacy bit-identity
 //   node tools/ensemble-check.mjs calibrate        stem RMS of every vocabulary slot that uses an ensemble voice, v2 vs legacy
 //   node tools/ensemble-check.mjs track <voice> [opts-json]  per-note pitch through a legato phrase (octave slips, level)
+//   node tools/ensemble-check.mjs ref <voice> <opts-json> <midi> <file.wav>   harmonic spectrum + decay vs a CC0 recording, v1 and v2
 //   node tools/ensemble-check.mjs render <dir>     before-*.mp3 (legacy) / after-*.mp3 (v2): a phrase per instrument + an ensemble passage
 import { strict as assert } from "node:assert";
 import { build } from "esbuild";
@@ -160,4 +161,18 @@ if (cmd === "track") {
     let rms = 0; for (let i = a; i < e; i++) rms += x[i] ** 2; rms = Math.sqrt(rms / (e - a));
     console.log(`  ${name} p ${k.p}: period ${bl} vs ${P.toFixed(1)} (${(1200 * Math.log2(bl / P)).toFixed(0)} c) r ${best.toFixed(2)}  ${(20 * Math.log10(rms)).toFixed(1)} dB`);
   }
+}
+
+if (cmd === "ref") {
+  const [name, oj, midiS, file] = process.argv.slice(3), o = JSON.parse(oj), p = Number(midiS), sr = 48000, f = 440 * 2 ** ((p - 69) / 12);
+  const raw = execFileSync("ffmpeg", ["-v", "error", "-i", file, "-ac", "1", "-ar", String(sr), "-f", "f32le", "-"], { maxBuffer: 1 << 28 }), ref = new Float32Array(raw.buffer, raw.byteOffset, raw.length / 4);
+  const n = Math.round(3 * sr), mk = (legacy) => { const r = VOICE[name]([key(0.05, p, 2.5, 0.6)], sr, n, { ...o, ...(legacy ? { legacy: true } : {}) }, 4), x = new Float32Array(n); for (let i = 0; i < n; i++) x[i] = r.L[i] + r.R[i]; return x; };
+  const prof = (x) => { let pk = 0; for (const v of x) pk = Math.max(pk, Math.abs(v)); let i0 = 0; while (i0 < x.length && Math.abs(x[i0]) < pk * 0.03) i0++;
+    const amp = (h, a, b) => { let re = 0, im = 0; const w = (2 * Math.PI * f * h) / sr; for (let i = a; i < b && i < x.length; i++) { const hn = 0.5 - 0.5 * Math.cos((2 * Math.PI * (i - a)) / (b - a)); re += x[i] * hn * Math.cos(w * i); im += x[i] * hn * Math.sin(w * i); } return Math.hypot(re, im) + 1e-12; };
+    const a = i0 + Math.round(0.05 * sr), b = i0 + Math.round(0.35 * sr), h1 = amp(1, a, b), spec = Array.from({ length: 10 }, (_, k) => 20 * Math.log10(amp(k + 1, a, b) / h1));
+    const e = (t0) => 20 * Math.log10(amp(1, i0 + Math.round(t0 * sr), i0 + Math.round((t0 + 0.2) * sr))), decay = (e(0.1) - e(0.9)) / 0.8;
+    return { spec, decay }; };
+  const R = prof(ref), A = prof(mk(true)), B = prof(mk(false)), dist = (X) => X.spec.slice(1).reduce((s, v, i) => s + Math.abs(Math.max(v, -60) - Math.max(R.spec[i + 1], -60)), 0) / 9;
+  const row = (nm, X) => console.log(`  ${nm.padEnd(6)} h2..h10 dB ${X.spec.slice(1).map((v) => Math.max(-60, v).toFixed(0).padStart(4)).join("")}   fundamental decay ${X.decay.toFixed(1)} dB/s${X === R ? "" : `   |spectrum - ref| ${dist(X).toFixed(1)} dB`}`);
+  console.log(`  ${name} ${oj} midi ${p} vs ${file.split("/").pop()}`); row("ref", R); row("v1", A); row("v2", B);
 }

@@ -288,26 +288,27 @@ export const choir = (keys: Played[], sr: number, n: number, o: Opts, r0: Rng): 
     }
   });
   Biquad.make(sr, "hp", 70, 0.7).run(out.L); Biquad.make(sr, "hp", 70, 0.7).run(out.R);
-  return monoLows(out, sr);
+  return monoLows(out, sr, 220);
 };
 
 // ------------------------------------------------------------------ plucked strings
-type PluckSpec = { width: number; beta: number; noise: number; lpMul: number; loss: number; t60: (f: number) => number; relT60: number; ring: boolean; pol2: number; ir?: IRSpec; pick: number; level: number };
+type PluckSpec = { width: number; beta: number; noise: number; lpMul: number; /** absolute excitation low-pass (Hz) instead of lpMul x f */ lpAbs?: number; /** contact width grows as (f / 131 Hz)^widthExp (thicker treble strings, softer finger) */ widthExp?: number; loss: number; t60: (f: number) => number; relT60: number; ring: boolean; pol2: number; ir?: IRSpec; pick: number; level: number };
 const PLUCK: Record<string, PluckSpec> = {
   nylon: { width: 0.0022, beta: 0.2, noise: 0.25, lpMul: 3.5, loss: 0.3, t60: (f) => clamp(3.4 * Math.pow(196 / f, 0.55), 0.7, 7), relT60: 0.18, ring: false, pol2: 0.6, ir: IR_NYLON, pick: 0, level: LEVEL.guitar },
   steel: { width: 0.0007, beta: 0.13, noise: 0.4, lpMul: 9, loss: 0.16, t60: (f) => clamp(4.5 * Math.pow(196 / f, 0.5), 1, 9), relT60: 0.15, ring: false, pol2: 0.7, ir: IR_STEEL, pick: 0.05, level: LEVEL.guitar },
   electric: { width: 0.0008, beta: 0.12, noise: 0.35, lpMul: 7, loss: 0.14, t60: (f) => clamp(6 * Math.pow(196 / f, 0.45), 1.5, 12), relT60: 0.12, ring: false, pol2: 0.4, pick: 0.035, level: LEVEL.guitar },
-  harp: { width: 0.003, beta: 0.36, noise: 0.2, lpMul: 3, loss: 0.14, t60: (f) => clamp(4.2 * Math.pow(262 / f, 0.45), 0.8, 8), relT60: 1, ring: true, pol2: 0.5, ir: IR_HARP, pick: 0, level: LEVEL.harp },
+  // harp: brightness, pluck point and ring fitted by ear-free A/B to VCSL Concert Harp C3/C5 (CC0; tools/ensemble-check.mjs ref)
+  harp: { width: 0.0018, widthExp: 0.35, beta: 0.1, noise: 0.2, lpMul: 3, lpAbs: 900, loss: 0.14, t60: (f) => clamp(9.5 * Math.pow(262 / f, 0.45), 1.5, 16), relT60: 1, ring: true, pol2: 0.5, ir: IR_HARP, pick: 0, level: LEVEL.harp },
 };
 /** One plucked note (mono): excitation, commuted body, extended KS, optional pickup comb and pick scrape; RMS-normalised then scaled by velocity. */
 const pluckNote = (sr: number, n: number, k: Played, s: PluckSpec, r: Rng, extra: { pickup?: number; glide?: { cents: number; tau: number }; thump?: number } = {}) => {
   const f = f0(k.p) * Math.pow(2, clamp(gn(r) * 1.5, -4, 4) / 1200), v = clamp(k.v * (0.9 + 0.2 * r()), 0.02, 1), T60 = s.t60(f) * (0.92 + 0.16 * r());
-  let exc = pluckExc(sr, f, { width: s.width * (1.3 - 0.6 * v) * (0.9 + 0.2 * r()), beta: s.beta * (0.88 + 0.24 * r()), noise: s.noise, lp: f * s.lpMul * (0.6 + 0.8 * v) }, r);
+  let exc = pluckExc(sr, f, { width: s.width * Math.pow(f / 131, s.widthExp ?? 0) * (1.3 - 0.6 * v) * (0.9 + 0.2 * r()), beta: s.beta * (0.88 + 0.24 * r()), noise: s.noise, lp: (s.lpAbs ? Math.max(f * 1.2, s.lpAbs) : f * s.lpMul) * (0.6 + 0.8 * v) }, r);
   if (s.ir) exc = convolve(exc, bodyIR(sr, s.ir));
   const dur = Math.max(0.02, k.off - k.t), relI = s.ring ? Infinity : Math.round(dur * sr), len = Math.max(1, Math.min(n, Math.ceil((s.ring ? T60 * 1.1 : Math.min(T60 * 1.1, dur + s.relT60 * 1.5)) * sr)));
   const y = ksRender(sr, { f, T60, loss: s.loss * (0.92 + 0.16 * r()), exc, len, relI: relI === Infinity ? len : relI, relT60: s.relT60, pol2: { cents: 0.3 + 0.7 * r(), mix: s.pol2, t60: 0.45, share: r() }, glide: extra.glide });
   if (extra.pickup) { const D = extra.pickup * (sr / f), Di = Math.floor(D), Df = D - Di; for (let i = len - 1; i >= 0; i--) { const a = i - Di >= 0 ? y[i - Di] : 0, b = i - Di - 1 >= 0 ? y[i - Di - 1] : 0; y[i] -= 0.9 * (a * (1 - Df) + b * Df); } }
-  const g = (Math.pow(v, 1.3) * clamp(Math.pow(523 / f, s.ring ? 0.8 : 0.5), 0.3, 1.2)) / headRms(y, sr); // high notes of real plucked strings are quieter
+  const g = (Math.pow(v, 1.3) * (s.ring ? clamp(Math.pow(523 / f, 0.15), 0.3, 0.9) : clamp(Math.pow(523 / f, 0.5), 0.3, 1.2))) / headRms(y, sr); // high notes of real plucked strings are quieter
   for (let i = 0; i < len; i++) y[i] *= g;
   if (s.pick > 0 || extra.thump) { let lp = 0; const m = Math.min(len, Math.round(0.02 * sr)), kLp = extra.thump ? 0.03 : 0.5;
     for (let i = 0; i < m; i++) { const nz = wn(r); lp += kLp * (nz - lp); const e = Math.exp(-i / (0.003 * sr)); y[i] += (extra.thump ? lp * extra.thump * 4 : (nz - lp) * s.pick * 3) * e * v; } }
