@@ -126,6 +126,8 @@ export type ChatState = {
   title?: string; subtitle?: string; genLabel?: string; accent?: string;
   // focus pulls: the header's and the composer's opacity while the camera is close on something else (default 1)
   head?: number; composer?: number;
+  // the composer laid out on its own (the hero hook: a big composer that shrinks and docks); default the chat's
+  composerGeom?: ChatGeom;
 };
 
 // THE CHAT'S GEOMETRY. One chat component, laid out per frame shape (launchLayout.ts): the window,
@@ -192,16 +194,17 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState, g: ChatGeom = CHAT_GEOM) =
   }
   if (s.label) { ctx.globalAlpha = s.labelAlpha ?? 1; ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(REPLY.x + 9 * k, REPLY.y - 26 * k, 7 * k, 0, Math.PI * 2); ctx.fill(); ctx.font = SANS(600, px.label); ctx.textBaseline = "middle"; ctx.fillText(s.label, REPLY.x + 26 * k, REPLY.y - 25 * k); ctx.globalAlpha = 1; }
   // the composer
+  { const g2 = s.composerGeom ?? g, { INPUT, GEN, TEXT, k, px } = g2;
   if (s.composer !== undefined) ctx.globalAlpha = s.composer;
   ctx.fillStyle = P.paper; rr(ctx, INPUT.x, INPUT.y, INPUT.w, INPUT.h, INPUT.r); ctx.fill();
   ctx.lineWidth = 2 * k; ctx.strokeStyle = P.line; ctx.stroke();
   ctx.font = SANS(500, TEXT.px); ctx.textBaseline = "alphabetic";
   if (!s.typed && s.placeholder) { ctx.fillStyle = P.mute; ctx.fillText(s.placeholder, TEXT.x, TEXT.base); }
   const acc = s.accent ?? P.accent;
-  if (g.wrap > 0) {
-    const lines = composerLines(ctx, s.typed, g); ctx.font = SANS(500, TEXT.px); ctx.fillStyle = P.ink;
-    lines.forEach((l, i) => ctx.fillText(l, TEXT.x, TEXT.base + i * g.lineH));
-    if (s.caret) { const i = lines.length - 1, x = TEXT.x + ctx.measureText(lines[i]).width + 3 * k; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base + i * g.lineH - 0.94 * TEXT.px, 3 * k, 1.18 * TEXT.px); }
+  if (g2.wrap > 0) {
+    const lines = composerLines(ctx, s.typed, g2); ctx.font = SANS(500, TEXT.px); ctx.fillStyle = P.ink;
+    lines.forEach((l, i) => ctx.fillText(l, TEXT.x, TEXT.base + i * g2.lineH));
+    if (s.caret) { const i = lines.length - 1, x = TEXT.x + ctx.measureText(lines[i]).width + 3 * k; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base + i * g2.lineH - 0.94 * TEXT.px, 3 * k, 1.18 * TEXT.px); }
   } else {
     ctx.fillStyle = P.ink; ctx.fillText(s.typed, TEXT.x, TEXT.base);
     if (s.caret) { const x = TEXT.x + ctx.measureText(s.typed).width + 3; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base - 32, 3, 40); }
@@ -210,7 +213,7 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState, g: ChatGeom = CHAT_GEOM) =
   const pr = s.genPress ?? 0, hot = s.genHot ?? 0, q = 1 - 0.07 * pr, gx = GEN.x + (GEN.w * (1 - q)) / 2, gy = GEN.y + (GEN.h * (1 - q)) / 2;
   ctx.fillStyle = hot > 0 ? mixHex(acc, s.accent ? deepen(acc) : P.accentDeep, 0.35 * hot + 0.4 * pr) : acc; rr(ctx, gx, gy, GEN.w * q, GEN.h * q, GEN.r * q); ctx.fill();
   ctx.fillStyle = "#fff"; ctx.font = SANS(600, px.gen * q); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText(s.genLabel ?? "Generate", GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1 * k); ctx.textAlign = "left";
-  if (s.composer !== undefined) ctx.globalAlpha = 1;
+  if (s.composer !== undefined) ctx.globalAlpha = 1; }
 };
 // where the caret is: the end of the typed words (on their last line in a wrapping composer)
 export const caretAt = (ctx: Ctx, typed: string, g: ChatGeom = CHAT_GEOM): P => {

@@ -47,5 +47,9 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
   // a film ask (any film in a card) with its words beside it builds in every shape, its seam into the end card matched
   const fa = makeLaunchFilm({ title: "Tally", asks: [{ prompt: content.prompts[0], plate, label: "l" }, { kind: "film", film: plate, split: [{ text: "Any film.", style: "ink", color: "#000" }] }], tagline: "t", install: ["npm i tally"], bpm: 90, score: null });
   ok((Object.keys(SHAPES) as Shape[]).every((sh) => fa.reshape(sh).seams.every((q) => Math.hypot(q.out.p[0] - q.into.p[0], q.out.p[1] - q.into.p[1]) < 2)), "a film ask builds in every shape, the motif's seam matched");
+  // the hook: the first prompt is the hero, large enough to read muted in the first 2 s, in every shape
+  ok((Object.keys(SHAPES) as Shape[]).every((sh) => { const x = f.reshape(sh); return (x.heroPx ?? 0) >= (x.layout.phone ? 64 : 56); }), `the first prompt is the hero: ${(Object.keys(SHAPES) as Shape[]).map((sh) => `${sh} ${f.reshape(sh).heroPx} px`).join(", ")} (>= 64 on a phone frame, 56 on 16x9)`);
+  let long = ""; try { makeLaunchFilm({ title: "Tally", shape: "9x16", asks: [{ prompt: "a very long first prompt that goes on and on about everything it could possibly want drawn today", plate, label: "l" }], tagline: "t", install: ["npm i tally"], bpm: 90, score: null }); } catch (e) { long = (e as Error).message; }
+  ok(/shorten it/.test(long), "a first prompt too long for a readable hook is an error, never tiny type");
   ok(wide.length === 1 && tall.length === 2, `a word page re-sets its lines for a narrow frame (16x9: ${wide.length} line, 9x16: ${tall.map((l) => l.text).join(" / ")})`);
 };

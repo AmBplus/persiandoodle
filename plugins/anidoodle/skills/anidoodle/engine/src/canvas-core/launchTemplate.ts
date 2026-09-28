@@ -29,6 +29,7 @@ import {
   lerp, lerpP, out3, plateLayer, pointer, press, ramp, rr, spring, toScreen, typedAt, useCam, type Cam, type Drop, type ChatGeom, type Rect,
 } from "./launchKit";
 import { launchLayout, estWidth, wrapEst, SHAPES, type LaunchLayout, type Shape } from "./launchLayout";
+import { chatGeom } from "./launchKit";
 import { beatGrid, bloomFrame, bloomRadius, makeCut, pic, type, typeFrame, type Seg, type TypeLine } from "./launchCut";
 import { measure, writeOn, setType } from "./kinetic";
 import { drawProductUI, springLand, uiActionAt, uiCommandAt, uiSettles, uiWindow, type ProductUI, type UiTheme } from "./productUI";
@@ -132,6 +133,7 @@ const uiTiming = (prompt: string | undefined, i: number, ASK: number, a0: number
 export type LaunchFilm = Omit<Film, "reshape"> & {
   cut: ReturnType<typeof makeCut>; layout: LaunchLayout; reshape: (shape: string) => LaunchFilm;
   cues: LaunchCue[];     // the sound cues the picture emits (frames of this film)
+  heroPx: number | null; // the hook's prompt size (px at the delivered size), when the film opens on a chat ask
   seams: Seam[];         // the motif's seams, each checked (checkRelay)
   timing: { base: number; len: number; tin: number; b: number; down: number; up: number; drop: Drop; times: number[] }[]; // each ask's own timing, content frames at 30 fps
   captions: { from: number; to: number; text: string }[]; // = meta.captions
@@ -199,8 +201,8 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   const seen = (cam: Cam, x0: number, y0: number, x1: number, y1: number) => { const hw = W / 2 / cam.z, hh = H / 2 / cam.z, d = Math.min(x0 - (cam.c[0] - hw), cam.c[0] + hw - x1, y0 - (cam.c[1] - hh), cam.c[1] + hh - y1) * cam.z; return clamp(d / (24 * k)); };
   // (on a phone the close-up is nearly the whole window, so the header and thread stay, cut only by `seen`)
   const chat = (ctx: Ctx, env: Env, f: number, typed: string, caret: boolean, pr: number, hot: number, fo: Focus = { macro: 0, lean: 0, keep: -1, cam: CAM.home }, Gc: ChatGeom = G) => {
-    const C0 = G.CHAT, mf = L.phone ? 0 : fo.macro, headA = Math.min(1 - mf, seen(fo.cam, C0.x + 40 * k, C0.y + 30 * k, C0.x + C0.w - 40 * k, C0.y + 76 * k)), compA = seen(fo.cam, Gc.INPUT.x, Gc.INPUT.y, Gc.INPUT.x + Gc.INPUT.w, Gc.INPUT.y + Gc.INPUT.h);
-    drawChatFrame(ctx, { typed, caret, placeholder: spec.placeholder ?? "Describe what you want…", genPress: pr, genHot: hot, title: spec.title, subtitle: spec.subtitle ?? "", genLabel: spec.genLabel, accent: ACC, head: headA, composer: compA }, Gc);
+    const C0 = G.CHAT, mf = L.phone || Gc !== G ? 0 : fo.macro, headA = Math.min(1 - mf, seen(fo.cam, C0.x + 40 * k, C0.y + 30 * k, C0.x + C0.w - 40 * k, C0.y + 76 * k)), compA = seen(fo.cam, Gc.INPUT.x, Gc.INPUT.y, Gc.INPUT.x + Gc.INPUT.w, Gc.INPUT.y + Gc.INPUT.h);
+    drawChatFrame(ctx, { typed, caret, placeholder: spec.placeholder ?? "Describe what you want…", genPress: pr, genHot: hot, title: spec.title, subtitle: spec.subtitle ?? "", genLabel: spec.genLabel, accent: ACC, head: headA, composer: compA, composerGeom: Gc === G ? undefined : Gc }, G);
     const sc = scrollAt(f), rest = (1 - mf) * (1 - fo.lean), [, cyT, , chH] = TH.clip;
     ctx.save(); ctx.beginPath(); ctx.rect(...TH.clip); ctx.clip();
     items.forEach((it, k) => {
@@ -241,14 +243,36 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   const prevChat = (i: number) => i > 0 && isChat(spec.asks[i - 1]) && T[i].tin === 0;
   // the empty state: on a phone the first ask's composer starts in the middle of the empty thread (the
   // way a chat app opens) and docks at the bottom as Generate is pressed; the hook is the prompt, centred
-  const liftDy = (i: number, l: number) => (L.phone && i === chatIdx[0] && !prevChat(i) ? (G.CHAT.y + G.CHAT.h * 0.52 - (G.INPUT.y + G.INPUT.h / 2)) * (1 - expo(ramp(l, T[i].b - 4, T[i].down))) : 0);
-  const lifted = (dy: number): ChatGeom => (dy ? { ...G, INPUT: { ...G.INPUT, y: G.INPUT.y + dy }, GEN: { ...G.GEN, y: G.GEN.y + dy }, TEXT: { ...G.TEXT, base: G.TEXT.base + dy } } : G);
+  // THE HOOK: the first prompt is the hero. It is typed in a big composer in the middle of the frame
+  // (at least 64 px type on a phone frame, 56 px on 16x9, wrapping to 2-3 lines, never clipped),
+  // which shrinks and docks at the bottom of the chat as Generate is pressed.
+  const HERO = (() => {
+    if (!isChat(spec.asks[0])) return null;
+    const prompt = spec.asks[0].prompt, min = L.phone ? 64 : 56, inW = Math.min(L.phone ? W * 0.9 : W * 0.72, G.CHAT.w - 60 * k); // most of the width, inside the chat window
+    for (let px = L.phone ? 76 : 68; px >= min; px -= 2) {
+      const kh = px / 34, genW = 166 * kh, textW = inW - 44 * kh - genW - 44 * kh, lines = wrapEst(prompt, px, textW).length;
+      if (lines > 3 && px > min) continue;
+      if (lines > 3) throw new Error(`launchTemplate ${shape}: the first prompt "${prompt}" needs ${lines} lines at the hook's ${min} px; shorten it (the hook must read muted in the first 2 s)`);
+      const h = 104 * kh + (lines - 1) * Math.round(px * 1.3), fake = { x: (W - inW) / 2 - 60 * kh, y: 0, w: inW + 120 * kh, h: H * 0.5 + h / 2 + 36 * kh };
+      const g = chatGeom(fake, kh, { ...G.px, gen: 24 * kh }, px, lines, genW);
+      return { ...g, CHAT: G.CHAT, theme: G.theme, drop: G.drop, iris: G.iris } as ChatGeom;
+    }
+    return null;
+  })();
+  const heroAt = (i: number, l: number): ChatGeom => {
+    if (!HERO || i !== 0) return G;
+    const u = expo(ramp(l, T[i].b - 4, T[i].down)); if (u >= 1) return G;
+    const mix = (a: number, b: number) => a + (b - a) * u, R = <T extends Record<string, number>>(a: T, b: T) => Object.fromEntries(Object.keys(a).map((key) => [key, mix(a[key], b[key])])) as T;
+    const dockLines = Math.max(1, G.wrap);
+    return { ...G, INPUT: R(HERO.INPUT, G.INPUT), GEN: R(HERO.GEN, G.GEN), TEXT: R(HERO.TEXT, G.TEXT), k: mix(HERO.k, G.k), px: R(HERO.px, G.px), lineH: mix(HERO.lineH, G.lineH), wrap: u < 0.5 ? HERO.wrap : dockLines };
+  };
   // `lean` (0..1) is how far the camera leans in, `macro` how close it is on the composer; the corner
   // mark steps aside while it leans, since the lean carries the composer under the corner
   const camAt = (_caret: CaretFn, f: number, i: number): { cam: Cam; lean: number; macro: number; keep: number } => {
     const t = T[i], l = f - t.base;
     // the close-up creeps in while the words arrive: the frame is never a still
-    const mz = MZ * (1 + 0.03 * ramp(l, -20, t.b)), dy = liftDy(i, l), macro: Cam = { c: inView([G.INPUT.x + G.INPUT.w / 2, G.INPUT.y + G.INPUT.h / 2 + dy], mz), z: mz };
+    // (the hero hook is its own close-up: the camera holds the whole frame, creeping 2 %)
+    const hero = !!HERO && i === 0, mz = hero ? 1 + 0.02 * ramp(l, -20, t.b) : MZ * (1 + 0.03 * ramp(l, -20, t.b)), macro: Cam = { c: inView(hero ? HOME.c : [G.INPUT.x + G.INPUT.w / 2, G.INPUT.y + G.INPUT.h / 2], mz), z: mz };
     if (prevChat(i) && l < 16) { const q = inOut(ramp(l, 0, 16)); return { cam: camLerp(leanOn(i - 1), macro, q), lean: 1 - q, macro: q, keep: i - 1 }; }
     if (l > t.drop.full - 10) { const q = inOut(ramp(l, t.drop.full - 10, t.len)); return { cam: camLerp(HOME, leanOn(i), q), lean: q, macro: 0, keep: i }; }
     const w = l < t.b - 4 ? 1 : 1 - expo(ramp(l, t.b - 4, t.down));
@@ -264,13 +288,13 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     if (l >= t.b - 4 && l < t.up + 24) pointer(ctx, l < t.up + 4 ? lerpP(off, on, out3(ramp(l, t.b - 4, t.down))) : lerpP(on, off, inOut(ramp(l, t.up + 4, t.up + 24))), pr * 0.8, CAM.pointerS);
   };
   const chatScene = (ctx: Ctx, env: Env, f: number, i: number) => {
-    const t = T[i], l = f - t.base, Gc = lifted(liftDy(i, l)), caret: CaretFn = (s) => caretAt(ctx, s, Gc);
+    const t = T[i], l = f - t.base, Gc = heroAt(i, l), caret: CaretFn = (s) => caretAt(ctx, s, Gc);
     const { cam, lean, macro, keep } = camAt(caret, f, i);
     useCam(ctx, env, cam);
     const typed = typedAt((spec.asks[i] as PlateAsk).prompt, l, t.times), pr = press(l, t.down, t.up);
     chat(ctx, env, f, l < t.up ? typed : "", l < t.up, pr, ramp(l, t.down - 10, t.down - 2), { macro, lean, keep, cam }, Gc);
     // the pointer comes in for the press and glides back out; it never pops
-    pointerPath(ctx, l, t, [CAM.pointerOn[0], CAM.pointerOn[1] + (Gc.GEN.y - G.GEN.y)], pr);
+    pointerPath(ctx, l, t, [Gc.GEN.x + Gc.GEN.w / 2 + 18 * Gc.k, Gc.GEN.y + Gc.GEN.h / 2 + 6 * Gc.k], pr);
     // the mark is gone BEFORE the lean moves the composer under it, and back only once the camera has left
     const show = lean > 0 && l > ASK / 2 ? 1 - ramp(l, t.drop.full - 18, t.drop.full - 10) : prevChat(i) && l < 24 ? ramp(l, 16, 24) : 1;
     if (show > 0) { ctx.globalAlpha = show; bug(ctx, env); ctx.globalAlpha = 1; }
@@ -531,7 +555,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     assets: { images: {} },
     shots: [{ id: "cut", start: 0, end: cut.N * m, draw }],
     audio,
-    cut, layout: L, cues, seams, timing: T, captions: caps.map((c) => ({ from: Math.round(c.from * m), to: Math.round(c.to * m), text: c.text })),
+    cut, layout: L, cues, seams, heroPx: HERO ? HERO.TEXT.px : null, timing: T, captions: caps.map((c) => ({ from: Math.round(c.from * m), to: Math.round(c.to * m), text: c.text })),
     // the same film composed for another frame shape (one timeline: the cut, the timing and the sound do not change)
     reshape: (s: string) => { if (s === shape) return self; memo ??= new Map(); let f = memo.get(s); if (!f) { f = makeLaunchFilm({ ...spec, shape: s as Shape }); memo.set(s, f); } return f; },
   };
