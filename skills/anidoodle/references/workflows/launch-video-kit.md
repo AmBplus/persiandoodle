@@ -113,6 +113,8 @@ zooms to each click, with the pointer and input log driving the page's own state
 brick balloon, the almond hand (Van Gogh's public-domain *Almond Blossom* as the attached
 reference, `engine/assets/refs/` with its `PROVENANCE.json`; `adapt-a-style.md`), the embroidery
 loop, the web tour, the butterfly film, the end card); `launch3.ts` is the cut: data segments
-spliced with type frames, 77 s on the score's 29 bars. Study them for pacing, then build yours on
+spliced with type frames, 77 s on the score's 29 bars. They are anidoodle's own film, so a plain
+scaffold leaves them out; `scaffold.mjs <dir> --example` brings them in (with the butterfly they
+are built on) to study. Study them for pacing, then build yours on
 the template with your own pictures and your own music; anidoodle's launch is one example of the
 grammar, not a skin to reuse.
