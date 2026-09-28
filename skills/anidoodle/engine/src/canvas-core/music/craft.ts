@@ -2,7 +2,7 @@
 // tension and mood fit, straight from the notes, in milliseconds, no render. Advisory by design:
 // every finding names what it saw, where, and a fix; thresholds are genre-aware (craftTables.ts).
 // Only real errors (a note an acoustic instrument cannot play) are level "error". The composer
-// revises with it (references/music/compose.md, step 7); the theory is references/music/theory/.
+// revises with it (references/music/compose.md, step 8); the theory is references/music/theory/.
 import { beatsPerBar, isCompound, sectionSpans, type Piece, type Note, type Role } from "./plan";
 import { MODES, pcOf, nameOf, type ModeId } from "./theory";
 import { MOODS, type MoodId } from "./tables";
