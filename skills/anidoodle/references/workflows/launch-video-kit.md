@@ -66,9 +66,11 @@ export const myLaunch = makeLaunchFilm({
 
 What you get, from data:
 
-- **Chat asks** (`kind` omitted): the first prompt already being typed at frame 0, the whole
-  composer in frame so every typed word stays readable (a hook that reads muted; on a phone frame
-  the composer starts in the middle of the empty thread and docks on send, the way a chat app opens), the camera easing out for the press, an ink drop arcing from Generate
+- **Chat asks** (`kind` omitted): the hook: the first prompt is the hero, already being typed at
+  frame 0 in a big composer across most of the frame (at least 64 px type on 1x1/4x5/9x16, 56 px on
+  16x9, wrapping to 2-3 lines, never clipped; a prompt too long for that is an error), which shrinks
+  and docks at the bottom of the chat as Generate is pressed. Later prompts are typed with the whole
+  composer in frame, the camera easing out for the press, an ink drop arcing from Generate
   into the thread and blooming open into a card where the plate draws itself live (the card opens
   on a spring), the thread keeping earlier answers and scrolling, a gentle lean onto each new card that keeps it whole with a margin (what the camera is about
   to cut fades first).
