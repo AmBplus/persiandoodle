@@ -87,7 +87,7 @@ if (a) { // the audio report: loudness and true peak, and the score's fit agains
   if (lu < -14.5 && tp > -1.1) console.log(`  NOTE the -1 dBTP ceiling held the gain ${(-14 - lu).toFixed(1)} dB under -14 LUFS (the cross-platform target): peaks are a composing problem (stagger the bass under the loudest downbeat, roll the big chord); a launch template bed takes \`limit: true\``);
   if (meta.score) { const off = (meta.score.tempo / meta.bpm - 1) * 100;
     console.log(`score: ${meta.score.tempo.toFixed(2)} bpm (${meta.score.form}); the picture's grid is ${meta.bpm} bpm (${off >= 0 ? "+" : ""}${off.toFixed(2)} %)`);
-    if (!meta.score.grid && Math.abs(off) > 2) console.log("  NOTE past 2 % the score's downbeats drift from meta.bpm: a repeatable or optional section, or the piece's `tail`, lets the fit land nearer it"); }
+    if (!meta.score.grid && Math.abs(off) > 2) console.log("  NOTE past 2 % the score's downbeats drift from meta.bpm: a 1-bar stretch section, or the Material's `tail`, lets the fit land nearer it"); }
 }
 
 mkdirSync(join(out, ".."), { recursive: true });

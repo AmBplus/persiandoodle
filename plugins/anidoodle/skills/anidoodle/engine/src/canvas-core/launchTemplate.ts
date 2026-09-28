@@ -24,13 +24,14 @@ import {
 } from "./launchKit";
 import { beatGrid, bloomFrame, bloomRadius, makeCut, pic, type, typeFrame, type Seg, type TypeLine } from "./launchCut";
 import { measure, writeOn } from "./kinetic";
-import { fitToDuration, limiter, renderPiece } from "./music/render";
+import { fitScore, limiter, renderPiece } from "./music/render";
 import { loudness, truePeak } from "./music/meter";
 import * as families from "./music/pieces/families";
 import * as launchPieces from "./music/pieces/launch";
 import * as nocturnePieces from "./music/pieces/nocturne";
 import * as samplers from "./music/pieces/samplers";
 import type { Piece } from "./music/plan";
+import { composePiece, stretchIndex, withStretch, type Material } from "./music/compose";
 import { perform } from "./music/perform";
 import { beatsPerBar } from "./music/plan";
 import { novelty } from "./music/novelty";
@@ -56,27 +57,29 @@ export type LaunchSpec = {
   bpm: number; fps?: number; // the beat grid: bpm comes from the brief (the score composed for it); a beat is 60 * fps / bpm frames
   askBeats?: number; typeBeats?: number; endBeats?: number; // default 6, 4, 8
   claimBar?: number;         // land the end card on this bar's downbeat, counting from bar 0 (solves the last ask)
-  // The score: a Piece written for this product's brief (references/music/README.md), or null for
+  // The score: a piece COMPOSED for this product's brief (references/music/compose.md), or null for
   // a silent film. Required, so no film inherits a score by default. anidoodle's own pieces are
   // refused: every user's film gets its own music, never ours.
-  score: (() => Piece) | null;
+  // A Material (what compose.md writes) is composed here; a finished Piece is used as is.
+  score: (() => Piece | Material) | null;
   audio?: Film["audio"];     // or your own finished mix; wins over score
   limit?: boolean;           // let a look-ahead limiter take the score's last peaks so it reaches -14 LUFS (default off: the peak ceiling wins)
 };
 
 const W = 1920, H = 1080;
-// anidoodle's own pieces (the demos and our launch score) are examples of the engine, never a
+// anidoodle's own pieces (the demos and our launch score) are examples of the composer, never a
 // user's soundtrack. Refused by identity, by title and by content (the novelty gate), so a thin or
 // retitled wrapper does not slip through. `audio` is the caller's own finished mix and is not checked.
 const OURS: (() => Piece)[] = [...Object.values(families), ...Object.values(launchPieces), ...Object.values(nocturnePieces), ...Object.values(samplers)].filter((v): v is () => Piece => typeof v === "function");
-const refuseOurs = (score: () => Piece) => {
+const asPiece = (score: () => Piece | Material) => (): Piece => { const x = score(); return "plan" in x ? x : composePiece(x); };
+const refuseOurs = (score: () => Piece | Material) => {
   const ours = () => new Set(OURS.map((f) => { try { return f().title; } catch { return null; } }).filter(Boolean));
-  if ((OURS as unknown[]).includes(score) || ours().has(score().title)) throw new Error(`launchTemplate: "${score().title}" is one of anidoodle's own pieces; write a score for this product's brief (references/music/README.md) or pass score: null`);
+  if ((OURS as unknown[]).includes(score) || ours().has(score().title)) throw new Error(`launchTemplate: "${score().title}" is one of anidoodle's own pieces; compose a score for this product's brief (references/music/compose.md) or pass score: null`);
   // by content too: a retitled copy, a transposition or a quoted line of ours fails the same novelty gate `music.mjs check` runs
   const corpus: Record<string, () => Piece> = {};
-  OURS.forEach((f, i) => { try { const p = f(); if (p && "plan" in p) corpus[`${p.title} #${i}`] = () => p; } catch { /* not a piece */ } });
-  const v = novelty(score(), corpus);
-  if (!v.pass) throw new Error(`launchTemplate: "${score().title}" is too close to anidoodle's own "${v.worst.name.replace(/ #\d+$/, "")}" (similarity ${v.worst.score}, ${v.worst.reusedFragments} reused 6-note fragments); write a score for this product's brief (references/music/README.md) or pass score: null`);
+  OURS.forEach((f, i) => { try { const p = asPiece(f)(); corpus[`${p.title} #${i}`] = () => p; } catch { /* not a piece */ } });
+  const v = novelty(asPiece(score)(), corpus);
+  if (!v.pass) throw new Error(`launchTemplate: "${score().title}" is too close to anidoodle's own "${v.worst.name.replace(/ #\d+$/, "")}" (similarity ${v.worst.score}, ${v.worst.reusedFragments} reused 6-note fragments); compose a score for this product's brief (references/music/compose.md) or pass score: null`);
 };
 const TYPE_O = { lead: -4, stagger: 18 }; // the word starts as the bloom closes over the frame; lines run on without a gap
 const TOP = 170, VIEW_BOTTOM = INPUT.y - 26, BUBBLE = 58, CARD = 460;
@@ -94,7 +97,7 @@ const askTiming = (prompt: string, i: number, ASK: number) => {
 export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeof makeCut> } => {
   const fps = spec.fps ?? 30, n = spec.asks.length;
   if (!(spec.bpm > 0)) throw new Error("launchTemplate: set bpm from the brief (the tempo of the score composed for this film)");
-  if (spec.score === undefined && !spec.audio) throw new Error("launchTemplate: `score` is required: a piece written for this product (references/music/README.md), or null for silence");
+  if (spec.score === undefined && !spec.audio) throw new Error("launchTemplate: `score` is required: a piece composed for this product (references/music/compose.md), or null for silence");
   if (spec.score) refuseOurs(spec.score);
   const grid = beatGrid(spec.bpm, fps);
   const ASK = Math.round((spec.askBeats ?? 6) * grid.beat), TYPE = Math.round((spec.typeBeats ?? 4) * grid.beat), END0_HOLD = Math.round((spec.endBeats ?? 8) * grid.beat);
@@ -230,27 +233,31 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
   };
 };
 
-type Fit = ReturnType<typeof fitToDuration>;
+type Fit = ReturnType<typeof fitScore>;
 const MIN_END = (fps: number) => 3 * fps + 40; // the install lines held 3 s or more, after the card writes on
 
 /**
  * The score for a beat-grid film: played at the film's bpm exactly (the cuts sit on that grid), and
- * the film made whole bars of it. The score is `bars` long plus whole bars for its tail to ring out;
- * the end-card hold takes up the difference and must stay between 3 s and the asked hold + 4 bars.
- * No tempo is changed; if the score does not fit, it throws and says which lengths would. Bars
- * before the final ritard are checked against the grid to half a frame, so a rubato or a breath can
- * never pull a downbeat off a cut.
+ * the film made whole bars of it. A Material's stretch section is repeated 0..n times; each form is
+ * `bars` long plus whole bars for its tail to ring out, and the form whose length puts the end-card
+ * hold nearest the one asked for wins (the hold stays between 3 s and the asked hold + 4 bars).
+ * No tempo is changed; if no form fits, it throws. Bars before the final ritard are checked against
+ * the grid to half a frame, so a rubato or a breath can never pull a downbeat off a cut.
  */
-export const gridScore = (score: () => Piece, bpm: number, fps: number, before: number, hold: number) => {
-  const p = score(), barF = (4 * 60 * fps) / bpm, lo = MIN_END(fps), hi = hold + 4 * barF;
-  if (beatsPerBar(p.plan.meter) !== 4) throw new Error(`launchTemplate: the score is in ${p.plan.meter}; a launch film's cuts sit on 4-beat bars, so write it in 4/4`);
-  if (p.plan.pickupBeats) throw new Error(`launchTemplate: the score opens with a ${p.plan.pickupBeats}-beat pickup; frame 0 is a downbeat, so start the score on the bar`);
-  const bars = p.plan.sections.reduce((a, q) => a + q.bars, 0), ring = Math.ceil((p.tail * bpm) / 60 / 4 - 1e-9), end = Math.round((bars + ring) * barF) - before;
-  const best = end >= lo && end <= hi ? { piece: p, end, bars, ring } : null;
-  if (!best) {
-    const minBars = Math.ceil((before + lo) / barF - 1e-9) - ring, maxBars = Math.floor((before + hi) / barF + 1e-9) - ring;
-    throw new Error(`launchTemplate: the score cannot end on a bar of this film at ${bpm} bpm without changing its tempo. The cut before the end card is ${(before / fps).toFixed(1)} s and the end-card hold must be ${(lo / fps).toFixed(1)}-${(hi / fps).toFixed(1)} s; the score is ${bars}+${ring} bars (hold ${(end / fps).toFixed(1)} s). Write it ${minBars}-${maxBars} bars long, or change askBeats/endBeats/claimBar.`);
+export const gridScore = (score: () => Piece | Material, bpm: number, fps: number, before: number, hold: number) => {
+  const x = score(), barF = (4 * 60 * fps) / bpm, lo = MIN_END(fps), hi = hold + 4 * barF;
+  const forms: (() => Piece)[] = "plan" in x ? [() => x] : stretchIndex(x) < 0 ? [() => composePiece(x)] : Array.from({ length: 33 }, (_, r) => () => composePiece(withStretch(x, r)));
+  let best: { piece: Piece; end: number; bars: number; ring: number } | null = null, tried: string[] = [];
+  for (const make of forms) {
+    const p = make(), bpb = beatsPerBar(p.plan.meter);
+    if (bpb !== 4) throw new Error(`launchTemplate: the score is in ${p.plan.meter}; a launch film's cuts sit on 4-beat bars, so compose it in 4/4`);
+    if (p.plan.pickupBeats) throw new Error(`launchTemplate: the score opens with a ${p.plan.pickupBeats}-beat pickup; frame 0 is a downbeat, so start the score on the bar`);
+    const bars = p.plan.sections.reduce((a, q) => a + q.bars, 0), ring = Math.ceil((p.tail * bpm) / 60 / 4 - 1e-9), end = Math.round((bars + ring) * barF) - before;
+    tried.push(`${bars}+${ring} bars -> hold ${(end / fps).toFixed(1)} s`);
+    if (end >= lo && end <= hi && (!best || Math.abs(end - hold) < Math.abs(best.end - hold))) best = { piece: p, end, bars, ring };
+    if (end > hi) break; // more repeats only make it longer
   }
+  if (!best) throw new Error(`launchTemplate: the score cannot end on a bar of this film at ${bpm} bpm without changing its tempo. The cut before the end card is ${(before / fps).toFixed(1)} s and the end-card hold must be ${(lo / fps).toFixed(1)}-${(hi / fps).toFixed(1)} s; the score's forms give ${tried.join(", ")}. Compose a 1-bar stretch section (stretch: true), or change askBeats/endBeats/claimBar.`);
   const piece: Piece = { ...best.piece, plan: { ...best.piece.plan, tempo: bpm, rubato: 0 } }, perf = perform(piece, bpm, { expressive: true }), spb = 60 / bpm;
   const lastBar = Math.floor((perf.lastOnset / spb - 6) / 4); // the final ritard lives in the last 6 beats, inside the end card
   for (let k = 0; k <= lastBar; k++) { const drift = perf.sec(4 * k) - 4 * k * spb; if (Math.abs(drift) > 0.5 / fps) throw new Error(`launchTemplate: the score's bar ${k} lands ${(drift * 1000).toFixed(0)} ms off the film's grid (a breath or a caesura in the score); a launch film's cuts need every downbeat on the grid: even out the section dynamics there`); }
@@ -259,14 +266,14 @@ export const gridScore = (score: () => Piece, bpm: number, fps: number, before: 
 
 // A music bed: the piece FITTED to the film, never cut and faded. With `tempo` (a beat-grid film, as
 // the launch template passes it) the piece plays at exactly that tempo and the film is already whole
-// bars of it (gridScore); without, fitToDuration fits it as filmAudio does (sections repeated or
+// bars of it (gridScore); without, fitScore fits it as filmAudio does (its stretch section repeated or
 // dropped, the tempo trimmed so the tail rings out on the last frame). Then it is set to `lufs` integrated (default -14, the one published
 // cross-platform target) with the true peak held at or under -1 dBTP. A dynamic piece stops at the
 // peak ceiling first (render prints how far short); `limit: true` lets a look-ahead limiter take
 // those few peaks instead so the bed reaches the target. Compose the piece for this film at the
-// film's bpm, so the cuts sit on its downbeats. `piece` may return a Piece or a fitToDuration result.
+// film's bpm, so the cuts sit on its downbeats. `piece` may return a Piece or a fitScore result.
 export const musicBed = (piece: () => Piece | Fit, frames: number, fps = 30, lufs = -14, o: { limit?: boolean; tempo?: number } = {}) => (sr: number): [Float32Array, Float32Array] => {
-  const seconds = frames / fps, x = piece(), fit = "order" in x ? x : o.tempo ? { piece: x, tempo: o.tempo } : fitToDuration(x, seconds);
+  const seconds = frames / fps, x = piece(), fit = "order" in x ? x : o.tempo ? { piece: x, tempo: o.tempo } : fitScore(x, seconds);
   const m = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo }), n = Math.round(seconds * sr);
   const L = new Float32Array(n), R = new Float32Array(n); L.set(m.L.subarray(0, n)); R.set(m.R.subarray(0, n));
   const gain = (dB: number) => { const g = Math.pow(10, dB / 20); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } };

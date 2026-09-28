@@ -1,9 +1,10 @@
-// NOVELTY: does a new score sound like one we already shipped? A copy can have a new key, new
-// chords and new pitches and still be the same music when every layer keeps the old RHYTHMS, the
-// same contour and the same chord colours. So the fingerprint is mostly rhythm and shape, not pitch:
+// NOVELTY: does a new score sound like one we already shipped? Alex heard "Daylight" as "almost the
+// same as our launch track" although its key, chords and pitches were new: every layer kept the
+// launch's RHYTHMS, the same contour, the same chord colours and the same form. So the fingerprint
+// is mostly rhythm and shape, not pitch:
 //   melody rhythm (onset positions per bar, inter-onset n-grams), melody contour (up/down n-grams),
 //   melody intervals (transposition-free n-grams), other lines' rhythm (counter, bass), drum bars,
-//   chord function (root vs key + quality) n-grams, chord-quality n-grams.
+//   chord function (root vs key + quality) n-grams, chord-quality n-grams, section-kind sequence.
 // Each feature is a bag of n-grams; similarity is the cosine of the bags; the score is a weighted
 // mean. `demoReuse` is the stricter gate: any 6-note melody fragment (intervals + durations) taken
 // from a demo fails outright, transposed or not.
@@ -13,8 +14,8 @@ import { pcOf } from "./theory";
 
 type Bag = Map<string, number>;
 export type Fingerprint = Record<Feature, Bag>;
-export type Feature = "melodyRhythm" | "melodyContour" | "melodyIntervals" | "lineRhythm" | "drums" | "chords" | "qualities";
-export const NOVELTY_WEIGHTS: Record<Feature, number> = { melodyRhythm: 0.2, melodyContour: 0.15, melodyIntervals: 0.1, lineRhythm: 0.15, drums: 0.15, chords: 0.1, qualities: 0.07 };
+export type Feature = "melodyRhythm" | "melodyContour" | "melodyIntervals" | "lineRhythm" | "drums" | "chords" | "qualities" | "form";
+export const NOVELTY_WEIGHTS: Record<Feature, number> = { melodyRhythm: 0.2, melodyContour: 0.15, melodyIntervals: 0.1, lineRhythm: 0.15, drums: 0.15, chords: 0.1, qualities: 0.07, form: 0.08 };
 /** Above this a piece is too close to a shipped one. Calibrated: the copy fixture scores far above it, unrelated demos far below (tools/music-unit.mjs). */
 export const NOVELTY_THRESHOLD = 0.5;
 
@@ -43,6 +44,7 @@ export const fingerprint = (p: Piece): Fingerprint => {
   const tonic = pcOf(p.plan.sections[0].key.replace(/m$/, "")), seq: string[] = [], qs: string[] = [];
   for (const c of p.harmony.slice().sort((a, b) => a.t - b.t)) { const m = /^([A-G][#b]?)/.exec(c.name); if (!m) continue; const f = `${(pcOf(m[1]) - tonic + 12) % 12}${quality(c.name)}`; if (seq[seq.length - 1] !== f) { seq.push(f); qs.push(quality(c.name)); } }
   grams(seq, 3, (g) => g.join(" "), F.chords); grams(qs, 3, (g) => g.join(" "), F.qualities);
+  const kinds = (p.arrangement ?? []).map((a) => a.kind); grams(kinds, 2, (g) => g.join(">"), F.form);
   return F;
 };
 

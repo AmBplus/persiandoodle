@@ -8,19 +8,33 @@ export * from "./render";
 export * from "./meter";
 export * from "./guards";
 export * from "./score-text";
+export * from "./grooves";
+export * from "./vocab";
+export * from "./vocabTrim";
+export * from "./compose";
 export * from "./novelty";
+export * from "./calibration";
 export * as instruments from "./instruments";
 export * from "./sfx";
+export * as orchestra from "./orchestra";
+export * as lofiFx from "./lofiFx";
+export { MIX_PROFILES, FEELS, mixProfile, describeMix, type MixProfile, type Feel } from "./mixProfiles";
+export * as drums from "./drums";
 import { nocturne, pianoPhrase8 } from "./pieces/nocturne";
-import { launchLofi, launchLofi2, launchLofi3 } from "./pieces/launch";
+import { launchLofi, launchLofi2, launchLofi3, launchLofi3Material } from "./pieces/launch";
 import { musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic } from "./pieces/samplers";
 import { marimbaCurious, harpTender, guitarWistful, celestaWonder, bellsHopeful, driveElectronic, folkCalm } from "./pieces/families";
 import { ghostFixture } from "./pieces/fixtures";
-import type { Piece } from "./plan";
-export { launchLofi, launchLofi2, launchLofi3, nocturne, pianoPhrase8, musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic, marimbaCurious, harpTender, guitarWistful, celestaWonder, bellsHopeful, driveElectronic, folkCalm, ghostFixture };
-/** Named pieces a film (or the tool) can ask for. ghostFixture is a test fixture, never a score. */
-export const PIECES = { launchLofi, launchLofi2, launchLofi3, nocturne, pianoPhrase8, musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic, marimbaCurious, harpTender, guitarWistful, celestaWonder, bellsHopeful, driveElectronic, folkCalm, ghostFixture };
-/** Every shipped score (the novelty corpus: a new score must not sound like these). */
-export const SHIPPED: Record<string, () => Piece> = Object.fromEntries(Object.entries(PIECES).filter(([k]) => k !== "ghostFixture"));
-/** Cuts of one score: compared to each other they are the same music, by design. */
-export const PIECE_FAMILIES: Record<string, string[]> = { launch: ["launchLofi", "launchLofi2", "launchLofi3"], nocturne: ["nocturne", "pianoPhrase8"] };
+import { daylightCopy, daylightCopyMaterial } from "./pieces/copyFixture";
+export { launchLofi, launchLofi2, launchLofi3, launchLofi3Material, nocturne, pianoPhrase8, musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic, marimbaCurious, harpTender, guitarWistful, celestaWonder, bellsHopeful, driveElectronic, folkCalm, ghostFixture, daylightCopy, daylightCopyMaterial };
+/**
+ * SHIPPED MUSIC: the demos (one per style/mood, written to prove the synth and the meters) and our own
+ * film's scores. They are listening references and the novelty corpus, NEVER a film's score: a new
+ * film composes its own (references/music/compose.md) and `novelty` fails it if it sounds like these.
+ */
+export const DEMOS = { launchLofi, launchLofi2, launchLofi3, nocturne, pianoPhrase8, musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic, marimbaCurious, harpTender, guitarWistful, celestaWonder, bellsHopeful, driveElectronic, folkCalm };
+/** Families: cuts of one score (compared to each other they are the same music, by design). */
+export const DEMO_FAMILIES: Record<string, string[]> = { launch: ["launchLofi", "launchLofi2", "launchLofi3"], nocturne: ["nocturne", "pianoPhrase8"] };
+/** Test fixtures, never scores: the ghost (must fail the ghost guard), the copy (must fail novelty). */
+export const FIXTURES = { ghostFixture, daylightCopy };
+export * from "./keys";

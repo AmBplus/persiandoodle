@@ -41,7 +41,8 @@ const HATS = Array.from({ length: 16 }, (_, i) => `C4:.25@${[0.85, 0.35, 0.6, 0.
 // 21 sparkle [the film] · 22-23 breakdown, drums out [the five words] · 24 everything back, Cmaj9
 // [All in pure code.] · 25 held home [the end card].
 export const LAUNCH2_BARS = 26;
-export const launchLofi2 = (): Piece => {
+export const launchLofi2 = (): Piece => shipped(launchLofi2Raw());
+const launchLofi2Raw = (): Piece => {
   const B = LAUNCH2_BARS, last = B - 1, ci = (b: number) => (b < 2 ? -1 : (b - 2) % 4);
   const bars = (fn: (b: number, c: number) => string | null, role: Role, v: number, extra: { roll?: number } = {}): Note[] => { const out: Note[] = []; for (let b = 0; b < B; b++) { const x = fn(b, ci(b)); if (x) out.push(...L(b * 4, x, role, v, extra)); } return out; };
   const full: [number, number][] = [[2, 12], [15, 21], [24, 24]], half: [number, number][] = [[13, 14]];
@@ -75,7 +76,7 @@ export const LAUNCH3_BARS = 29;
 export const launchLofi3Material = (): Material => {
   const hk = (i: number) => `hook${i}`, sp = (i: number) => `spark${i}`;
   return {
-    style: "lofiElectronic", title: "anidoodle launch, cut 3", seed: 2027, mood: "calm", bpm: LAUNCH_BPM, key: "C", mode: "major", swing: 0.54, tail: 3.2,
+    style: "lofiElectronic", title: "anidoodle launch, cut 3", seed: 2027, legacy: true, mood: "calm", bpm: LAUNCH_BPM, key: "C", mode: "major", swing: 0.54, tail: 3.2,
     chords: { Dm9: { voicing: PAD[0], bass: SUB[0] }, G13: { voicing: PAD[1], bass: SUB[1] }, Cmaj9: { voicing: PAD[2], bass: SUB[2] }, Am9: { voicing: PAD[3], bass: SUB[3] } },
     motifs: Object.fromEntries([...HOOK.map((h, i) => [hk(i), h]), ...SPARK.map((x, i) => [sp(i), x])]),
     grooves: {
@@ -99,9 +100,12 @@ export const launchLofi3Material = (): Material => {
     ],
   };
 };
-export const launchLofi3 = (): Piece => composePiece(launchLofi3Material());
+/** The shipped launch films render with the pre-rebuild voices, bit-for-bit (SOUND-BRIEF legacy freeze); refits and short forms keep the flag. */
+const shipped = (p: Piece): Piece => ({ ...p, legacy: true, refit: p.refit && ((s: number) => shipped(p.refit!(s))), shortForm: p.shortForm && (() => shipped(p.shortForm!())) });
+export const launchLofi3 = (): Piece => shipped(composePiece(launchLofi3Material()));
 
-export const launchLofi = (): Piece => {
+export const launchLofi = (): Piece => shipped(launchLofiRaw());
+const launchLofiRaw = (): Piece => {
   const full: [number, number][] = [[2, 18], [23, 33], [36, 36]], half: [number, number][] = [[19, 22]], last = LAUNCH_BARS - 1;
   const pad = byBar("accomp", 0.62, (b, ci) => (b === last ? `${PAD[2]}:4@.75` : ci < 0 ? `${PAD_INTRO[b]}:4@.8` : `${PAD[ci]}:4`), { roll: 0.03 });
   const sub = byBar("bass", 0.85, (b, ci) => (ci < 0 || inRanges(b, [[34, 35]]) ? null : b === last ? "C2:4" : b >= 37 ? SUB_HOLD[ci] : SUB[ci]));

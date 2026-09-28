@@ -6,11 +6,26 @@ import { beatsPerBar, type Piece, type Note, type Role } from "./plan";
 import { clamp, gauss } from "./dsp";
 import type { KeyPress, PedalSpan } from "./piano";
 import { rng as mkRng } from "../core";
+import { FEELS, mixProfile, type Lane } from "./mixProfiles";
 
-export type Played = KeyPress & { role: Role; kind?: string; w: number /* written velocity */ };
+/**
+ * Sound-v2 hooks every voice may read (legacy pieces never get them): `tone` 0..1 = velocity through
+ * the style's tone curve (brightness, attack hardness, partial mix should follow it, not only level);
+ * `vary` = this note's own seeded micro-variation (anti-clone): cents, dB, brightness and decay
+ * factors, a start phase 0..1 and an integer seed for the voice's own noise.
+ */
+export type NoteVary = { cents: number; db: number; bright: number; decay: number; phase: number; seed: number };
+export type Played = KeyPress & { role: Role; kind?: string; w: number /* written velocity */; tone?: number; vary?: NoteVary; lane?: Lane };
 export type PerformOpts = { expressive: boolean; flatVelocity?: number };
 export type Performance = { parts: { id: string; keys: Played[] }[]; pedal: PedalSpan[]; sec: (beat: number) => number; lastOnset: number; meanLeadMs: number };
 
+/** Which feel lane a part plays: the compose slot name when it is one, else from the instrument and role. */
+export const laneOf = (id: string, inst: string, role: Role, rim = false): Lane => {
+  const slots: Lane[] = ["kick", "snare", "ghost", "hat", "perc", "bass", "chords", "lead", "counter", "arp"];
+  if ((slots as string[]).includes(id)) return id as Lane;
+  if (inst === "kick") return "kick"; if (inst === "snare") return rim ? "ghost" : "snare"; if (inst === "hat" || inst === "noiseDrum") return "hat";
+  return role === "bass" ? "bass" : role === "melody" ? "lead" : role === "accomp" || role === "inner" ? "chords" : role === "drum" ? "perc" : "counter";
+};
 const arch = (x: number) => Math.sin(Math.PI * Math.pow(clamp(x, 0, 1), 1.45)); // peaks near 0.62 of the phrase
 
 export const perform = (p: Piece, tempo: number, o: PerformOpts): Performance => {
@@ -43,18 +58,33 @@ export const perform = (p: Piece, tempo: number, o: PerformOpts): Performance =>
   const swing = plan.swing ?? 0.5;
   const sw = (b: number) => { if (swing === 0.5) return b; const fl = Math.floor(b), fr = b - fl; return fl + (fr <= 0.5 ? fr * (swing / 0.5) : swing + (fr - 0.5) * ((1 - swing) / 0.5)); };
 
+  // sound v2: the style's FEEL (mixProfiles.ts). Legacy pieces (the shipped launch score) keep the old single AR(1) drift, bit for bit.
+  const v2 = !p.legacy, feel = FEELS[mixProfile(plan.style, p.mix).feel];
   const RoleGain: Record<Role, number> = { melody: 1, inner: 0.55, bass: 0.68, accomp: 0.52, color: 0.7, drum: 1 }; // voicing: melody 6-10 dB over the rest
   let leadSum = 0, leadN = 0;
   const parts = p.parts.map((pt, pi) => {
     const hr = mkRng(p.seed * 131 + pi * 17 + 1), grid = pt.opts?.grid === true, isPiano = pt.inst === "piano";
     let tDev = 0, vDev = 0; // AR(1) states
+    // v2: humanize (phrase-correlated drift) and jitter (per-note error) are separate, per lane, drums apart from pitched parts
+    const lane = laneOf(pt.id, pt.inst, pt.role, pt.opts?.rim === true), drum = pt.role === "drum", hz = drum ? feel.drum : feel.pitched;
+    const laneOff = v2 && !isPiano ? (feel.lanes[lane] ?? 0) / 1000 : 0, /* grid parts keep the programmed nudge, never the human drift */ vr = mkRng(p.seed * 977 + pi * 31 + 7), jr = mkRng(p.seed * 613 + pi * 43 + 3);
+    let drift = 0, noteIdx = 0, vRel = 0;
     const notes = pt.notes.slice().sort((a, b) => a.t - b.t || a.p - b.p);
     // group simultaneous onsets (chords) for spread/roll
     const keys: Played[] = [];
     const melodyNext = (n: Note, i: number) => { for (let j = i + 1; j < notes.length; j++) if (notes[j].t > n.t + 1e-6) return notes[j].t; return Infinity; };
     let lastT = -1e9, chordIdx = 0;
     notes.forEach((n, i) => {
-      if (Math.abs(n.t - lastT) > 1e-6) { chordIdx = 0; lastT = n.t; if (o.expressive && !grid) { tDev = 0.85 * tDev + Math.sqrt(1 - 0.85 * 0.85) * gauss(hr) * 0.007; vDev = 0.7 * vDev + Math.sqrt(1 - 0.49) * gauss(hr) * 0.035; } } else chordIdx++;
+      if (Math.abs(n.t - lastT) > 1e-6) {
+        chordIdx = 0; lastT = n.t;
+        if (o.expressive && !grid) {
+          if (!v2 || isPiano) { tDev = 0.85 * tDev + Math.sqrt(1 - 0.85 * 0.85) * gauss(hr) * 0.007; vDev = 0.7 * vDev + Math.sqrt(1 - 0.49) * gauss(hr) * 0.035; }
+          else {
+            const c = hz.corr; tDev = c * tDev + Math.sqrt(1 - c * c) * gauss(hr) * (hz.humanizeMs / 1000); vRel = 0.7 * vRel + Math.sqrt(1 - 0.49) * gauss(hr) * feel.velHumanize; // relative: a soft ghost moves as many dB as an accent
+            if (lane === "hat" && feel.hatDriftMs) drift = 0.97 * drift + Math.sqrt(1 - 0.97 * 0.97) * gauss(hr) * (feel.hatDriftMs / 1000);
+          }
+        }
+      } else chordIdx++;
       let t = sec(sw(n.t)), end = sec(sw(n.t + n.d));
       let v: number;
       if (!o.expressive) { v = o.flatVelocity ?? 0.6; }
@@ -66,13 +96,16 @@ export const perform = (p: Piece, tempo: number, o: PerformOpts): Performance =>
         v = (n.v / 0.7) * (0.25 + 0.6 * lv) * (0.92 + 0.16 * arch(x)) * (grid ? 1 : metric * hi) * (isPiano ? RoleGain[n.role] : 1 / (0.25 + 0.6 * 0.75)) + vDev;
         if (n.t > ritFrom && !plan.loop) v *= 1 - 0.18 * clamp((n.t - ritFrom) / ritBeats, 0, 1); // the cadence relaxes
         t += tDev;
+        if (v2 && !isPiano) { t += laneOff; if (!grid) { t += drift + gauss(jr) * (hz.jitterMs / 1000); v *= 1 + vRel + gauss(jr) * feel.velJitter; } }
         if (n.role === "melody" && isPiano) { const ld = 0.012 + 0.016 * clamp(v, 0, 1); t -= ld; leadSum += ld; leadN++; }
         if (n.roll !== undefined) t += chordIdx * n.roll; else if (chordIdx > 0 && !grid) t += chordIdx * 0.004;
         // legato: melody keys overlap the next note by ~35 ms; accompaniment keys lift a little early (the pedal holds)
         if (n.role === "melody" && isPiano) { const nx = melodyNext(n, i); if (Number.isFinite(nx) && Math.abs(nx - (n.t + n.d)) < 1e-6) end = sec(sw(nx)) + 0.035; }
         else if (isPiano) end = t + (end - t) * 0.92;
       }
-      keys.push({ t: Math.max(0, t), off: Math.max(t + 0.03, end), p: n.p, v: clamp(v, 0.03, 1), role: n.role, kind: n.kind, w: n.v });
+      const key: Played = { t: Math.max(0, t), off: Math.max(t + 0.03, end), p: n.p, v: clamp(v, 0.03, 1), role: n.role, kind: n.kind, w: n.v };
+      if (v2) { key.tone = Math.pow(key.v, feel.toneGamma); key.lane = lane; key.vary = { cents: gauss(vr) * 3, db: gauss(vr) * 0.7, bright: 1 + gauss(vr) * 0.06, decay: 1 + gauss(vr) * 0.1, phase: vr(), seed: (p.seed * 7919 + pi * 104729 + noteIdx * 31) >>> 0 }; noteIdx++; }
+      keys.push(key);
     });
     return { id: pt.id, keys };
   });

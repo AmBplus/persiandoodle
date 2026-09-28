@@ -4,7 +4,7 @@
 // (lofiKit.ts): no electric piano, no vinyl, no bit-crush, a clean master, a tight detuned-saw pad
 // pumping under the kick, a bright pluck lead through a dotted-eighth ping-pong delay, high sparkle
 // plucks, a sine sub, a bouncy kick, a snare on 2 and 4 with rim ghosts, 16th hats. Levels were set
-// by measuring each part's stem (stemTargets below, checked by node tools/music.mjs stems).
+// by measuring each part (node tools/music.mjs stems) against published targets.
 // Harmony: the ii-V-I-vi loop Dm9 G13 Cmaj9 Am9 from bar 2, every 4 bars, so bar 36 (the film's
 // "All in pure code.") lands on Cmaj9, home, and the last bar holds it.
 //
@@ -14,6 +14,7 @@
 // [the live page] · 30-33 hook + sparkle [the film] · 34-35 breakdown, drums out [the reveal] ·
 // 36 everything back [All in pure code.] · 37-38 outro, Cmaj9 held [the end card].
 import { line, type Note, type Piece, type Role } from "../plan";
+import { composePiece, type Material } from "../compose";
 
 export const LAUNCH_BPM = 90, LAUNCH_BARS = 39;
 const L = (t: number, s: string, role: Role, v = 0.7, extra: { roll?: number } = {}) => line(t, s, { role, v, bpb: 4, ...extra });
@@ -40,7 +41,8 @@ const HATS = Array.from({ length: 16 }, (_, i) => `C4:.25@${[0.85, 0.35, 0.6, 0.
 // 21 sparkle [the film] · 22-23 breakdown, drums out [the five words] · 24 everything back, Cmaj9
 // [All in pure code.] · 25 held home [the end card].
 export const LAUNCH2_BARS = 26;
-export const launchLofi2 = (): Piece => {
+export const launchLofi2 = (): Piece => shipped(launchLofi2Raw());
+const launchLofi2Raw = (): Piece => {
   const B = LAUNCH2_BARS, last = B - 1, ci = (b: number) => (b < 2 ? -1 : (b - 2) % 4);
   const bars = (fn: (b: number, c: number) => string | null, role: Role, v: number, extra: { roll?: number } = {}): Note[] => { const out: Note[] = []; for (let b = 0; b < B; b++) { const x = fn(b, ci(b)); if (x) out.push(...L(b * 4, x, role, v, extra)); } return out; };
   const full: [number, number][] = [[2, 12], [15, 21], [24, 24]], half: [number, number][] = [[13, 14]];
@@ -66,26 +68,44 @@ export const launchLofi2 = (): Piece => {
 // 11-13 hook [bricks] · 14-15 half-time [Van Gogh] · 16 sparkle [LOOPS] · 17-21 groove, hook from
 // 19 [INTERACTIVE, the site] · 22-23 sparkle [FILMS, the film] · 24-25 breakdown [the five words] ·
 // 26 everything back [All in pure code.] · 27-28 home [the end card].
+// Written as composed material on the lo-fi electronic vocabulary (compose.ts); its audio is
+// bit-identical to the hand-written v6 (md5 of renderPiece at 48 kHz d20789f2344e6fff0d2a380c7c7825d2,
+// guarded by tools/music-unit.mjs). This is OUR film's score: a demo, never a template (the novelty
+// gate fails any film that reuses it).
 export const LAUNCH3_BARS = 29;
-export const launchLofi3 = (): Piece => {
-  const B = LAUNCH3_BARS, last = B - 1, ci = (b: number) => (b < 2 ? -1 : b % 4);
-  const bars = (fn: (b: number, c: number) => string | null, role: Role, v: number, extra: { roll?: number } = {}): Note[] => { const out: Note[] = []; for (let b = 0; b < B; b++) { const x = fn(b, ci(b)); if (x) out.push(...L(b * 4, x, role, v, extra)); } return out; };
-  const full: [number, number][] = [[2, 13], [16, 23], [26, 26]], half: [number, number][] = [[14, 15]];
-  const pad = bars((b, c) => (b >= 27 ? `${PAD[2]}:4@.75` : c < 0 ? `${PAD_INTRO[b]}:4@.8` : `${PAD[c]}:4`), "accomp", 0.62, { roll: 0.03 });
-  const sub = bars((b, c) => (c < 0 || inRanges(b, [[24, 25]]) ? null : b >= 27 ? "C2:4" : SUB[c]), "bass", 0.85);
-  const kick = bars((b) => (inRanges(b, full) ? KICK[b % 2] : inRanges(b, half) ? "C4:2 r:2" : null), "drum", 0.85);
-  const snare = bars((b) => (inRanges(b, full) ? "r:1 C4:2 C4:1" : inRanges(b, half) ? "r:2 C4:2" : null), "drum", 0.7);
-  const ghost = bars((b) => (inRanges(b, full) ? (b % 2 ? "r:1.75 C4:.25@.45 r:2" : "r:3.75 C4:.25@.5") : null), "drum", 0.5);
-  const hats = bars((b) => (inRanges(b, full) ? HATS : inRanges(b, half) ? "C4:1@.6 C4:1@.35 C4:1@.6 C4:1@.35" : null), "drum", 0.5);
-  const lead = bars((b, c) => (inRanges(b, [[6, 13], [19, 21], [26, 26]]) ? HOOK[c] : b === last ? "C5:4" : null), "melody", 0.72);
-  const sparkle = bars((b, c) => (inRanges(b, [[8, 10], [16, 16], [22, 25]]) ? SPARK[c] : null), "color", 0.5);
-  const harmony = Array.from({ length: B }, (_, b) => ({ t: b * 4, name: b < 2 ? ["Cmaj9", "Am9"][b] : b >= 27 ? "Cmaj9" : ["Dm9", "G13", "Cmaj9", "Am9"][b % 4] }));
-  const base = launchLofi();
-  return { ...base, title: "anidoodle launch, cut 3", harmony, plan: { ...base.plan, sections: [{ ...base.plan.sections[0], bars: B }] },
-    parts: base.parts.map((pt) => ({ ...pt, notes: ({ pad, lead, sparkle, sub, kick, snare, ghost, hat: hats } as Record<string, Note[]>)[pt.id] })) };
+export const launchLofi3Material = (): Material => {
+  const hk = (i: number) => `hook${i}`, sp = (i: number) => `spark${i}`;
+  return {
+    style: "lofiElectronic", title: "anidoodle launch, cut 3", seed: 2027, legacy: true, mood: "calm", bpm: LAUNCH_BPM, key: "C", mode: "major", swing: 0.54, tail: 3.2,
+    chords: { Dm9: { voicing: PAD[0], bass: SUB[0] }, G13: { voicing: PAD[1], bass: SUB[1] }, Cmaj9: { voicing: PAD[2], bass: SUB[2] }, Am9: { voicing: PAD[3], bass: SUB[3] } },
+    motifs: Object.fromEntries([...HOOK.map((h, i) => [hk(i), h]), ...SPARK.map((x, i) => [sp(i), x])]),
+    grooves: {
+      main: { kick: [KICK[0], KICK[1]], snare: ["r:1 C4:2 C4:1"], ghost: ["r:3.75 C4:.25@.5", "r:1.75 C4:.25@.45 r:2"], hat: [HATS], cycle: "piece" },
+      half: { kick: ["C4:2 r:2"], snare: ["r:2 C4:2"], hat: ["C4:1@.6 C4:1@.35 C4:1@.6 C4:1@.35"], cycle: "piece" },
+    },
+    sections: [
+      { kind: "intro", bars: 2, harmony: ["Cmaj9", "Am9"], chordVel: 0.8 },
+      { kind: "groove", bars: 4, harmony: ["Cmaj9", "Am9", "Dm9", "G13"] },
+      { kind: "hook", bars: 2, harmony: ["Cmaj9", "Am9"], lead: [hk(2), hk(3)] },
+      { kind: "hook", bars: 3, harmony: ["Dm9", "G13", "Cmaj9"], lead: [hk(0), hk(1), hk(2)], counter: [sp(0), sp(1), sp(2)] },
+      { kind: "hook", bars: 3, harmony: ["Am9", "Dm9", "G13"], lead: [hk(3), hk(0), hk(1)] },
+      { kind: "half", bars: 2, harmony: ["Cmaj9", "Am9"] },
+      { kind: "groove", bars: 1, harmony: ["Dm9"], counter: [sp(0)] },
+      { kind: "groove", bars: 2, harmony: ["G13", "Cmaj9"] },
+      { kind: "hook", bars: 3, harmony: ["Am9", "Dm9", "G13"], lead: [hk(3), hk(0), hk(1)] },
+      { kind: "groove", bars: 2, harmony: ["Cmaj9", "Am9"], counter: [sp(2), sp(3)] },
+      { kind: "breakdown", bars: 2, harmony: ["Dm9", "G13"], counter: [sp(0), sp(1)] },
+      { kind: "drop", bars: 1, id: "claim", harmony: ["Cmaj9"], lead: [hk(2)] },
+      { kind: "outro", bars: 2, harmony: ["Cmaj9"], chordVel: 0.75, bass: "C2:4", lead: ["r:4", "C5:4"] },
+    ],
+  };
 };
+/** The shipped launch films render with the pre-rebuild voices, bit-for-bit (SOUND-BRIEF legacy freeze); refits and short forms keep the flag. */
+const shipped = (p: Piece): Piece => ({ ...p, legacy: true, refit: p.refit && ((s: number) => shipped(p.refit!(s))), shortForm: p.shortForm && (() => shipped(p.shortForm!())) });
+export const launchLofi3 = (): Piece => shipped(composePiece(launchLofi3Material()));
 
-export const launchLofi = (): Piece => {
+export const launchLofi = (): Piece => shipped(launchLofiRaw());
+const launchLofiRaw = (): Piece => {
   const full: [number, number][] = [[2, 18], [23, 33], [36, 36]], half: [number, number][] = [[19, 22]], last = LAUNCH_BARS - 1;
   const pad = byBar("accomp", 0.62, (b, ci) => (b === last ? `${PAD[2]}:4@.75` : ci < 0 ? `${PAD_INTRO[b]}:4@.8` : `${PAD[ci]}:4`), { roll: 0.03 });
   const sub = byBar("bass", 0.85, (b, ci) => (ci < 0 || inRanges(b, [[34, 35]]) ? null : b === last ? "C2:4" : b >= 37 ? SUB_HOLD[ci] : SUB[ci]));
@@ -110,7 +130,5 @@ export const launchLofi = (): Piece => {
       { id: "hat", inst: "hat", role: "drum", notes: hats, opts: { pan: 0.25 }, gainDb: 20, send: 0.1 },
     ],
     fx: { clean: true, duck: { by: "kick", parts: ["pad", "sparkle"], depth: 0.38, release: 0.24 }, tape: { wowCents: 2.5, wowHz: 0.4, flutterCents: 0, flutterHz: 6, drive: 1.02 } },
-    // the mix as it was balanced by ear and meter: each stem's RMS (dBFS, active samples) within 3 dB
-    stemTargets: { kick: -14, snare: -20, hat: -28, sub: -18, pad: -21, lead: -16.5, sparkle: -24 },
   };
 };

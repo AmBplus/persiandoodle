@@ -214,17 +214,18 @@ const main = async () => {
 const calibrate = (M) => {
   const trim = {}, fix = {};
   for (const v of Object.values(M.VOCAB)) {
-    if (v.calibrated) continue; trim[v.id] = {}; fix[v.id] = {}; M.VOCAB_TARGET_FIX[v.id] = {};
+    // calibrated (listened) styles: the targets never move, the voices are trimmed to them (sound v2 changed their levels); no target fix
+    trim[v.id] = {}; fix[v.id] = {}; M.VOCAB_TARGET_FIX[v.id] = {};
     for (let pass = 0; pass < 3; pass++) {
       M.VOCAB_TRIM[v.id] = trim[v.id];
       const b = M.measureStems(M.composePiece(M.testMaterial(v)), STEM_SR);
-      for (const r of b.rows) if (r.offDb !== null && Number.isFinite(r.offDb)) trim[v.id][r.id] = +Math.max(-12, Math.min(12, (trim[v.id][r.id] ?? 0) - r.offDb)).toFixed(1); // capped: past 12 dB the gain is not the problem
-      if (pass === 2) { for (const r of b.rows) if (r.offDb !== null && Math.abs(r.offDb) > 1) fix[v.id][r.id] = +r.offDb.toFixed(1);
+      for (const r of b.rows) if (r.offDb !== null && Number.isFinite(r.offDb)) trim[v.id][r.id] = +Math.max(-18, Math.min(18, (trim[v.id][r.id] ?? 0) - r.offDb)).toFixed(1); // capped: past 18 dB the gain is not the problem (12 under the v1 meter, whose tails read sparse parts low)
+      if (pass === 2) { if (!v.calibrated) for (const r of b.rows) if (r.offDb !== null && Math.abs(r.offDb) > 1) fix[v.id][r.id] = +r.offDb.toFixed(1);
         console.log(v.id.padEnd(14), b.rows.filter((r) => r.offDb !== null).map((r) => `${r.id} ${r.offDb >= 0 ? "+" : ""}${r.offDb.toFixed(1)}`).join("  ")); }
     }
   }
   const file = join(here, "../src/canvas-core/music/vocabTrim.ts"), head = readFileSync(file, "utf8").split("export const VOCAB_TRIM")[0], j = (x) => JSON.stringify(x, null, 1).replace(/"(\w+)":/g, "$1:");
-  writeFileSync(file, `${head}export const VOCAB_TRIM: Record<string, Partial<Record<Slot, number>>> = ${j(trim)};\n/** Where a 12 dB trim could not reach the target (long-decaying plucks read low as active RMS), the target moves to where the voice sits. */\nexport const VOCAB_TARGET_FIX: Record<string, Partial<Record<Slot, number>>> = ${j(fix)};\n`);
+  writeFileSync(file, `${head}export const VOCAB_TRIM: Record<string, Partial<Record<Slot, number>>> = ${j(trim)};\n/** Where an 18 dB trim could not reach the target (long-decaying plucks read low as active RMS), the target moves to where the voice sits. */\nexport const VOCAB_TARGET_FIX: Record<string, Partial<Record<Slot, number>>> = ${j(fix)};\n`);
   console.log(`wrote ${file}`);
 };
 
@@ -242,6 +243,7 @@ const printVocab = (M, id) => {
   for (const [k, x] of Object.entries(v.harmony)) console.log(`harmony.${k}: ${Array.isArray(x) ? x.join(", ") : x}`);
   for (const [k, x] of Object.entries(v.melody)) console.log(`melody.${k}: ${x}`);
   for (const [k, x] of Object.entries(v.arrangement)) console.log(`arrangement.${k}: ${x}`);
+  console.log(`mix: ${M.describeMix(v.id)}`);
   console.log(`avoid: ${v.avoid}`);
 };
 
@@ -289,11 +291,11 @@ const printNovelty = (M, name, v, what) => {
   return v.pass;
 };
 
-/** Stem balance: each part's unmastered stem RMS (active samples) vs piece.stemTargets. Measured at 24 kHz, as the targets were. */
+/** Stem balance: each part's unmastered stem level (mid, gated 20 ms blocks: meter.stemRms) vs piece.stemTargets. Measured at 24 kHz, as the targets were. */
 const STEM_SR = 24000;
 const printStems = (M, piece, tempo, seconds) => {
   const b = M.measureStems(piece, STEM_SR, { tempo, seconds });
-  console.log(`stem balance: ${piece.title} (unmastered stem RMS over active samples vs target, +-${b.tolDb} dB; the lead may sit up to +${b.headroom.lead ?? 0} dB more for the masking guard; targets already include your mood controls' shifts)`);
+  console.log(`stem balance: ${piece.title} (unmastered stem RMS of the mid over the blocks where it plays, vs target, +-${b.tolDb} dB; the lead may sit up to +${b.headroom.lead ?? 0} dB more for the masking guard; targets already include your mood controls' shifts)`);
   for (const r of b.rows) console.log(`  ${r.id.padEnd(9)} ${fmt(r.rmsDb).padStart(6)} dB  ${r.targetDb === null ? "(no target)" : `target ${fmt(r.targetDb).padStart(6)}  off ${(r.offDb >= 0 ? "+" : "") + fmt(r.offDb)}  ${r.ok ? "ok" : `FLAG: ${r.offDb > 0 ? "too hot" : "too quiet"}`}`}`);
   if (!Object.keys(piece.stemTargets ?? {}).length) console.log("  (this piece declares no stemTargets)");
   const cal = M.VOCAB[piece.plan.style]?.calibrated !== false;

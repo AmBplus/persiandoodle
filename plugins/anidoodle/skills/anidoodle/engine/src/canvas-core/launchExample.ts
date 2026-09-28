@@ -3,7 +3,7 @@
 // Copying it: everything here is a PLACEHOLDER. The lighthouse and fox are stock style plates
 // standing in; your film's plates are drawn fresh for YOUR product's subject, in the style recipe
 // the brief chose (references/styles.md). The film is silent because a score is composed per
-// product (references/music/README.md); pass that piece as `score`. bpm comes from the brief.
+// product (references/music/compose.md); pass that piece as `score`. bpm comes from the brief.
 //   node tools/still.mjs launchExample --frame 0      the first frame is the thumbnail: check it
 //   node tools/render.mjs launchExample
 import { C } from "./launchKit";
@@ -24,5 +24,5 @@ export const launchExample = makeLaunchFilm({
   install: ["npm install your-product", "your-product init"],
   footer: "yourproduct.example",
   bpm: 90, askBeats: 6, typeBeats: 4, endBeats: 8, claimBar: 4,
-  score: null, // silent: write this product's own score and pass it here
+  score: null, // silent: compose this product's own score and pass it here
 });

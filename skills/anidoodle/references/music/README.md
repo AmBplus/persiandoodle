@@ -67,29 +67,36 @@ MusicPlan + notes (you write)  ->  perform  ->  instruments (one stem per part) 
    | `piano` | Modal, physics-shaped: inharmonic partials, 2-3 detuned strings with two-stage decay, velocity-dependent hammer brightness and strike comb, knock, soundboard modes, dampers, sustain pedal with sympathetic strings, stereo by pitch. See ADVISORY 4.1. |
    | `musicBox`, `bell` | The recipe's numbers |
    | `celesta`, `marimba`, `vibes` | Modal bars |
-   | `harp`, `guitar` | Extended Karplus-Strong |
-   | `strings` | Detuned PolyBLEP saws, slow bow, delayed vibrato |
+   | `harp`, `guitar` | Extended Karplus-Strong: pick position, two polarisations, a commuted body (harp fitted to CC0 recordings). `kind`: nylon (default), steel, electric (`pickup`: neck or bridge, `drive` into a clean amp) |
+   | `strings` | A section of `players` (default 10, divided across chords), each with its own timing, tuning, drift, vibrato and bow noise, through measured violin, viola and cello bodies. `pizz: true` plucks |
    | `fmBell`, `ePiano` | 2-operator FM |
    | `pulse`, `triangle`, `noiseDrum` | NES-style chip voices |
-   | `kick`, `snare`, `hat`, `bass`, `vinyl` | Drums, bass and texture |
+   | `kick`, `snare`, `hat`, `vinyl` | Drums and texture |
+   | `bass` | `kind`: finger (default, electric through an amp, `drive`), pick, upright (body, pitch settle, thump), synth (saw + sub into a 24 dB filter, glide) |
    | `warmPad`, `softPluck`, `sub` | The lo-fi electronic kit (`lofiKit.ts`): detuned-saw pad, filtered pluck with ping-pong delay, sine sub |
    | `organ` | Drawbar ranks (harmonics 1 2 3 4 6 8), chorus, tremulant |
-   | `brass` | PolyBLEP saw, a low-pass that opens with loudness, a pitch scoop, delayed vibrato |
-   | `woodwind` | Flute (sine + breath noise) or `reed: true` clarinet (odd harmonics) |
-   | `choir` | Detuned saws through vowel formants (`vowel`: a o u e i). Texture, never a lead |
+   | `brass` | Section of `players` (default 3): harmonics that brighten with loudness, a lip scoop, breath, bell formants (`type`: trumpet, trombone or horn; `bright` < 0.75 = horn) |
+   | `woodwind` | Flute (chiff, jet and breath noise, breath vibrato) or `reed: true` clarinet (odd harmonics, reed noise). Touching notes slur |
+   | `choir` | Singers (`singers`, default 8) with a glottal source, jitter, shimmer and breath, through 5 formants per vowel. `vowel`: a e i o u, or a sequence (`"uoa"`) that morphs across each note |
    | `timpani` | Tuned membrane modes, a pitch settle, a mallet thump (`pitch` tunes it in a drum lane) |
    | `leadSynth` | Mono saw + square, portamento, a filter envelope, blooming vibrato |
-   | `bowedSolo` | One bowed voice (violin, or `cello: true`): vibrato, bow noise, body resonances |
+   | `bowedSolo` | A bowed waveguide string (violin, or `cello: true`): touching notes are one bow with a finger slide, delayed vibrato, measured body |
 
-   The acoustic voices are procedural approximations. A human listens before one carries a film.
+   The acoustic voices are procedural approximations: cinematic and stylized, never "realistic". Every note varies
+   (seeded), so repeats never clone. A human listens before one carries a film. A shipped score sets
+   `legacy: true` on its piece to keep the sound it shipped with.
 4. **Room.** The style chooses it:
    - music box: one reflection, no tail;
    - nocturne and lullaby: a small room;
    - cinematic and drive: a hall;
    - chiptune: nothing.
 5. **Master.**
-   - **Gentle styles:** one static gain to **-16 LUFS**, true peak <= -1 dBTP, never a compressor.
-     If the peak blocks the gain, the loudness goes down. The cure is musical (see "Peaks" below).
+   - **Gentle styles:** one static gain to **-16 LUFS**, true peak <= -1 dBTP, never a compressor on the master.
+     Struck stems (plucks, plucked basses, piano, mallets and bells, timpani) first go through a transient-aware
+     gain in the mix (only the pick or hammer spike above the note's own body comes down, up to 6 dB, the stem's
+     level unchanged), so their attacks don't hold the master under the ceiling. `RenderOpts.gentleGlue` (a <= 1 dB
+     2:1 bus glue) exists but is off by default: Alex's call. If the peak still blocks the gain, the loudness goes
+     down. The cure is musical (see "Peaks" below): a solo piano with a 10 LU range (the nocturne demo) masters at -17.5.
    - **Dense styles** (lofiElectronic, lofi, drive, house, synthwave, hipHop, rock, chiptune): **-14 LUFS** through a look-ahead true-peak limiter, then a static trim if an inter-sample peak still passes -1 dBTP.
 
 A film's `audio` is `filmAudio(piece, seconds)`, which returns `(sampleRate) => [L, R]` at exactly

@@ -17,6 +17,9 @@ export * from "./calibration";
 export * as instruments from "./instruments";
 export * from "./sfx";
 export * as orchestra from "./orchestra";
+export * as lofiFx from "./lofiFx";
+export { MIX_PROFILES, FEELS, mixProfile, describeMix, type MixProfile, type Feel } from "./mixProfiles";
+export * as drums from "./drums";
 import { nocturne, pianoPhrase8 } from "./pieces/nocturne";
 import { launchLofi, launchLofi2, launchLofi3, launchLofi3Material } from "./pieces/launch";
 import { musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic } from "./pieces/samplers";
@@ -34,3 +37,4 @@ export const DEMOS = { launchLofi, launchLofi2, launchLofi3, nocturne, pianoPhra
 export const DEMO_FAMILIES: Record<string, string[]> = { launch: ["launchLofi", "launchLofi2", "launchLofi3"], nocturne: ["nocturne", "pianoPhrase8"] };
 /** Test fixtures, never scores: the ghost (must fail the ghost guard), the copy (must fail novelty). */
 export const FIXTURES = { ghostFixture, daylightCopy };
+export * from "./keys";
