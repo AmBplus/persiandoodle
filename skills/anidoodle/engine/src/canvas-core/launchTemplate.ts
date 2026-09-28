@@ -24,7 +24,7 @@ import {
 } from "./launchKit";
 import { beatGrid, bloomFrame, bloomRadius, makeCut, pic, type, typeFrame, type Seg, type TypeLine } from "./launchCut";
 import { measure, writeOn } from "./kinetic";
-import { renderPiece } from "./music/render";
+import { fitScore, limiter, renderPiece } from "./music/render";
 import { loudness, truePeak } from "./music/meter";
 import * as families from "./music/pieces/families";
 import * as launchPieces from "./music/pieces/launch";
@@ -61,6 +61,7 @@ export type LaunchSpec = {
   // A Material (what compose.md writes) is composed here; a finished Piece is used as is.
   score: (() => Piece | Material) | null;
   audio?: Film["audio"];     // or your own finished mix; wins over score
+  limit?: boolean;           // let a look-ahead limiter take the score's last peaks so it reaches -14 LUFS (default off: the peak ceiling wins)
 };
 
 const W = 1920, H = 1080;
@@ -207,24 +208,39 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     holds.push([cut.STARTS[k] + written + 1, cut.STARTS[k] + open + 1]);
   });
   holds.push([cut.N - END + 53, cut.N]); // the end card, all on: read it, screenshot it
+  // the score, fitted to the film's exact length so it ends on its phrase (fitScore: its stretch section
+  // repeated or dropped, then the tempo trimmed); the fitted tempo goes in meta so render prints it
+  // beside the grid's bpm (compose at the film's bpm and they stay within a few percent)
+  const bed = !spec.audio && spec.score ? scoreFit(asPiece(spec.score), cut.N, fps) : null;
   return {
-    meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds },
+    meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds, ...(bed ? { score: { tempo: bed.fit.tempo, form: bed.fit.form } } : {}) },
     assets: { images: {} },
     shots: [{ id: "cut", start: 0, end: cut.N, draw }],
-    audio: spec.audio ?? (spec.score ? musicBed(asPiece(spec.score), cut.N, fps) : undefined),
+    audio: spec.audio ?? (bed ? musicBed(() => bed.fit, cut.N, fps, -14, { limit: spec.limit }) : undefined),
     cut,
   };
 };
 
-// A music bed: the first `frames` of a composed piece, faded out over the last 1.2 s, then set to
-// `lufs` integrated (default -14, the one published cross-platform target) with the true peak held
-// at or under -1 dBTP. Compose the piece for this film, at the film's bpm, so the cuts sit on its downbeats.
-export const musicBed = (piece: () => Piece, frames: number, fps = 30, lufs = -14) => (sr: number): [Float32Array, Float32Array] => {
-  const n = Math.round((frames / fps) * sr), L = new Float32Array(n), R = new Float32Array(n), m = renderPiece(piece(), sr);
-  for (let i = 0; i < n && i < m.L.length; i++) { L[i] = m.L[i]; R[i] = m.R[i]; }
-  const fade = Math.round(1.2 * sr); for (let i = 0; i < fade && i < n; i++) { const g = i / fade; L[n - 1 - i] *= g; R[n - 1 - i] *= g; }
+type Fit = ReturnType<typeof fitScore>;
+const scoreFit = (piece: () => Piece, frames: number, fps: number) => ({ fit: fitScore(piece(), frames / fps) });
+
+// A music bed: the piece FITTED to the film (fitScore, exactly as filmAudio: its stretch section
+// repeated or dropped so it lands on its outro, the tempo trimmed so the tail rings out on the last
+// frame; never cut and faded), then set to `lufs` integrated (default -14, the one published
+// cross-platform target) with the true peak held at or under -1 dBTP. A dynamic piece stops at the
+// peak ceiling first (render prints how far short); `limit: true` lets a look-ahead limiter take
+// those few peaks instead so the bed reaches the target. Compose the piece for this film at the
+// film's bpm, so the cuts sit on its downbeats. `piece` may return a Piece or a fitScore result.
+export const musicBed = (piece: () => Piece | Fit, frames: number, fps = 30, lufs = -14, o: { limit?: boolean } = {}) => (sr: number): [Float32Array, Float32Array] => {
+  const seconds = frames / fps, x = piece(), fit = "order" in x ? x : fitScore(x, seconds);
+  const m = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo }), n = Math.round(seconds * sr);
+  const L = new Float32Array(n), R = new Float32Array(n); L.set(m.L.subarray(0, n)); R.set(m.R.subarray(0, n));
+  const gain = (dB: number) => { const g = Math.pow(10, dB / 20); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } };
   const now = loudness([L, R], sr).integrated, peak = truePeak([L, R]).dbtp;
-  const gainDb = Math.min(lufs - now, -1 - peak), g = Math.pow(10, gainDb / 20); // loudness first, never past -1 dBTP
-  for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; }
+  if (!o.limit || lufs - now <= -1 - peak) { gain(Math.min(lufs - now, -1 - peak)); return [L, R]; } // loudness first, never past -1 dBTP
+  gain(lufs - now); limiter(L, R, sr, Math.pow(10, -1.3 / 20));                                     // the limiter takes the peaks
+  const again = lufs - loudness([L, R], sr).integrated; if (again > 0) { gain(Math.min(again, 1)); limiter(L, R, sr, Math.pow(10, -1.3 / 20)); }
+  const tp = truePeak([L, R]).dbtp; if (tp > -1) gain(-1.05 - tp);                                    // an inter-sample overshoot: a last static trim
   return [L, R];
 };
+

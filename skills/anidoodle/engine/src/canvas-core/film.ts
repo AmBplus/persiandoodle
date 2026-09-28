@@ -18,6 +18,8 @@ export type Film = { meta: {
   holds?: [from: number, to: number][];
   onTwos?: boolean;
   step?: 1 | 2 | 3;
+  // the score as fitted to this film (fitScore): its tempo and form; render prints it next to the grid's bpm
+  score?: { tempo: number; form: string };
 }; assets: Assets; shots: Shot[]; audio?: (sampleRate: number) => [Float32Array, Float32Array] };
 
 // Cheap structural checks every adapter runs before frame 0. (The full gate is Phase 2.)

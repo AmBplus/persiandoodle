@@ -72,6 +72,18 @@ if (ranged) console.log(`range render: frames [${FROM}, ${TO}) of ${N}, silent b
 // audio: pure JS in the page -> WAV here (skipped for a range render: the score would not line up)
 mkdirSync(resolve(".tmp"), { recursive: true }); const wav = resolve(`.tmp/${film}.wav`), a = ranged ? null : await session.audio(48000);
 if (a) writeFileSync(wav, float32Wav(a));
+if (a) { // the audio report: loudness and true peak, and the score's fit against the picture's grid
+  const { build } = await import("esbuild"), js = (await build({ entryPoints: [resolve("src/canvas-core/music/meter.ts")], bundle: true, write: false, format: "esm", platform: "neutral", logLevel: "error" })).outputFiles[0].text;
+  const { loudness, truePeak } = await import("data:text/javascript;base64," + Buffer.from(js).toString("base64"));
+  const pcm = new Float32Array(Uint8Array.from(Buffer.from(a.float32, "base64")).buffer), L = new Float32Array(a.frames), R = new Float32Array(a.frames);
+  for (let i = 0; i < a.frames; i++) { L[i] = pcm[2 * i]; R[i] = pcm[2 * i + 1]; }
+  const lu = loudness([L, R], a.sampleRate).integrated, tp = truePeak([L, R]).dbtp;
+  console.log(`audio: ${lu.toFixed(1)} LUFS integrated, ${tp.toFixed(1)} dBTP true peak`);
+  if (lu < -14.5 && tp > -1.1) console.log(`  NOTE the -1 dBTP ceiling held the gain ${(-14 - lu).toFixed(1)} dB under -14 LUFS (the cross-platform target): peaks are a composing problem (stagger the bass under the loudest downbeat, roll the big chord); a launch template bed takes \`limit: true\``);
+  if (meta.score) { const off = (meta.score.tempo / meta.bpm - 1) * 100;
+    console.log(`score: fitted to the film at ${meta.score.tempo.toFixed(1)} bpm (${meta.score.form}); the picture's grid is ${meta.bpm} bpm (${off >= 0 ? "+" : ""}${off.toFixed(1)} %)`);
+    if (Math.abs(off) > 2) console.log("  NOTE past 2 % the cuts drift off the score's downbeats: a 1-bar stretch section, or the Material's `tail`, lets the fit land nearer the grid"); }
+}
 
 mkdirSync(join(out, ".."), { recursive: true });
 const input = ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(meta.fps), "-c:v", "png", "-i", "-"];
