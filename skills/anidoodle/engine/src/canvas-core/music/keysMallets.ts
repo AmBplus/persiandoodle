@@ -42,7 +42,7 @@ export const bars = (keys: Played[], sr: number, n: number, o: Opts, seed: numbe
     const i0 = Math.round(k.t * sr); if (i0 >= n) return;
     const nv = noteVar(seed, idx, k, { cents: 1.0, db: 0.5, bright: 0.1, decay: 0.06 }, strike(k.p));
     const v = clamp(k.v, 0.02, 1), f0 = mtof(k.p) * Math.pow(2, nv.cents / 1200);
-    const tc = ((S.tcMs[0] + (S.tcMs[1] - S.tcMs[0]) * Math.pow(v, 0.8)) / 1000) * (1 + 0.1 * clamp(gauss(nv.r), -2, 2)) / nv.bright;
+    const tc = ((S.tcMs[0] + (S.tcMs[1] - S.tcMs[0]) * Math.pow(v, 0.8)) / 1000) * clamp(Math.pow(262 / f0, 0.6), 0.15, 2) * (1 + 0.1 * clamp(gauss(nv.r), -2, 2)) / nv.bright; // shorter, stiffer bars up high: shorter contact
     let damp = Infinity;
     if (S.damped) damp = Math.min(k.off, nextSameKey(sorted, idx));
     else { const nx = nextSameKey(sorted, idx); if (nx < Infinity) damp = nx + 0.003; } // a restrike stops the old ring
@@ -50,11 +50,11 @@ export const bars = (keys: Played[], sr: number, n: number, o: Opts, seed: numbe
     const len = Math.min(buf.length, n - i0); if (len <= 0) return;
     const b = buf.subarray(0, len); b.fill(0);
     const rb = resBuf.subarray(0, len); rb.fill(0);
-    const W0 = pulseW(f0, tc);
+    const W0 = Math.max(0.3, pulseW(f0, tc)); // never divide by a spectral zero of the pulse (contact ~1.5 periods): that blew a mode up 20 dB
     for (const [ratio, db, t60ref] of S.modes) {
       const f = ratio * f0; if (f > sr * 0.45) continue;
       const t60 = clamp(t60ref * (S.t60Mul ?? 1) * Math.pow((ratio * S.refHz) / f, S.alpha), 0.02, 60) * nv.decay;
-      const a = dbA(db + (ratio === S.modes[0][0] ? 0 : 2 * (ratio < 5 ? nv.seq2 : -nv.seq2)) + 0.6 * clamp(gauss(nv.r), -2, 2)) * (pulseW(f, tc) / W0); // strike position moves the upper modes against each other
+      const a = dbA(db + (ratio === S.modes[0][0] ? 0 : 2 * (ratio < 5 ? nv.seq2 : -nv.seq2)) + 0.6 * clamp(gauss(nv.r), -2, 2)) * (Math.max(0.02, pulseW(f, tc)) / W0); // strike position moves the upper modes against each other
       if (a < 1e-4) continue;
       const ph = 0.35 * nv.seq2 + 0.1 * clamp(gauss(nv.r), -2, 2);
       if (ratio === S.modes[0][0] && S.bloom > 0) {

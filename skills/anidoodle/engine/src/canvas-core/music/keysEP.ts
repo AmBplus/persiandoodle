@@ -43,7 +43,7 @@ export const electricPiano = (keys: Played[], sr: number, n: number, o: Opts, se
     const contact = Math.max(2, Math.round(((model === "wurli" ? 2.4 : 3) - 1.8 * v) / 1000 * sr));
     if (model === "dx") {
       // three stacks, phase modulation; the carriers start at zero phase, the modulators free
-      const I1 = 1.1 + 2.3 * v * v, I2 = 0.2 + 3.2 * Math.pow(v, 1.6), I3 = 0.5 + 0.7 * v;
+      const I1 = 1.1 + 2.3 * v * v, I3 = 0.5 + 0.7 * v, I2 = Math.min(0.2 + 3.2 * Math.pow(v, 1.6), Math.max(0, (0.42 * sr / f - 1) / 14 - 1)); // the 14:1 bark's sidebands stay under Nyquist (no aliasing up high)
       const tb = 0.02 + 0.04 * (1 - v), w = TAU * f / sr, d2 = Math.pow(2, 2 / 1200), d3 = Math.pow(2, -3 / 1200);
       let pm2 = nv.phase(), pm3 = nv.phase(), fb = 0;
       const e1 = Math.exp(-sig / sr), e1i = Math.exp(-1 / (0.55 * sr)), e2 = Math.exp(-1 / (0.28 * sr)), e2i = Math.exp(-1 / (tb * sr)), e3 = Math.exp(-(sig * 0.7) / sr), e3i = Math.exp(-1 / (1.5 * sr));

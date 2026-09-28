@@ -26,7 +26,7 @@ import { GRAND_ENV, GRAND_LAYER_V, GRAND_DECAY, PIANO_BANDS } from "./keysTables
 import { partial, noiseBurst, dbA, strikeCounter, type Opts } from "./keysCore";
 
 export type PianoVariant = "grand" | "felt" | "upright" | "honky";
-type Voicing = { bMul: number; promptMul: number; afterMul: number; detuneC: [number, number]; tilt: (f: number, v: number) => number; contactMs: (v: number) => number; knock: number; noise: number; board: number; width: number; level: number };
+type Voicing = { noiseHz: number; bMul: number; promptMul: number; afterMul: number; detuneC: [number, number]; tilt: (f: number, v: number) => number; contactMs: (v: number) => number; knock: number; noise: number; board: number; width: number; level: number };
 
 const LOG_BANDS = PIANO_BANDS.map(Math.log);
 const lerp = (a: number, b: number, x: number) => a + (b - a) * x;
@@ -77,13 +77,13 @@ export const measuredB = (m: number) => {
 };
 
 const VOICINGS: Record<PianoVariant, Voicing> = {
-  grand: { bMul: 1, promptMul: 1, afterMul: 1, detuneC: [0.3, 1.8], tilt: () => 0, contactMs: (v) => 4.2 - 3.3 * v, knock: 1, noise: 1, board: 1, width: 0.55, level: 1 },
+  grand: { noiseHz: 2200, bMul: 1, promptMul: 1, afterMul: 1, detuneC: [0.3, 1.8], tilt: () => 0, contactMs: (v) => 4.2 - 3.3 * v, knock: 1, noise: 1, board: 1, width: 0.55, level: 1 },
   // felt strip: the felt eats the hammer's highs (-12 dB/oct above ~0.6-1.4 kHz), a soft, slow contact, and the
   // mechanism right in the microphone
-  felt: { bMul: 1, promptMul: 0.9, afterMul: 0.85, detuneC: [0.3, 1.6], tilt: (f, v) => -12 * Math.max(0, Math.log2(f / (600 + 800 * v))), contactMs: (v) => 8 - 3 * v, knock: 2.6, noise: 3.2, board: 1.2, width: 0.35, level: 1.25 },
+  felt: { noiseHz: 650, bMul: 1, promptMul: 0.9, afterMul: 0.85, detuneC: [0.3, 1.6], tilt: (f, v) => -12 * Math.max(0, Math.log2(f / (600 + 800 * v))), contactMs: (v) => 8 - 3 * v, knock: 2.6, noise: 3.2, board: 1.2, width: 0.35, level: 1.25 },
   // shorter, stiffer strings on a smaller board: more inharmonic, less bass, a boxy 1-2 kHz, a shorter ring
-  upright: { bMul: 1.8, promptMul: 0.75, afterMul: 0.5, detuneC: [0.8, 3], tilt: (f) => -6 * Math.max(0, Math.log2(110 / f)) + 3 * Math.exp(-Math.pow(Math.log2(f / 1400), 2) * 2), contactMs: (v) => 3.4 - 2.6 * v, knock: 1.4, noise: 1.4, board: 1.5, width: 0.3, level: 1.1 },
-  honky: { bMul: 2, promptMul: 0.7, afterMul: 0.45, detuneC: [6, 14], tilt: (f) => -6 * Math.max(0, Math.log2(110 / f)) + 4 * Math.exp(-Math.pow(Math.log2(f / 2000), 2) * 1.5), contactMs: (v) => 2.2 - 1.6 * v, knock: 1.6, noise: 1.5, board: 1.5, width: 0.3, level: 1.05 },
+  upright: { noiseHz: 1800, bMul: 1.8, promptMul: 0.75, afterMul: 0.5, detuneC: [0.8, 3], tilt: (f) => -6 * Math.max(0, Math.log2(110 / f)) + 3 * Math.exp(-Math.pow(Math.log2(f / 1400), 2) * 2), contactMs: (v) => 3.4 - 2.6 * v, knock: 1.4, noise: 1.4, board: 1.5, width: 0.3, level: 1.1 },
+  honky: { noiseHz: 2600, bMul: 2, promptMul: 0.7, afterMul: 0.45, detuneC: [6, 14], tilt: (f) => -6 * Math.max(0, Math.log2(110 / f)) + 4 * Math.exp(-Math.pow(Math.log2(f / 2000), 2) * 1.5), contactMs: (v) => 2.2 - 1.6 * v, knock: 1.6, noise: 1.5, board: 1.5, width: 0.3, level: 1.05 },
 };
 
 const stretchCents = (m: number) => (m > 60 ? 0.012 * Math.pow(m - 60, 1.9) : -0.02 * Math.pow(60 - m, 1.6));
@@ -187,7 +187,7 @@ export const renderPianoV2 = (keys: KeyPress[], pedal: PedalSpan[], sr: number, 
     const ml = Math.min(mech.length, len); mech.fill(0);
     const thumpF = 70 + 40 * nr(), thumpW = (TAU * thumpF) / sr;
     for (let i = 0; i < Math.min(ml, Math.round(0.05 * sr)); i++) mech[i] += Math.sin(thumpW * i) * Math.exp(-i / (0.014 * sr)) * 0.012 * V.knock * Math.pow(v, 1.3);
-    noiseBurst(mech, 0, Math.round((0.0015 + 0.0015 * (1 - v)) * sr), 2200 + 2000 * v, 0.7, 0.02 * V.noise * v * v, nr, sr);
+    noiseBurst(mech, 0, Math.round((0.0015 + 0.0015 * (1 - v)) * sr), V.noiseHz * (1 + 0.9 * v), 0.7, 0.02 * V.noise * v * v, nr, sr);
     const bw = 0.05 * V.board * Math.pow(v, 1.2) * (0.8 + 0.4 * nr()) * (m < 48 ? 1.4 : m > 84 ? 0.7 : 1), hard = clamp(v * v, 0, 1), sh = Math.round(nr() * 40);
     for (let i = 0; i < ml && i + sh < irHard.length; i++) mech[i] += (irHard[i + sh] * hard + irSoft[i + sh] * (1 - hard)) * bw * Math.min(1, i / 24);
     for (let i = 0; i < ml; i++) buf[i] += mech[i];
