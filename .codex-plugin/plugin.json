@@ -1,6 +1,6 @@
 {
   "name": "anidoodle",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Code-drawn stills, drawing timelapses, films, explainers and interactive web animations in 31 styles, with scores composed in code.",
   "skills": "./skills/",
   "interface": {
@@ -24,6 +24,8 @@
       "Recreate this photo as a Japanese woodblock print.",
       "Teach me how to draw a cat sitting, step by step."
     ],
-    "brandColor": "#C2410C"
+    "brandColor": "#C2410C",
+    "logo": "./assets/icon.png",
+    "composerIcon": "./assets/icon.png"
   }
 }

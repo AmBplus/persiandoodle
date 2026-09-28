@@ -32,6 +32,8 @@ mkdir -p "${STAGE}/.claude-plugin"
 cp "${REPO_ROOT}/.claude-plugin/plugin.json" "${STAGE}/.claude-plugin/plugin.json"
 cp "${REPO_ROOT}/scripts/plugin-README.md" "${STAGE}/README.md"
 cp "${REPO_ROOT}/LICENSE" "${REPO_ROOT}/NOTICE" "${STAGE}/"
+mkdir -p "${STAGE}/assets"
+cp "${REPO_ROOT}/assets/icon.png" "${STAGE}/assets/icon.png"
 cd "${REPO_ROOT}"
 count=0
 while IFS= read -r f; do
