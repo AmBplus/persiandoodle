@@ -94,7 +94,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## 用代码谱写音乐
 
-没有采样，也没有录音。音符写成数据，所有声音都由代码合成。音乐风格是模型用来作曲的词汇，从来不是预设：共 21 种，从低保真电子、House、合成器浪潮到管弦乐、爵士、民谣和钢琴独奏。风格提供音色、律动和和声语言；和弦、动机和曲式每次都重新写，所以每部片子都有自己的配乐。
+没有采样，也没有录音。音符写成数据，所有声音都由代码合成。曲风是模型用来作曲的词汇，从来不是预设：共 21 种，从低保真电子、House、合成器浪潮到管弦乐、爵士、民谣和钢琴独奏。曲风提供音色、律动和和声语言；和弦、动机和曲式每次都重新写，所以每部片子都有自己的配乐。
 
 - **键盘：** 以一台真实的施坦威三角钢琴为原型建模的钢琴，Rhodes 和 Wurlitzer 电钢琴，音轮风琴和管风琴，槌击乐器和钟。
 - **合奏：** 每位乐手独立演奏的弦乐组，铜管，长笛和单簧管，会唱出元音的合唱团，尼龙弦、钢弦和电吉他，竖琴和四种贝斯。
@@ -111,7 +111,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [电影感·敬畏](assets/audio/sampler-cinematic-awe-8s.mp3) · [低保真](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [马林巴](assets/audio/sampler-marimba-curious-8s.mp3) · [电子乐](assets/audio/sampler-drive-electronic-8s.mp3) | 更多情绪与乐器 |
 | [15 秒版夜曲主题](assets/audio/fit-theme-15s.mp3) | 作曲器会选择适合时长的曲式 |
 
-以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。配乐怎么写：[`compose.md`](skills/anidoodle/references/music/compose.md) · [21 种词汇](skills/anidoodle/references/music/styles/vocabularies.md)。
+以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。配乐怎么写：[`compose.md`](skills/anidoodle/references/music/compose.md) · [词汇一览](skills/anidoodle/references/music/styles/vocabularies.md)。
 
 ## 会注意到你的网页
 
@@ -130,7 +130,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 - **声音来自画面：** 每一次按键、点击和落地都有自己的音效，出现在屏幕上发生的位置，下面是为这支片子作曲的配乐。
 - **可以直接发布：** `launch.mjs ship <名称>` 渲染每种画幅，写出封面帧和字幕（.srt 与 .vtt），在交付的文件上检查音画同步和峰值电平，并让任何边缘切到文字的帧不通过。
 
-两种风格（手绘墨迹，或为以界面为主的产品准备的简洁风格），30 或 60 fps，运动模糊按每一帧的速度调整。
+两种外观（手绘墨迹，或为以界面为主的产品准备的简洁外观），30 或 60 fps，运动模糊按每一帧的速度调整。
 
 这些规则来自我们自己发布片的四次剪辑，以及优秀发布片的手艺：五秒内说清它是什么，文字永远不压在画面上，在强拍上切换，把第一帧做成缩略图。 → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [工具包](skills/anidoodle/references/workflows/launch-video-kit.md)
 
@@ -175,7 +175,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 - **故事**，让每件作品都有一个重点。一张静态图只讲一个想法、聚焦一个主体；一部短片只有一次转变、一个高潮，和一个反复出现的意象。→ [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **写实感**，来自把它说清楚。解剖结构、观察视角，以及你参考过的资料，都要交代明白，这样一只蝴蝶读起来才像是一个有身体、有翅脉的真实生物。→ [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **风格**，活在笔触里。31 套完整配方，外加一份按场合挑风格的指南，以及自创风格的步骤。→ [`styles.md`](skills/anidoodle/references/styles.md)
-- **音乐**，依照某种风格的词汇为每件作品作曲，再由代码合成：21 种风格、完整的乐队和管弦乐团、所有大小调、每个段落各自的情绪，以及能适配任意时长的主题旋律。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **音乐**，依照某种曲风的词汇为每件作品作曲，再由代码合成：21 种曲风、完整的乐队和管弦乐团、所有大小调、每个段落各自的情绪，以及能适配任意时长的主题旋律。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **确定性**，是这套系统的承诺。纯函数加上带种子的随机数，任何人拿到源码都能重建出一模一样的作品。→ [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **方法**，让你保持速度。先用一张静态图验证效果，再一路做到底，把审批环节留给那些出错代价高的地方。→ [`working-method.md`](skills/anidoodle/references/working-method.md)
 

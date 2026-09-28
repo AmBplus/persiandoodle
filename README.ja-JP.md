@@ -94,7 +94,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## コードで作曲する音楽
 
-サンプル音源も録音も使わない。音符をデータとして書き、すべての音をコードで合成する。音楽スタイルはモデルが作曲に使う語彙であって、プリセットではない。ローファイ・エレクトロニック、ハウス、シンセウェイヴからオーケストラ、ジャズ、フォーク、ピアノ独奏まで21種類。各スタイルが音色、グルーヴ、和声の語法を与え、コード、モチーフ、形式は毎回新しく書く。だから映像ごとに、その映像だけのスコアになる。
+サンプル音源も録音も使わない。音符をデータとして書き、すべての音をコードで合成する。音楽のジャンルはモデルが作曲に使う語彙であって、プリセットではない。ローファイ・エレクトロニック、ハウス、シンセウェイヴからオーケストラ、ジャズ、フォーク、ピアノ独奏まで21種類。各ジャンルが音色、グルーヴ、和声の語法を与え、コード、モチーフ、形式は毎回新しく書く。だから映像ごとに、その映像だけのスコアになる。
 
 - **鍵盤:** 実在のスタインウェイ・グランドをもとにモデル化したピアノ、ローズとウーリッツァーのエレクトリックピアノ、トーンホイール・オルガンとパイプオルガン、鍵盤打楽器とベル。
 - **アンサンブル:** 一人ひとりが独立して弾く弦楽セクション、金管、フルートとクラリネット、母音を歌い分ける合唱、ナイロン弦・スチール弦・エレクトリックのギター、ハープ、4種類のベース。
@@ -111,7 +111,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [シネマティック・畏敬](assets/audio/sampler-cinematic-awe-8s.mp3) · [ローファイ](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [マリンバ](assets/audio/sampler-marimba-curious-8s.mp3) · [エレクトロニック](assets/audio/sampler-drive-electronic-8s.mp3) | ほかのムードと楽器 |
 | [15秒に収めたノクターンのテーマ](assets/audio/fit-theme-15s.mp3) | 長さに合う構成を作曲家が選ぶ |
 
-そして**効果音キット**。重ねて作るシード付きの効果音が十四種、フレーム単位で鳴り、そのたびに音楽が一歩引く（[サウンドデザイン](skills/anidoodle/references/music/sound-design.md)）。スコアの作り方: [`compose.md`](skills/anidoodle/references/music/compose.md) · [21の語彙](skills/anidoodle/references/music/styles/vocabularies.md)。
+そして**効果音キット**。重ねて作るシード付きの効果音が十四種、フレーム単位で鳴り、そのたびに音楽が一歩引く（[サウンドデザイン](skills/anidoodle/references/music/sound-design.md)）。スコアの作り方: [`compose.md`](skills/anidoodle/references/music/compose.md) · [語彙の一覧](skills/anidoodle/references/music/styles/vocabularies.md)。
 
 ## あなたに気づくウェブページ
 
@@ -175,7 +175,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 - **物語**が、作品に意味を与える。一枚絵ならひとつのアイデアとひとつの主題。映画ならひとつの変化、ひとつの見せ場、そして繰り返し登場するモチーフがひとつ。→ [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **リアリズム**は、名づけることから生まれる。解剖学的な構造、視点、そして開いた参考資料。それがあってはじめて、蝶は体と翅脈を持つ生き物として見えてくる。→ [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **スタイル**は、線そのものに宿る。31の完全なレシピ、案件ごとに選ぶためのガイド、そして自分だけのスタイルを生み出す手順。→ [`styles.md`](skills/anidoodle/references/styles.md)
-- **音楽**は、スタイルの語彙から作品ごとに作曲し、コードで合成する。21のスタイル、バンドとオーケストラ一式、すべての長調と短調、セクションごとの情感、どんな長さにも合うテーマを備えている。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **音楽**は、ジャンルの語彙から作品ごとに作曲し、コードで合成する。21のジャンル、バンドとオーケストラ一式、すべての長調と短調、セクションごとの情感、どんな長さにも合うテーマを備えている。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **決定性**が、その保証になる。純粋関数とシード付き乱数だから、ソースコードさえあれば誰でもまったく同じ作品を再構築できる。→ [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **手法**が、スピードを保ってくれる。まず一枚の絵で見た目を確かめ、そのまま一気に作り上げ、間違えるとコストの高いところにだけ承認をかける。→ [`working-method.md`](skills/anidoodle/references/working-method.md)
 

@@ -111,7 +111,7 @@ No samples and no recordings. The notes are written as data and every sound is s
 | [Cinematic, awe](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electronic](assets/audio/sampler-drive-electronic-8s.mp3) | more moods and instruments |
 | [The nocturne's theme in 15 seconds](assets/audio/fit-theme-15s.mp3) | the composer picks the form that fits the length |
 
-Also in the box: a **sound-effects kit**, fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)). How a score is composed: [`compose.md`](skills/anidoodle/references/music/compose.md) · [the 21 vocabularies](skills/anidoodle/references/music/styles/vocabularies.md).
+Also in the box: a **sound-effects kit**, fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)). How a score is composed: [`compose.md`](skills/anidoodle/references/music/compose.md) · [every vocabulary](skills/anidoodle/references/music/styles/vocabularies.md).
 
 ## Web pages that notice you
 
@@ -175,7 +175,7 @@ The engine is the easy half. The craft is the part anidoodle carries for you, si
 - **Story** gives every piece a point. One idea and one focal subject for a still; one transformation, one payoff and one returning token for a film. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Realism** comes from naming it. The anatomy, the view and the reference you opened, so a butterfly reads as a creature with a body and veins. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Style** lives in the mark. Thirty-one full recipes, a guide for picking one per job, and the steps for inventing your own. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **Music** is composed for each piece from a style's vocabulary and synthesized in code: 21 styles, a full band and orchestra, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **Music** is composed for each piece from a genre's vocabulary and synthesized in code: 21 genres, a full band and orchestra, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Determinism** is the guarantee. Pure functions and a seeded random, so anyone with the source rebuilds the exact same piece. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **Method** keeps you fast. Prove the look on one still, build straight through, and spend approval where being wrong is expensive. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 

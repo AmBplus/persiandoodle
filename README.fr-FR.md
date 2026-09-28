@@ -111,7 +111,7 @@ Ni échantillons ni enregistrements. Les notes sont écrites comme des données 
 | [Cinématique, émerveillement](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Électronique](assets/audio/sampler-drive-electronic-8s.mp3) | d'autres ambiances et instruments |
 | [Le thème du nocturne en 15 secondes](assets/audio/fit-theme-15s.mp3) | Le compositeur choisit la forme adaptée à la durée |
 
-Et aussi : un **kit de bruitages**, quatorze effets superposés et déterministes, calés sur l'image exacte, la musique s'effaçant sous chacun d'eux ([le design sonore](skills/anidoodle/references/music/sound-design.md)). Comment on compose une partition : [`compose.md`](skills/anidoodle/references/music/compose.md) · [les 21 vocabulaires](skills/anidoodle/references/music/styles/vocabularies.md).
+Et aussi : un **kit de bruitages**, quatorze effets superposés et déterministes, calés sur l'image exacte, la musique s'effaçant sous chacun d'eux ([le design sonore](skills/anidoodle/references/music/sound-design.md)). Comment on compose une partition : [`compose.md`](skills/anidoodle/references/music/compose.md) · [tous les vocabulaires](skills/anidoodle/references/music/styles/vocabularies.md).
 
 ## Des pages web qui vous remarquent
 
@@ -175,7 +175,7 @@ Le moteur, c'est la partie facile. Le métier, c'est ce qu'anidoodle porte pour 
 - **Le récit** donne un sens à chaque pièce. Une idée et un sujet focal pour une image fixe ; une transformation, une résolution et un motif qui revient pour un film. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Le réalisme** vient du fait de le nommer. L'anatomie, l'angle de vue et la référence que vous avez ouverte, pour qu'un papillon se lise comme une créature avec un corps et des nervures. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Le style** habite la trace. Trente et une recettes complètes, un guide pour en choisir une par projet, et la marche à suivre pour inventer la vôtre. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **La musique** se compose pour chaque pièce à partir du vocabulaire d'un style et se synthétise par code : 21 styles, un groupe et un orchestre complets, toutes les tonalités majeures et mineures, une humeur par section et un thème adapté à toute durée. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **La musique** se compose pour chaque pièce à partir du vocabulaire d'un genre et se synthétise par code : 21 genres, un groupe et un orchestre complets, toutes les tonalités majeures et mineures, une humeur par section et un thème adapté à toute durée. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Le déterminisme** est la garantie. Des fonctions pures et un aléatoire à graine fixe, pour que quiconque a le code source reconstruise exactement la même pièce. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **La méthode** vous fait gagner du temps. Prouvez le rendu sur une seule image fixe, construisez d'une traite, et réservez les validations aux endroits où se tromper coûte cher. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 

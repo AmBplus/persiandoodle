@@ -111,7 +111,7 @@ Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se s
 | [Cinemático, asombro](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electrónica](assets/audio/sampler-drive-electronic-8s.mp3) | más estados de ánimo e instrumentos |
 | [El tema del nocturno en 15 segundos](assets/audio/fit-theme-15s.mp3) | El compositor elige la forma que cabe en ese tiempo |
 
-Y además: un **kit de efectos de sonido**, catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)). Cómo se compone una partitura: [`compose.md`](skills/anidoodle/references/music/compose.md) · [los 21 vocabularios](skills/anidoodle/references/music/styles/vocabularies.md).
+Y además: un **kit de efectos de sonido**, catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)). Cómo se compone una partitura: [`compose.md`](skills/anidoodle/references/music/compose.md) · [todos los vocabularios](skills/anidoodle/references/music/styles/vocabularies.md).
 
 ## Páginas web que se fijan en ti
 
@@ -130,7 +130,7 @@ El vídeo al principio de esta página se hizo con anidoodle, y el kit con el qu
 - **Sonido que sale de la imagen:** cada tecla, pulsación y aterrizaje tiene su efecto, situado donde ocurre en pantalla, sobre una banda sonora compuesta para el vídeo.
 - **Listo para publicar:** `launch.mjs ship <nombre>` renderiza cada formato con su fotograma de portada y sus subtítulos (.srt y .vtt), comprueba la sincronía de audio y vídeo y el nivel de pico en el archivo que entregas, y falla cualquier fotograma cuyo borde corte un texto.
 
-Dos estilos (tinta dibujada, o limpio para un producto centrado en su interfaz), a 30 o 60 fps, con desenfoque de movimiento ajustado a la velocidad de cada fotograma.
+Dos acabados (tinta dibujada, o limpio para un producto centrado en su interfaz), a 30 o 60 fps, con desenfoque de movimiento ajustado a la velocidad de cada fotograma.
 
 Las reglas salen de cuatro montajes de nuestro propio lanzamiento y del oficio de los mejores: di qué es en cinco segundos, nunca pongas texto sobre la ilustración, corta en el tiempo fuerte, haz que el primer fotograma sea la miniatura. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [el kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
@@ -175,7 +175,7 @@ El motor es la mitad fácil. El oficio es la parte que anidoodle carga por ti: s
 - **Historia** le da un sentido a cada pieza. Una idea y un motivo central para una imagen fija; una transformación, una recompensa y un elemento recurrente para una película. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Realismo** viene de nombrarlo todo. La anatomía, el punto de vista y la referencia que abriste, para que una mariposa se lea como una criatura con cuerpo y venas. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Estilo** vive en el trazo. Treinta y una recetas completas, una guía para elegir una según el encargo, y los pasos para inventar la tuya propia. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **Música** se compone para cada pieza a partir del vocabulario de un estilo y se sintetiza con código: 21 estilos, una banda y una orquesta completas, todas las tonalidades mayores y menores, un ánimo para cada sección y un tema que se adapta a cualquier duración. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **Música** se compone para cada pieza a partir del vocabulario de un género y se sintetiza con código: 21 géneros, una banda y una orquesta completas, todas las tonalidades mayores y menores, un ánimo para cada sección y un tema que se adapta a cualquier duración. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Determinismo** es la garantía. Funciones puras y un aleatorio con semilla, para que cualquiera con la fuente reconstruya exactamente la misma pieza. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **Método** te mantiene rápido. Demuestra el look en una sola imagen fija, construye de un tirón, y gasta las aprobaciones donde equivocarse sale caro. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 

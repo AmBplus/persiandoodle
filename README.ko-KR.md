@@ -94,7 +94,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## 코드로 작곡한 음악
 
-샘플도 녹음도 쓰지 않아요. 음표는 데이터로 적고, 모든 소리를 코드로 합성해요. 음악 스타일은 모델이 작곡에 쓰는 어휘일 뿐, 프리셋이 아니에요. 로파이 일렉트로닉, 하우스, 신스웨이브부터 오케스트라, 재즈, 포크, 피아노 독주까지 21가지예요. 스타일은 음색과 그루브, 화성 어법을 주고, 코드와 모티프, 형식은 매번 새로 써요. 그래서 모든 영상이 자기만의 스코어를 받아요.
+샘플도 녹음도 쓰지 않아요. 음표는 데이터로 적고, 모든 소리를 코드로 합성해요. 음악 장르는 모델이 작곡에 쓰는 어휘일 뿐, 프리셋이 아니에요. 로파이 일렉트로닉, 하우스, 신스웨이브부터 오케스트라, 재즈, 포크, 피아노 독주까지 21가지예요. 장르는 음색과 그루브, 화성 어법을 주고, 코드와 모티프, 형식은 매번 새로 써요. 그래서 모든 영상이 자기만의 스코어를 받아요.
 
 - **건반:** 실제 스타인웨이 그랜드를 바탕으로 모델링한 피아노, 로즈와 워리처 전자 피아노, 톤휠 오르간과 파이프 오르간, 건반 타악기와 종.
 - **앙상블:** 연주자마다 따로 연주하는 현악 섹션, 금관, 플루트와 클라리넷, 모음을 불러내는 합창, 나일론·스틸·일렉트릭 기타, 하프, 네 가지 베이스.
@@ -111,7 +111,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [영화 음악·경외감](assets/audio/sampler-cinematic-awe-8s.mp3) · [로파이](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [마림바](assets/audio/sampler-marimba-curious-8s.mp3) · [일렉트로닉](assets/audio/sampler-drive-electronic-8s.mp3) | 더 많은 분위기와 악기 |
 | [15초로 맞춘 녹턴 주제](assets/audio/fit-theme-15s.mp3) | 작곡기가 길이에 맞는 형식을 골라요 |
 
-**효과음 키트**도 있어요. 여러 겹으로 만든 시드 기반 효과음 열네 가지가 정확한 프레임에 맞춰 울리고, 그때마다 음악이 살짝 물러나요 ([사운드 디자인](skills/anidoodle/references/music/sound-design.md)). 스코어를 만드는 방법: [`compose.md`](skills/anidoodle/references/music/compose.md) · [21가지 어휘](skills/anidoodle/references/music/styles/vocabularies.md).
+**효과음 키트**도 있어요. 여러 겹으로 만든 시드 기반 효과음 열네 가지가 정확한 프레임에 맞춰 울리고, 그때마다 음악이 살짝 물러나요 ([사운드 디자인](skills/anidoodle/references/music/sound-design.md)). 스코어를 만드는 방법: [`compose.md`](skills/anidoodle/references/music/compose.md) · [어휘 목록](skills/anidoodle/references/music/styles/vocabularies.md).
 
 ## 나를 알아채는 웹페이지
 
@@ -175,7 +175,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 - **스토리**는 모든 작품에 의미를 줘요. 스틸컷 하나에는 아이디어 하나와 초점이 되는 소재 하나, 영화에는 하나의 변화와 하나의 결말, 그리고 되돌아오는 상징 하나. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **사실감**은 이름을 붙이는 데서 나와요. 해부 구조, 시점, 그리고 펼쳐본 레퍼런스까지 정확히 짚어야, 나비 한 마리도 몸과 날개맥을 가진 생명체로 읽혀요. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **스타일**은 선 하나하나에 깃들어요. 31가지 완전한 레시피, 작업에 맞게 하나를 고르는 가이드, 그리고 나만의 스타일을 만드는 방법까지. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **음악**은 스타일의 어휘로 작품마다 작곡하고 코드로 합성해요. 21가지 스타일, 밴드와 오케스트라 전체, 모든 장조와 단조, 구간별 분위기, 어떤 길이에도 맞는 테마까지 갖췄어요. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **음악**은 장르의 어휘로 작품마다 작곡하고 코드로 합성해요. 21가지 장르, 밴드와 오케스트라 전체, 모든 장조와 단조, 구간별 분위기, 어떤 길이에도 맞는 테마까지 갖췄어요. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **결정론**은 우리의 보증이에요. 순수 함수와 시드값 기반 난수를 쓰니까, 소스만 있으면 누구든 완전히 똑같은 작품을 다시 만들어낼 수 있어요. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **작업 방식**이 속도를 지켜줘요. 스틸컷 하나로 룩을 먼저 검증하고, 그다음은 막힘없이 쭉 밀고 나가고, 틀렸을 때 비용이 큰 지점에서만 승인을 받는 식으로요. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 
