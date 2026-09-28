@@ -5,7 +5,35 @@
 import { rng as mkRng } from "../core";
 import { pcOf } from "./theory";
 import { clamp, db, type Rng } from "./dsp";
-import { Bus, modal, chirp, burst, white, pink, filt, sweep, shape, ad, smooth, space, finish, secs, buf, kWeight, winLufs, speakingWindow, type Mode, type SfxStereo } from "./sfxCore";
+import { Bus, modal, chirp, burst, white, pink, filt, sweep, shape, ad, smooth, finish, secs, buf, kWeight, winLufs, speakingWindow, type Mode, type SfxStereo } from "./sfxCore";
+import { smallRoom } from "./roomSmall";
+
+/**
+ * The space every sound sits in: a diffused small room (roomSmall.ts: dense early reflections and a
+ * modulated, damped tail that does not ring like the old 8-line FDN). The room's size follows the
+ * decay asked for, and every trigger gets its own room seed and +-8 % decay and level, so a repeated
+ * cue never has the identical tail.
+ */
+const space = (b: Bus, r: Rng, o: { rt60: number; mix: number; er?: number; predelay?: number; hp?: number; lp?: number }) => {
+  const rt = o.rt60 * (0.92 + 0.16 * r()), mix = o.mix * (0.92 + 0.16 * r()), seed = Math.floor(r() * 0xffffffff);
+  const [wL, wR] = smallRoom(b.L, b.R, b.sr, { rt60: rt, size: clamp(0.35 + rt * 0.55, 0.35, 1.8), er: (o.er ?? 0.5) * 1.1, late: 0.75, predelay: o.predelay ?? 0.008, hp: o.hp ?? 250, lp: o.lp ?? 7000, damp: (o.lp ?? 7000) * 0.7, seed });
+  for (let i = 0; i < b.n; i++) { b.L[i] += wL[i] * mix; b.R[i] += wR[i] * mix; }
+};
+/**
+ * Transient design (a transient shaper): the ratio of a fast envelope (0.2 ms attack, 6 ms release) to
+ * a slow one (7 ms, 70 ms) is large only on the attack, so `amt` > 0 sharpens the contact and leaves
+ * the body and tail alone. Linked across channels (the image does not shift). Gain capped at +9 dB.
+ */
+const punch = (b: Bus, amt: number) => {
+  const sr = b.sr, ka = (t: number) => 1 - Math.exp(-1 / (t * sr)), fa = ka(0.0002), fr = ka(0.006), sa = ka(0.007), srl = ka(0.07), sm = ka(0.0008);
+  let f = 0, s = 0, g = 1;
+  for (let i = 0; i < b.n; i++) {
+    const x = Math.max(Math.abs(b.L[i]), Math.abs(b.R[i]));
+    f += (x > f ? fa : fr) * (x - f); s += (x > s ? sa : srl) * (x - s);
+    const want = s > 1e-9 ? clamp(Math.pow(f / s, amt), 1, 2.8) : 1; g += sm * (want - g);
+    b.L[i] *= g; b.R[i] *= g;
+  }
+};
 
 export type SfxOpts = {
   /** per-hit variation: same seed, same samples; a different seed, a different (but same-family) hit. */
@@ -65,6 +93,7 @@ const tick: Def = {
       b.add(burst(sr, r, 0.001, 0.00025, { hp: 4000 }), up, 0.1, p0);
     }
     if (soft) for (const ch of [b.L, b.R]) filt(ch, sr, { lp: 6000 });
+    punch(b, soft ? 0.25 : 0.4);
     space(b, r, { rt60: 0.22, mix: 0.06, hp: 600 });
     return { bus: b, hit: 0 };
   },
@@ -93,6 +122,7 @@ const press: Def = {
       b.add(modal(sr, n, glock(f, 0.35, 1, 0.012)), 0, 0.18, -0.25);
       b.add(modal(sr, n, glock(f * 1.5, 0.28, 1, 0.07)), 0, 0.12, 0.3);
     }
+    punch(b, soft ? 0.3 : 0.5);
     space(b, r, { rt60: v === "confirm" ? 0.9 : 0.4, mix: v === "confirm" ? 0.16 : 0.1, hp: 220 });
     return { bus: b, hit: 0 };
   },
@@ -109,6 +139,7 @@ const pop: Def = {
     b.add(burst(sr, r, 0.005, v === "cork" ? 0.0014 : 0.0008, { bp: v === "tiny" ? 3200 : v === "cork" ? 900 : 1400, q: 1.4 }), 0, nz * 2.2, p0);
     if (v !== "tiny") b.add(modal(sr, n, [{ f: c.j(v === "cork" ? 110 : 140, 0.1) * P, tau: 0.01, a: 1, att: 0.0005 }]), 0, 0.3, 0);
     if (v === "cork") b.add(shape(filt(pink(r, secs(sr, 0.12)), sr, { hp: 1800 }), sr, ad(0.004, 0.025)), secs(sr, 0.004), 0.25, p0); // the rush of air
+    punch(b, 0.35);
     space(b, r, { rt60: 0.35, mix: 0.1 });
     return { bus: b, hit: 0 };
   },
@@ -124,7 +155,7 @@ const ink: Def = {
   variants: ["plip", "double", "bloom"], level: -15, duckDb: 2,
   use: "an ink drop landing (plip), a drop and its smaller echo (double), the drop that opens an ink bloom (bloom)",
   make(c, v) {
-    const { sr, r, P } = c, n = secs(sr, 3), b = new Bus(sr, n), p0 = (r() - 0.5) * 0.3, f0 = c.j(1150, 0.12) * P, tau = c.j(0.04, 0.15);
+    const { sr, r, P } = c, n = secs(sr, 3.5), b = new Bus(sr, n), p0 = (r() - 0.5) * 0.3, f0 = c.j(1150, 0.12) * P, tau = c.j(0.04, 0.15);
     drop(c, b, 0, f0, tau, 1, p0);
     if (v === "double") drop(c, b, secs(sr, c.j(0.085, 0.2)), f0 * c.j(1.35, 0.06), tau * 0.7, 0.42, p0 + 0.25);
     if (v === "bloom") { // the ink spreads: a soft wet swell and a low round note under it
@@ -133,6 +164,7 @@ const ink: Def = {
       b.add2(sw, sw2, secs(sr, 0.02), 0.5);
       b.add(chirp(sr, secs(sr, 2.2), (t) => c.j(98, 0.04) * P * (1 - 0.06 * smooth(t / 0.6)), ad(0.05, 0.34)), secs(sr, 0.01), 0.22, 0);
     }
+    punch(b, 0.3);
     space(b, r, { rt60: v === "bloom" ? 1.1 : 0.6, mix: v === "bloom" ? 0.22 : 0.14, hp: 300 });
     return { bus: b, hit: 0 };
   },
@@ -242,6 +274,9 @@ const passBy = (c: Ctx, b: Bus, len: number, o: { air: number; tone: number; ton
   const mono = air[0].map((x, i) => x * 0.75 + air[1][i] * 0.25);
   b.add(mono, 0, 3.2, panAt);
   b.add2(air[1], air[0], 0, 0.9);
+  // pre-attack air: the thin high edge of the moving air reaches the ear ~3 ms before its body
+  const edgeAir = filt(pink(r, N), sr, { hp: 5200 }); for (let i = 0; i < N; i++) edgeAir[i] *= amp(i / sr) * Math.pow(geo(i / sr).D, 3);
+  b.add(edgeAir, -secs(sr, 0.003), 0.55, panAt);
   if (o.toneAmt > 0) { const t = white(r, N); sweep(t, sr, (tt) => o.tone * P * geo(tt).D, o.toneQ, "bp"); for (let i = 0; i < N; i++) t[i] *= amp(i / sr); b.add(t, 0, o.toneAmt, panAt); }
   if (o.bodyAmt > 0) { const s = pink(r, N); sweep(s, sr, (t) => o.body * geo(t).D, 0.8, "lp"); for (let i = 0; i < N; i++) s[i] *= amp(i / sr); b.add(s, 0, o.bodyAmt, (i) => panAt(i) * 0.4); }
   return secs(sr, tc);
@@ -314,7 +349,7 @@ const impact: Def = {
   variants: ["boom", "soft", "bloom"], level: -9, duckDb: 6,
   use: "the ONE big reveal (boom), a smaller landing (soft), the reveal with a tuned shimmer and a breath in before it (bloom)",
   make(c, v) {
-    const { sr, r, P } = c, soft = v === "soft", pre = v === "bloom" ? secs(sr, 0.28) : 0, n = pre + secs(sr, soft ? 3.5 : 5.5), b = new Bus(sr, n);
+    const { sr, r, P } = c, soft = v === "soft", pre = v === "bloom" ? secs(sr, 0.28) : 0, n = pre + secs(sr, soft ? 4.5 : 7.5), b = new Bus(sr, n);
     // 1 sub drop, saturated so small speakers still hear its harmonics
     const lo = c.j(soft ? 40 : 44, 0.04) * P, subTau = c.j(soft ? 0.32 : 0.6, 0.1), sub = chirp(sr, secs(sr, subTau * 8), (t) => lo + (soft ? 55 : 72) * P * Math.exp(-t / 0.07), ad(0.002, subTau));
     b.add(sub.map((x) => Math.tanh(x * 1.8) / Math.tanh(1.8)), pre, 1, 0);
@@ -333,6 +368,7 @@ const impact: Def = {
         b.add(modal(sr, n, ms), pre, 0.09, p);
       });
     }
+    punch(b, soft ? 0.25 : 0.2);
     space(b, r, { rt60: soft ? 1.2 : 2.4, mix: soft ? 0.2 : 0.34, hp: 120, lp: 3500, predelay: 0.02, er: 0.35 });
     return { bus: b, hit: pre };
   },
@@ -342,7 +378,7 @@ const chime: Def = {
   variants: ["sparkle", "bell", "glint"], level: -17, duckDb: 1.5,
   use: "magic / success, tuned to the film's key: a rising pentatonic sparkle (sparkle), one bell (bell), a tiny glint on a highlight (glint)",
   make(c, v) {
-    const { sr, r } = c, n = secs(sr, v === "bell" ? 6 : v === "glint" ? 2 : 4), b = new Bus(sr, n), scale = PENTA[c.key!.minor ? "minor" : "major"];
+    const { sr, r } = c, n = secs(sr, v === "bell" ? 7 : v === "glint" ? 2.5 : 5.5), b = new Bus(sr, n), scale = PENTA[c.key!.minor ? "minor" : "major"];
     if (v === "bell") {
       b.add(modal(sr, n, glock(keyHz(c, 5) * c.P, 1.4, 1)), 0, 1, -0.1);
       b.add(modal(sr, n, glock(keyHz(c, 6, 7) * c.P, 0.9, 1, 0.004)), 0, 0.3, 0.3);
@@ -411,6 +447,7 @@ const brick: Def = {
       clack(c, b, 0, 0.45, p0, 1.08);
       const at = secs(sr, c.j(0.024, 0.2)); clack(c, b, at, 1, p0, 0.94);
       b.add(modal(sr, n, [{ f: c.j(380, 0.08) * P, tau: 0.012, a: 1, att: 0.0003 }]), at, 0.5, p0);
+      punch(b, 0.35);
       space(b, r, { rt60: 0.35, mix: 0.08 });
       return { bus: b, hit: at };
     }
@@ -418,6 +455,7 @@ const brick: Def = {
       let t = 0, gap = c.j(0.11, 0.2), g = 1; const k = 3 + Math.floor(r() * 3);
       for (let q = 0; q < k; q++) { clack(c, b, secs(sr, t), g, clamp(p0 + (r() - 0.5) * 0.4, -1, 1), 0.9 + 0.2 * r()); t += gap; gap *= c.j(0.62, 0.1); g *= c.j(0.6, 0.15); }
     } else clack(c, b, 0, 1, p0, 1);
+    punch(b, 0.35);
     space(b, r, { rt60: 0.35, mix: 0.08 });
     return { bus: b, hit: 0 };
   },
@@ -501,7 +539,8 @@ export const renderSfx = (kind: SfxKind, o: SfxOpts = {}, sr = 48000): SfxSound 
   const need = sfxNeeds(kind, variant, o);
   if (need.key && o.key === undefined) throw new Error(`sfx: ${kind}:${variant} is tuned and needs a key (opts.key, or in a plan: plan.key or plan.score = the film's piece); there is no default key`);
   if (need.bpm && o.bpm === undefined) throw new Error(`sfx: ${kind}:${variant} is tempo-synced and needs a bpm (opts.bpm, or in a plan: plan.bpm or plan.score); there is no default tempo`);
-  const c: Ctx = { sr, r, P: Math.pow(2, (o.pitch ?? 0) / 12), o, dir: o.dir ?? 1, key: o.key === undefined ? null : parseKey(o.key), bpm: o.bpm ?? NaN, j: (x, amt) => x * (1 + (r() * 2 - 1) * amt) };
+  const wobble = need.key ? 1 : 1 + (r() * 2 - 1) * 0.03; // +-3 % per trigger: a repeat never clones (never on a tuned sound)
+  const c: Ctx = { sr, r, P: Math.pow(2, (o.pitch ?? 0) / 12) * wobble, o, dir: o.dir ?? 1, key: o.key === undefined ? null : parseKey(o.key), bpm: o.bpm ?? NaN, j: (x, amt) => x * (1 + (r() * 2 - 1) * amt) };
   const made = d.make(c, variant), [L, R] = finish(made.bus, made.hit);
   const kL = kWeight(L, sr), kR = kWeight(R, sr), window = speakingWindow(kL, kR, sr), now = winLufs(kL, kR, window[0], window[1]);
   let g = d.level + (r() * 2 - 1) + (o.gainDb ?? 0) - now;
