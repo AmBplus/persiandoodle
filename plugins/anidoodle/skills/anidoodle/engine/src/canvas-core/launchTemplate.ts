@@ -31,6 +31,8 @@ import * as launchPieces from "./music/pieces/launch";
 import * as nocturnePieces from "./music/pieces/nocturne";
 import * as samplers from "./music/pieces/samplers";
 import type { Piece } from "./music/plan";
+import { composePiece, type Material } from "./music/compose";
+import { novelty } from "./music/novelty";
 
 export type LaunchAsk = {
   prompt: string;            // what the user types, in their words
@@ -56,17 +58,25 @@ export type LaunchSpec = {
   // The score: a piece COMPOSED for this product's brief (references/music/compose.md), or null for
   // a silent film. Required, so no film inherits a score by default. anidoodle's own pieces are
   // refused: every user's film gets its own music, never ours.
-  score: (() => Piece) | null;
+  // A Material (what compose.md writes) is composed here; a finished Piece is used as is.
+  score: (() => Piece | Material) | null;
   audio?: Film["audio"];     // or your own finished mix; wins over score
 };
 
 const W = 1920, H = 1080;
 // anidoodle's own pieces (the demos and our launch score) are examples of the composer, never a
-// user's soundtrack. Refused by identity and by title, so a thin wrapper does not slip through.
+// user's soundtrack. Refused by identity, by title and by content (the novelty gate), so a thin or
+// retitled wrapper does not slip through. `audio` is the caller's own finished mix and is not checked.
 const OURS: (() => Piece)[] = [...Object.values(families), ...Object.values(launchPieces), ...Object.values(nocturnePieces), ...Object.values(samplers)].filter((v): v is () => Piece => typeof v === "function");
-const refuseOurs = (score: () => Piece) => {
+const asPiece = (score: () => Piece | Material) => (): Piece => { const x = score(); return "plan" in x ? x : composePiece(x); };
+const refuseOurs = (score: () => Piece | Material) => {
   const ours = () => new Set(OURS.map((f) => { try { return f().title; } catch { return null; } }).filter(Boolean));
-  if (OURS.includes(score) || ours().has(score().title)) throw new Error(`launchTemplate: "${score().title}" is one of anidoodle's own pieces; compose a score for this product's brief (references/music/compose.md) or pass score: null`);
+  if ((OURS as unknown[]).includes(score) || ours().has(score().title)) throw new Error(`launchTemplate: "${score().title}" is one of anidoodle's own pieces; compose a score for this product's brief (references/music/compose.md) or pass score: null`);
+  // by content too: a retitled copy, a transposition or a quoted line of ours fails the same novelty gate `music.mjs check` runs
+  const corpus: Record<string, () => Piece> = {};
+  OURS.forEach((f, i) => { try { const p = asPiece(f)(); corpus[`${p.title} #${i}`] = () => p; } catch { /* not a piece */ } });
+  const v = novelty(asPiece(score)(), corpus);
+  if (!v.pass) throw new Error(`launchTemplate: "${score().title}" is too close to anidoodle's own "${v.worst.name.replace(/ #\d+$/, "")}" (similarity ${v.worst.score}, ${v.worst.reusedFragments} reused 6-note fragments); compose a score for this product's brief (references/music/compose.md) or pass score: null`);
 };
 const TYPE_O = { lead: -4, stagger: 18 }; // the word starts as the bloom closes over the frame; lines run on without a gap
 const TOP = 170, VIEW_BOTTOM = INPUT.y - 26, BUBBLE = 58, CARD = 460;
@@ -201,7 +211,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds },
     assets: { images: {} },
     shots: [{ id: "cut", start: 0, end: cut.N, draw }],
-    audio: spec.audio ?? (spec.score ? musicBed(spec.score, cut.N, fps) : undefined),
+    audio: spec.audio ?? (spec.score ? musicBed(asPiece(spec.score), cut.N, fps) : undefined),
     cut,
   };
 };

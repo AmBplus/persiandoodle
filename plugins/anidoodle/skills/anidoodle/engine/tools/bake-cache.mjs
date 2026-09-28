@@ -1,5 +1,5 @@
 // BAKE CACHE, the disk half of Env.bake (the page half is hosts/page.ts). Finished plate frames
-// live in .cache/bakes/<browser version>/<source hash>.<frame>.<w>x<h>.png. The source hash is
+// live in .cache/bakes/<browser version>-<binary hash>/<source hash>.<frame>.<w>x<h>.png. The source hash is
 // computed by build-page.mjs over the plate's whole import closure, so an edited plate simply
 // misses and is drawn again; a different browser build (which may rasterise differently) gets a
 // different folder. Nothing here is ever needed: delete .cache/ and every frame is drawn cold.

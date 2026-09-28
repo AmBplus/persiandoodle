@@ -150,5 +150,5 @@ const tree = (dir, depth = 0) => readdirSync(dir, { withFileTypes: true }).filte
 console.log(`scaffolded ${target}\n${tree(target)}\n`);
 console.log(`next:\n  cd ${target}\n  npm install`);
 if (still) console.log(`  node tools/still.mjs ${still} --out out/${still}.png      # the picture; --scale 2 for print size`);
-if (film) console.log(`  node tools/still.mjs ${film} --out out/look.png\n  node tools/gate.mjs ${film}`);
+if (film) console.log(`  node tools/still.mjs ${film} --out out/look.png\n  node tools/render.mjs ${film}                      # the gate measures the MP4\n  node tools/gate.mjs ${film}`);
 if (opt.example) console.log(`  node tools/gate.mjs mechanicalLepidoptera --mp4 out/mechanical-lepidoptera.mp4   # the worked example`);

@@ -1,6 +1,7 @@
 // PLAYWRIGHT ADAPTER. Thin by design: open the generated page, ask it for frame N, take the
 // canvas pixels. Frame accuracy comes from the pull model (frame N is a pure function of N),
 // not from anything Playwright does.
+import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { bakeCacheOn, loadBakes, saveBakes } from "../bake-cache.mjs";
 
@@ -8,7 +9,10 @@ export const name = "playwright";
 // bakeCache (default on): finished plate frames come from and go to .cache/bakes (see bake-cache.mjs)
 export const open = async ({ pw, browser: found }, pagePath, { scale = 1, workers = 1, bakeCache } = {}) => {
   const browser = await pw.lib.chromium.launch({ executablePath: found.executablePath, args: ["--disable-background-timer-throttling"] });
-  const useBakes = bakeCacheOn(bakeCache), bv = browser.version(); let loadedBakes = 0;
+  // the bake folder is keyed by the browser BINARY, not just its version: Chrome for Testing and
+  // chrome-headless-shell report the same version and rasterise differently, so one must never
+  // replay the other's plate frames
+  const useBakes = bakeCacheOn(bakeCache), bv = `${browser.version()}-${createHash("md5").update(found.executablePath ?? "playwright-default").digest("hex").slice(0, 8)}`; let loadedBakes = 0;
   const context = await browser.newContext({ viewport: { width: 640, height: 640 }, deviceScaleFactor: 1 });
   const pages = [];
   for (let i = 0; i < workers; i++) { const page = await context.newPage(); const errors = []; page.on("pageerror", (e) => errors.push(e.message)); await page.goto(pathToFileURL(pagePath).href + "?adapter=playwright"); await page.evaluate(async (s) => { await window.FILM.ready; window.FILM.mount(s); }, scale); if (useBakes) loadedBakes = await loadBakes(page, bv); await page.evaluate(() => window.FILM.warm()); /* warm = build texture tiles once, outside the timed frames */ if (errors.length) throw new Error("page failed: " + errors.join("; ")); pages.push(page); }
