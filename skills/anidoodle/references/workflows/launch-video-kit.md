@@ -71,7 +71,7 @@ pieces, by identity, by title and by content (the same novelty gate `music.mjs c
 | `words[i]` | the type frame after `asks[i]` (not after the last ask; it flows into the end card) |
 | `tagline`, `install[]`, `footer` | the end card; install lines are shown exactly as given |
 | `bpm` (required), `fps`, `askBeats`, `typeBeats`, `endBeats` | the beat grid (a beat is 60 x fps / bpm frames) and each part's length in beats |
-| `claimBar` | land the end card on this bar's downbeat; throws if it cannot |
+| `claimBar` | land the end card on this bar's downbeat, counting from bar 0 (`claimBar: 4` = frame 4 x bar); throws if it cannot. A longer last ask is really longer, never slowed |
 | `score` (required) or `audio` | the score composed for this product (the `Material` function compose.md writes, or a `Piece`), as a bed; `null` for silence; or your own finished mix (not checked) |
 
 The template refuses a feature list (more than 3 asks) and an end card too short to read.
