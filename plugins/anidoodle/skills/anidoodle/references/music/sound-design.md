@@ -56,9 +56,9 @@ approach, a riser's build) is rendered before the frame. If it would start befor
 the plan throws and names the earliest legal frame.
 
 ```ts
-import { filmSfx, filmAudio, composePiece, type SfxPlan } from "./music";
-import { myScore } from "./myScore";                  // the Material YOU composed for this film (compose.md)
-const score = composePiece(myScore);
+import { filmSfx, filmAudio, type SfxPlan } from "./music";
+import { myScore } from "./myScore";                  // the Piece YOU wrote for this film (README.md)
+const score = myScore();
 const plan: SfxPlan = {
   fps: 30, frames: 450, score: { piece: score }, beatZeroS: 0, seed: 7,  // key, bpm, bar from the score
   cues: [

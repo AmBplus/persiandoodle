@@ -42,9 +42,9 @@ say why in one line. Write the answers into a short brief before drawing.
 | A style matched from their image | `references/workflows/adapt-a-style.md` |
 | A score or soundtrack | `references/music/README.md` |
 
-- Music: pick a style vocabulary and mood, compose your own harmony, motif and form (references/music/compose.md), then node tools/music.mjs check <score.ts#export> must PASS before a human listens. Styles give sound, never notes.
+- Music: write your own score for the film (references/music/README.md); node tools/music.mjs check <score.ts#export> must PASS before a human listens.
 - Sound effects: references/music/sound-design.md. 14 layered, seeded effects cued by film frame (filmSfx); the score ducks, and every cue must be within 6 dB of it. Effects only on real direction changes, one riser + one impact per film.
-- Launch films: `launchTemplate.ts` renders a product's launch from data: prompts, plates drawn for it, a score composed for it, words, install lines; habits that save tokens are in `references/working-method.md`.
+- Launch films: `launchTemplate.ts` renders a product's launch from data: prompts, plates drawn for it, a score written for it, words, install lines; habits that save tokens are in `references/working-method.md`.
 
 ## The seven laws
 
@@ -123,7 +123,7 @@ node tools/emit.mjs intro --out out/intro.html                     # one self-co
 | `docs-check.mjs` | fails when any doc's style count, length or path disagrees with the code |
 | `verify-export.mjs` | QA on the rendered file: frames, duration, score; opt-in first frame, loop seam, `--delivery` |
 | `test.mjs` (`npm test`) | unit suites in `engine/test/`, no browser |
-| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score; `render`, `meter` |
+| `music.mjs` | renders and meters a score; `check` gates it (key, master, guards, stems, novelty) |
 | `sfx.mjs` | the sound-effects kit: `list`, `one`, `kit <dir>`, `test` |
 
 Four backends, one art core: `playwright`, `html-player`, `remotion`, `hyperframes`.

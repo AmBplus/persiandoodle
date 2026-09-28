@@ -7,7 +7,7 @@ export type Mode = { id: ModeId; intervals: number[]; color: string; use: string
 
 // Intervals are semitones above the tonic. `color` is the degree that makes the mode read as itself.
 export const MODES: Record<ModeId, Mode> = {
-  major: { id: "major", intervals: [0, 2, 4, 5, 7, 9, 11], color: "3, 7", use: "joy, arrival, sunlight", guard: "section 7 only" },
+  major: { id: "major", intervals: [0, 2, 4, 5, 7, 9, 11], color: "3, 7", use: "joy, arrival, sunlight; the music-box default", guard: "section 7 only" },
   aeolian: { id: "aeolian", intervals: [0, 2, 3, 5, 7, 8, 10], color: "b3, b6", use: "sadness, longing, gravity, night", guard: "tonic clarity" },
   harmonicMinor: { id: "harmonicMinor", intervals: [0, 2, 3, 5, 7, 8, 11], color: "raised 7 over V", use: "drama, fate, cadences inside minor", guard: "augmented step b6-7 only as a passing figure, max 2 per phrase" },
   melodicMinor: { id: "melodicMinor", intervals: [0, 2, 3, 5, 7, 9, 11], color: "raised 6 and 7", use: "hopeful minor, yearning lines that climb", guard: "rising lines only; falling lines revert to aeolian" },
