@@ -221,7 +221,10 @@ const cached = (env: { cache: Map<string, unknown> }) => {
 };
 
 export const pixelArt: Film = {
-  meta: { title: "Pixel art · the pounce", W: 1080, H: 1080, fps: 30, bpm: 120, durationFrames: N },
+  // a drawing: pixels laid pass by pass in 3-frame cels (a 10 fps feel), so a hand may rest between
+  // passes. Held: from the last cel that adds a cell (frame 407; the resampled plan repeats its final
+  // cels) through the finished picture's HOLD.
+  meta: { title: "Pixel art · the pounce", W: 1080, H: 1080, fps: 30, bpm: 120, durationFrames: N, kind: "drawing", holds: [[407, N]] },
   assets: { images: {} },
   shots: [{
     id: "pounce", start: 0, end: N, draw: (ctx, f, env) => {

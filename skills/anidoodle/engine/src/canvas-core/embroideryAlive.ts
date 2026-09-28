@@ -218,7 +218,9 @@ export const drawEmbroideryAlive = (ctx: Ctx, fr: number, env: Env) => {
 };
 
 export const embroideryAlive: Film = {
-  meta: { title: "A wreath and a bee · embroidery, alive", W, H, fps: 30, bpm: 90, durationFrames: N, kind: "loop" },
+  // held: the bee resting on the poppy (one wing flick) until it lifts at TAKE, and the last of the
+  // gold line unpicking after it lands, into the seam. Both are the loop's breath, watched, not waits.
+  meta: { title: "A wreath and a bee · embroidery, alive", W, H, fps: 30, bpm: 90, durationFrames: N, kind: "loop", holds: [[0, TAKE + 2], [220, N]] },
   assets: { images: {} },
   shots: [{ id: "alive", start: 0, end: N, draw: drawEmbroideryAlive }],
 };
