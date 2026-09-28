@@ -56,7 +56,7 @@ export type LaunchSpec = {
   footer?: string;           // small print under the panel (where it runs, the repo)
   bpm: number; fps?: number; // the beat grid: bpm comes from the brief (the score composed for it); a beat is 60 * fps / bpm frames
   askBeats?: number; typeBeats?: number; endBeats?: number; // default 6, 4, 8
-  claimBar?: number;         // land the end card on this bar's downbeat (solves the last ask)
+  claimBar?: number;         // land the end card on this bar's downbeat, counting from bar 0 (solves the last ask)
   // The score: a piece COMPOSED for this product's brief (references/music/compose.md), or null for
   // a silent film. Required, so no film inherits a score by default. anidoodle's own pieces are
   // refused: every user's film gets its own music, never ours.
@@ -105,8 +105,14 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
   if (n < 1 || n > 3) throw new Error("launchTemplate: 1 to 3 asks; more is a feature list, not a story");
   if (ASK < 100) throw new Error(`launchTemplate: an ask beat needs 100 frames or more (it has ${ASK}); raise askBeats`);
   if (END < MIN_END(fps)) throw new Error("launchTemplate: the end card must hold the install lines 3 s or more; raise endBeats");
-  const T = spec.asks.map((a, i) => ({ ...askTiming(a.prompt, i, ASK), base: i * ASK }));
-  const END0 = n * ASK; // content frame where the end card starts
+  // claimBar solves the last ask's length. A longer ask is really longer (the card holds, the plate
+  // draws over the extra time); it is never the same ask slowed down, which would repeat frames.
+  const typeCount = spec.asks.slice(0, -1).filter((_, i) => spec.words?.[i]?.length).length;
+  const SOLVED = spec.claimBar !== undefined ? grid.solve(spec.claimBar, (n - 1) * ASK + typeCount * TYPE, 60) : ASK;
+  const LEN = spec.asks.map((_, i) => (i === n - 1 ? Math.max(ASK, SOLVED) : ASK)); // content frames per ask
+  const BASE = LEN.map((_, i) => LEN.slice(0, i).reduce((a, b) => a + b, 0));
+  const T = spec.asks.map((a, i) => ({ ...askTiming(a.prompt, i, ASK), base: BASE[i], len: LEN[i] }));
+  const END0 = BASE[n - 1] + LEN[n - 1]; // content frame where the end card starts
 
   // ---------------------------------------------------------------- the thread
   type Item = { at: number; h: number; user?: string; card?: number };
@@ -115,7 +121,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
   const ys = (() => { let y = TOP; return items.map((it) => { const r = y; y += it.h + 26; return r; }); })();
   const scrollAt = (f: number) => { let s = 0; items.forEach((it, k) => { const want = Math.max(0, ys[k] + it.h - VIEW_BOTTOM); if (want > s) s += (want - s) * expo(ramp(f, it.at - 2, it.at + 16)); }); return s; };
   const cardY = (i: number, f: number) => ys[items.findIndex((it) => it.card === i)] + 34 - scrollAt(f);
-  const plateFrame = (i: number, f: number) => { const a = spec.asks[i], t = T[i], from = a.from ?? 0, to = a.to ?? a.plate.meta.durationFrames - 1; return lerp(from, to, ramp(f, t.base + t.drop.land, t.base + ASK - 8)); };
+  const plateFrame = (i: number, f: number) => { const a = spec.asks[i], t = T[i], from = a.from ?? 0, to = a.to ?? a.plate.meta.durationFrames - 1; return lerp(from, to, ramp(f, t.base + t.drop.land, t.base + t.len - 8)); };
 
   const bug = (c: Ctx, env: Env) => writeOn(c, env, spec.title, W - 40, H - 34, 24, 1, "ink", { color: C.soft, align: "right", seed: 3 });
   const chat = (ctx: Ctx, env: Env, f: number, typed: string, caret: boolean, pr: number, hot: number) => {
@@ -139,7 +145,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     T.forEach((t, i) => inkDrop(ctx, f, { t0: t.base + t.drop.t0, land: t.base + t.drop.land }, [REPLY.x + CARD / 2, cardY(i, t.base + t.drop.land) + CARD / 2]));
   };
   // the camera: macro on the composer while typing, out to the room for the press, then a lean in on the new card
-  const leanOn = (i: number): Cam => ({ c: lerpP(HOME.c, [REPLY.x + CARD / 2, cardY(i, T[i].base + ASK) + CARD / 2], 0.55), z: 1.18 });
+  const leanOn = (i: number): Cam => ({ c: lerpP(HOME.c, [REPLY.x + CARD / 2, cardY(i, T[i].base + T[i].len) + CARD / 2], 0.55), z: 1.18 });
   // `lean` (0..1) is how far the camera leans in; the corner mark steps aside while it does, since
   // the lean carries the composer under the corner and type never sits over the UI or the art
   const camAt = (ctx: Ctx, f: number, i: number): { cam: Cam; lean: number } => {
@@ -147,11 +153,11 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     // the macro creeps in while the words arrive: the frame is never a still
     const macro: Cam = { c: [Math.max(TEXT.x + 330, cx - 110), 934], z: 2.4 + 0.25 * inOut(ramp(l, t.times[0] - 8, t.b)) };
     if (i > 0 && l < 16) { const k = inOut(ramp(l, 0, 16)); return { cam: camLerp(leanOn(i - 1), macro, k), lean: 1 - k }; }
-    if (l > t.drop.full - 10) { const k = inOut(ramp(l, t.drop.full - 10, ASK)); return { cam: camLerp(HOME, leanOn(i), k), lean: k }; }
+    if (l > t.drop.full - 10) { const k = inOut(ramp(l, t.drop.full - 10, t.len)); return { cam: camLerp(HOME, leanOn(i), k), lean: k }; }
     return { cam: l < t.b - 4 ? macro : camLerp(macro, HOME, expo(ramp(l, t.b - 4, t.down))), lean: 0 };
   };
   const askScene = (ctx: Ctx, env: Env, f: number) => {
-    const i = Math.min(n - 1, Math.floor(f / ASK)), t = T[i], l = f - t.base;
+    let i = n - 1; while (i > 0 && T[i].base > f) i--; const t = T[i], l = f - t.base;
     const { cam, lean } = camAt(ctx, f, i);
     useCam(ctx, env, cam);
     const typed = typedAt(spec.asks[i].prompt, l, t.times), pr = press(l, t.down, t.up);
@@ -190,9 +196,10 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
   const words = spec.words ?? [];
   const segs: Seg[] = [];
   spec.asks.forEach((_, i) => {
-    const last = i === n - 1, fixed = segs.reduce((s, x) => s + x.len, 0);
-    segs.push(last && spec.claimBar !== undefined ? pic(i * ASK, (i + 1) * ASK, grid.solve(spec.claimBar, fixed, 60)) : pic(i * ASK, (i + 1) * ASK));
-    if (!last && words[i]?.length) segs.push(type(words[i], TYPE, (i + 1) * ASK - 1, (i + 1) * ASK));
+    const last = i === n - 1;
+    const b = BASE[i], e = b + LEN[i];
+    segs.push(last && spec.claimBar !== undefined ? pic(b, e, SOLVED) : pic(b, e)); // SOLVED < ASK plays the ask faster; never slower
+    if (!last && words[i]?.length) segs.push(type(words[i], TYPE, e - 1, e));
   });
   // the score plays at the film's bpm, exactly: the cuts sit on this grid. Sync wins over length, so
   // the end-card hold (not the tempo) takes up the difference: the film becomes whole bars of the score.
@@ -214,6 +221,8 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     let open = s.len - 1; while (open > written && bloomRadius(open + 2, s.len + 4) < 1110) open--;   // last fully covered frame
     holds.push([cut.STARTS[k] + written + 1, cut.STARTS[k] + open + 1]);
   });
+  // a solved ask longer than the grid's: the finished card rests on screen until the end card blooms
+  if (LEN[n - 1] > ASK) { const S = cut.STARTS[cut.SEGS.length - 2]; holds.push([S + LEN[n - 1] - 18, S + LEN[n - 1] + 6]); }
   holds.push([cut.N - END + 53, cut.N]); // the end card, all on: read it, screenshot it
   return {
     meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds, ...(bed ? { score: { tempo: spec.bpm, form: bed.form, grid: true } } : {}) },

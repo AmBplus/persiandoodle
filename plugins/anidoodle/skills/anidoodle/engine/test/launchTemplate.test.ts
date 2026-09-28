@@ -54,4 +54,9 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
   const cu = loudness([cL, cR], SR).integrated, lu2 = loudness([lL, lR], SR).integrated, tp2 = truePeak([lL, lR]).dbtp;
   ok(cu < -14.2 && truePeak([cL, cR]).dbtp > -1.05, `without limit the ceiling wins and says so in the loudness (${cu.toFixed(2)} LUFS)`);
   ok(Math.abs(lu2 + 14) < 0.3 && tp2 <= -1, `limit: true reaches -14 LUFS under -1 dBTP (${lu2.toFixed(2)} LUFS, ${tp2.toFixed(2)} dBTP)`);
+  // a claimBar that needs a longer last ask gets a really longer ask, never the same ask slowed down
+  // (content played at half speed repeats frames and fails the gate's identical-frame check)
+  const solvedFilm = makeLaunchFilm({ ...base, asks: [base.asks[0], { ...base.asks[0], prompt: "and again" }], words: [[{ text: "ONE.", style: "ink" }]], claimBar: 7, score: null } as never) as ReturnType<typeof makeLaunchFilm>;
+  const slowed = solvedFilm.cut.SEGS.filter((sg) => sg.kind === "pic" && sg.len > sg.to - sg.from);
+  ok(slowed.length === 0 && solvedFilm.cut.STARTS[solvedFilm.cut.STARTS.length - 1] === 7 * 60, `a solved ask is longer, not slower (end card on bar 7 at frame ${solvedFilm.cut.STARTS[solvedFilm.cut.STARTS.length - 1]}, ${slowed.length} slowed segments)`);
 };
