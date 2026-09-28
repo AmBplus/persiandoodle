@@ -15,7 +15,17 @@
 //     [--fidelity-psnr N]       a decoded frame must sit within N dB of the source frame (renders it once)
 //     [--frame N]               which frame --fidelity-psnr compares (default 0)
 //     [--delivery]              this file ships: a near-blank frame 0 (the platform thumbnail) FAILS
-//                               instead of warning; fix with render --poster-frame N
+//                               instead of warning; fix with render --poster-frame N; and the true
+//                               peak AFTER the encode must be at or under -1 dBTP (else it is reported)
+//     [--sync-tol MS]           audio-to-video: the decoded sound may sit this far from the master mix
+//                               at each sync marker (default 1 ms)
+//
+// With a score, an MP4 is also checked for SYNC and PEAK: at each of the film's sync markers
+// (meta.sync: the presses and the impact of a launch film; three evenly spaced points otherwise)
+// the decoded audio is cross-correlated with the master mix the page makes (the offset in ms, sub-
+// sample), and the cue's attack in the delivered file is measured against its frame and against the
+// master's own attack (5 ms: AAC pre-echo); the true peak is measured on the DECODED file (ebur128, 4x oversampled), because an AAC
+// encode can push a -1 dBTP master over the ceiling.
 //
 // Always checked: the file decodes, its pixel size, its exact frame count, its duration against
 // the film's meta, and for an MP4 the score: an audio stream exactly when the film has a score,
@@ -25,8 +35,9 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { defaultOutput, requireFilm } from "./names.mjs";
 import { firstFrameBlank } from "./thumb.mjs";
+import { mono, onsetNear, xcorrOffset } from "./avsync.mjs";
 
-const VAL = new Set(["file", "adapter", "width", "first-frame", "tol", "fidelity-psnr", "scale", "frame"]);
+const VAL = new Set(["file", "adapter", "width", "first-frame", "tol", "fidelity-psnr", "scale", "frame", "sync-tol"]);
 const pos = [], opt = {};
 for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) opt[a.slice(2)] = VAL.has(a.slice(2)) ? process.argv[++i] : true; else pos.push(a); }
 // a file path names its film: out/<film>.mp4 (or a range render's out/<film>.<from>-<to>.mp4)
@@ -98,6 +109,36 @@ if (isMp4) {
     const vd = spawnSync("ffmpeg", ["-v", "info", "-i", file, "-map", "0:a:0", "-af", "volumedetect", "-f", "null", "-"], { encoding: "utf8" });
     const mx = Number(((vd.stdout + vd.stderr).match(/max_volume:\s*(-?[0-9.]+|-inf) dB/) ?? [])[1]);
     say(Number.isFinite(mx) && mx > -40 && mx <= 0, `audio peak ${Number.isFinite(mx) ? mx.toFixed(1) : "-inf"} dBFS`, "audible (> -40 dBFS) and not clipped past 0");
+
+    head("1c", "SYNC  the delivered sound sits on the picture's frames");
+    const SR = 48000, dec = spawnSync("ffmpeg", ["-v", "error", "-i", file, "-map", "0:a:0", "-f", "f32le", "-ac", "2", "-ar", String(SR), "-"], { maxBuffer: 1 << 30 });
+    if (dec.status !== 0) die(`ffmpeg could not decode the audio: ${dec.stderr.toString().trim()}`);
+    const di = new Float32Array(dec.stdout.buffer.slice(dec.stdout.byteOffset, dec.stdout.byteOffset + dec.stdout.byteLength)), dL = new Float32Array(di.length / 2), dR = new Float32Array(di.length / 2);
+    for (let i = 0; i < dL.length; i++) { dL[i] = di[2 * i]; dR[i] = di[2 * i + 1]; }
+    const master = await s.audio(SR), mb = Buffer.from(master.float32, "base64"), mi = new Float32Array(mb.buffer.slice(mb.byteOffset, mb.byteOffset + mb.byteLength)), mL = new Float32Array(master.frames), mR = new Float32Array(master.frames);
+    for (let i = 0; i < master.frames; i++) { mL[i] = mi[2 * i]; mR[i] = mi[2 * i + 1]; }
+    const ref = mono(mL, mR), got = mono(dL, dR), tol = Number(opt["sync-tol"] ?? 1);
+    const marks = meta.sync?.length ? meta.sync : [0.25, 0.5, 0.75].map((q) => ({ frame: Math.round(q * N), label: `${Math.round(q * 100)} % in` }));
+    if (!meta.sync?.length) note("no sync markers in meta.sync", "checking three points of the mix instead (a launch template film names its presses and its impact)");
+    for (const mk of marks) {
+      const t = mk.frame / meta.fps, x = xcorrOffset(ref, got, t, SR);
+      if (!Number.isFinite(x.ms)) { note(`frame ${mk.frame} (${mk.label}): the master is silent there`, "nothing to line up"); continue; }
+      say(Math.abs(x.ms) <= tol && x.corr > 0.5, `frame ${mk.frame} ${mk.label}: decoded vs master ${x.ms >= 0 ? "+" : ""}${x.ms.toFixed(2)} ms`, `limit ${tol} ms (correlation ${x.corr.toFixed(3)})`);
+      // the cue's attack, heard in the file, against where the master put it: a sound may be designed to
+      // lead its hit (a press's finger noise, an impact's breath), so the frame itself is the master's truth
+      if (meta.sync?.length) {
+        const on = onsetNear(got, t, SR), want = onsetNear(ref, t, SR);
+        if (Number.isFinite(on) && Number.isFinite(want)) say(Math.abs(on - want) * 1000 <= 5, `frame ${mk.frame} ${mk.label}: the attack starts ${((on - t) * 1000).toFixed(1)} ms from its frame`, `the master's attack is at ${((want - t) * 1000).toFixed(1)} ms (the sound's own lead); delivered within 5 ms of it (AAC pre-echo can pull a sharp attack a few ms early)`);
+        else note(`frame ${mk.frame} ${mk.label}: no attack found within 80 ms`, "a soft attack; the cross-correlation above is the sync measurement");
+      }
+    }
+
+    head("1d", "PEAK  the true peak of the file as delivered (after the encode)");
+    const eb = spawnSync("ffmpeg", ["-v", "info", "-nostats", "-i", file, "-map", "0:a:0", "-af", "ebur128=peak=true", "-f", "null", "-"], { encoding: "utf8", maxBuffer: 1 << 26 });
+    const txt = eb.stdout + eb.stderr, tp = Number((txt.match(/True peak:\s*\n\s*Peak:\s*(-?[0-9.]+|-inf) dBFS/) ?? [])[1]), il = Number((txt.match(/Integrated loudness:\s*\n\s*I:\s*(-?[0-9.]+) LUFS/) ?? [])[1]);
+    if (!Number.isFinite(tp)) note("true peak unreadable from ffmpeg's ebur128", txt.split("\n").slice(-4).join(" "));
+    else if (opt.delivery) say(tp <= -1.0, `true peak after the encode ${tp.toFixed(2)} dBTP`, `ceiling -1 dBTP; integrated ${Number.isFinite(il) ? il.toFixed(1) : "?"} LUFS`);
+    else note(`true peak after the encode ${tp.toFixed(2)} dBTP${tp > -1 ? "  (over -1: --delivery fails this)" : ""}`, `integrated ${Number.isFinite(il) ? il.toFixed(1) : "?"} LUFS`);
   }
 }
 

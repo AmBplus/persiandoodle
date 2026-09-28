@@ -5,7 +5,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { extname, join, relative, resolve } from "node:path";
 import { overlay, resolveOverlay } from "./overlay.mjs";
-import { requireFilm } from "./names.mjs";
+import { requireFilm, splitShape } from "./names.mjs";
 
 // BAKE KEYS (see Env.bake and hosts/page.ts). Every module that exports `const X: Film` is tagged
 // in the bundle with its own path, and each tagged module gets a hash of its WHOLE import closure
@@ -43,6 +43,9 @@ const bakeHashes = (metafile, salt) => {
 const MIME = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".woff2": "font/woff2" };
 export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   const plugins = [...extra, overlay]; // extra first: a caller's shim (snap --only) outranks the overlay
+  // <film>-<shape>: the film's own host page, told which shape to compose (hosts/page.ts reshapes it)
+  const { base, shape } = splitShape(title);
+  if (shape) { entry = entry.replace(`page-${title}.ts`, `page-${base}.ts`); title = base; }
   if (!existsSync(entry)) entry = resolveOverlay("./" + entry, process.cwd()) ?? entry; // e.g. the example's own host page
   if (!existsSync(entry) && title) requireFilm(title, "build", "a film name: src/hosts/page-<film>.ts"); // a clear exit with the known films, not an esbuild trace
   const main = await build({ entryPoints: [entry], bundle: true, format: "iife", target: "es2020", minify: true, write: false, legalComments: "none", metafile: true, plugins: [...plugins, tagFilms] });
@@ -56,8 +59,9 @@ export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   const bakeSrc = bakeHashes(main.metafile, salt);
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${film.meta.title}</title>
 <style>html,body{margin:0;height:100%;background:#1b1a1a;display:grid;place-items:center}canvas{max-width:100vw;max-height:100vh;aspect-ratio:${film.meta.W}/${film.meta.H};cursor:pointer;background:#fff}</style></head>
-<body><canvas id="film"></canvas><script>window.__ASSETS__=${JSON.stringify(assets)};window.__BAKE_SRC__=${JSON.stringify(bakeSrc)};</script><script>${js.replace(/<\/script/g, "<\\/script")}</script></body></html>`;
+<body><canvas id="film"></canvas><script>window.__ASSETS__=${JSON.stringify(assets)};window.__BAKE_SRC__=${JSON.stringify(bakeSrc)};${shape ? `window.__SHAPE__=${JSON.stringify(shape)};` : ""}</script><script>${js.replace(/<\/script/g, "<\\/script")}</script></body></html>`;
   mkdirSync(join(out, ".."), { recursive: true }); writeFileSync(out, html);
-  return { out, bytes: html.length, meta: film.meta, assets: Object.keys(film.assets.images) };
+  const meta = shape ? (film.reshape ? film.reshape(shape).meta : (() => { throw new Error(`${base} has one shape (it has no reshape); ${shape} is for launch template films`); })()) : film.meta;
+  return { out, bytes: html.length, meta, assets: Object.keys(film.assets.images) };
 };
 if (import.meta.url === `file://${process.argv[1]}`) { const title = requireFilm(process.argv[2], "build-page", "node tools/build-page.mjs <film>"); const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }

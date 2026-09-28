@@ -8,7 +8,8 @@ import type { Film } from "../src/canvas-core/film";
 export const name = "launchTemplate";
 export const run = (ok: (cond: boolean, label: string) => void) => {
   const plate: Film = { meta: { title: "plate", W: 1080, H: 1080, fps: 30, bpm: 120, durationFrames: 60 }, assets: { images: {} }, shots: [{ id: "p", start: 0, end: 60, draw: () => {} }] };
-  const base = { title: "Tally", asks: [{ prompt: "draw it", plate, label: "l" }], tagline: "t", install: ["npm i tally"], bpm: 120, askBeats: 8, endBeats: 12 };
+  // sfx: false: these check the score bed alone (the sound cues are launchSound.test.ts)
+  const base = { title: "Tally", asks: [{ prompt: "draw it", plate, label: "l" }], tagline: "t", install: ["npm i tally"], bpm: 120, askBeats: 8, endBeats: 12, sfx: false };
   const refused = (score: unknown, re = /anidoodle's own/) => { try { makeLaunchFilm({ ...base, score } as never); return false; } catch (e) { return re.test(String((e as Error).message)); } };
   const mine = (): Material => ({
     style: "playful", title: "Tally, counted", seed: 5, mood: "curious", bpm: 120, key: "G", mode: "mixolydian",

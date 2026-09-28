@@ -51,8 +51,11 @@ pieces are examples of the craft, never material for someone else's film.
 ## Type
 
 - **Words NEVER sit over the art or the UI.** A word gets its own full frame: an ink bloom
-  opens, a brush writes the word, the bloom closes on the next scene (`typeFrame`). Corner marks
-  step aside when the camera brings UI under them.
+  opens, a brush writes the word, the bloom closes on the next scene (`typeFrame`). Or, for a
+  feature beat, its own COLUMN: words on the left, the live UI on the right (words above, UI
+  below on a phone), each in its own area of the layout (`split`), faster than a full word page.
+  Corner marks step aside when the camera brings UI under them, and sit in their own strip on a
+  phone frame.
 - **3-7 words a frame, few frames.** Collapse word cards into one claim then proof ("JUST CODE."
   then "31 STYLES"); fewer cards leave more time for the proof.
 - **Hold each settled word 0.5 s or more**, longer for the claim.
@@ -70,8 +73,28 @@ pieces are examples of the craft, never material for someone else's film.
   thread scrolls, a follow-up animates in the existing card instead of popping a new one.
 - **Web**: show the whole site first, then zoom to each click; the site's copy describes what
   the viewer is seeing.
+- **A product that is not a chat shows its own UI**, drawn from its real data in two states: the
+  before (the problem), one press of its action, every item springing to the after. Never a
+  screenshot slideshow (`productUI.ts`, a `kind: "ui"` ask).
+
+## The motif
+
+**Pick ONE object the story already owns and carry it across the seams**: anidoodle's template
+carries the ink drop that every press of Generate sends into the thread; at the end it lifts off
+Generate one last time and lands as the dot of the end card's mark ("NAME."), and the end card
+blooms open FROM it. The rule for any seam you design as a match cut: on the last frame of the
+outgoing shot and the first of the incoming one the object has the same screen position and size
+(within 2 px), and the incoming scene opens from it. `motif.ts` (`relay`, `checkRelay`) checks it;
+a seam that jumps throws. Use it for the seams that matter (the reveal), never on every cut.
 - Banned defaults: a centred title on a gradient, everything fading in, bouncy easing, particle
   bursts, glow on UI chrome, dead time, text scaled into blur.
+
+## Two registers
+
+The **drawn** register (default): ink blooms, hand-lettered words, a warm paper palette, the
+product drawn in the chosen style. The **clean** register (`preset: "clean"`) for a UI-first
+product: a quiet canvas, ONE accent colour, type as the design (set, not written; each word rises
+into place), round iris seams, the product's own UI. Pick one per film; never mix them.
 
 ## Brand and the end card
 
@@ -91,8 +114,12 @@ pieces are examples of the craft, never material for someone else's film.
 - **Balance by stem RMS, not only LUFS**: an integrated -14 LUFS hid a sub 7-10 dB too hot.
 - **Cut on downbeats, not every beat.** Land the claim on a chord (launch3's lands on bar 26,
   the home chord); `beatGrid().solve()` fits a flexible segment so it does.
-- **Sound effects only on real direction changes**: one riser into the big reveal, one impact,
-  never a whoosh on every cut (`references/music/sound-design.md`).
+- **Sound effects come from the picture's own math**, never laid on by hand: a key per typed
+  character, the press on the frame the button goes down, the drop and its bloom, a card landing
+  on its spring's first arrival, each panned to where it happens on screen (`launchSound.ts`).
+  Every cue must be heard over the score (the template raises a buried one, then checks).
+- **Transition sounds only on real direction changes**: one riser into the big reveal, one
+  impact on it, never a whoosh on every cut, nothing on a word page (`references/music/sound-design.md`).
 - **Master to -14 LUFS integrated, true peak -1 dBTP or lower**, then listen on a phone speaker.
 
 ## Delivery
@@ -101,7 +128,17 @@ pieces are examples of the craft, never material for someone else's film.
   a platform version rather than pushing one master everywhere. Cut whole beats; never speed
   the whole film up (it breaks the beat grid and reads rushed).
 - **Shapes**: `16x9` for YouTube and the site, `1x1` or `4x5` for feeds, `9x16` for Reels and
-  Shorts. Reframe per shape from one timeline; never crop a wide render.
+  Shorts. Re-compose per shape from one timeline; never crop a wide render. The template does it
+  through `launchLayout.ts` (`launch.mjs ship <film> --shapes 16x9,1x1,9x16`), with phone-safe type:
+  every line a viewer reads at least 32 px at 1080 across on the phone shapes.
+- **Captions**: feeds autoplay muted. Ship `.srt`/`.vtt` for players that take a sidecar (YouTube,
+  LinkedIn, the site); burn them into their OWN band under the picture for feeds that do not
+  (`captions: "burn"`), never over the art.
+- **Sync and peak are checked on the file you ship**, not the master: the sound at every sync
+  marker within 1 ms of the mix, the true peak at or under -1 dBTP after the AAC encode
+  (`verify-export --delivery`).
+- **A UI-heavy film may run at 60 fps** (`fps: 60`); render with `--blur auto` so fast moves blur
+  by their real speed and still frames stay sharp.
 - **The first frame is the thumbnail.** Platforms and players show frame 1 before play. Make
   it legible and on brand (anidoodle's is the wall of styles; the template's is the prompt, big,
   mid-sentence); never a blank, a fade from black, or a whole chat window too small to read.
@@ -124,7 +161,12 @@ pieces are examples of the craft, never material for someone else's film.
    first (type over art, spacing, hierarchy), then timing. Render only the changed range
    (`render.mjs --from F --to T` writes `out/<film>.<F>-<T>.mp4`, silent). Give notes in camera words ("slow this zoom to 0.7x",
    "hold the word 10 frames longer"), never "make it better".
-8. **QA**: `gate.mjs <film>` (determinism, contract, dead air; declare real holds in
-   `meta.holds`, each with its reason) and `verify-export.mjs <film> --file <mp4> --delivery
-   --first-frame #rrggbb` for EVERY shape shipped; meter the mix. Keep the review page updated as work lands.
+8. **QA**: review every shape's contact sheet against the design checklist in
+   `launch-video-kit.md` (no clipped type, no edge-cropped content, balanced per shape, coherent
+   content). `launch.mjs ship <film> --shapes ... --gate` runs, for EVERY shape shipped, `framecheck`
+   (text and cards whole on every frame), the gate
+   (determinism, contract, dead air; declare real holds in `meta.holds`, each with its reason)
+   and `verify-export --delivery` (size, frames, score, sync, true peak, a legible frame 0), and
+   writes the poster and captions; add `verify-export <film>-<shape> --first-frame #rrggbb` for a
+   brand colour. Meter the mix. Keep the review page updated as work lands.
 9. ✋ **Final approval** on the finished file.

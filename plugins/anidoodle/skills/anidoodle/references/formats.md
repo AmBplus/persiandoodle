@@ -68,9 +68,17 @@ Render options that hold for every moving format:
   on frame N (the wall of styles, the logo, the prompt written big) and dissolves into the real
   opening by frame 6. The frame count and the score are unchanged. A delivery whose frame 0 is
   near-blank gets a warning after the encode.
-- `--blur N`: motion blur, each output frame the average of N subframes over a one-frame shutter,
-  in linear light and weighted by alpha (so a transparent WebM or APNG gets no dark fringe). Held
-  frames come out unchanged; stepped art (`meta.step` > 1, `onTwos`) is never blurred.
+- `--blur auto` (or `--blur N`): motion blur, each output frame the average of subframes over the
+  shutter, in linear light and weighted by alpha (so a transparent WebM or APNG gets no dark
+  fringe). `auto` measures each frame's on-screen motion (two sharp renders at the shutter's ends,
+  block-matched; drawing strokes, typed letters and halftone patterns are not mistaken for motion)
+  and takes subframes at most `--blur-px` apart (default 3 px): 1 on a still frame, which comes out
+  untouched, up to `--blur-max` (32) on a whip. Deterministic. `--shutter DEG` is the shutter
+  angle, 180 by default (360 is the old whole-frame shutter). Stepped art (`meta.step` > 1,
+  `onTwos`) is never blurred.
+- `--shapes 16x9,1x1,4x5,9x16`: a launch template film rendered in each shape from one timeline
+  (each re-composed by its layout, never cropped) to `out/<name>-<shape>.mp4`. Any tool takes
+  `<name>-<shape>` as the film's name for one shape.
 - `--from F --to T`: frames `[F, T)` only, silent, written to `out/<name>.<F>-<T>.<ext>`, never
   over the finished film. For checking a passage, not for shipping.
 - `--hashes out/x.md5`: the md5 of every frame handed to the encoder, for frame-exact
@@ -78,7 +86,10 @@ Render options that hold for every moving format:
 
 After any encode, `node tools/verify-export.mjs <name> [--first-frame #hex] [--fidelity-psnr 40]`
 proves the file on disk is the film: size, exact frame count, duration, the score (an audio
-stream exactly when the film has one, as long as the picture, not silent), and optionally the
+stream exactly when the film has one, as long as the picture, not silent), its SYNC (the decoded
+sound cross-correlated with the master mix at each of `meta.sync`'s markers, within 1 ms, and each
+cue's attack where the master put it), its true peak after the encode (-1 dBTP under
+`--delivery`), and optionally the
 first frame's average colour and its fidelity to the source frame (`--frame N` picks which
 frame `--fidelity-psnr` compares; default 0). All of it is opt-in beyond the container facts,
 so transparent and non-uniform pieces pass cleanly. For a file that ships, add `--delivery`: a

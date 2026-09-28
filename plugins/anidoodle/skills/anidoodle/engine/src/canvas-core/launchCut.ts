@@ -51,7 +51,11 @@ export const beatGrid = (bpm: number, fps: number) => {
 };
 
 // ---------------------------------------------------------------- the bloom
-export type BloomOpts = { inF?: number; outF?: number; close?: boolean; radius?: number; seed?: number; bg?: string; ink?: string; W?: number; H?: number };
+export type BloomOpts = { inF?: number; outF?: number; close?: boolean; radius?: number; seed?: number; bg?: string; ink?: string; W?: number; H?: number;
+  // where the bloom opens from (default the frame's centre): a match cut opens it from the motif (motif.ts)
+  center?: P;
+  // "circle": a clean round iris instead of the ink blot (the clean preset); rim: the ink edge's width (default 26)
+  shape?: "blot" | "circle"; rim?: number };
 // A full-frame page inside an ink bloom. `under` draws the picture the bloom opens over (and closes
 // onto); `page` draws the page, in screen coordinates, on an offscreen sheet. With close: false the
 // bloom stays open (an end card).
@@ -68,9 +72,11 @@ export const bloomFrame = (ctx: Ctx, env: Env, local: number, len: number, under
   const L = selfLayer(env, "sheet", Math.round(W * env.scale), Math.round(H * env.scale)), c = L.ctx;
   c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.fillStyle = o.bg ?? C.bg; c.fillRect(0, 0, W, H);
   page(c);
-  const ctr: P = [W / 2, H / 2], seed = o.seed ?? 88;
+  const ctr: P = o.center ?? [W / 2, H / 2], seed = o.seed ?? 88, rim = o.rim ?? 26;
+  const edge = (r: number) => { if (o.shape === "circle") { ctx.beginPath(); ctx.arc(ctr[0], ctr[1], Math.max(0, r), 0, Math.PI * 2); } else pathOf(ctx, blot(ctr, r, seed)); };
   ctx.setTransform(env.scale, 0, 0, env.scale, 0, 0); ctx.save();
-  pathOf(ctx, blot(ctr, R + 26, seed)); ctx.fillStyle = o.ink ?? C.ink; ctx.fill(); pathOf(ctx, blot(ctr, Math.max(0, R - 4), seed)); ctx.clip();
+  if (rim > 0) { edge(R + rim); ctx.fillStyle = o.ink ?? C.ink; ctx.fill(); }
+  edge(Math.max(0, R - (o.shape === "circle" ? 0 : 4))); ctx.clip();
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(L.canvas, 0, 0); ctx.restore();
 };
 

@@ -75,7 +75,7 @@ export const plateLayer = (env: Env, key: string, film: Film, frame: number, px 
 // a surface the launch film draws into itself (a scene inside a scene), same reuse rule
 export const selfLayer = (env: Env, key: string, w: number, h: number): Layer => {
   const lk = `self:${key}:${w}x${h}`; let L = env.cache.get(lk) as Layer | undefined;
-  if (!L) { L = env.canvas(w, h); env.cache.set(lk, L); }
+  if (!L) { L = env.canvas(w, h); env.cache.set(lk, L); if (env.root && w === Math.round(env.W * env.scale) && h === Math.round(env.H * env.scale)) (L.ctx as unknown as { __frame?: boolean }).__frame = true; } // a full-frame sheet: its text lands in the frame (the probe)
   L.ctx.setTransform(1, 0, 0, 1, 0, 0); L.ctx.clearRect(0, 0, w, h); return L;
 };
 
@@ -124,43 +124,102 @@ export type ChatState = {
   label?: string; labelAlpha?: number;      // the reply's byline
   // your product: the thread's name and subline, the button's word, the accent (defaults: anidoodle's own)
   title?: string; subtitle?: string; genLabel?: string; accent?: string;
+  // focus pulls: the header's and the composer's opacity while the camera is close on something else (default 1)
+  head?: number; composer?: number;
+  // the composer laid out on its own (the hero hook: a big composer that shrinks and docks); default the chat's
+  composerGeom?: ChatGeom;
 };
 
-export const drawChatFrame = (ctx: Ctx, s: ChatState) => {
-  ctx.fillStyle = C.bg; ctx.fillRect(-2000, -2000, 6000, 6000);
+// THE CHAT'S GEOMETRY. One chat component, laid out per frame shape (launchLayout.ts): the window,
+// the composer, the button, where the typed text sits, and the type sizes of each role. `k` scales
+// every length that is not a type size (radii, gaps, strokes). `wrap` > 0: the composer holds that
+// many lines and the typed words wrap in it the way a phone composer does (the button sits on the
+// last line); 0 is the one-line desktop composer. `theme` is the palette (default C).
+export type Rect = { x: number; y: number; w: number; h: number };
+export type ChatGeom = {
+  CHAT: Rect & { r: number }; INPUT: Rect & { r: number }; GEN: Rect & { r: number };
+  REPLY: { x: number; y: number; s: number }; TEXT: { x: number; base: number; px: number };
+  k: number; px: { head: number; sub: number; bubble: number; label: number; gen: number }; wrap: number; lineH: number;
+  theme?: Partial<typeof C>;
+  drop?: string;   // the ink drop's colour (default the ink): the clean preset's drop is its one accent
+  iris?: boolean;  // the answer card opens as a clean round iris instead of an ink bloom (the clean preset)
+};
+export const CHAT_GEOM: ChatGeom = { CHAT, INPUT, GEN, REPLY, TEXT, k: 1, px: { head: 22, sub: 18, bubble: 26, label: 20, gen: 24 }, wrap: 0, lineH: 44 };
+// the same component at any size: derived from the window's rectangle, a length scale and the type
+// sizes. chatGeom(CHAT, 1, CHAT_GEOM.px, TEXT.px, 0) IS CHAT_GEOM (a test holds it to that).
+export const chatGeom = (chat: Rect & { r?: number }, k: number, px: ChatGeom["px"], promptPx: number, wrap = 0, genW = 166 * k): ChatGeom => {
+  const lineH = Math.round(promptPx * 1.3), h = 104 * k + Math.max(0, wrap - 1) * lineH;
+  const CH = { x: chat.x, y: chat.y, w: chat.w, h: chat.h, r: chat.r ?? 34 * k };
+  const IN = { x: CH.x + 60 * k, y: CH.y + CH.h - 36 * k - h, w: CH.w - 120 * k, h, r: 30 * k };
+  const G = { x: IN.x + IN.w - 24 * k - genW, y: IN.y + IN.h - 22 * k - 60 * k, w: genW, h: 60 * k, r: 30 * k };
+  return { CHAT: CH, INPUT: IN, GEN: G, REPLY: { x: CH.x + 100 * k, y: CH.y + 158 * k, s: 600 * k }, TEXT: { x: IN.x + 44 * k, base: IN.y + 64 * k, px: promptPx }, k, px, wrap, lineH };
+};
+const pal = (g: ChatGeom) => (g.theme ? { ...C, ...g.theme } : C);
+// the typed words as they sit in a wrapping composer: whole words per line, a word longer than the
+// line broken where it must. Measured with the real font, so the lines are what the viewer sees.
+export const composerLines = (ctx: Ctx, typed: string, g: ChatGeom): string[] => {
+  const maxW = g.GEN.x - 20 * g.k - g.TEXT.x;
+  ctx.font = SANS(500, g.TEXT.px);
+  const out: string[] = []; let line = "";
+  for (const tok of typed.split(/(?<= )/)) {
+    if (ctx.measureText(line + tok).width <= maxW || !line) line += tok; else { out.push(line); line = tok; }
+    while (ctx.measureText(line.trimEnd()).width > maxW && line.length > 1) { let cut = line.length - 1; while (cut > 1 && ctx.measureText(line.slice(0, cut)).width > maxW) cut--; out.push(line.slice(0, cut)); line = line.slice(cut); }
+  }
+  out.push(line);
+  return out;
+};
+
+export const drawChatFrame = (ctx: Ctx, s: ChatState, g: ChatGeom = CHAT_GEOM) => {
+  const { CHAT, INPUT, GEN, REPLY, TEXT, k, px } = g, P = pal(g);
+  ctx.fillStyle = P.bg; ctx.fillRect(-2000, -2000, 6000, 6000);
   softShadow(ctx, CHAT.x, CHAT.y, CHAT.w, CHAT.h, CHAT.r, 1.2);
-  ctx.fillStyle = C.card; rr(ctx, CHAT.x, CHAT.y, CHAT.w, CHAT.h, CHAT.r); ctx.fill();
+  ctx.fillStyle = P.card; rr(ctx, CHAT.x, CHAT.y, CHAT.w, CHAT.h, CHAT.r); ctx.fill();
   // the thread's head: a small ink dot and a name, nothing that belongs to anyone else
-  ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(CHAT.x + 58, CHAT.y + 52, 9, 0, Math.PI * 2); ctx.fill();
-  ctx.font = SANS(600, 22); ctx.fillStyle = C.ink; ctx.textBaseline = "middle"; ctx.fillText(s.title ?? "anidoodle", CHAT.x + 80, CHAT.y + 53);
-  const subX = s.title === undefined ? CHAT.x + 196 : CHAT.x + 80 + ctx.measureText(s.title).width + 16;
-  ctx.font = SANS(500, 18); ctx.fillStyle = C.mute; ctx.fillText(s.subtitle ?? "drawn in code", subX, CHAT.y + 54);
-  ctx.fillStyle = C.line; ctx.fillRect(CHAT.x + 32, CHAT.y + 98, CHAT.w - 64, 1.5);
+  if (s.head !== undefined) ctx.globalAlpha = s.head;
+  ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(CHAT.x + 58 * k, CHAT.y + 52 * k, 9 * k, 0, Math.PI * 2); ctx.fill();
+  ctx.font = SANS(600, px.head); ctx.fillStyle = P.ink; ctx.textBaseline = "middle"; ctx.fillText(s.title ?? "anidoodle", CHAT.x + 80 * k, CHAT.y + 53 * k);
+  const subX = s.title === undefined ? CHAT.x + 196 * k : CHAT.x + 80 * k + ctx.measureText(s.title).width + 16 * k;
+  ctx.font = SANS(500, px.sub); ctx.fillStyle = P.mute; ctx.fillText(s.subtitle ?? "drawn in code", subX, CHAT.y + 54 * k);
+  ctx.fillStyle = P.line; ctx.fillRect(CHAT.x + 32 * k, CHAT.y + 98 * k, CHAT.w - 64 * k, 1.5 * k);
+  if (s.head !== undefined) ctx.globalAlpha = 1;
   // the sent message, right aligned
   if (s.sent) {
-    ctx.globalAlpha = s.sentAlpha ?? 1; ctx.font = SANS(500, 26);
-    const tw = ctx.measureText(s.sent).width, pad = 26, bw = tw + pad * 2, bx = CHAT.x + CHAT.w - 60 - bw, by = CHAT.y + 124;
+    ctx.globalAlpha = s.sentAlpha ?? 1; ctx.font = SANS(500, px.bubble);
+    const tw = ctx.measureText(s.sent).width, pad = 26 * k, bw = tw + pad * 2, bx = CHAT.x + CHAT.w - 60 * k - bw, by = CHAT.y + 124 * k;
     let ay = by;
-    if (s.attach) { const iw = 240, ih = 150; ay = by; ctx.save(); rr(ctx, CHAT.x + CHAT.w - 60 - iw, ay, iw, ih, 16); ctx.clip(); ctx.drawImage(s.attach.img, CHAT.x + CHAT.w - 60 - iw, ay, iw, ih); ctx.restore(); ay += ih + 10; }
-    ctx.fillStyle = C.chip; rr(ctx, bx, ay, bw, 56, 22); ctx.fill();
-    ctx.fillStyle = C.ink; ctx.textBaseline = "middle"; ctx.fillText(s.sent, bx + pad, ay + 29);
+    if (s.attach) { const iw = 240 * k, ih = 150 * k; ay = by; ctx.save(); rr(ctx, CHAT.x + CHAT.w - 60 * k - iw, ay, iw, ih, 16 * k); ctx.clip(); ctx.drawImage(s.attach.img, CHAT.x + CHAT.w - 60 * k - iw, ay, iw, ih); ctx.restore(); ay += ih + 10 * k; }
+    ctx.fillStyle = P.chip; rr(ctx, bx, ay, bw, 56 * k, 22 * k); ctx.fill();
+    ctx.fillStyle = P.ink; ctx.textBaseline = "middle"; ctx.fillText(s.sent, bx + pad, ay + 29 * k);
     ctx.globalAlpha = 1;
   }
-  if (s.label) { ctx.globalAlpha = s.labelAlpha ?? 1; ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(REPLY.x + 9, REPLY.y - 26, 7, 0, Math.PI * 2); ctx.fill(); ctx.font = SANS(600, 20); ctx.textBaseline = "middle"; ctx.fillText(s.label, REPLY.x + 26, REPLY.y - 25); ctx.globalAlpha = 1; }
+  if (s.label) { ctx.globalAlpha = s.labelAlpha ?? 1; ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(REPLY.x + 9 * k, REPLY.y - 26 * k, 7 * k, 0, Math.PI * 2); ctx.fill(); ctx.font = SANS(600, px.label); ctx.textBaseline = "middle"; ctx.fillText(s.label, REPLY.x + 26 * k, REPLY.y - 25 * k); ctx.globalAlpha = 1; }
   // the composer
-  ctx.fillStyle = C.paper; rr(ctx, INPUT.x, INPUT.y, INPUT.w, INPUT.h, INPUT.r); ctx.fill();
-  ctx.lineWidth = 2; ctx.strokeStyle = C.line; ctx.stroke();
+  { const g2 = s.composerGeom ?? g, { INPUT, GEN, TEXT, k, px } = g2;
+  if (s.composer !== undefined) ctx.globalAlpha = s.composer;
+  ctx.fillStyle = P.paper; rr(ctx, INPUT.x, INPUT.y, INPUT.w, INPUT.h, INPUT.r); ctx.fill();
+  ctx.lineWidth = 2 * k; ctx.strokeStyle = P.line; ctx.stroke();
   ctx.font = SANS(500, TEXT.px); ctx.textBaseline = "alphabetic";
-  if (!s.typed && s.placeholder) { ctx.fillStyle = C.mute; ctx.fillText(s.placeholder, TEXT.x, TEXT.base); }
-  ctx.fillStyle = C.ink; ctx.fillText(s.typed, TEXT.x, TEXT.base);
-  const acc = s.accent ?? C.accent;
-  if (s.caret) { const x = TEXT.x + ctx.measureText(s.typed).width + 3; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base - 32, 3, 40); }
+  if (!s.typed && s.placeholder) { ctx.fillStyle = P.mute; ctx.fillText(s.placeholder, TEXT.x, TEXT.base); }
+  const acc = s.accent ?? P.accent;
+  if (g2.wrap > 0) {
+    const lines = composerLines(ctx, s.typed, g2); ctx.font = SANS(500, TEXT.px); ctx.fillStyle = P.ink;
+    lines.forEach((l, i) => ctx.fillText(l, TEXT.x, TEXT.base + i * g2.lineH));
+    if (s.caret) { const i = lines.length - 1, x = TEXT.x + ctx.measureText(lines[i]).width + 3 * k; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base + i * g2.lineH - 0.94 * TEXT.px, 3 * k, 1.18 * TEXT.px); }
+  } else {
+    ctx.fillStyle = P.ink; ctx.fillText(s.typed, TEXT.x, TEXT.base);
+    if (s.caret) { const x = TEXT.x + ctx.measureText(s.typed).width + 3; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base - 32, 3, 40); }
+  }
   // Generate
-  const pr = s.genPress ?? 0, hot = s.genHot ?? 0, k = 1 - 0.07 * pr, gx = GEN.x + (GEN.w * (1 - k)) / 2, gy = GEN.y + (GEN.h * (1 - k)) / 2;
-  ctx.fillStyle = hot > 0 ? mixHex(acc, s.accent ? deepen(acc) : C.accentDeep, 0.35 * hot + 0.4 * pr) : acc; rr(ctx, gx, gy, GEN.w * k, GEN.h * k, GEN.r * k); ctx.fill();
-  ctx.fillStyle = "#fff"; ctx.font = SANS(600, 24 * k); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText(s.genLabel ?? "Generate", GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1); ctx.textAlign = "left";
+  const pr = s.genPress ?? 0, hot = s.genHot ?? 0, q = 1 - 0.07 * pr, gx = GEN.x + (GEN.w * (1 - q)) / 2, gy = GEN.y + (GEN.h * (1 - q)) / 2;
+  ctx.fillStyle = hot > 0 ? mixHex(acc, s.accent ? deepen(acc) : P.accentDeep, 0.35 * hot + 0.4 * pr) : acc; rr(ctx, gx, gy, GEN.w * q, GEN.h * q, GEN.r * q); ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.font = SANS(600, px.gen * q); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText(s.genLabel ?? "Generate", GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1 * k); ctx.textAlign = "left";
+  if (s.composer !== undefined) ctx.globalAlpha = 1; }
 };
-export const caretAt = (ctx: Ctx, typed: string): P => { ctx.font = SANS(500, TEXT.px); return [TEXT.x + ctx.measureText(typed).width, TEXT.base - 12]; };
+// where the caret is: the end of the typed words (on their last line in a wrapping composer)
+export const caretAt = (ctx: Ctx, typed: string, g: ChatGeom = CHAT_GEOM): P => {
+  if (g.wrap > 0) { const lines = composerLines(ctx, typed, g), i = lines.length - 1; ctx.font = SANS(500, g.TEXT.px); return [g.TEXT.x + ctx.measureText(lines[i]).width, g.TEXT.base + i * g.lineH - 0.35 * g.TEXT.px]; }
+  ctx.font = SANS(500, g.TEXT.px); return [g.TEXT.x + ctx.measureText(typed).width, g.TEXT.base - 12];
+};
 
 const hx = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const deepen = (h: string) => "#" + hx(h).map((v) => Math.round(v * 0.78).toString(16).padStart(2, "0")).join("");
@@ -181,24 +240,36 @@ export const charTimes = (text: string, t0: number, rate: number, seed: number) 
 export const typedAt = (text: string, f: number, times: number[]) => text.slice(0, times.filter((t) => f >= t).length);
 // The drop: a bead of ink lifts off Generate and arcs to where the answer card will land.
 export type Drop = { t0: number; land: number; full: number };
-export const inkDrop = (ctx: Ctx, f: number, d: { t0: number; land: number }, to: P) => {
-  const GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
+export const inkDrop = (ctx: Ctx, f: number, d: { t0: number; land: number }, to: P, g: ChatGeom = CHAT_GEOM) => {
+  const { GEN, k } = g, ink = g.drop ?? pal(g).ink, GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
   if (f < d.t0 - 6 || f >= d.land) return;
-  if (f < d.t0) { const w = out3(ramp(f, d.t0 - 6, d.t0)); ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(GEN_C[0], GEN.y + 6 - w * 22, 30 * (0.3 + 0.7 * w), 0, Math.PI * 2); ctx.fill(); return; }
-  const at = (g: number): P => { const u = ramp(g, d.t0, d.land), e = inOut(u); return [lerp(GEN_C[0], to[0], e), lerp(GEN.y - 16, to[1], e) - Math.sin(Math.PI * u) * 150]; };
-  for (let k = 24; k >= 0; k--) { const p = at(f - k * 0.1); ctx.fillStyle = C.ink; ctx.globalAlpha = k === 0 ? 1 : 0.22 * (1 - k / 25); ctx.beginPath(); ctx.arc(p[0], p[1], 30 * (1 - k * 0.022), 0, Math.PI * 2); ctx.fill(); }
+  if (f < d.t0) { const w = out3(ramp(f, d.t0 - 6, d.t0)); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(GEN_C[0], GEN.y + 6 * k - w * 22 * k, 30 * k * (0.3 + 0.7 * w), 0, Math.PI * 2); ctx.fill(); return; }
+  const at = (t: number): P => { const u = ramp(t, d.t0, d.land), e = inOut(u); return [lerp(GEN_C[0], to[0], e), lerp(GEN.y - 16 * k, to[1], e) - Math.sin(Math.PI * u) * 150 * k]; };
+  for (let j = 24; j >= 0; j--) { const p = at(f - j * 0.1); ctx.fillStyle = ink; ctx.globalAlpha = j === 0 ? 1 : 0.22 * (1 - j / 25); ctx.beginPath(); ctx.arc(p[0], p[1], 30 * k * (1 - j * 0.022), 0, Math.PI * 2); ctx.fill(); }
   ctx.globalAlpha = 1;
+};
+// where the drop is at frame f (null when it is not in flight): the motif's position for a match cut
+export const inkDropAt = (f: number, d: { t0: number; land: number }, to: P, g: ChatGeom = CHAT_GEOM): { p: P; r: number } | null => {
+  const { GEN, k } = g, GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
+  if (f < d.t0 - 6 || f >= d.land) return null;
+  if (f < d.t0) { const w = out3(ramp(f, d.t0 - 6, d.t0)); return { p: [GEN_C[0], GEN.y + 6 * k - w * 22 * k], r: 30 * k * (0.3 + 0.7 * w) }; }
+  const u = ramp(f, d.t0, d.land), e = inOut(u);
+  return { p: [lerp(GEN_C[0], to[0], e), lerp(GEN.y - 16 * k, to[1], e) - Math.sin(Math.PI * u) * 150 * k], r: 30 * k };
 };
 // The answer card in the thread: a byline, then the art, revealed by the landed drop blooming open.
 // `art` is any layer (plateLayer gives a live plate); `crop` picks a source rectangle.
-export const inkCard = (ctx: Ctx, x: number, y: number, s: number, f: number, d: Drop, art: Layer, label: string, crop?: [number, number, number, number]) => {
-  ctx.fillStyle = C.ink; ctx.globalAlpha = ramp(f, d.land, d.land + 10); ctx.beginPath(); ctx.arc(x + 9, y - 16, 7, 0, Math.PI * 2); ctx.fill();
-  ctx.font = SANS(600, 20); ctx.textBaseline = "middle"; ctx.fillText(label, x + 26, y - 15); ctx.globalAlpha = 1;
-  const grow = out3(ramp(f, d.land, d.full)), c: P = [x + s / 2, y + s / 2];
-  softShadow(ctx, x, y, s, s, 20, grow * 1.3);
-  ctx.save(); rr(ctx, x, y, s, s, 20); ctx.clip();
-  if (grow < 1) { pathOf(ctx, blot(c, lerp(16, s * 0.8, grow) + 28 * (1 - grow), 77)); ctx.fillStyle = C.ink; ctx.fill(); pathOf(ctx, blot(c, Math.max(0, lerp(16, s * 0.8, grow) - 5), 77)); ctx.clip(); }
-  ctx.fillStyle = C.paper; ctx.fillRect(x, y, s, s);
+// `grow` (default an out-cubic from land to full) is how open the card is at frame f: the template
+// passes a spring, so the card lands on the spring's first arrival and its sound cue can sit there
+export const inkCard = (ctx: Ctx, x: number, y: number, s: number, f: number, d: Drop, art: Layer, label: string, crop?: [number, number, number, number], g: ChatGeom = CHAT_GEOM, growAt?: (f: number) => number) => {
+  const k = g.k, P = pal(g), A = ctx.globalAlpha; // a card drawn under a focus pull keeps the caller's opacity
+  ctx.fillStyle = P.ink; ctx.globalAlpha = A * ramp(f, d.land, d.land + 10); ctx.beginPath(); ctx.arc(x + 9 * k, y - 16 * k, 7 * k, 0, Math.PI * 2); ctx.fill();
+  ctx.font = SANS(600, g.px.label); ctx.textBaseline = "middle"; ctx.fillText(label, x + 26 * k, y - 15 * k); ctx.globalAlpha = A;
+  const grow = growAt ? growAt(f) : out3(ramp(f, d.land, d.full)), c: P = [x + s / 2, y + s / 2];
+  softShadow(ctx, x, y, s, s, 20 * k, Math.min(1, grow) * 1.3);
+  ctx.save(); rr(ctx, x, y, s, s, 20 * k); ctx.clip();
+  if (grow < 1 && g.iris) { ctx.beginPath(); ctx.arc(c[0], c[1], Math.max(0, lerp(18 * k, s * 0.72, grow)), 0, Math.PI * 2); ctx.clip(); }
+  else if (grow < 1) { pathOf(ctx, blot(c, lerp(16 * k, s * 0.8, grow) + 28 * k * (1 - grow), 77)); ctx.fillStyle = g.drop ?? P.ink; ctx.fill(); pathOf(ctx, blot(c, Math.max(0, lerp(16 * k, s * 0.8, grow) - 5 * k), 77)); ctx.clip(); }
+  ctx.fillStyle = P.paper; ctx.fillRect(x, y, s, s);
   if (crop) ctx.drawImage(art.canvas, ...crop, x, y, s, s); else ctx.drawImage(art.canvas, x, y, s, s);
   ctx.restore();
 };

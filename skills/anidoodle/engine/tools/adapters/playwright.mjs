@@ -25,13 +25,16 @@ export const open = async ({ pw, browser: found }, pagePath, { scale = 1, worker
     frame: async (n, w = n) => { const t0 = Date.now(); const r = await pick(w).evaluate((f) => { const s = window.FILM.seek(f); const t = performance.now(); const png = window.FILM.png(); return { ...s, png, enc: performance.now() - t }; }, n); return { png: Buffer.from(r.png, "base64"), shot: r.shot, drawMs: r.ms, encodeMs: r.enc, roundTripMs: Date.now() - t0 }; },
     hash: (n, w = 0) => pick(w).evaluate((f) => { window.FILM.seek(f); return window.FILM.hash(); }, n),
     // motion-blurred frame: `samples` subframes averaged in the page (see hosts/page.ts blur)
-    blur: async (n, samples, w = n) => { const t0 = Date.now(); const r = await pick(w).evaluate(([f, s]) => { const r = window.FILM.blur(f, s); const t = performance.now(); const png = window.FILM.png(); return { ...r, png, enc: performance.now() - t }; }, [n, samples]); return { png: Buffer.from(r.png, "base64"), shot: r.shot, drawMs: r.ms, encodeMs: r.enc, roundTripMs: Date.now() - t0 }; },
+    // `samples` is a count (a 360-degree shutter, as before) or a spec { samples: N | 0 (auto), shutter, max, px }
+    blur: async (n, samples, w = n) => { const t0 = Date.now(); const r = await pick(w).evaluate(([f, s]) => { const r = window.FILM.blur(f, s); const t = performance.now(); const png = window.FILM.png(); return { ...r, png, enc: performance.now() - t }; }, [n, samples]); return { png: Buffer.from(r.png, "base64"), shot: r.shot, drawMs: r.ms, encodeMs: r.enc, roundTripMs: Date.now() - t0, samples: r.samples, speed: r.speed }; },
     // a frame of the poster dissolve (see hosts/page.ts poster): frame n with poster frame p over it
     poster: async (n, p, fade, samples = 1, w = n) => { const t0 = Date.now(); const r = await pick(w).evaluate(([f, pf, fd, s]) => { const r = window.FILM.poster(f, pf, fd, s); const t = performance.now(); const png = window.FILM.png(); return { ...r, png, enc: performance.now() - t }; }, [n, p, fade, samples]); return { png: Buffer.from(r.png, "base64"), shot: r.shot, drawMs: r.ms, encodeMs: r.enc, roundTripMs: Date.now() - t0 }; },
     posterHash: (n, p, fade, samples = 1, w = 0) => pick(w).evaluate(([f, pf, fd, s]) => { window.FILM.poster(f, pf, fd, s); return window.FILM.hash(); }, [n, p, fade, samples]),
     // hash of the motion-blurred frame: what a --blur render actually writes, so the probe checks THAT
     blurHash: (n, samples, w = 0) => pick(w).evaluate(([f, s]) => { window.FILM.blur(f, s); return window.FILM.hash(); }, [n, samples]),
     audio: (sr) => pages[0].evaluate((s) => window.FILM.audio(s), sr),
+    // the frame probe (hosts/page.ts): text and content boxes the frame's edge cuts through
+    probe: (frames) => pages[0].evaluate((fs) => window.FILM.probe(fs), frames),
     // keeps the fresh bakes, then closes; returns how many plate frames were stored
     close: async () => { let saved = 0; if (useBakes) for (const p of pages) saved += await saveBakes(p, bv).catch(() => 0); await browser.close(); return saved; },
   };
