@@ -65,9 +65,9 @@ const baseline = (M) => {
 const FPS = 30, DEMO_FRAMES = 450;
 export const demoPlan = (M) => {
   const cues = [];
-  // typing "make a koi that swims" at a human cadence
+  // typing "make a koi that swims" at a human cadence (a cue sits on a whole frame)
   const text = "make a koi that swims"; let f = 12;
-  for (let i = 0; i < text.length; i++) { cues.push({ frame: f, kind: "tick", variant: text[i] === " " ? "space" : "key", label: i === 0 ? "typing" : undefined }); f += 2.4 + ((i * 7) % 5) * 0.55 + (text[i] === " " ? 1.5 : 0); }
+  for (let i = 0; i < text.length; i++) { cues.push({ frame: Math.round(f), kind: "tick", variant: text[i] === " " ? "space" : "key", label: i === 0 ? "typing" : undefined }); f += 2.4 + ((i * 7) % 5) * 0.55 + (text[i] === " " ? 1.5 : 0); }
   cues.push(
     { frame: 157, kind: "press", variant: "thock", snap: "beat", label: "Generate" },
     { frame: 170, kind: "ink", variant: "bloom", label: "the drawing opens" },
@@ -165,6 +165,7 @@ const test = async () => {
   throws(() => M.renderSfx("riser", { key: "C" }), /needs a bpm.*no default tempo/, "riser without a bpm");
   ok(M.renderSfx("press", {}).L.length > 0 && M.renderSfx("riser", { variant: "air", lengthS: 2 }).L.length > 0, "untuned kinds render without key/bpm");
   throws(() => M.mixSfx(null, { fps: 30, frames: 300, cues: [{ frame: 10, kind: "chime" }] }, SR), /cue #0 \(chime.*is tuned: set plan.key/, "plan cue: chime without a key names the cue");
+  throws(() => M.mixSfx(null, { fps: 30, frames: 300, cues: [{ frame: 10.5, kind: "tick" }] }, SR), /cue #0 \(tick.*must be a whole frame/, "a fractional cue frame is rejected, not rounded");
   const noct = M.nocturne(), fromScore = M.placeSfx({ fps: 30, frames: 300, score: { piece: noct }, cues: [{ frame: 10, kind: "chime", variant: "bell" }, { frame: 200, kind: "riser", beats: 2 }] }, SR);
   const rp = M.resolveSfxPlan({ fps: 30, frames: 300, score: { piece: noct }, cues: [] });
   ok(rp.key === "Ab" && rp.bpm === noct.plan.tempo && rp.beatsPerBar === 3, `plan.score gives key/bpm/bar (got ${rp.key} ${rp.bpm} ${rp.beatsPerBar})`);

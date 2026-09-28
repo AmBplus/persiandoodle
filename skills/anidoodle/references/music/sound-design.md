@@ -49,7 +49,8 @@ speaking window (K-weighted, see below). Duck is how far the score dips under it
 
 ## Placing effects in a film
 
-Cues are addressed by **film frame**. The frame is where the sound's sync point lands: the hit;
+Cues are addressed by **film frame**, a whole number (a fractional frame throws; to land a hit
+between frames, `snap` it to the beat). The frame is where the sound's sync point lands: the hit;
 the pass-by of a whoosh; the landing of a paper slide; the END of a riser. Pre-roll (a whoosh's
 approach, a riser's build) is rendered before the frame. If it would start before frame 0,
 the plan throws and names the earliest legal frame.
