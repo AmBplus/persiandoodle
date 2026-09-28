@@ -44,7 +44,7 @@ say why in one line. Write the answers into a short brief before drawing.
 
 - Music: pick a style vocabulary and mood, compose your own harmony, motif and form (references/music/compose.md), then node tools/music.mjs check <score.ts#export> must PASS before a human listens. Styles give sound, never notes.
 - Sound effects: references/music/sound-design.md. 14 layered, seeded effects cued by film frame (filmSfx); the score ducks, and every cue must be within 6 dB of it. Effects only on real direction changes, one riser + one impact per film.
-- Launch films: `launchTemplate.ts` renders a product's launch from data: prompts, plates drawn for it, a score composed for it, words, install lines; habits that save tokens are in `references/working-method.md`.
+- Launch films: `launchTemplate.ts` renders a product's launch from data (prompts, plates or its own UI, a score composed for it, words, install lines) in every shape from one timeline; `launch.mjs new|ship`. Habits that save tokens: `references/working-method.md`.
 
 ## The seven laws
 
@@ -102,8 +102,8 @@ draws itself declares `kind: "drawing"` and is judged on a finer floor; a freeze
 `engine/` is the portable art core plus the tooling. `engine/src/canvas-core` knows nothing
 about the DOM or any backend. `W`, `H`, `fps` and `durationFrames` come from the film's `meta`.
 Camera moves (pans, zooms, parallax, shake) come from `engine/src/canvas-core/camera.ts`:
-`references/camera.md`. `render.mjs --blur N` renders with motion blur (N subframes averaged in
-linear light per frame); the default path is untouched.
+`references/camera.md`. `render.mjs --blur auto` renders with motion blur (subframes per frame
+from its measured on-screen speed, averaged in linear light, `--shutter 180`); the default path is untouched.
 
 ```bash
 node <skill>/engine/tools/scaffold.mjs ~/art --film intro --format 9x16 --duration 12   # seconds
@@ -121,7 +121,8 @@ node tools/emit.mjs intro --out out/intro.html                     # one self-co
 | `gate.mjs` | determinism, contract, dead air, artifact; `--self-test` proves it can fail |
 | `registry.mjs` / `gallery.mjs` | the style list from the plates themselves / the gallery sheet |
 | `docs-check.mjs` | fails when any doc's style count, length or path disagrees with the code |
-| `verify-export.mjs` | QA on the rendered file: frames, duration, score; opt-in first frame, loop seam, `--delivery` |
+| `verify-export.mjs` | QA on the rendered file: frames, duration, score, A/V sync, true peak after the encode; opt-in first frame, loop seam, `--delivery` |
+| `launch.mjs` | a launch film: `new <name>` scaffolds the spec; `ship <name> --shapes 16x9,9x16` renders, posters, captions, verifies each |
 | `test.mjs` (`npm test`) | unit suites in `engine/test/`, no browser |
 | `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score; `render`, `meter` |
 | `sfx.mjs` | the sound-effects kit: `list`, `one`, `kit <dir>`, `test` |

@@ -4,7 +4,7 @@
 import type { Ctx, Env, Layer } from "../canvas-core/core";
 import { Film, renderFrame, validate } from "../canvas-core/film";
 
-declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string> } }
+declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string>; __SHAPE__?: string } }
 
 // THE BAKE STORE (Env.bake). A finished plate frame, keyed by the hash of the source that draws it
 // (build-page.mjs hashes each film module's whole import closure, plus the engine's own renderer),
@@ -32,6 +32,8 @@ const bakeStore = (surface: (w: number, h: number) => Layer) => {
 };
 
 export const mountFilm = (film: Film) => {
+  // <film>-<shape> (build-page.mjs sets __SHAPE__): the same film, re-composed for that frame
+  if (window.__SHAPE__) { if (!film.reshape) throw new Error(`${film.meta.title} has one shape; ${window.__SHAPE__} is for launch template films (film.reshape)`); film = film.reshape(window.__SHAPE__); }
   const canvas = document.getElementById("film") as HTMLCanvasElement, images = new Map<string, CanvasImageSource>();
   let env: Env, ctx: Ctx, current = 0;
   // Safari before 16.4 has no 2D OffscreenCanvas: fall back to a detached <canvas>. The core cannot tell the difference.
@@ -60,24 +62,67 @@ export const mountFilm = (film: Film) => {
   const toLin = new Float32Array(256);
   for (let i = 0; i < 256; i++) { const s = i / 255; toLin[i] = s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); }
   const fromLin = (l: number) => { const v = l <= 0.0031308 ? l * 12.92 : 1.055 * Math.pow(l, 1 / 2.4) - 0.055; return Math.max(0, Math.min(255, Math.round(v * 255))); };
-  const blur = (frame: number, samples: number) => {
+  // SHUTTER. `shutter` is the angle in degrees: 360 spreads the subframes over the whole frame
+  // interval, 180 (film's standard, and the default) over half of it, centred on the frame.
+  // ADAPTIVE (samples 0 = auto): how many subframes a frame needs comes from how fast its picture
+  // moves on screen. Two sharp renders at the shutter's two ends are block-matched on a 1/8 luma
+  // grid (8x8 blocks, +-16 cells = +-128 px, textured blocks only); the 98th percentile displacement,
+  // divided by `px` (default 3: subframes at most 3 px apart), is the count, 1 on a still frame (the
+  // sharp frame itself, untouched), at most `max` (default 32). Pure pixels in, a number out:
+  // deterministic like the frames it measures.
+  type BlurSpec = { samples?: number; shutter?: number; max?: number; px?: number };
+  const lumaGrid = (f: number, cell: number) => {
+    renderFrame(film, ctx, f, env); const w = canvas.width, h = canvas.height, d = ctx.getImageData(0, 0, w, h).data, gw = Math.floor(w / cell), gh = Math.floor(h / cell), g = new Float32Array(gw * gh);
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) { let s = 0; for (let yy = 0; yy < cell; yy += 2) for (let xx = 0; xx < cell; xx += 2) { const p = ((y * cell + yy) * w + x * cell + xx) * 4, a = d[p + 3] / 255; s += (0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) * a; } g[y * gw + x] = s / ((cell * cell) / 4); }
+    return { g, gw, gh };
+  };
+  const speedOf = (t0: number, t1: number) => {
+    const cell = 8, B = 8, R = 16, A = lumaGrid(t0, cell), Z = lumaGrid(t1, cell), { gw, gh } = A, vec = new Map<number, [number, number]>();
+    const cols = Math.floor((gw - 2 * R - B) / B) + 1;
+    for (let by = R, row = 0; by + B + R <= gh; by += B, row++) for (let bx = R, col = 0; bx + B + R <= gw; bx += B, col++) {
+      let mean = 0, v = 0; for (let y = 0; y < B; y++) for (let x = 0; x < B; x++) mean += A.g[(by + y) * gw + bx + x]; mean /= B * B;
+      for (let y = 0; y < B; y++) for (let x = 0; x < B; x++) v += (A.g[(by + y) * gw + bx + x] - mean) ** 2;
+      if (v / (B * B) < 12) continue; // flat: no motion can be read off it
+      const sadAt = (dx: number, dy: number) => { let sad = 0; for (let y = 0; y < B; y++) for (let x = 0; x < B; x++) sad += Math.abs(A.g[(by + y) * gw + bx + x] - Z.g[(by + y + dy) * gw + bx + x + dx]); return sad; };
+      const cost = new Float64Array((2 * R + 1) ** 2); let best = Infinity;
+      for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) { const c = sadAt(dx, dy); cost[(dy + R) * (2 * R + 1) + dx + R] = c; if (c < best) best = c; }
+      // content that changes without moving (a stroke drawn, a letter typed) matches nowhere well: not motion
+      if (best / (B * B) > 4) continue;
+      // a periodic texture (halftone, stripes) matches equally well far away: of the near-best offsets take the SMALLEST motion
+      let mx = 0, my = 0, md = Infinity;
+      for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) { const c = cost[(dy + R) * (2 * R + 1) + dx + R], d = Math.hypot(dx, dy); if (c <= best * 1.1 + B * B * 0.5 && d < md) { md = d; mx = dx; my = dy; } }
+      const at = (dx: number, dy: number) => (Math.abs(dx) <= R && Math.abs(dy) <= R ? cost[(dy + R) * (2 * R + 1) + dx + R] : Infinity), c0 = at(mx, my);
+      const sub = (m: number, c: number, p: number) => { const d = m - 2 * c + p; return Number.isFinite(d) && d > 0 ? Math.max(-0.5, Math.min(0.5, (0.5 * (m - p)) / d)) : 0; };
+      vec.set(row * cols + col, [mx + (mx || my ? sub(at(mx - 1, my), c0, at(mx + 1, my)) : 0), my + (mx || my ? sub(at(mx, my - 1), c0, at(mx, my + 1)) : 0)]);
+    }
+    // real motion is coherent: a block's vector counts only if two of its neighbours agree with it (within 1.5 cells)
+    const disp: number[] = [];
+    for (const [key, [x, y]] of vec) { const r = Math.floor(key / cols), c = key % cols; let agree = 0; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { if (!dr && !dc) continue; const nb = vec.get((r + dr) * cols + c + dc); if (nb && c + dc >= 0 && c + dc < cols && Math.hypot(nb[0] - x, nb[1] - y) <= 1.5) agree++; } if (agree >= 2) disp.push((Math.hypot(x, y) * cell) / env.scale); }
+    if (!disp.length) return 0;
+    disp.sort((a, b) => a - b); return disp[Math.min(disp.length - 1, Math.floor(disp.length * 0.98))];
+  };
+  const blur = (frame: number, spec: number | BlurSpec) => {
+    const o: BlurSpec = typeof spec === "number" ? { samples: spec, shutter: 360 } : spec, sh = (o.shutter ?? 180) / 360;
     const n = Math.max(0, Math.min(film.meta.durationFrames - 1, Math.round(frame))), shot = film.shots.find((s) => n >= s.start && n < s.end);
-    if (!shot || samples < 2 || (film.meta.step ?? (film.meta.onTwos ? 2 : 1)) > 1) { const r = seek(n); return { shot: r.shot, ms: r.ms }; }
+    const stepped = (film.meta.step ?? (film.meta.onTwos ? 2 : 1)) > 1, win = (t: number) => Math.min(shot!.end - 1, Math.max(shot!.start, t));
+    let samples = o.samples ?? 0, speed = NaN;
+    if (shot && !stepped && samples === 0) { speed = speedOf(win(n - sh / 2), win(n + sh / 2)); samples = Math.max(1, Math.min(o.max ?? 32, Math.ceil(speed / (o.px ?? 3)))); }
+    if (!shot || samples < 2 || stepped) { const r = seek(n); return { shot: r.shot, ms: r.ms, samples: 1, speed }; }
     const t0 = performance.now(), w = canvas.width, h = canvas.height, acc = new Float64Array(w * h * 4);
     for (let i = 0; i < samples; i++) {
-      const t = Math.min(shot.end - 1, Math.max(shot.start, n + (i + 0.5) / samples - 0.5));
+      const t = win(n + ((i + 0.5) / samples - 0.5) * sh);
       renderFrame(film, ctx, t, env);
       const d = ctx.getImageData(0, 0, w, h).data;
       for (let p = 0; p < d.length; p += 4) { const a = d[p + 3], k = a / 255; acc[p] += toLin[d[p]] * k; acc[p + 1] += toLin[d[p + 1]] * k; acc[p + 2] += toLin[d[p + 2]] * k; acc[p + 3] += a; }
     }
-    const img = ctx.createImageData(w, h), o = img.data, inv = 1 / samples, full = 255 * samples;
-    for (let p = 0; p < o.length; p += 4) {
+    const img = ctx.createImageData(w, h), out = img.data, inv = 1 / samples, full = 255 * samples;
+    for (let p = 0; p < out.length; p += 4) {
       const A = acc[p + 3]; if (A === 0) continue; // nothing was ever drawn here: stays transparent black
       const c = A === full ? inv : 255 / A; // premultiplied average, un-premultiplied by the mean alpha
-      o[p] = fromLin(acc[p] * c); o[p + 1] = fromLin(acc[p + 1] * c); o[p + 2] = fromLin(acc[p + 2] * c); o[p + 3] = Math.round(A * inv);
+      out[p] = fromLin(acc[p] * c); out[p + 1] = fromLin(acc[p + 1] * c); out[p + 2] = fromLin(acc[p + 2] * c); out[p + 3] = Math.round(A * inv);
     }
     ctx.putImageData(img, 0, 0); current = n;
-    return { shot: shot.id, ms: performance.now() - t0 };
+    return { shot: shot.id, ms: performance.now() - t0, samples, speed };
   };
   const audio = (sr: number) => { if (!film.audio) return null; const [L, R] = film.audio(sr); if (L.length !== R.length) throw new Error("audio channels have different lengths"); const pcm = new Float32Array(L.length * 2); for (let i = 0; i < L.length; i++) { pcm[i * 2] = L[i]; pcm[i * 2 + 1] = R[i]; } return { sampleRate: sr, frames: L.length, float32: b64(new Uint8Array(pcm.buffer)) }; };
   const warm = () => film.shots.forEach((s) => { seek(s.start); seek(s.start + ((s.end - s.start) >> 1)); }); // first + middle frame of every shot: builds tiles, pre-allocates the layer pool
@@ -86,16 +131,17 @@ export const mountFilm = (film: Film) => {
   // poster frame is drawn once into its own surface; frame n < fade is the real frame n with the
   // poster laid over it at 1 - n/fade. Frame 0 IS the poster. Nothing else changes, not the score.
   let posterOf: { key: string; img: CanvasImageSource } | null = null;
-  const poster = (frame: number, posterFrame: number, fade: number, samples = 1) => {
-    const n = Math.round(frame), u = fade > 0 ? 1 - n / fade : n === 0 ? 1 : 0, key = `${posterFrame}/${samples}/${canvas.width}x${canvas.height}`;
+  const poster = (frame: number, posterFrame: number, fade: number, samples: number | BlurSpec = 1) => {
+    const on = typeof samples === "number" ? samples > 1 : true;
+    const n = Math.round(frame), u = fade > 0 ? 1 - n / fade : n === 0 ? 1 : 0, key = `${posterFrame}/${JSON.stringify(samples)}/${canvas.width}x${canvas.height}`;
     if (u > 0 && posterOf?.key !== key) {
-      samples > 1 ? blur(posterFrame, samples) : seek(posterFrame);
+      on ? blur(posterFrame, samples) : seek(posterFrame);
       // the copy lives on the same kind of surface the art uses (surface(): same raster opts). A plain
       // GPU <canvas> drawn onto a meta.raster "cpu" canvas flips Chrome's raster path for the rest
       // of the session and every later frame comes out different: measured, not guessed.
       const c = surface(canvas.width, canvas.height); c.ctx.drawImage(canvas, 0, 0); posterOf = { key, img: c.canvas };
     }
-    const r = samples > 1 ? blur(n, samples) : seek(n);
+    const r = on ? blur(n, samples) : seek(n);
     if (u > 0 && posterOf) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = Math.min(1, u); ctx.globalCompositeOperation = "source-over"; if (u >= 1) ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(posterOf.img, 0, 0); ctx.restore(); }
     current = n; return r;
   };
