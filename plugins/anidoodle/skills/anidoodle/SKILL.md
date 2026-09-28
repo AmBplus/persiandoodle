@@ -124,7 +124,7 @@ node tools/emit.mjs intro --out out/intro.html                     # one self-co
 | `verify-export.mjs` | QA on the rendered file: frames, duration, score, A/V sync, true peak after the encode; opt-in first frame, loop seam, `--delivery` |
 | `launch.mjs` | a launch film: `new <name>` scaffolds the spec; `ship <name> --shapes 16x9,9x16` renders, posters, captions, verifies and framechecks each (`framecheck.mjs`: no text cut by the frame's edge) |
 | `test.mjs` (`npm test`) | unit suites in `engine/test/`, no browser |
-| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score; `render`, `meter` |
+| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score (key, master, guards, stems, novelty); `render`, `meter` |
 | `sfx.mjs` | the sound-effects kit: `list`, `one`, `kit <dir>`, `test` |
 
 Four backends, one art core: `playwright`, `html-player`, `remotion`, `hyperframes`.

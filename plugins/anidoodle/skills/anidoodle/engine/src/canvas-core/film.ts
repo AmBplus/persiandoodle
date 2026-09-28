@@ -15,7 +15,8 @@ export type Film = { meta: {
   // over 1 s at a 0.02% floor, and a hand's short pauses between passes (up to half a second) are allowed.
   kind?: "story" | "drawing" | "loop" | "explainer" | "infographic" | "launch" | "interactive";
   locked?: [from: number, to: number, reason: string][];
-  holds?: [from: number, to: number][];
+  // a declared hold: the stillness is meant (a word read, an end card); the optional reason is printed by the gate
+  holds?: [from: number, to: number, reason?: string][];
   onTwos?: boolean;
   step?: 1 | 2 | 3;
   // the score as fitted to this film: its tempo and form; render prints it next to the grid's bpm.
