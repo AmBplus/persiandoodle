@@ -122,8 +122,12 @@ for (const secs of [70, 90, 110]) {
   assert(M.detectMode(M.line(0, src, { role: "melody", bpb: 4 }), ["lydian", "major", "aeolian", "dorian", "mixolydian"])[0].tonic !== "Db", "fixture must fool the raw detector");
   assert.deepEqual(M.planProblems(lp("Db", "lydian", src)), []); assert(M.planProblems(lp("E", "major", src)).length > 0);
   pass("Db lydian leaning on Ab is accepted (scale fits, tonic heard); a wrong key is still flagged");
-  const st = { lead: [new Float32Array([0.3 * 10 ** ((-16.5 + 5) / 20) / 0.3]), new Float32Array(1)] };
-  assert(M.stemBalance(st, { lead: -16.5 }).pass); assert(!M.stemBalance({ lead: [new Float32Array([10 ** ((-16.5 + 7) / 20)]), new Float32Array(1)] }, { lead: -16.5 }).pass); pass("stems: the lead may sit +3 dB over tolerance (guards win), not more");
+  const cen = (x) => { const a = new Float32Array([x]); return [a, a]; }; // a centred part: the stem meter reads its mid
+  assert(M.stemBalance({ lead: cen(10 ** ((-16.5 + 5) / 20)) }, { lead: -16.5 }).pass); assert(!M.stemBalance({ lead: cen(10 ** ((-16.5 + 7) / 20)) }, { lead: -16.5 }).pass); pass("stems: the lead may sit +3 dB over tolerance (guards win), not more");
+  { const n = 48000, x = new Float32Array(n).map((_, i) => 0.1 * Math.sin(i / 7)), z = new Float32Array(n), lo = new Float32Array(n).map((_, i) => 0.001 * Math.sin(i / 7));
+    const left = M.stemRms(x, z), right = M.stemRms(z, x), tail = M.stemRms(Float32Array.from([...x.slice(0, n / 2), ...lo.slice(0, n / 2)]), Float32Array.from([...x.slice(0, n / 2), ...lo.slice(0, n / 2)]));
+    assert(Math.abs(left - right) < 1e-9 && Math.abs(tail - M.stemRms(x, x)) < 0.1, `mid meter: L ${left} R ${right}, tail ${tail}`);
+    pass(`stem meter: a part panned hard left reads as hard right (${left.toFixed(1)} dB both; v1 read the left channel only), a -40 dB tail does not dilute it (${tail.toFixed(2)} vs ${M.stemRms(x, x).toFixed(2)})`); }
   const w = M.composePiece(M.testMaterial(M.VOCAB.world, { bars: 4 })), wr = M.renderPiece(w, SR), g = M.guardReport(wr, SR, wr.L.length / SR);
   assert(Number.isFinite(g.lufs) && g.ghost.windows > 0); pass(`guards run on a 7/8 score (${g.ghost.windows} windows)`); }
 

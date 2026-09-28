@@ -26,11 +26,11 @@ Those read as dusty lo-fi hip-hop (the `lofi` style), not clean electronic.
 
 | Slot | Voice | How it's made | Stem RMS target |
 |---|---|---|---|
-| chords | `warmPad` | 7 PolyBLEP saws, spread 0.55 x +-14 cents, slow per-voice drift, 12 dB low-pass at 2.6 kHz, 0.5 s attack, 1.4 s release | -21 dB |
-| lead | `softPluck` | triangle + square an octave down, filter snaps open, 0.42 s decay, dotted-eighth ping-pong (feedback 0.28, mix 0.24) | -16.5 dB |
-| counter | `softPluck` | brighter, panned 0.35, more delay and room | -24 dB |
-| bass | `sub` | sine + a whisper of the 2nd harmonic, low-passed at 150 Hz | -18 dB |
-| kick / snare / ghost / hat | kit | a bouncy kick, a snare, rim ghosts about 11 dB under, 16th hats | -14 / -20 / - / -28 dB |
+| chords | `warmPad` | 7 PolyBLEP saws, spread 0.55 x +-14 cents, slow per-voice drift, 12 dB low-pass at 2.6 kHz, 0.5 s attack, 1.4 s release | -22 dB |
+| lead | `softPluck` | triangle + square an octave down, filter snaps open, 0.42 s decay, dotted-eighth ping-pong (feedback 0.28, mix 0.24) | -15.5 dB |
+| counter | `softPluck` | brighter, panned 0.35, more delay and room | -20 dB |
+| bass | `sub` | sine + a whisper of the 2nd harmonic, low-passed at 150 Hz | -18.5 dB |
+| kick / snare / ghost / hat | kit | a bouncy kick, a snare, rim ghosts about 11 dB under, 16th hats | -14.5 / -19 / - / -24.5 dB |
 | arp, perc | `softPluck`, `hat` | optional extra layers | - |
 
 Alternates:
@@ -100,7 +100,10 @@ node tools/music.mjs render <file>.ts#<export> out.mp3 --stems
 
 A stem is a part's own signal:
 - unmastered, pre-room, after its gain and the duck;
-- measured as RMS over its **active** samples (|x| > 1e-4), left channel, at 24 kHz.
+- measured on its **mid** ((L + R) / 2, after its pan, 30 Hz high-passed) as the RMS of the 20 ms blocks where it
+  plays: blocks under -70 dBFS never count, then blocks more than 20 dB under the part's own level drop out (gated
+  like loudness), at 24 kHz. (The v1 meter read the left channel sample by sample above -80 dB; every target was
+  converted at the sound-v2 merge on the render it was set on, so the balance did not move.)
 
 Fix a flagged part with `levels`, never with the master.
 

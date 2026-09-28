@@ -104,8 +104,26 @@ export const measure = (chans: Float32Array[], sr: number): Meters => {
   return { durationS: dur, lufs: l.integrated, lra: l.lra, shortMax: l.shortMax, dbtp: tp.dbtp, samplePeakDb: tp.samplePeakDb, onsetsPerS: on.length / dur, onsetCount: on.length, centroidHz: c.mean, centroidEnergyHz: c.energyWeighted, lastOnsetS: on.length ? on[on.length - 1] : 0, shortTerm: l.shortTerm };
 };
 
-/** RMS of a stem over its active samples (|x| > 1e-4), left channel, dBFS: the level a part plays at when it plays. */
-export const stemRms = (x: Float32Array, floor = 1e-4) => { let s = 0, c = 0; for (let i = 0; i < x.length; i++) { const v = x[i]; if (Math.abs(v) > floor) { s += v * v; c++; } } return c ? 10 * Math.log10(s / c + 1e-12) : -Infinity; };
+/**
+ * The level a part plays at when it plays, dBFS: the RMS of its MID ((L + R) / 2, after its pan: what a phone's one
+ * speaker plays, and a centred mono part reads exactly its own level), high-passed at 30 Hz, over the 20 ms blocks where it
+ * is really playing.
+ * Gated like BS.1770 loudness: blocks under -70 dBFS never count, then blocks more than 20 dB under the part's own
+ * level drop out, so a reverb tail, a pedal ring or a noise floor does not dilute it. (v1 read the LEFT channel only,
+ * sample by sample above a -80 dB floor: a hat panned right read low, a ride panned left read high, and every long
+ * tail pulled a part down; the targets were converted at the sound-v2 merge on the renders they were set on.)
+ */
+export const stemRms = (L: Float32Array, R: Float32Array = L, sr = 48000) => {
+  const B = Math.max(1, Math.round(0.02 * sr)), n = Math.min(L.length, R.length), pw: number[] = [];
+  // audible band only (a 30 Hz high-pass, like loudness's RLB stage): a voice's DC or subsonic drift is not level (a harp's DC offset swung it 4.8 dB)
+  const w = Math.tan(Math.PI * Math.min(30, 0.45 * sr) / sr), k = 1 / (1 + Math.SQRT2 * w + w * w), b0 = k, a1 = 2 * (w * w - 1) * k, a2 = (1 - Math.SQRT2 * w + w * w) * k;
+  let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+  const mid = new Float64Array(n); for (let i = 0; i < n; i++) { const x = (L[i] + R[i]) * 0.5, y = b0 * (x - 2 * x1 + x2) - a1 * y1 - a2 * y2; x2 = x1; x1 = x; y2 = y1; y1 = y; mid[i] = y; }
+  for (let a = 0; a < n; a += B) { const e = Math.min(n, a + B); let s = 0; for (let i = a; i < e; i++) s += mid[i] * mid[i]; pw.push(s / (e - a)); }
+  const abs = pw.filter((p) => p > 1e-7); if (!abs.length) return -Infinity;
+  const rel = (abs.reduce((a, p) => a + p, 0) / abs.length) * 0.01, gated = abs.filter((p) => p >= rel);
+  return 10 * Math.log10(gated.reduce((a, p) => a + p, 0) / gated.length);
+};
 export type StemRow = { id: string; rmsDb: number; targetDb: number | null; offDb: number | null; ok: boolean };
 /**
  * Stem balance: each part's active RMS against its target; a part more than `tolDb` off is flagged.
@@ -114,7 +132,7 @@ export type StemRow = { id: string; rmsDb: number; targetDb: number | null; offD
  */
 /** Guards win over stem targets: the melody must clear the masking guard, so the lead may sit up to `LEAD_HEADROOM_DB` above its target before it is flagged. */
 export const LEAD_HEADROOM_DB = 3;
-export const stemBalance = (stems: Record<string, [Float32Array, Float32Array]>, targets: Record<string, number>, tolDb = 3, headroom: Record<string, number> = { lead: LEAD_HEADROOM_DB }) => {
-  const rows: StemRow[] = Object.entries(stems).map(([id, [L]]) => { const rmsDb = stemRms(L), t = targets[id] ?? null, off = t === null ? null : rmsDb - t; return { id, rmsDb, targetDb: t, offDb: off, ok: off === null || (off >= -tolDb && off <= tolDb + (headroom[id] ?? 0)) }; });
+export const stemBalance = (stems: Record<string, [Float32Array, Float32Array]>, targets: Record<string, number>, tolDb = 3, headroom: Record<string, number> = { lead: LEAD_HEADROOM_DB }, sr = 48000) => {
+  const rows: StemRow[] = Object.entries(stems).map(([id, [L, R]]) => { const rmsDb = stemRms(L, R, sr), t = targets[id] ?? null, off = t === null ? null : rmsDb - t; return { id, rmsDb, targetDb: t, offDb: off, ok: off === null || (off >= -tolDb && off <= tolDb + (headroom[id] ?? 0)) }; });
   return { rows, pass: rows.every((r) => r.ok), tolDb, headroom };
 };

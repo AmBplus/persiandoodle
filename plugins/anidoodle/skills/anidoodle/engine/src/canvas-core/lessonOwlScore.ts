@@ -82,7 +82,7 @@ export const owlPiece = (sp: OwlSoundPlan): Piece => {
   ];
   const bars = Math.ceil((E + 7) / 4);
   return {
-    title: "How to draw an owl (social cut)", seed: 1109, tail: 1.5, harmony: [],
+    title: "How to draw an owl (social cut)", seed: 1109, tail: 1.5, harmony: [], legacy: true, // shipped lesson: frozen on the pre-rebuild sound (Piece.legacy)
     plan: { style: "minimalist", tempo: sp.bpm, meter: "4/4", rubato: 0, ritard: 1, sections: [{ id: "all", bars, mood: "curious", key: "G", mode: "major", melody: ["ostinato", "hook"], dyn: [0.62, 0.7], ending: "button" }] },
     parts,
   };

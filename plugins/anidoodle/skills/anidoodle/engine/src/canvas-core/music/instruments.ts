@@ -2,6 +2,8 @@
 // presses in seconds. Presets are numbers in one place (the constants at the top of each voice).
 import { type Rng, TAU, clamp, pan, SVF, Biquad, blep, onePoleCoef, gauss } from "./dsp";
 import type { Played } from "./perform";
+import { kitVoice, type KitCtx } from "./drums";
+import * as E from "./ensemble";
 
 type Out = { L: Float32Array; R: Float32Array };
 type Opts = Record<string, number | boolean | string>;
@@ -66,7 +68,7 @@ export const mallets = (keys: Played[], sr: number, n: number, o: Opts, vibes = 
  * filter for brightness, an allpass for fine tuning, a pick-position comb on the excitation and a
  * velocity low-pass (a softer pluck is darker). Harp rings long and bright; guitar gets a body.
  */
-export const pluck = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, kind: "harp" | "guitar"): Out => {
+const pluckLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, kind: "harp" | "guitar"): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, w = num(o, "width", 0.6);
   for (const k of keys) {
     const f = f0(k.p), i0 = Math.round(k.t * sr), P = sr / f, N = Math.floor(P - 0.5), frac = P - N - 0.5;
@@ -98,7 +100,7 @@ export const pluck = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, ki
 };
 
 /** Soft string ensemble: 5 detuned PolyBLEP saws per note, slow bow attack, delayed vibrato, low-pass, high-pass 150 Hz. */
-export const strings = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
+const stringsLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, atk = num(o, "attack", 0.45), rel = num(o, "release", 0.9), w = num(o, "width", 0.8), bright = num(o, "bright", 1);
   const hpL = new SVF(sr, 150, 0.7), hpR = new SVF(sr, 150, 0.7);
   for (const k of keys) {
@@ -178,25 +180,31 @@ export const triangle = (keys: Played[], sr: number, n: number): Out => {
   }
   return out;
 };
+/** Drum-lane kinds (grooves.laneKind) to the NES channel's three sounds. */
+const NES_KIND: Record<string, "k" | "s" | "h"> = { k: "k", s: "s", h: "h", o: "s", kick: "k", dum: "k", snare: "s", ghost: "s", clap: "s", cross: "s", brush: "s", sweep: "s", tek: "s", hat: "h", open: "h", pedal: "h", ride: "h", shaker: "h", crash: "h", ka: "h" };
 /** NES noise channel: a 15-bit LFSR (long mode for snare/kick, short 93-step mode for hats). */
 export const noiseDrum = (keys: Played[], sr: number, n: number): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) };
   for (const k of keys) {
-    const kind = k.kind ?? "s", i0 = Math.round(k.t * sr); let reg = 1, acc = 0;
+    const kind = NES_KIND[k.kind ?? "s"] ?? "s", i0 = Math.round(k.t * sr); let reg = 1, acc = 0;
     const rate = kind === "h" ? 32000 : kind === "k" ? 3500 : 11000, dec = kind === "h" ? 0.028 : kind === "k" ? 0.07 : 0.11, short = kind === "h";
     const len = Math.min(n - i0, Math.ceil(dec * 6 * sr)); let out1 = 1;
     for (let i = 0; i < len; i++) {
       acc += rate / sr; while (acc >= 1) { acc -= 1; const bit = (reg ^ (reg >> (short ? 6 : 1))) & 1; reg = (reg >> 1) | (bit << 14); out1 = reg & 1 ? 1 : -1; }
       const t = i / sr, e = Math.round(Math.exp(-t / dec) * 15) / 15;
-      let y = out1 * e * k.v * (kind === "h" ? 0.07 : 0.14);
-      if (kind === "k") { const fq = 55 + 110 * Math.exp(-t / 0.03); y += Math.sin(TAU * fq * t) * Math.exp(-t / 0.09) * k.v * 0.4; }
+      let y = out1 * e * k.v * (kind === "h" ? 0.07 : kind === "k" ? 0.08 : 0.14);
+      if (kind === "k") { const fq = 55 + 110 * Math.exp(-t / 0.03); y += Math.sin(TAU * fq * t) * Math.exp(-t / 0.09) * k.v * 0.22; }
       out.L[i0 + i] += y; out.R[i0 + i] += y;
     }
   }
   return out;
 };
 
-// ---------------------------------------------------------------- drums and bass (soft kit)
+// ---------------------------------------------------------------- drums
+/** The kit lanes. New sound: drums.ts (six kit characters). A legacy piece (Piece.legacy, the shipped launch film) or `legacy: true` on the part keeps the original soft kit below, bit for bit. */
+export const drumVoice = (inst: string, keys: Played[], sr: number, n: number, o: Opts, r: Rng, ctx: KitCtx = {}): Out =>
+  ctx.legacy || o.legacy === true ? (inst === "kick" ? kick(keys, sr, n, o) : inst === "snare" ? snare(keys, sr, n, o, r) : hat(keys, sr, n, o, r)) : kitVoice(inst, keys, sr, n, o, r, ctx);
+// ---------------------------------------------------------------- legacy soft kit, and bass
 export const kick = (keys: Played[], sr: number, n: number, o: Opts): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, soft = num(o, "soft", 1);
   for (const k of keys) { const i0 = Math.round(k.t * sr), len = Math.min(n - i0, Math.ceil(0.5 * sr)); let ph = 0;
@@ -218,7 +226,7 @@ export const hat = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out
   return out;
 };
 /** Warm bass: sine + harmonics, a pluck envelope, and a little saturation so phones hear the line (phone rule). */
-export const bass = (keys: Played[], sr: number, n: number, o: Opts): Out => {
+const bassLegacy = (keys: Played[], sr: number, n: number, o: Opts): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, drive = num(o, "drive", 1.6);
   for (const k of keys) { const f = f0(k.p), i0 = Math.round(k.t * sr), dur = k.off - k.t, len = Math.min(n - i0, Math.ceil((dur + 0.1) * sr));
     for (let i = 0; i < len; i++) { const t = i / sr, e = Math.min(1, t * 300) * (0.55 + 0.45 * Math.exp(-t / 0.25)) * (t < dur ? 1 : Math.exp(-(t - dur) / 0.03));
@@ -232,3 +240,10 @@ export const vinyl = (keys: Played[], sr: number, n: number, _o: Opts, r: Rng): 
     for (let i = 0; i < len; i++) { const pop = r() < 7 / sr ? (r() - 0.5) * 0.5 * k.v : 0; const hiss = gauss(r) * 0.004 * k.v; zl += lp * (hiss + pop - zl); zr += lp * (hiss * 0.8 + pop - zr); out.L[i0 + i] += zl; out.R[i0 + i] += zr; } }
   return out;
 };
+
+// ---------------------------------------------------------------- v2 ensemble voices (ensemble.ts)
+// `opts.legacy: true` keeps the v1 voice bit-for-bit (shipped films); everything else gets v2.
+const legacy = (o: Opts) => o.legacy === true;
+export const pluck = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, kind: "harp" | "guitar"): Out => (legacy(o) ? pluckLegacy(keys, sr, n, o, r, kind) : E.pluck(keys, sr, n, o, r, kind));
+export const strings = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? stringsLegacy(keys, sr, n, o, r) : E.strings(keys, sr, n, o, r));
+export const bass = (keys: Played[], sr: number, n: number, o: Opts): Out => (legacy(o) ? bassLegacy(keys, sr, n, o) : E.bass(keys, sr, n, o));
