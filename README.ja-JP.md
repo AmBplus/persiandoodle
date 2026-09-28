@@ -204,6 +204,15 @@ codex plugin marketplace add alexgreensh/anidoodle
 
 続いてCodexのTUIで`/plugins`を開き、anidoodleをインストールする。
 
+**Grok Build:**
+
+```bash
+grok plugin marketplace add alexgreensh/anidoodle
+grok plugin install anidoodle --trust
+```
+
+`--trust`でインストールを確定する。付けない場合、Grokはプラグインが実行できる内容を表示して止まる。`/plugins`のMarketplaceタブからもインストールできる。
+
 **その他のエージェント:** anidoodleは標準的なスキルフォルダ（`skills/anidoodle/SKILL.md`）なので、スキルを読み込める環境ならコピーして使える。
 
 あとは欲しいものを言葉で伝えるだけ。たとえば「レシピページ用に、鉛筆と水彩で洋梨を描いて」というように。エンジンを直接動かしたいときは:

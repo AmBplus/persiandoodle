@@ -204,6 +204,15 @@ codex plugin marketplace add alexgreensh/anidoodle
 
 然后在 Codex 的 TUI 中输入 `/plugins`，安装 anidoodle。
 
+**Grok Build：**
+
+```bash
+grok plugin marketplace add alexgreensh/anidoodle
+grok plugin install anidoodle --trust
+```
+
+`--trust` 用于确认安装；不加它，Grok 会列出插件可以运行的内容，然后停下。也可以在 `/plugins` 的 Marketplace 标签页里安装。
+
 **其他智能体：** anidoodle 是标准的 skill 文件夹（`skills/anidoodle/SKILL.md`），可以复制到任何能读取 skill 的运行环境。
 
 然后直接说出你想要什么就行，比如 *“给我们的菜谱页面画一个铅笔加水彩风格的梨”*。如果你想亲自操作引擎：
