@@ -94,7 +94,15 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## コードで作曲する音楽
 
-サンプル音源も録音も使わない。音符をデータとして書き、すべての音を合成する。弦のうなり、打鍵の明るさ、響き続けるペダルまで再現したピアノのほか、マリンバ、ハープ、ギター、チェレスタ、ベル、弦楽器、チップチューン、ドラムを備える。長調と短調のすべての調、セクションごとのムード、そしてどんな長さにも収まるテーマ。
+サンプル音源も録音も使わない。音符をデータとして書き、すべての音をコードで合成する。音楽スタイルはモデルが作曲に使う語彙であって、プリセットではない。ローファイ・エレクトロニック、ハウス、シンセウェイヴからオーケストラ、ジャズ、フォーク、ピアノ独奏まで21種類。各スタイルが音色、グルーヴ、和声の語法を与え、コード、モチーフ、形式は毎回新しく書く。だから映像ごとに、その映像だけのスコアになる。
+
+- **鍵盤:** 実在のスタインウェイ・グランドをもとにモデル化したピアノ、ローズとウーリッツァーのエレクトリックピアノ、トーンホイール・オルガンとパイプオルガン、鍵盤打楽器とベル。
+- **アンサンブル:** 一人ひとりが独立して弾く弦楽セクション、金管、フルートとクラリネット、母音を歌い分ける合唱、ナイロン弦・スチール弦・エレクトリックのギター、ハープ、4種類のベース。
+- **ドラム:** コードで作った本物のキット（アコースティック、808、909、ダスティ、ブラシ、ティンパニ付きのオーケストラ）。一打ごとにわずかに違う。
+- **本物のローファイ:** 12ビットのサンプラー、テープの揺れとヒス、レコードのパチパチ音、ミックスを呼吸させるキック。
+- **ミックスと空間:** パートごとのEQ、ドラムバス、ホール・プレート・コンボリューションのリバーブ、ストリーミング基準の音量に仕上げるマスター。
+
+`node tools/music.mjs check` は、人が聴く前にスコアを審査する。調とモード、ラウドネス、マスキング、各パートのバランス、そして新規性。既存の曲に似ているスコアや引用したスコアは不合格になる。
 
 | 試聴 | |
 |---|---|
@@ -103,8 +111,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [シネマティック・畏敬](assets/audio/sampler-cinematic-awe-8s.mp3) · [ローファイ](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [マリンバ](assets/audio/sampler-marimba-curious-8s.mp3) · [エレクトロニック](assets/audio/sampler-drive-electronic-8s.mp3) | ほかのムードと楽器 |
 | [15秒に収めたノクターンのテーマ](assets/audio/fit-theme-15s.mp3) | 長さに合う構成を作曲家が選ぶ |
 
-さらに、**ローファイ・エレクトロニック**。温かくデチューンしたパッド、やわらかく爪弾くリード、かすかなテープの揺れで、落ち着いていて軽快（ローンチ映像の音楽はこのスタイルで作曲した。[語彙](skills/anidoodle/references/music/styles/lofi-electronic.md)）。
-そして**効果音キット**。重ねて作るシード付きの効果音が十四種、フレーム単位で鳴り、そのたびに音楽が一歩引く（[サウンドデザイン](skills/anidoodle/references/music/sound-design.md)）。スタイルは作曲に使う語彙であって、できあいの音符ではない。どの映像にも、その映像のために書いたスコアがつく。
+そして**効果音キット**。重ねて作るシード付きの効果音が十四種、フレーム単位で鳴り、そのたびに音楽が一歩引く（[サウンドデザイン](skills/anidoodle/references/music/sound-design.md)）。スコアの作り方: [`compose.md`](skills/anidoodle/references/music/compose.md) · [21の語彙](skills/anidoodle/references/music/styles/vocabularies.md)。
 
 ## あなたに気づくウェブページ
 
@@ -116,7 +123,14 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## 自分のプロダクトを、コードで描いてローンチする
 
-このページ冒頭の映像は anidoodle で作ったもので、そのときのキットも同梱している。プロダクト名、ユーザーが打ち込むプロンプト、それに応える絵、少しの言葉、インストール用の行を渡すと、拍に合わせてローンチ映像を編集する。ひとりでに入力されるチャット、インクのように開いて描き上がる回答、画面いっぱいのレタリング、そしてインストール行をコピーできるだけ長く見せるエンドカード。
+このページ冒頭の映像は anidoodle で作ったもので、そのときのキットも同梱している。`launch.mjs new <名前>` で記入用の仕様ができる。プロダクト名、ユーザーが打ち込むプロンプト、それに応える答え（描いた絵、自分のプロダクトの画面、または映像）、少しの言葉、インストール用の行。それを渡すと、拍に合わせてローンチ映像を編集する。ひとりでに入力されるチャット、インクのように開く回答、画面いっぱいのレタリング、そしてインストール行をコピーできるだけ長く見せるエンドカード。
+
+- **4つの画面比率、1本のタイムライン:** 16:9、1:1、4:5、9:16。それぞれの画角に合わせて組み直し、スマートフォンでも文字が読める。
+- **プロダクトを画面に:** データから描くインターフェース。要素が変更前の状態から変更後へ弾むように移る。
+- **絵から生まれる音:** キー入力、クリック、着地のひとつひとつに効果音がつき、画面上で起きた位置に定位する。その下に映像のために作曲したスコア。
+- **そのまま公開できる:** `launch.mjs ship <名前>` が各比率をレンダリングし、ポスターフレームと字幕（.srt と .vtt）を書き出し、納品ファイルで音と映像の同期とピークレベルを確かめ、文字が画面の端で切れるフレームを不合格にする。
+
+ルックは2種類（手描きのインク、またはUI中心のプロダクト向けのクリーン）。30 fps と 60 fps、各フレームの速さに合わせたモーションブラー。
 
 ルールは、自分たちのローンチ映像を四度編集した経験と、優れたローンチ映像の技法から来ている。五秒以内に何なのかを伝える、絵の上に文字を置かない、強拍で切り替える、最初のフレームをサムネイルにする。 → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [キット](skills/anidoodle/references/workflows/launch-video-kit.md)
 
@@ -161,7 +175,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 - **物語**が、作品に意味を与える。一枚絵ならひとつのアイデアとひとつの主題。映画ならひとつの変化、ひとつの見せ場、そして繰り返し登場するモチーフがひとつ。→ [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **リアリズム**は、名づけることから生まれる。解剖学的な構造、視点、そして開いた参考資料。それがあってはじめて、蝶は体と翅脈を持つ生き物として見えてくる。→ [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **スタイル**は、線そのものに宿る。31の完全なレシピ、案件ごとに選ぶためのガイド、そして自分だけのスタイルを生み出す手順。→ [`styles.md`](skills/anidoodle/references/styles.md)
-- **音楽**は、音符を作曲し、コードで合成する。モデル化されたピアノと十数種類の楽器、すべての長調と短調、セクションごとの情感、どんな長さにも合うテーマを備えている。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **音楽**は、スタイルの語彙から作品ごとに作曲し、コードで合成する。21のスタイル、バンドとオーケストラ一式、すべての長調と短調、セクションごとの情感、どんな長さにも合うテーマを備えている。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **決定性**が、その保証になる。純粋関数とシード付き乱数だから、ソースコードさえあれば誰でもまったく同じ作品を再構築できる。→ [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **手法**が、スピードを保ってくれる。まず一枚の絵で見た目を確かめ、そのまま一気に作り上げ、間違えるとコストの高いところにだけ承認をかける。→ [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -229,6 +243,8 @@ node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 w
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
 node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 Node 20以降が必要。一枚絵なら上記のブラウザだけで足りるが、動くものにはすべて`ffmpeg`も使う。

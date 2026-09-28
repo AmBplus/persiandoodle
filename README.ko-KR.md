@@ -94,7 +94,15 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## 코드로 작곡한 음악
 
-샘플도 녹음도 쓰지 않아요. 음표는 데이터로 적고, 모든 소리를 합성해요. 현이 울리며 만드는 맥놀이, 세게 칠수록 밝아지는 해머, 오래 울리는 페달까지 구현한 피아노에 마림바, 하프, 기타, 첼레스타, 종, 현악기, 칩튠, 드럼이 있어요. 모든 장조와 단조, 구간마다 다른 분위기, 어떤 길이에도 맞춰지는 주제 선율까지요.
+샘플도 녹음도 쓰지 않아요. 음표는 데이터로 적고, 모든 소리를 코드로 합성해요. 음악 스타일은 모델이 작곡에 쓰는 어휘일 뿐, 프리셋이 아니에요. 로파이 일렉트로닉, 하우스, 신스웨이브부터 오케스트라, 재즈, 포크, 피아노 독주까지 21가지예요. 스타일은 음색과 그루브, 화성 어법을 주고, 코드와 모티프, 형식은 매번 새로 써요. 그래서 모든 영상이 자기만의 스코어를 받아요.
+
+- **건반:** 실제 스타인웨이 그랜드를 바탕으로 모델링한 피아노, 로즈와 워리처 전자 피아노, 톤휠 오르간과 파이프 오르간, 건반 타악기와 종.
+- **앙상블:** 연주자마다 따로 연주하는 현악 섹션, 금관, 플루트와 클라리넷, 모음을 불러내는 합창, 나일론·스틸·일렉트릭 기타, 하프, 네 가지 베이스.
+- **드럼:** 코드로 만든 진짜 드럼 키트(어쿠스틱, 808, 909, 더스티, 브러시, 팀파니가 있는 오케스트라). 한 번 칠 때마다 조금씩 달라요.
+- **진짜 로파이:** 12비트 샘플러, 테이프의 흔들림과 히스, 바이닐 잡음, 믹스를 숨 쉬게 하는 킥.
+- **믹스와 공간:** 파트별 EQ, 드럼 버스, 홀·플레이트·컨볼루션 리버브, 스트리밍 기준 음량으로 맞추는 마스터.
+
+`node tools/music.mjs check`는 사람이 듣기 전에 스코어를 검사해요. 조와 선법, 음량, 마스킹, 파트마다의 균형, 그리고 새로움까지요. 이미 있는 곡처럼 들리거나 그 곡을 인용한 스코어는 통과하지 못해요.
 
 | 들어보기 | |
 |---|---|
@@ -103,7 +111,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [영화 음악·경외감](assets/audio/sampler-cinematic-awe-8s.mp3) · [로파이](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [마림바](assets/audio/sampler-marimba-curious-8s.mp3) · [일렉트로닉](assets/audio/sampler-drive-electronic-8s.mp3) | 더 많은 분위기와 악기 |
 | [15초로 맞춘 녹턴 주제](assets/audio/fit-theme-15s.mp3) | 작곡기가 길이에 맞는 형식을 골라요 |
 
-그리고 **로파이 일렉트로닉**도 있어요. 따뜻하게 디튠한 패드, 부드럽게 튕기는 리드, 살짝 흔들리는 테이프 질감으로 차분하면서도 경쾌해요 (런칭 영상의 음악도 이 스타일로 작곡했어요. [어휘](skills/anidoodle/references/music/styles/lofi-electronic.md)). **효과음 키트**도 있어요. 여러 겹으로 만든 시드 기반 효과음 열네 가지가 정확한 프레임에 맞춰 울리고, 그때마다 음악이 살짝 물러나요 ([사운드 디자인](skills/anidoodle/references/music/sound-design.md)). 스타일은 작곡에 쓰는 어휘일 뿐, 미리 만들어 둔 음표가 아니에요. 모든 영상은 그 영상을 위해 쓴 스코어를 받아요.
+**효과음 키트**도 있어요. 여러 겹으로 만든 시드 기반 효과음 열네 가지가 정확한 프레임에 맞춰 울리고, 그때마다 음악이 살짝 물러나요 ([사운드 디자인](skills/anidoodle/references/music/sound-design.md)). 스코어를 만드는 방법: [`compose.md`](skills/anidoodle/references/music/compose.md) · [21가지 어휘](skills/anidoodle/references/music/styles/vocabularies.md).
 
 ## 나를 알아채는 웹페이지
 
@@ -115,7 +123,14 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## 내 제품을 코드로 그려서 런칭하기
 
-이 페이지 맨 위의 영상은 anidoodle로 만들었고, 그때 쓴 키트도 함께 들어 있어요. 제품 이름, 사용자가 입력할 프롬프트, 그 답이 될 그림, 짧은 문구, 설치 명령어를 넘겨주면 박자에 맞춰 런칭 영상을 편집해요. 스스로 입력되는 채팅, 잉크처럼 번지며 열리고 저절로 그려지는 답, 화면을 가득 채우는 레터링, 그리고 설치 명령어를 복사할 수 있을 만큼 오래 보여주는 엔드 카드까지요.
+이 페이지 맨 위의 영상은 anidoodle로 만들었고, 그때 쓴 키트도 함께 들어 있어요. `launch.mjs new <이름>`을 실행하면 채워 넣을 스펙이 생겨요. 제품 이름, 사용자가 입력할 프롬프트, 그 답(그린 그림, 내 제품의 화면, 또는 영상), 짧은 문구, 설치 명령어를 넣으면 박자에 맞춰 런칭 영상을 편집해요. 스스로 입력되는 채팅, 잉크처럼 번지며 열리는 답, 화면을 가득 채우는 레터링, 그리고 설치 명령어를 복사할 수 있을 만큼 오래 보여주는 엔드 카드까지요.
+
+- **네 가지 화면비, 하나의 타임라인:** 16:9, 1:1, 4:5, 9:16. 화면비마다 다시 구성하고, 휴대폰에서도 글자가 잘 읽혀요.
+- **내 제품을 화면에:** 데이터로 그린 인터페이스에서 항목들이 이전 상태에서 이후 상태로 통통 튀며 옮겨 가요.
+- **그림에서 나오는 소리:** 키 입력, 클릭, 착지마다 효과음이 붙고, 화면에서 일어난 자리에서 들려요. 그 아래에는 영상을 위해 작곡한 스코어가 흘러요.
+- **바로 올릴 수 있게:** `launch.mjs ship <이름>`이 화면비마다 렌더링하고, 포스터 프레임과 자막(.srt, .vtt)을 만들고, 납품 파일에서 음성과 영상의 싱크와 피크 레벨을 확인하고, 화면 가장자리에 글자가 잘리는 프레임은 실패로 처리해요.
+
+룩은 두 가지(손으로 그린 잉크, 또는 UI 중심 제품을 위한 클린)이고, 30 fps나 60 fps에 프레임마다 속도에 맞춘 모션 블러가 들어가요.
 
 규칙은 저희 런칭 영상을 네 번 편집하며 얻은 경험과 잘 만든 런칭 영상들의 기술에서 왔어요. 5초 안에 무엇인지 말하기, 그림 위에 글자를 올리지 않기, 강박에서 전환하기, 첫 프레임을 썸네일로 만들기. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [키트](skills/anidoodle/references/workflows/launch-video-kit.md)
 
@@ -160,7 +175,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 - **스토리**는 모든 작품에 의미를 줘요. 스틸컷 하나에는 아이디어 하나와 초점이 되는 소재 하나, 영화에는 하나의 변화와 하나의 결말, 그리고 되돌아오는 상징 하나. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **사실감**은 이름을 붙이는 데서 나와요. 해부 구조, 시점, 그리고 펼쳐본 레퍼런스까지 정확히 짚어야, 나비 한 마리도 몸과 날개맥을 가진 생명체로 읽혀요. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **스타일**은 선 하나하나에 깃들어요. 31가지 완전한 레시피, 작업에 맞게 하나를 고르는 가이드, 그리고 나만의 스타일을 만드는 방법까지. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **음악**은 음표로 작곡하고 코드로 합성해요. 모델링한 피아노와 십여 가지 악기, 모든 장조와 단조, 구간별 분위기, 어떤 길이에도 맞는 테마까지 갖췄어요. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **음악**은 스타일의 어휘로 작품마다 작곡하고 코드로 합성해요. 21가지 스타일, 밴드와 오케스트라 전체, 모든 장조와 단조, 구간별 분위기, 어떤 길이에도 맞는 테마까지 갖췄어요. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **결정론**은 우리의 보증이에요. 순수 함수와 시드값 기반 난수를 쓰니까, 소스만 있으면 누구든 완전히 똑같은 작품을 다시 만들어낼 수 있어요. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **작업 방식**이 속도를 지켜줘요. 스틸컷 하나로 룩을 먼저 검증하고, 그다음은 막힘없이 쭉 밀고 나가고, 틀렸을 때 비용이 큰 지점에서만 승인을 받는 식으로요. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -228,6 +243,8 @@ node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 w
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
 node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 Node 20 이상이 필요해요. 스틸컷은 위에서 설치한 브라우저만 있으면 되고, 움직이는 건 전부 `ffmpeg`도 함께 써요.

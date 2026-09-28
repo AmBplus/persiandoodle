@@ -94,7 +94,15 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## 用代码谱写音乐
 
-没有采样，也没有录音。音符写成数据，所有声音都由代码合成：模拟钢琴的琴弦拍频、随力度变亮的琴槌音色和延续的踏板共鸣，还有马林巴、竖琴、吉他、钢片琴、钟声、弦乐、芯片音色和鼓。覆盖所有大调与小调，每一段可以有自己的情绪，主题也能适配任意时长。
+没有采样，也没有录音。音符写成数据，所有声音都由代码合成。音乐风格是模型用来作曲的词汇，从来不是预设：共 21 种，从低保真电子、House、合成器浪潮到管弦乐、爵士、民谣和钢琴独奏。风格提供音色、律动和和声语言；和弦、动机和曲式每次都重新写，所以每部片子都有自己的配乐。
+
+- **键盘：** 以一台真实的施坦威三角钢琴为原型建模的钢琴，Rhodes 和 Wurlitzer 电钢琴，音轮风琴和管风琴，槌击乐器和钟。
+- **合奏：** 每位乐手独立演奏的弦乐组，铜管，长笛和单簧管，会唱出元音的合唱团，尼龙弦、钢弦和电吉他，竖琴和四种贝斯。
+- **鼓：** 用代码做出的真实鼓组（原声、808、909、复古颗粒、鼓刷、带定音鼓的管弦乐），每一击都略有不同。
+- **真正的低保真：** 12 位采样器、磁带的晃动与底噪、黑胶的噼啪声，以及让整个混音呼吸起来的底鼓。
+- **混音与空间：** 分轨均衡、鼓组总线、大厅、板式和卷积混响，以及达到流媒体响度标准的母带。
+
+`node tools/music.mjs check` 在任何人试听之前先审核配乐：调性与调式、响度、掩蔽、每个声部的平衡，以及新颖度。听起来像已有曲子或引用了它的配乐不会通过。
 
 | 试听 | |
 |---|---|
@@ -103,8 +111,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 | [电影感·敬畏](assets/audio/sampler-cinematic-awe-8s.mp3) · [低保真](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [马林巴](assets/audio/sampler-marimba-curious-8s.mp3) · [电子乐](assets/audio/sampler-drive-electronic-8s.mp3) | 更多情绪与乐器 |
 | [15 秒版夜曲主题](assets/audio/fit-theme-15s.mp3) | 作曲器会选择适合时长的曲式 |
 
-另外还有**低保真电子乐**：温暖的失谐铺底、轻柔的拨弦主旋律和一点磁带晃动，放松又轻快（发布片的配乐就是用这种风格创作的，[词汇表](skills/anidoodle/references/music/styles/lofi-electronic.md)）；
-以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。风格是用来作曲的词汇，从来不是现成的音符：每部片子都有专门为它写的配乐。
+以及**音效套件**：十四种分层、带种子的音效，精确到帧触发，每一次音乐都会让开一点（[声音设计](skills/anidoodle/references/music/sound-design.md)）。配乐怎么写：[`compose.md`](skills/anidoodle/references/music/compose.md) · [21 种词汇](skills/anidoodle/references/music/styles/vocabularies.md)。
 
 ## 会注意到你的网页
 
@@ -116,7 +123,14 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 ## 用代码画出你的产品发布片
 
-本页顶部的影片就是用 anidoodle 做的，做它的那套工具也一起附带。给它你的产品名、用户会输入的提示、回应这些提示的画面、几个词和你的安装命令，它就会踩着节拍剪出一支发布片：自己打字的聊天界面、像墨迹一样绽开并自己画出来的回答、整屏的手写字，以及一张把安装命令停留足够久、方便复制的结尾卡。
+本页顶部的影片就是用 anidoodle 做的，做它的那套工具也一起附带。`launch.mjs new <名称>` 会给你一份待填写的规格：你的产品名、用户会输入的提示、对应的回答（一幅画出来的图、你自己产品的界面，或一段影片）、几个词和你的安装命令。它会踩着节拍剪出一支发布片：自己打字的聊天界面、像墨迹一样绽开的回答、整屏的手写字，以及一张把安装命令停留足够久、方便复制的结尾卡。
+
+- **四种画幅，一条时间线：** 16:9、1:1、4:5 和 9:16，每种画幅都重新构图，文字在手机上也清晰可读。
+- **把你的产品搬上屏幕：** 由数据画出的界面，元素从修改前的状态弹跳到修改后的状态。
+- **声音来自画面：** 每一次按键、点击和落地都有自己的音效，出现在屏幕上发生的位置，下面是为这支片子作曲的配乐。
+- **可以直接发布：** `launch.mjs ship <名称>` 渲染每种画幅，写出封面帧和字幕（.srt 与 .vtt），在交付的文件上检查音画同步和峰值电平，并让任何边缘切到文字的帧不通过。
+
+两种风格（手绘墨迹，或为以界面为主的产品准备的简洁风格），30 或 60 fps，运动模糊按每一帧的速度调整。
 
 这些规则来自我们自己发布片的四次剪辑，以及优秀发布片的手艺：五秒内说清它是什么，文字永远不压在画面上，在强拍上切换，把第一帧做成缩略图。 → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [工具包](skills/anidoodle/references/workflows/launch-video-kit.md)
 
@@ -161,7 +175,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 - **故事**，让每件作品都有一个重点。一张静态图只讲一个想法、聚焦一个主体；一部短片只有一次转变、一个高潮，和一个反复出现的意象。→ [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **写实感**，来自把它说清楚。解剖结构、观察视角，以及你参考过的资料，都要交代明白，这样一只蝴蝶读起来才像是一个有身体、有翅脉的真实生物。→ [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **风格**，活在笔触里。31 套完整配方，外加一份按场合挑风格的指南，以及自创风格的步骤。→ [`styles.md`](skills/anidoodle/references/styles.md)
-- **音乐**，先写成音符，再由代码合成：建模钢琴和十余种乐器、所有大小调、每个段落各自的情绪，以及能适配任意时长的主题旋律。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **音乐**，依照某种风格的词汇为每件作品作曲，再由代码合成：21 种风格、完整的乐队和管弦乐团、所有大小调、每个段落各自的情绪，以及能适配任意时长的主题旋律。→ [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **确定性**，是这套系统的承诺。纯函数加上带种子的随机数，任何人拿到源码都能重建出一模一样的作品。→ [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **方法**，让你保持速度。先用一张静态图验证效果，再一路做到底，把审批环节留给那些出错代价高的地方。→ [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -229,6 +243,8 @@ node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 w
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
 node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 需要 Node 20 及以上版本。静态图只需要上面那个浏览器；只要涉及动态效果，就还会用到 `ffmpeg`。

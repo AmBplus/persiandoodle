@@ -94,7 +94,15 @@ Every style ships the finished picture and, from the same source, a film of it b
 
 ## Music, composed in code
 
-No samples and no recordings. The notes are written as data, and every sound is synthesized: a modelled piano (strings that beat, hammers that brighten, a pedal that rings), marimba, harp, guitar, celesta, bells, strings, chiptune and drums. Every major and minor mode, a mood per section, and a theme that fits itself to any length.
+No samples and no recordings. The notes are written as data and every sound is synthesized in code. A music style is a vocabulary the model composes from, never a preset: 21 of them, from lo-fi electronic, house and synthwave to orchestral, jazz, folk and solo piano. Each gives the sound, the grooves and the harmony language; the chords, the motif and the form are written new, so every film gets its own score.
+
+- **Keys:** a piano modelled on a real Steinway grand, Rhodes and Wurlitzer electric pianos, tonewheel and pipe organs, mallets and bells.
+- **Ensemble:** string sections of separate players, brass, flute and clarinet, a choir that sings its vowels, nylon, steel and electric guitars, harp and four kinds of bass.
+- **Drums:** real kits in code (acoustic, 808, 909, dusty, brushes, orchestral with timpani), every hit a little different.
+- **Real lo-fi:** a 12-bit sampler, tape wobble and hiss, vinyl crackle and a kick that makes the mix breathe.
+- **Mix and room:** per-part EQ, a drum bus, hall, plate and convolution reverbs, and a master at streaming loudness.
+
+`node tools/music.mjs check` clears a score before anyone listens: key and mode, loudness, masking, the balance of every part, and novelty, which fails a score that sounds like a known one or quotes it.
 
 | Listen | |
 |---|---|
@@ -103,7 +111,7 @@ No samples and no recordings. The notes are written as data, and every sound is 
 | [Cinematic, awe](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electronic](assets/audio/sampler-drive-electronic-8s.mp3) | more moods and instruments |
 | [The nocturne's theme in 15 seconds](assets/audio/fit-theme-15s.mp3) | the composer picks the form that fits the length |
 
-Also in the box: **lo-fi electronic**, chill and upbeat, with warm detuned pads, a soft plucked lead and a little tape wobble (the launch film's score was composed in it; [the vocabulary](skills/anidoodle/references/music/styles/lofi-electronic.md)), and a **sound-effects kit**: fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)). A style is a vocabulary to compose from, never ready-made notes: every film gets a score written for it.
+Also in the box: a **sound-effects kit**, fourteen layered, seeded effects cued to the exact frame, the score ducking under each one ([sound design](skills/anidoodle/references/music/sound-design.md)). How a score is composed: [`compose.md`](skills/anidoodle/references/music/compose.md) · [the 21 vocabularies](skills/anidoodle/references/music/styles/vocabularies.md).
 
 ## Web pages that notice you
 
@@ -115,7 +123,14 @@ Interactive illustrations for real sites: a mascot that follows the cursor and r
 
 ## Launch your product, drawn in code
 
-The film at the top of this page was made with anidoodle, and the kit it was made with ships with it. Give it your product's name, the prompts a user would type, the pictures that answer them, a few words and your install lines. It cuts a launch film on the beat: a chat that types itself, answers that bloom open and draw themselves, full-frame lettering, and an end card that holds your install lines long enough to copy.
+The film at the top of this page was made with anidoodle, and the kit it was made with ships with it. `launch.mjs new <name>` gives you a spec to fill: your product's name, the prompts a user would type, the answers (a drawn picture, your product's own screens, or a film), a few words and your install lines. It cuts a launch film on the beat: a chat that types itself, answers that bloom open, full-frame lettering, and an end card that holds your install lines long enough to copy.
+
+- **Four shapes, one timeline:** 16:9, 1:1, 4:5 and 9:16, each re-composed for its frame with type that stays legible on a phone.
+- **Your product on screen:** its interface drawn from data, items springing from the before state to the after.
+- **Sound from the picture:** every key, press and landing gets its own effect, placed where it happens on screen, over a score composed for the film.
+- **Ready to post:** `launch.mjs ship <name>` renders every shape with its poster frame and captions (.srt and .vtt), checks audio-to-video sync and peak level on the file you deliver, and fails any frame whose edge cuts off text.
+
+Two looks (drawn ink, or clean for a UI-first product), at 30 or 60 fps, with motion blur matched to each frame's speed.
 
 The rules come from four cuts of our own launch and from the craft of the best ones out there: say what it is within five seconds, never put words over the art, cut on the downbeat, make the first frame the thumbnail. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [the kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
@@ -160,7 +175,7 @@ The engine is the easy half. The craft is the part anidoodle carries for you, si
 - **Story** gives every piece a point. One idea and one focal subject for a still; one transformation, one payoff and one returning token for a film. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Realism** comes from naming it. The anatomy, the view and the reference you opened, so a butterfly reads as a creature with a body and veins. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Style** lives in the mark. Thirty-one full recipes, a guide for picking one per job, and the steps for inventing your own. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **Music** is composed as notes and synthesized in code: a modelled piano and a dozen instruments, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **Music** is composed for each piece from a style's vocabulary and synthesized in code: 21 styles, a full band and orchestra, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Determinism** is the guarantee. Pure functions and a seeded random, so anyone with the source rebuilds the exact same piece. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **Method** keeps you fast. Prove the look on one still, build straight through, and spend approval where being wrong is expensive. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -228,6 +243,8 @@ node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 w
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
 node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 Node 20 or newer. Stills need only the browser above; anything that moves also uses `ffmpeg`.

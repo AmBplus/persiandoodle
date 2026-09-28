@@ -94,7 +94,15 @@ Cada estilo entrega la imagen terminada y, de la misma fuente, una película de 
 
 ## Música compuesta con código
 
-Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se sintetiza: un piano modelado, con cuerdas que laten, martillos que iluminan el timbre y un pedal que prolonga la resonancia, además de marimba, arpa, guitarra, celesta, campanas, cuerdas, chiptune y batería. Todas las tonalidades mayores y menores, un estado de ánimo para cada sección y un tema que se ajusta a cualquier duración.
+Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se sintetiza con código. Un estilo musical es un vocabulario con el que el modelo compone, nunca una plantilla: hay 21, del lo-fi electrónico, el house y el synthwave a la orquesta, el jazz, el folk y el piano solo. Cada uno aporta el sonido, los ritmos y el lenguaje armónico; los acordes, el motivo y la forma se escriben nuevos, así que cada película tiene su propia banda sonora.
+
+- **Teclados:** un piano modelado sobre un Steinway de cola real, pianos eléctricos Rhodes y Wurlitzer, órganos de ruedas fónicas y de tubos, láminas y campanas.
+- **Conjunto:** secciones de cuerda con músicos independientes, metales, flauta y clarinete, un coro que canta sus vocales, guitarras de nailon, acero y eléctricas, arpa y cuatro tipos de bajo.
+- **Batería:** kits reales hechos con código (acústico, 808, 909, polvoriento, escobillas, orquestal con timbales), cada golpe un poco distinto.
+- **Lo-fi de verdad:** un sampler de 12 bits, vaivén y soplido de cinta, crepitar de vinilo y un bombo que hace respirar la mezcla.
+- **Mezcla y sala:** ecualización por parte, bus de batería, reverbs de sala, placa y convolución, y un máster al volumen de las plataformas de streaming.
+
+`node tools/music.mjs check` aprueba una partitura antes de que nadie la escuche: tonalidad y modo, sonoridad, enmascaramiento, el equilibrio de cada parte y la novedad, que rechaza una partitura que suene como una conocida o la cite.
 
 | Escucha | |
 |---|---|
@@ -103,7 +111,7 @@ Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se s
 | [Cinemático, asombro](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electrónica](assets/audio/sampler-drive-electronic-8s.mp3) | más estados de ánimo e instrumentos |
 | [El tema del nocturno en 15 segundos](assets/audio/fit-theme-15s.mp3) | El compositor elige la forma que cabe en ese tiempo |
 
-Y además: **lo-fi electrónico**, relajado y alegre, con pads cálidos y desafinados, una melodía suave punteada y un leve vaivén de cinta (la banda sonora del vídeo de lanzamiento se compuso en él; [el vocabulario](skills/anidoodle/references/music/styles/lofi-electronic.md)), y un **kit de efectos de sonido**: catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)). Un estilo es un vocabulario con el que componer, nunca notas ya hechas: cada película recibe una banda sonora escrita para ella.
+Y además: un **kit de efectos de sonido**, catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)). Cómo se compone una partitura: [`compose.md`](skills/anidoodle/references/music/compose.md) · [los 21 vocabularios](skills/anidoodle/references/music/styles/vocabularies.md).
 
 ## Páginas web que se fijan en ti
 
@@ -115,7 +123,14 @@ Ilustraciones interactivas para webs reales: una mascota que sigue el cursor y r
 
 ## Lanza tu producto, dibujado con código
 
-El vídeo al principio de esta página se hizo con anidoodle, y el kit con el que se hizo viene incluido. Dale el nombre de tu producto, las peticiones que escribiría un usuario, las imágenes que las responden, unas pocas palabras y tus líneas de instalación. Monta un vídeo de lanzamiento al ritmo de la música: un chat que se escribe solo, respuestas que se abren como tinta y se dibujan solas, rótulos a pantalla completa y una tarjeta final que mantiene tus líneas de instalación el tiempo suficiente para copiarlas.
+El vídeo al principio de esta página se hizo con anidoodle, y el kit con el que se hizo viene incluido. `launch.mjs new <nombre>` te da una especificación para rellenar: el nombre de tu producto, las peticiones que escribiría un usuario, las respuestas (una imagen dibujada, las pantallas de tu propio producto o una película), unas pocas palabras y tus líneas de instalación. Monta un vídeo de lanzamiento al ritmo de la música: un chat que se escribe solo, respuestas que se abren como tinta, rótulos a pantalla completa y una tarjeta final que mantiene tus líneas de instalación el tiempo suficiente para copiarlas.
+
+- **Cuatro formatos, una línea de tiempo:** 16:9, 1:1, 4:5 y 9:16, cada uno recompuesto para su encuadre con texto legible en un móvil.
+- **Tu producto en pantalla:** su interfaz dibujada a partir de datos, con elementos que saltan del estado anterior al nuevo.
+- **Sonido que sale de la imagen:** cada tecla, pulsación y aterrizaje tiene su efecto, situado donde ocurre en pantalla, sobre una banda sonora compuesta para el vídeo.
+- **Listo para publicar:** `launch.mjs ship <nombre>` renderiza cada formato con su fotograma de portada y sus subtítulos (.srt y .vtt), comprueba la sincronía de audio y vídeo y el nivel de pico en el archivo que entregas, y falla cualquier fotograma cuyo borde corte un texto.
+
+Dos estilos (tinta dibujada, o limpio para un producto centrado en su interfaz), a 30 o 60 fps, con desenfoque de movimiento ajustado a la velocidad de cada fotograma.
 
 Las reglas salen de cuatro montajes de nuestro propio lanzamiento y del oficio de los mejores: di qué es en cinco segundos, nunca pongas texto sobre la ilustración, corta en el tiempo fuerte, haz que el primer fotograma sea la miniatura. → [`launch-video.md`](skills/anidoodle/references/workflows/launch-video.md) · [el kit](skills/anidoodle/references/workflows/launch-video-kit.md)
 
@@ -160,7 +175,7 @@ El motor es la mitad fácil. El oficio es la parte que anidoodle carga por ti: s
 - **Historia** le da un sentido a cada pieza. Una idea y un motivo central para una imagen fija; una transformación, una recompensa y un elemento recurrente para una película. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Realismo** viene de nombrarlo todo. La anatomía, el punto de vista y la referencia que abriste, para que una mariposa se lea como una criatura con cuerpo y venas. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Estilo** vive en el trazo. Treinta y una recetas completas, una guía para elegir una según el encargo, y los pasos para inventar la tuya propia. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **Música** se compone en notas y se sintetiza con código: un piano modelado y una docena de instrumentos, todas las tonalidades mayores y menores, un ánimo para cada sección y un tema que se adapta a cualquier duración. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **Música** se compone para cada pieza a partir del vocabulario de un estilo y se sintetiza con código: 21 estilos, una banda y una orquesta completas, todas las tonalidades mayores y menores, un ánimo para cada sección y un tema que se adapta a cualquier duración. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Determinismo** es la garantía. Funciones puras y un aleatorio con semilla, para que cualquiera con la fuente reconstruya exactamente la misma pieza. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **Método** te mantiene rápido. Demuestra el look en una sola imagen fija, construye de un tirón, y gasta las aprobaciones donde equivocarse sale caro. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 
@@ -228,6 +243,8 @@ node tools/render.mjs intro --out out/intro.gif            # a loop; also .mp4 w
 node tools/emit.mjs   intro --out out/intro.html           # the whole piece as one offline file
 node tools/gate.mjs   hero                                 # determinism, contract and dead air in one pass
 node tools/verify-export.mjs intro --file out/intro.mp4   # the file you ship, decoded and checked
+node tools/music.mjs check score.ts#myScore                # your score: key, loudness, balance, novelty
+node tools/launch.mjs new myLaunch                         # a launch film spec; then: launch.mjs ship myLaunch
 ```
 
 Node 20 o más reciente. Las imágenes fijas solo necesitan el navegador de arriba; todo lo que se mueve también usa `ffmpeg`.
