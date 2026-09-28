@@ -23,7 +23,7 @@ export const skywardKids = (): Material => ({
   bpm: 88, key: "C", mode: "major", meter: "6/8", tail: 2.8,
   moodControls: { energy: 0.7, warmth: 0.5, brightness: 0.65, tension: 0.3, space: 0.55 },
   voices: { counter: "flute" },
-  levels: { hat: 9.2, perc: -8.2, counter: 6.4, chords: -1.2, arp: -1.6, bass: 1.3, kick: 1, snare: -1.4 } /* sound v2: re-balanced so every stem sits where the composer put it against its target (the notes are untouched); written for v1 as hat: 19, perc: -2.3, counter: 8, chords: -2, arp: 2.5, lead: 10 */,
+  levels: { hat: 9.2, perc: -8.2, counter: -0.3, chords: -1.2, arp: -1.6, bass: 1.3, kick: 1, snare: -1.4 } /* sound v2: re-balanced so every stem sits where the composer put it against its target (the notes are untouched); written for v1 as hat: 19, perc: -2.3, counter: 8, chords: -2, arp: 2.5, lead: 10. The flute alternate is calibrated to the counter target since 0.6 (it was 6.7 dB under): counter 6.4 -> -0.3 keeps it where it was */,
   chords: {
     C: { voicing: "[E3 G3 C4 E4]", bass: gallop("C2", "G2") },
     F_C: { voicing: "[F3 A3 C4 F4]", bass: gallop("C2", "C3") },

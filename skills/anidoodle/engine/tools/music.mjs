@@ -180,7 +180,7 @@ const main = async () => {
   const flag = (k) => args.includes(k), val = (k, d) => { const i = args.indexOf(k); return i >= 0 ? Number(args[i + 1]) : d; };
   if (cmd === "list") { console.log("demos (listening references and the novelty corpus, never a film's score):\n  " + Object.keys(M.DEMOS).join("\n  ") + "\nfixtures (tests):\n  " + Object.keys(M.FIXTURES).join("\n  ")); return; }
   if (cmd === "vocab") { if (args[0] === "--md") vocabMarkdown(M); else printVocab(M, args[0]); return; }
-  if (cmd === "calibrate") { calibrate(M); return; }
+  if (cmd === "calibrate") { if (flag("--voices")) calibrateVoices(M); else calibrate(M); return; }
   if (cmd === "novelty") {
     const refs = args.filter((a) => !a.startsWith("--") && !/^[\d.]+$/.test(a)), pcs = [];
     for (const ref of refs) pcs.push(await getPiece(M, ref));
@@ -306,15 +306,66 @@ const calibrate = (M) => {
   console.log(`wrote ${file}`);
 };
 
+/**
+ * Alternates and your own voices, on the same scale as the palette (src/canvas-core/music/vocabVoices.ts):
+ * each alternate's trim to its slot's stem target (the style's number plus its fix) on the style's
+ * test signal, two passes (drive and amps are not linear), capped at +-30 dB; and each instrument's
+ * stem level at gainDb 0 on each slot's test line (cinematic test signal with the counter line an octave down;
+ * drums on the lo-fi electronic kit; default options), from which
+ * compose places a composer's own voice at the slot's target.
+ */
+const calibrateVoices = (M) => {
+  const stem = (p, slot) => { const r = M.renderPiece(p, STEM_SR, { stems: true, master: "none", only: (pt) => pt.id === slot }), x = r.stems[slot]; return x ? M.stemRms(x[0], x[1], STEM_SR) : -Infinity; };
+  const alt = {}, altFix = {}; for (const T of [M.VOCAB_ALT_TRIM, M.VOCAB_ALT_TARGET_FIX, M.INST_LEVEL, M.INST_REGISTER, M.SLOT_REF_PITCH]) for (const k of Object.keys(T)) delete T[k];
+  for (const v of Object.values(M.VOCAB)) { alt[v.id] = {};
+    for (const [slot, alts] of Object.entries(v.alternates)) for (const name of Object.keys(alts)) {
+      let trim = 0; (M.VOCAB_ALT_TRIM[v.id] ??= {})[slot] ??= {};
+      for (let pass = 0; pass < 2; pass++) {
+        M.VOCAB_ALT_TRIM[v.id][slot][name] = trim;
+        const p = M.composePiece({ ...M.testMaterial(v, { bars: 4, lines: slot === "counter" || slot === "arp" ? [slot] : [] }), voices: { [slot]: name } }), t = p.stemTargets[slot], rms = stem(p, slot);
+        if (t === undefined || !Number.isFinite(rms)) break;
+        trim = +Math.max(-30, Math.min(30, trim + t - rms)).toFixed(1);
+      }
+      (alt[v.id][slot] ??= {})[name] = trim;
+      // where a 30 dB trim cannot reach the target (a piano's top octave on a counter target set for a harp), the target moves to where the voice sits, as for the palette
+      const p = M.composePiece({ ...M.testMaterial(v, { bars: 4, lines: slot === "counter" || slot === "arp" ? [slot] : [] }), voices: { [slot]: name } }), off = p.stemTargets[slot] === undefined ? 0 : stem(p, slot) - p.stemTargets[slot];
+      if (Math.abs(off) > 1) ((altFix[v.id] ??= {})[slot] ??= {})[name] = +off.toFixed(1);
+      console.log(`${v.id.padEnd(14)} ${slot.padEnd(8)} ${name.padEnd(10)} ${trim >= 0 ? "+" : ""}${trim}${Math.abs(off) > 1 ? `  (target moved ${off.toFixed(1)})` : ""}`);
+    } }
+  const inst = {}, reg = {}, refPitch = {};
+  const DRUM = ["kick", "snare", "hat", "noiseDrum", "timpani"], ALL = ["piano", "musicBox", "bell", "celesta", "marimba", "vibes", "harp", "guitar", "strings", "fmBell", "ePiano", "pulse", "triangle", "noiseDrum", "kick", "snare", "hat", "bass", "warmPad", "softPluck", "sub", "organ", "brass", "woodwind", "choir", "timpani", "leadSynth", "bowedSolo", "glockenspiel", "wurlitzer", "pipeOrgan"];
+  const role = { chords: "accomp", arp: "accomp", lead: "melody", counter: "color", bass: "bass", kick: "drum", snare: "drum", hat: "drum" };
+  // pitched voices on the cinematic test signal, the counter line an octave lower than the palette's (octaves 5-6: where a composer's
+  // own counter line usually sits; the register moves some instruments' level by 8 dB); drums on the lo-fi electronic kit's groove
+  const ref = M.testMaterial(M.VOCAB.cinematic, { bars: 4, lines: ["counter", "arp"] }), kit = M.testMaterial(M.VOCAB.lofiElectronic, { bars: 4 });
+  const lower = { ...ref, sections: ref.sections.map((x) => ({ ...x, counter: x.counter.map((b) => b.replace(/([A-G][#b]?)(\d)/g, (_, n, o) => `${n}${+o - 1}`)) })) };
+  const median = (ns) => { const ps = ns.map((n) => n.p).sort((a, b) => a - b); return ps[Math.floor(ps.length / 2)]; };
+  for (const slot of ["chords", "lead", "counter", "bass", "arp"]) refPitch[slot] = median(M.composePiece(lower).parts.find((x) => x.id === slot).notes);
+  // the register curve: the lead line moved by whole octaves (level at each median pitch), so your own voice is placed for the register it plays in
+  const moved = (k) => ({ ...lower, sections: lower.sections.map((x) => ({ ...x, lead: x.lead.map((b) => b.replace(/([A-G][#b]?)(\d)/g, (_, n, o) => `${n}${+o + k}`)) })) });
+  for (const i of ALL) { inst[i] = {};
+    for (const slot of DRUM.includes(i) ? ["kick", "snare", "hat"] : ["chords", "lead", "counter", "bass", "arp"]) {
+      const p = M.composePiece({ ...(DRUM.includes(i) ? kit : lower), voices: { [slot]: { inst: i, role: role[slot], gainDb: 0 } } }), rms = stem(p, slot);
+      if (Number.isFinite(rms)) inst[i][slot] = +rms.toFixed(1);
+    }
+    if (!DRUM.includes(i)) { reg[i] = []; for (const k of [-3, -2, -1, 0, 1, 2]) { const p = M.composePiece({ ...moved(k), voices: { lead: { inst: i, role: "melody", gainDb: 0 } } }), rms = stem(p, "lead");
+      if (Number.isFinite(rms)) reg[i].push([refPitch.lead + 12 * k, +(rms - inst[i].lead).toFixed(1)]); } }
+    console.log(`${i.padEnd(13)} ${Object.entries(inst[i]).map(([k, x]) => `${k} ${x}`).join("  ")}${reg[i] ? `  | register ${reg[i].map(([p, d]) => `${M.nameOf(p)} ${d >= 0 ? "+" : ""}${d}`).join(" ")}` : ""}`); }
+  const file = join(here, "../src/canvas-core/music/vocabVoices.ts"), head = readFileSync(file, "utf8").split("export const VOCAB_ALT_TRIM")[0], j = (x) => JSON.stringify(x, null, 1).replace(/"(\w+)":/g, "$1:");
+  writeFileSync(file, `${head}export const VOCAB_ALT_TRIM: Record<string, Partial<Record<Slot, Record<string, number>>>> = ${j(alt)};\nexport const VOCAB_ALT_TARGET_FIX: Record<string, Partial<Record<Slot, Record<string, number>>>> = ${j(altFix)};\nexport const INST_LEVEL: Record<string, Partial<Record<Slot, number>>> = ${j(inst)};\nexport const INST_REGISTER: Record<string, [number, number][]> = ${JSON.stringify(reg)};\nexport const SLOT_REF_PITCH: Partial<Record<Slot, number>> = ${j(refPitch)};\n`);
+  console.log(`wrote ${file}`);
+};
+
 const printVocab = (M, id) => {
   if (!id) { for (const v of Object.values(M.VOCAB)) console.log(`${v.id.padEnd(15)} ${v.name}: ${v.atmosphere}\n${"".padEnd(16)}grooves: ${v.grooves.join(", ") || "none (no drums)"} | moods: ${v.moods.join(", ")} | ${v.tempo.join("-")} bpm ${v.meters.join(" ")}`);
     console.log("\ngroove families:"); for (const [k, d] of Object.entries(M.GROOVE_FAMILIES)) console.log(`  ${k.padEnd(10)} ${d}`);
     console.log("\nsection kinds:"); for (const [k, d] of Object.entries(M.KINDS)) console.log(`  ${k.padEnd(10)} ${d.what}`); return; }
   const v = M.VOCAB[id]; if (!v) throw new Error(`no style "${id}" (have: ${Object.keys(M.VOCAB).join(", ")})`);
   console.log(`${v.name} (${v.id}): ${v.atmosphere}\ntempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(" ")}, swing ${v.swing.join("-")}, moods ${v.moods.join(", ")}`);
-  const eff = (slot, x) => +(x.gainDb + (M.VOCAB_TRIM[v.id]?.[slot] ?? 0)).toFixed(1), tgt = (slot) => (v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1));
-  console.log("palette (slot: instrument, gain dB, stem target dB):"); for (const [slot, x] of Object.entries(v.palette)) console.log(`  ${slot.padEnd(8)} ${x.inst.padEnd(10)} ${String(eff(slot, x)).padStart(5)}  ${tgt(slot)} dB${Object.keys(v.alternates[slot] ?? {}).length ? `   alternates: ${Object.entries(v.alternates[slot]).map(([n, a]) => `${n} (${a.inst}, ${a.gainDb} dB)`).join(", ")}` : ""}`);
-  for (const [slot, alts] of Object.entries(v.alternates)) if (!v.palette[slot]) console.log(`  ${slot.padEnd(8)} (no default) alternates: ${Object.entries(alts).map(([n, a]) => `${n} (${a.inst}, ${a.gainDb} dB)`).join(", ")}`);
+  const tgt = (slot) => (v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1));
+  console.log("palette (slot: instrument, stem target dB). Every voice, alternate or your own, is calibrated to its slot's target:\n  levels.<slot> and your own voice's gainDb are dB offsets from there (0 = at the target)");
+  for (const [slot, x] of Object.entries(v.palette)) console.log(`  ${slot.padEnd(8)} ${x.inst.padEnd(10)} ${String(tgt(slot)).padStart(6)} dB${Object.keys(v.alternates[slot] ?? {}).length ? `   alternates: ${Object.entries(v.alternates[slot]).map(([n, a]) => `${n} (${a.inst})`).join(", ")}` : ""}`);
+  for (const [slot, alts] of Object.entries(v.alternates)) if (!v.palette[slot]) console.log(`  ${slot.padEnd(8)} (no default) alternates: ${Object.entries(alts).map(([n, a]) => `${n} (${a.inst})`).join(", ")}`);
   console.log(`stem targets ${v.calibrated ? "calibrated on a listened score" : "are starting numbers (uncalibrated: flags are advisory until a human listens)"}`);
   console.log(`grooves: ${v.grooves.map((g) => `${g} (${M.GROOVE_FAMILIES[g]})`).join("\n         ") || "none"}`);
   for (const [k, x] of Object.entries(v.harmony)) console.log(`harmony.${k}: ${Array.isArray(x) ? x.join(", ") : x}`);
@@ -327,6 +378,7 @@ const printVocab = (M, id) => {
 /** references/music/styles/vocabularies.md, generated from the data so the page never drifts from the code. */
 const vocabMarkdown = (M) => {
   const o = ["# Style vocabularies", "", "> GENERATED by `node tools/music.mjs vocab --md` from `engine/src/canvas-core/music/vocab.ts` and `vocabMore.ts`. Do not edit by hand.", "> A style is a vocabulary: sound, grooves, harmony language, melody rules, arrangement grammar. It never", "> contains notes. You compose the notes ([../compose.md](../compose.md)).", "",
+    "**Levels are one scale.** Every voice in a slot, the palette's, an alternate or your own, is calibrated to the slot's stem target (the \"Stem target dB\" column: the level the stem meter reads when the part plays). Everything you set is a dB offset from there: `levels: { lead: 2 }` is two dB over the target, and your own voice's `gainDb` works the same way (`voices: { counter: { inst: \"strings\", role: \"color\" } }` sits at the counter target; `gainDb: -3` sits 3 dB under it). Engine gains (`Voice.gainDb` inside vocab.ts) are internal and never on this scale.", "",
     "| Style | Atmosphere | Tempo, meters | Moods | Grooves |", "|---|---|---|---|---|"];
   for (const v of Object.values(M.VOCAB)) o.push(`| \`${v.id}\` | ${v.atmosphere} | ${v.tempo.join("-")} bpm; ${v.meters.join(", ")} | ${v.moods.join(", ")} | ${v.grooves.join(", ") || "none (no drums)"} |`);
   o.push("", "## Groove families", "", "Pick a family and its knobs (`density`, `variation`, `fill`, `accent`); the seed varies every bar. Or write the drum bars yourself.", "");
@@ -334,8 +386,10 @@ const vocabMarkdown = (M) => {
   o.push("", "## Section kinds (the arrangement grammar)", "", "A kind decides which layers may sound; your lines sound only where you write them.", "");
   for (const [k, d] of Object.entries(M.KINDS)) o.push(`- \`${k}\` (drums: ${d.drums ?? "none"}, bass: ${d.bass ? "yes" : "no"}): ${d.what}`);
   for (const v of Object.values(M.VOCAB)) {
-    o.push("", `## \`${v.id}\`: ${v.name}`, "", `${v.atmosphere}. Tempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(", ")}, swing ${v.swing.join("-")}.`, "", "| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |", "|---|---|---|---|---|");
-    for (const [slot, x] of Object.entries(v.palette)) o.push(`| ${slot} | \`${x.inst}\` | ${+(x.gainDb + (M.VOCAB_TRIM[v.id]?.[slot] ?? 0)).toFixed(1)} | ${v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1)} | ${Object.entries(v.alternates[slot] ?? {}).map(([n, a]) => `${n} (\`${a.inst}\`, ${a.gainDb} dB)`).join(", ") || "-"} |`);
+    o.push("", `## \`${v.id}\`: ${v.name}`, "", `${v.atmosphere}. Tempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(", ")}, swing ${v.swing.join("-")}.`, "", "| Slot | Voice | Stem target dB | Alternates (name, voice) |", "|---|---|---|---|");
+    const alts = (slot) => Object.entries(v.alternates[slot] ?? {}).map(([n, a]) => `${n} (\`${a.inst}\`)`).join(", ") || "-", tg = (slot) => (v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1));
+    for (const [slot, x] of Object.entries(v.palette)) o.push(`| ${slot} | \`${x.inst}\` | ${tg(slot)} | ${alts(slot)} |`);
+    for (const slot of Object.keys(v.alternates)) if (!v.palette[slot]) o.push(`| ${slot} | (none) | ${tg(slot)} | ${alts(slot)} |`);
     o.push("", `Stem targets: ${v.calibrated ? "calibrated on a listened score." : "starting numbers from a neutral test signal (advisory until a human listens)."}`, "");
     o.push(`- **Harmony language.** Modes: ${v.harmony.modes.join(", ")}. Qualities: ${v.harmony.qualities}. Tendencies: ${v.harmony.tendencies}. Harmonic rhythm: ${v.harmony.rhythm}. Voicing: ${v.harmony.voicing}. Tension and release: ${v.harmony.tension}.`);
     o.push(`- **Melody.** Range ${v.melody.range}. Contour: ${v.melody.contour}. Density: ${v.melody.density}. Motif: ${v.melody.motif}.`);

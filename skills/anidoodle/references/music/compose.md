@@ -167,7 +167,7 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
    --verify` renders again serially and compares; `ANIDOODLE_THREADS=1` turns the pool off).
    - **Stems:** fix any part flagged more than 3 dB off with `levels`. `levels` is a **dB offset** per
      slot (+2 = two dB louder), added on top of the calibrated gain, the trims and the mood controls'
-     shifts. LUFS alone once hid a sub 7-10 dB too hot.
+     shifts, on the same scale as your own voice's `gainDb`. LUFS alone once hid a sub 7-10 dB too hot.
    - **When the guards and the stems disagree, the guards win.** If masking fails (the melody isn't
      heard), raise the lead. The stem meter lets the lead sit up to +3 dB above its tolerance for
      this. You can also lower or thin what sits in the melody's register. Mood controls shift the
@@ -235,7 +235,16 @@ A film plays it with `filmScore(score(), fps, frames)` from `canvas-core/score.t
 form to the exact length. `score.ts` is an empty skeleton to copy.
 
 - **Voices:** `voices: { lead: "<alternate name>" }` swaps a slot for one of the style's
-  alternates. Or give your own `{ inst, role, gainDb, opts }` (instruments: README table).
+  alternates. Or give your own `{ inst, role, opts }` (instruments: README table), with the slot's
+  role: `chords` and `arp` are `"accomp"`, `lead` is `"melody"`, `counter` is `"color"`, `bass` is
+  `"bass"`, drum lanes are `"drum"`. **Levels are one scale.** The palette voice, an alternate and
+  your own voice all sit at the slot's stem target (the column in
+  [styles/vocabularies.md](styles/vocabularies.md), fix included): alternates carry a measured trim,
+  and your own voice is placed from its instrument's measured level in the register your notes
+  play in. So leave your voice's `gainDb` out (0 = at the target) and set it, like `levels`, only
+  as an offset: `gainDb: 2` is two dB over. Then read `check`'s stems and adjust by the dB it
+  prints. Options (`attack`, `bright`, `drive`) move the level a little; a piano far up its range
+  is quiet by nature.
 - **Loops:** `loop: true`, and the form length is the loop. `render` makes it seamless.
 - **Split bars:** `harmony: ["<chord> <chord>"]` splits a bar where the meter divides, not at its
   arithmetic middle. Give that section a `bass` override for it.

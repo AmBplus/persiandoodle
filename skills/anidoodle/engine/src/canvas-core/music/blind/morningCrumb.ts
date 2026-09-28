@@ -30,9 +30,9 @@ const TA = ["F6", "Dm7", "Gm7 C7", "Gm7 C7"];
 export const morningCrumb = (): Material => ({
   style: "playful", title: "Morning Crumb", seed: 2207, mood: "playful",
   bpm: 120, key: "F", mode: "major", meter: "4/4", swing: 0.58, loop: true,
-  levels: { counter: -6.3, chords: -2, lead: -0.5, bass: 0.4, kick: 0.4, snare: 0.5, arp: 4.6 } /* sound v2: re-balanced so every stem sits where the composer put it against its target (the notes are untouched); written for v1 as counter: 7, chords: -6 */,
+  levels: { counter: -6.3, chords: -2, lead: -0.5, bass: 2.1, kick: 0.4, snare: 0.5, arp: -0.6 } /* sound v2: re-balanced so every stem sits where the composer put it against its target (the notes are untouched); written for v1 as counter: 7, chords: -6. Since 0.6 the guitar arp and the tuba are calibrated to their targets (own voice: gainDb is an offset; alternate: trimmed): arp 8 + 4.6 -> -0.6, bass 0.4 -> 2.1 keep both where they were */,
   moodControls: { energy: 0.45, warmth: 0.75, brightness: 0.45, tension: 0.2, space: 0.35 },
-  voices: { arp: { inst: "guitar", role: "accomp", gainDb: 8 }, bass: "tuba" },
+  voices: { arp: { inst: "guitar", role: "accomp" }, bass: "tuba" },
   chords: {
     F6: { voicing: "[A3 C4 D4 F4]" }, Am7: { voicing: "[G3 C4 E4]" }, D7: { voicing: "[F#3 C4 D4]" },
     Gm7: { voicing: "[F3 Bb3 D4]" }, Bb6: { voicing: "[F3 G3 Bb3 D4]" }, C7: { voicing: "[E3 G3 Bb3]" },

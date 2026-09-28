@@ -12,6 +12,7 @@ export * from "./score-text";
 export * from "./grooves";
 export * from "./vocab";
 export * from "./vocabTrim";
+export * from "./vocabVoices";
 export * from "./compose";
 export * from "./novelty";
 export * from "./craft";

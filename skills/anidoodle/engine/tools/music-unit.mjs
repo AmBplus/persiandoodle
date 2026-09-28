@@ -165,6 +165,23 @@ for (const secs of [70, 90, 110]) {
     assert.deepEqual(one("3/4", "C:1 F:2"), [0, 1]); assert.throws(() => one("3/4", "C:1 F:1"), /adds up to 2/);
     pass("split bars: 3/4 changes on beat 3 (2+1), 6/8 3+3 eighths, 5/4 3+2 or its grouping (2+3), 7/8 4+3 eighths, explicit beats \"C:1 F:2\"; a wrong sum throws"); }
 }
+// 9c. One level scale: alternates and your own voices are calibrated to the slot's target (the style's number plus its fix).
+{ const stem = (p, slot) => { const r = M.renderPiece(p, SR, { stems: true, master: "none", only: (pt) => pt.id === slot }); return M.stemRms(r.stems[slot][0], r.stems[slot][1], SR); };
+  const tm = (v, slot, voice, extra = {}) => M.composePiece({ ...M.testMaterial(v, { bars: 4, lines: slot === "counter" || slot === "arp" ? [slot] : [] }), voices: { [slot]: voice }, ...extra });
+  let worst = 0, n = 0;
+  for (const v of Object.values(M.VOCAB)) for (const [slot, alts] of Object.entries(v.alternates)) for (const name of Object.keys(alts)) {
+    const p = tm(v, slot, name); if (p.stemTargets[slot] === undefined) continue; const off = stem(p, slot) - p.stemTargets[slot]; n++;
+    assert(Math.abs(off) <= 1.5, `${v.id} ${slot} alternate ${name} sits ${off.toFixed(1)} dB off its target`); worst = Math.max(worst, Math.abs(off)); }
+  const pianoLead = stem(tm(M.VOCAB.cinematic, "lead", "piano"), "lead") - M.VOCAB.cinematic.stemTargets.lead, synthLead = stem(tm(M.VOCAB.house, "lead", "synth"), "lead") - M.VOCAB.house.stemTargets.lead;
+  pass(`alternates: all ${n} in every style sit within ${worst.toFixed(2)} dB of their target (cinematic piano lead ${pianoLead.toFixed(1)}, house synth lead ${synthLead.toFixed(1)}; the blind composer needed +14 and +16.5)`);
+  const role = { chords: "accomp", arp: "accomp", lead: "melody", counter: "color", bass: "bass" }, offs = [];
+  for (const [style, slot, inst] of [["cinematic", "lead", "piano"], ["cinematic", "counter", "strings"], ["house", "lead", "leadSynth"], ["world", "arp", "guitar"], ["folk", "chords", "strings"], ["jazz", "bass", "bass"], ["orchestral", "lead", "woodwind"], ["lofiElectronic", "chords", "ePiano"], ["suspense", "lead", "bowedSolo"], ["playful", "arp", "marimba"]]) {
+    const p = tm(M.VOCAB[style], slot, { inst, role: role[slot] }), off = stem(p, slot) - p.stemTargets[slot]; offs.push(`${style} ${slot} ${inst} ${off >= 0 ? "+" : ""}${off.toFixed(1)}`);
+    assert(Math.abs(off) <= 3, `your own ${inst} as ${style} ${slot} sits ${off.toFixed(1)} dB off`); }
+  const cin = M.VOCAB.cinematic, own = tm(cin, "counter", { inst: "strings", role: "color" });
+  assert.equal(own.stemTargets.counter, cin.stemTargets.counter + M.VOCAB_TARGET_FIX.cinematic.counter, "your own counter takes the slot's corrected target (-16.4, not -7.5)");
+  const up = stem(tm(cin, "counter", { inst: "strings", role: "color", gainDb: 2 }), "counter") - stem(own, "counter"); assert(Math.abs(up - 2) < 0.05, `gainDb 2 = +2 dB (got ${up})`);
+  pass(`your own voice (gainDb left out) sits at the slot's target within 3 dB: ${offs.join(", ")}; its target is the corrected one (cinematic counter ${own.stemTargets.counter.toFixed(1)}); gainDb: 2 = ${up.toFixed(2)} dB over`); }
 // 10. Novelty: the copy Alex heard scores as a copy; the shipped demos stay apart; a reused fragment fails.
 { const d = M.novelty(M.daylightCopy(), M.DEMOS);
   assert(!d.pass && d.worst.name.startsWith("launchLofi") && d.worst.score > 0.6, `daylight copy scored ${d.worst.score} vs ${d.worst.name}`);

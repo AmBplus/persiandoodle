@@ -10,6 +10,7 @@ import { pcOf } from "./theory";
 import { perform } from "./perform";
 import { drumBar, laneKind, type Groove, type Lane } from "./grooves";
 import { VOCAB_TRIM, VOCAB_TARGET_FIX } from "./vocabTrim";
+import { VOCAB_ALT_TRIM, VOCAB_ALT_TARGET_FIX, INST_LEVEL, INST_REGISTER, SLOT_REF_PITCH } from "./vocabVoices";
 import { VOCAB, KINDS, BASE_SLOTS, resolveVoice, moodVoice, moodFx, fullMood, type Slot, type Voice, type SectionKind, type MoodControls } from "./vocab";
 import type { MixProfile } from "./mixProfiles";
 
@@ -52,7 +53,13 @@ export type Material = {
   style: StyleId; title: string; seed: number; mood: MoodId; bpm: number; key: string; mode: ModeId; meter?: Meter;
   chords: Record<string, ComposedChord>; motifs?: Record<string, string>; grooves?: Record<string, Groove>;
   sections: ComposedSection[];
-  /** swap a slot's voice for one of the style's alternates by name, or give your own Voice */ voices?: Partial<Record<Slot, string | Voice>>;
+  /**
+   * swap a slot's voice for one of the style's alternates by name, or give your own voice. Both are
+   * calibrated to the slot's stem target: an alternate by its measured trim, your own voice from its
+   * instrument's measured level. Your voice's `gainDb` is a dB OFFSET from there (0 or left out = at the
+   * target), the same scale as `levels`.
+   */
+  voices?: Partial<Record<Slot, string | CustomVoice>>;
   /** dB OFFSET per slot, added to the voice's calibrated gain (after trims and mood): +2 = two dB louder. Set from the stem meter. */ levels?: Partial<Record<Slot, number>>;
   moodControls?: MoodControls;
   /** 0.5 straight .. 0.67 hard swing (default the style's lower bound) */ swing?: number;
@@ -61,6 +68,17 @@ export type Material = {
   /** how a bar divides into beat groups (in beats, summing to the bar), e.g. [2, 3] for a 5/4 felt 2+3 or [1.5, 1, 1] for a 7/8 felt 3+2+2: where a split bar ("A B", "A B C") changes chord (default: splitBar's table) */ grouping?: number[];
   /** a shipped score frozen on the old sound (the launch film): never set this for a new piece */ legacy?: boolean;
   /** override the style's mix/space/feel profile (mixProfiles.ts), e.g. { space: {...}, feel: "tight" } */ mix?: Partial<MixProfile>;
+};
+
+/** Your own voice for a slot: an instrument, its role, options, send and pan. `gainDb` is a dB offset from the calibrated level (0 = at the slot's stem target). */
+export type CustomVoice = Omit<Voice, "gainDb"> & { gainDb?: number };
+/** An instrument's level against its register (INST_REGISTER, dB, linear between the measured octaves, held past the ends). */
+const regAt = (inst: string, p: number) => { const c = INST_REGISTER[inst]; if (!c?.length) return 0; if (p <= c[0][0]) return c[0][1]; for (let i = 1; i < c.length; i++) if (p <= c[i][0]) return c[i - 1][1] + ((c[i][1] - c[i - 1][1]) * (p - c[i - 1][0])) / (c[i][0] - c[i - 1][0]); return c[c.length - 1][1]; };
+/** Where your own voice sits at gainDb 0: its instrument's measured level on the slot's test line (a drum lane without its own reads its neighbour's), moved to the register your notes play in. */
+const instLevel = (inst: string, slot: Slot, ns: Note[] = []) => {
+  const lv = INST_LEVEL[inst]?.[slot] ?? INST_LEVEL[inst]?.[({ ghost: "snare", perc: "hat", snare: "ghost", hat: "perc" } as Partial<Record<Slot, Slot>>)[slot] ?? slot], ref = SLOT_REF_PITCH[slot];
+  if (lv === undefined || ref === undefined || !ns.length) return lv;
+  const ps = ns.map((n) => n.p).sort((a, b) => a - b); return lv + regAt(inst, ps[Math.floor(ps.length / 2)]) - regAt(inst, ref);
 };
 
 /** line() with the composer's context on its error: which section, slot or chord wrote the bad bar. */
@@ -198,17 +216,21 @@ export const composePiece = (m: Material): Piece => {
   for (const slot of slots) {
     const pick = m.voices?.[slot];
     const FALLBACK: Partial<Record<Slot, Slot>> = { perc: "hat", ghost: "snare", snare: "ghost", hat: "perc" }; // a drum lane without its own voice borrows its neighbour's
-    let v = typeof pick === "object" ? pick : typeof pick === "string" ? vocab.alternates[slot]?.[pick] : vocab.palette[slot] ?? (notes[slot]?.length && FALLBACK[slot] ? vocab.palette[FALLBACK[slot]!] : undefined);
+    let v = typeof pick === "object" ? { ...pick, gainDb: pick.gainDb ?? 0 } : typeof pick === "string" ? vocab.alternates[slot]?.[pick] : vocab.palette[slot] ?? (notes[slot]?.length && FALLBACK[slot] ? vocab.palette[FALLBACK[slot]!] : undefined);
     need(typeof pick !== "string" || v, `style ${vocab.id} has no "${pick}" voice for ${slot} (have: ${Object.keys(vocab.alternates[slot] ?? {}).join(", ") || "none"}).`);
     if (!v) { if (slot === "chords") continue; /* a style without a chord voice (chiptune): the harmony still labels bars and feeds the bass */ need(!notes[slot]?.length, `style ${vocab.id} has no ${slot} voice, but your ${slot} has notes: pick a groove family or slot this style has.`); continue; }
     v = resolveVoice(v, m.bpm);
     let dGain = 0; if (mood) { const r = moodVoice(slot, v, mood); v = r.voice; dGain = r.dGain; }
-    const lv = m.levels?.[slot];
-    // a legacy (shipped) score keeps the gains it was listened at: no trim
-    const trim = pick !== undefined || m.legacy ? 0 : VOCAB_TRIM[vocab.id]?.[slot] ?? 0; let gainDb = trim ? v.gainDb + trim : v.gainDb; if (lv) gainDb += lv;
+    const lv = m.levels?.[slot], fix = VOCAB_TARGET_FIX[vocab.id]?.[slot] ?? 0, st = vocab.stemTargets[slot];
+    // every voice in a slot is calibrated to the slot's target (the style's number plus its fix): the palette's voice by VOCAB_TRIM, an
+    // alternate by VOCAB_ALT_TRIM, your own voice from its instrument's measured level (INST_LEVEL), its gainDb an offset from there.
+    // A legacy (shipped) score keeps the gains it was listened at: no trim.
+    const lvl = typeof pick === "object" ? instLevel(v.inst, slot, notes[slot]) : undefined, altFix = typeof pick === "string" && !m.legacy ? VOCAB_ALT_TARGET_FIX[vocab.id]?.[slot]?.[pick] ?? 0 : 0;
+    const trim = m.legacy ? 0 : pick === undefined ? VOCAB_TRIM[vocab.id]?.[slot] ?? 0 : typeof pick === "string" ? VOCAB_ALT_TRIM[vocab.id]?.[slot]?.[pick] ?? 0 : lvl !== undefined ? (st !== undefined ? st + fix : -20) - lvl : 0;
+    let gainDb = trim ? v.gainDb + trim : v.gainDb; if (lv) gainDb += lv;
     // a timpani (or any pitched drum voice) playing a drum lane is tuned to the key: the tonic in its low register
     if (v.inst === "timpani" && role(slot) === "drum" && typeof pick !== "object") { const tp = pcOf(m.key.replace(/m$/, "")), lo = typeof v.opts?.pitch === "number" ? (v.opts.pitch as number) - 5 : slot === "kick" ? 31 : 38; /* the tonic nearest the voice's own register */ v = { ...v, opts: { ...(v.opts ?? {}), pitch: lo + ((tp - (lo % 12) + 12) % 12) } }; }
-    if (vocab.stemTargets[slot] !== undefined) targets[slot] = vocab.stemTargets[slot] + dGain + (pick === undefined ? VOCAB_TARGET_FIX[vocab.id]?.[slot] ?? 0 : 0); // a mood that lifts the hats lifts their target too
+    if (st !== undefined) targets[slot] = st + dGain + (pick === undefined || !m.legacy ? fix : 0) + altFix; // a mood that lifts the hats lifts their target too; the slot's target is every voice's (the fix included)
     const p: Part = { id: slot, inst: v.inst, role: v.role, notes: notes[slot] ?? [], gainDb };
     if (v.opts) p.opts = v.opts; if (v.send !== undefined) p.send = v.send; if (v.pan !== undefined) p.pan = v.pan;
     parts.push(p);
