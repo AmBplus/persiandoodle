@@ -242,6 +242,7 @@ const printVocab = (M, id) => {
   for (const [k, x] of Object.entries(v.harmony)) console.log(`harmony.${k}: ${Array.isArray(x) ? x.join(", ") : x}`);
   for (const [k, x] of Object.entries(v.melody)) console.log(`melody.${k}: ${x}`);
   for (const [k, x] of Object.entries(v.arrangement)) console.log(`arrangement.${k}: ${x}`);
+  console.log(`mix: ${M.describeMix(v.id)}`);
   console.log(`avoid: ${v.avoid}`);
 };
 
