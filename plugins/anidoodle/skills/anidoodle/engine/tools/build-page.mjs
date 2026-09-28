@@ -5,6 +5,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { extname, join, relative, resolve } from "node:path";
 import { overlay, resolveOverlay } from "./overlay.mjs";
+import { requireFilm } from "./names.mjs";
 
 // BAKE KEYS (see Env.bake and hosts/page.ts). Every module that exports `const X: Film` is tagged
 // in the bundle with its own path, and each tagged module gets a hash of its WHOLE import closure
@@ -43,6 +44,7 @@ const MIME = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
 export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   const plugins = [...extra, overlay]; // extra first: a caller's shim (snap --only) outranks the overlay
   if (!existsSync(entry)) entry = resolveOverlay("./" + entry, process.cwd()) ?? entry; // e.g. the example's own host page
+  if (!existsSync(entry) && title) requireFilm(title, "build", "a film name: src/hosts/page-<film>.ts"); // a clear exit with the known films, not an esbuild trace
   const main = await build({ entryPoints: [entry], bundle: true, format: "iife", target: "es2020", minify: true, write: false, legalComments: "none", metafile: true, plugins: [...plugins, tagFilms] });
   const js = main.outputFiles[0].text;
   // read the manifest out of the film module itself, so the page and the film can never disagree
@@ -58,4 +60,4 @@ export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   mkdirSync(join(out, ".."), { recursive: true }); writeFileSync(out, html);
   return { out, bytes: html.length, meta: film.meta, assets: Object.keys(film.assets.images) };
 };
-if (import.meta.url === `file://${process.argv[1]}`) { const title = process.argv[2] ?? "fixtures"; const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }
+if (import.meta.url === `file://${process.argv[1]}`) { const title = requireFilm(process.argv[2], "build-page", "node tools/build-page.mjs <film>"); const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }

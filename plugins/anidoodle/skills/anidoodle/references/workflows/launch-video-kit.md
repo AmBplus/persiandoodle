@@ -46,9 +46,13 @@ muted), the camera easing out for the press, an ink drop arcing from Generate in
 and blooming open into a card where the plate draws itself live, the thread keeping earlier
 answers and scrolling, a gentle lean onto each new card, full-frame word pages between asks,
 and the end card blooming open and holding. The corner mark (your name, hand-lettered) steps
-aside before any lean. Real holds are declared, so the gate passes; the score is set to -14
-LUFS with the true peak at or under -1 dBTP (`musicBed`; a very dynamic piece stops at the
-peak ceiling first).
+aside before any lean. Real holds are declared, so the gate passes. The score is fitted to the
+film (`fitScore`: its stretch section repeated or dropped, the tempo trimmed) so it ends on its
+outro at the last frame, then set to -14 LUFS with the true peak at or under -1 dBTP
+(`musicBed`). Render prints the loudness and the fitted tempo beside the grid's bpm: compose at
+the film's bpm with a 1-bar stretch section (or set the Material's `tail`) so they stay within
+2 %, or the cuts drift off the downbeats. A dynamic piece stops at the peak ceiling first and
+render says how far short; `limit: true` lets a look-ahead limiter take those peaks instead.
 
 **The plates and the score are made for this product, every time.** A style is a recipe applied
 to the user's subject (`references/styles.md`): draw their dashboard, their mascot, their
@@ -113,6 +117,8 @@ zooms to each click, with the pointer and input log driving the page's own state
 brick balloon, the almond hand (Van Gogh's public-domain *Almond Blossom* as the attached
 reference, `engine/assets/refs/` with its `PROVENANCE.json`; `adapt-a-style.md`), the embroidery
 loop, the web tour, the butterfly film, the end card); `launch3.ts` is the cut: data segments
-spliced with type frames, 77 s on the score's 29 bars. Study them for pacing, then build yours on
+spliced with type frames, 77 s on the score's 29 bars. They are anidoodle's own film, so a plain
+scaffold leaves them out; `scaffold.mjs <dir> --example` brings them in (with the butterfly they
+are built on) to study. Study them for pacing, then build yours on
 the template with your own pictures and your own music; anidoodle's launch is one example of the
 grammar, not a skin to reuse.

@@ -2,7 +2,7 @@
 // compose.md writes) or a Piece. anidoodle's own pieces are refused by identity, by title and by
 // content, so a retitled or transposed copy of our launch score cannot ship as a user's film.
 import { makeLaunchFilm } from "../src/canvas-core/launchTemplate";
-import { chiptunePlayful, daylightCopy, launchLofi3, launchLofi3Material, type Material } from "../src/canvas-core/music";
+import { chiptunePlayful, composePiece, daylightCopy, filmAudio, fitScore, launchLofi3, launchLofi3Material, loudness, perform, truePeak, type Material } from "../src/canvas-core/music";
 import type { Film } from "../src/canvas-core/film";
 
 export const name = "launchTemplate";
@@ -26,4 +26,24 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
   ok(refused(() => ({ ...launchLofi3Material(), title: "Mine" })), "refuses retitled launch material");
   ok(refused(daylightCopy), "refuses the transposed copy of our launch score (the Daylight fixture)");
   ok(refused(undefined, /required/), "a missing score is an error, never a default");
+
+  // The bed is the score FITTED to the film (fitScore via filmAudio), never the first N seconds cut
+  // and faded: it is filmAudio's render exactly, times one gain, and its last note lands so the tail
+  // rings out on the last frame.
+  const two = { ...base, asks: [base.asks[0], { prompt: "again", plate, label: "l" }], askBeats: 16, endBeats: 12, score: mine };
+  const bedFilm = makeLaunchFilm(two), secs = bedFilm.meta.durationFrames / bedFilm.meta.fps, SR = 16000;
+  const [L, R] = bedFilm.audio!(SR), [fL] = filmAudio(composePiece(mine()), secs)(SR);
+  let k = 0; for (let i = 0; i < fL.length; i++) if (Math.abs(fL[i]) > Math.abs(fL[k])) k = i;
+  const g = L[k] / fL[k]; let dev = 0; for (let i = 0; i < L.length; i++) dev = Math.max(dev, Math.abs(L[i] - g * fL[i]));
+  ok(L.length === Math.round(secs * SR) && dev < 1e-5, `the bed is filmAudio (fitScore) at one gain, exactly the film's ${secs} s (max deviation ${dev.toExponential(1)})`);
+  const sc = bedFilm.meta.score, f = fitScore(composePiece(mine()), secs), end = perform(f.piece, f.tempo, { expressive: true }).lastOnset + f.piece.tail;
+  ok(!!sc && sc.form === f.form && Math.abs(sc.tempo - f.tempo) < 1e-9, `meta.score reports the fit (${sc?.tempo.toFixed(1)} bpm, ${sc?.form}) for render to print beside the grid's 120 bpm`);
+  ok(f.piece.arrangement?.at(-1)?.kind === "outro" && Math.abs(end - secs) < 0.25, `it ends on its outro: last note + tail = ${end.toFixed(2)} s of ${secs} s`);
+  const lu = loudness([L, R], SR).integrated, tp = truePeak([L, R]).dbtp;
+  ok(tp <= -0.99 && (Math.abs(lu + 14) < 0.3 || tp > -1.05), `bed at -14 LUFS or held by the -1 dBTP ceiling (${lu.toFixed(2)} LUFS, ${tp.toFixed(2)} dBTP)`);
+  // a dynamic bed stops at the peak ceiling; limit: true lets the limiter take those peaks instead
+  const long = { ...two, askBeats: 24, endBeats: 16 }, [cL, cR] = makeLaunchFilm(long).audio!(SR), [lL, lR] = makeLaunchFilm({ ...long, limit: true }).audio!(SR);
+  const cu = loudness([cL, cR], SR).integrated, lu2 = loudness([lL, lR], SR).integrated, tp2 = truePeak([lL, lR]).dbtp;
+  ok(cu < -14.5 && truePeak([cL, cR]).dbtp > -1.05, `without limit the ceiling wins and says so in the loudness (${cu.toFixed(2)} LUFS)`);
+  ok(Math.abs(lu2 + 14) < 0.3 && tp2 <= -1, `limit: true reaches -14 LUFS under -1 dBTP (${lu2.toFixed(2)} LUFS, ${tp2.toFixed(2)} dBTP)`);
 };

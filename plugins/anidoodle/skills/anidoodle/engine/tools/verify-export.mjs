@@ -5,6 +5,7 @@
 // colour to assert, and a one-shot film has no seam to hide.
 //
 //   node tools/verify-export.mjs <film> [--file out/x.mp4] [--adapter html-player]
+//   node tools/verify-export.mjs out/<film>.mp4 [...]   the file itself: the film is its name (out/<film>[.<from>-<to>].<ext>)
 //     [--width W]               expected pixel width of a .gif/.webm/.apng made with render --width
 //                               (default: the film's own; height follows the aspect). Not for .mp4:
 //                               render always writes the MP4 at the film's size (x --scale), so
@@ -21,14 +22,21 @@
 // as long as the picture, and not silent. Everything else is asked for explicitly.
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { defaultOutput } from "./names.mjs";
+import { basename, resolve } from "node:path";
+import { defaultOutput, requireFilm } from "./names.mjs";
 import { firstFrameBlank } from "./thumb.mjs";
 
 const VAL = new Set(["file", "adapter", "width", "first-frame", "tol", "fidelity-psnr", "scale", "frame"]);
 const pos = [], opt = {};
 for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) opt[a.slice(2)] = VAL.has(a.slice(2)) ? process.argv[++i] : true; else pos.push(a); }
-const film = pos[0] ?? "fixtures";
+// a file path names its film: out/<film>.mp4 (or a range render's out/<film>.<from>-<to>.mp4)
+const USAGE = "node tools/verify-export.mjs <film> [--file out/<film>.mp4] [--first-frame #rrggbb] [--loop] [--fidelity-psnr N] [--frame N] [--delivery]\n       node tools/verify-export.mjs out/<film>.mp4 [...]";
+if (pos[0] && /\.(mp4|gif|webm|apng|png)$/i.test(pos[0])) {
+  if (opt.file) { console.error(`verify-export: give the file once: '${pos[0]}' or --file ${opt.file}`); process.exit(2); }
+  if (!existsSync(pos[0])) { console.error(`verify-export: no file '${pos[0]}'`); process.exit(2); }
+  opt.file = pos[0]; pos[0] = basename(pos[0]).split(".")[0];
+}
+const film = requireFilm(pos[0], "verify-export", USAGE);
 const adapterName = opt.adapter ?? "html-player";
 const SCALE = +(opt.scale ?? 1);
 const TMP = resolve(".tmp/verify"); mkdirSync(TMP, { recursive: true });

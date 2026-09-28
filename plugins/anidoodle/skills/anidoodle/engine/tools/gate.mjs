@@ -15,13 +15,13 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { readdirSync } from "node:fs";
-import { defaultOutput } from "./names.mjs";
+import { defaultOutput, requireFilm } from "./names.mjs";
 import { changedArea } from "./motion.mjs";
 
 const VAL = new Set(["adapter", "mp4", "samples", "scale", "workers"]);
 const pos = [], opt = {};
 for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) opt[a.slice(2)] = VAL.has(a.slice(2)) ? process.argv[++i] : true; else pos.push(a); }
-const film = pos[0] ?? "mechanicalLepidoptera";
+const film = opt["self-test"] ? null : requireFilm(pos[0], "gate", "node tools/gate.mjs <film> [--mp4 out/<film>.mp4] [--adapter html-player] [--samples 12] [--scale 1]\n       node tools/gate.mjs --self-test");
 const adapterName = opt.adapter ?? "html-player";
 const SAMPLES = Math.max(4, +(opt.samples ?? 12)), SCALE = +(opt.scale ?? 1);
 const TMP = resolve(".tmp/gate"); mkdirSync(TMP, { recursive: true });

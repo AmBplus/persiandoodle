@@ -30,6 +30,7 @@ export type FoleyEvent = { t0: number; t1: number; kind: "guide" | "line" | "fil
 export type OwlSoundPlan = { bpm: number; seconds: number; stepBeats: number[]; revealBeat: number; endBeat: number; foley: FoleyEvent[] };
 
 const bar = (t: number, src: string, role: Role, v: number, roll?: number) => line(t, src, { role, v, bpb: 4, roll });
+const hit = (t: number, src: string, role: Role, v: number) => line(t, src, { role, v, bpb: 4, hit: true }); // a ping or a sting on any beat
 const eighths = (names: string) => names.split(" ").map((n) => `${n}:.5`).join(" ");
 type Bar = { ost: string; mel: string; bass: string };
 const G: Bar = { ost: "G3 D4 G4 B4 D4 G4 B4 D4", mel: "r:.5 D5:.5 G5:.5 A5:.5 B5:1 G5:1", bass: "G2:2 D3:2" };
@@ -59,9 +60,9 @@ export const owlPiece = (sp: OwlSoundPlan): Piece => {
     bass.push(...keep(bar(b, B.bass, "bass", 0.62)));
     (cyc % 2 === 0 ? pl : mar).push(...keep(bar(b, B.mel, "melody", 0.8)));
   }
-  sp.stepBeats.forEach((b, i) => ping.push(...bar(b, `${PINGS[Math.min(i, PINGS.length - 1)]}:1`, "color", 0.62)));
+  sp.stepBeats.forEach((b, i) => ping.push(...hit(b, `${PINGS[Math.min(i, PINGS.length - 1)]}:1`, "color", 0.62)));
   // da-DAH
-  pl.push(...bar(cut, "[D5 F#5 A5]:.5", "melody", 0.75));
+  pl.push(...hit(cut, "[D5 F#5 A5]:.5", "melody", 0.75));
   // peaks are a composing problem: the chord is rolled upward (a strum, not a slab), the bass lands an
   // eighth late and the bell a sixteenth late, so no two loud attacks share a sample
   mar.push(...bar(R, "[G3 D4 B4]:4", "melody", 0.64, 0.03)); pl.push(...bar(R, "[G4 D5 G5]:2 r:2", "melody", 0.78, 0.036)); // no doubled notes between the two
@@ -69,7 +70,7 @@ export const owlPiece = (sp: OwlSoundPlan): Piece => {
   // end card: a rising arpeggio, then the chord rings out
   const E = sp.endBeat;
   ost.push(...bar(E, eighths("G3 B3 D4 G4 B4 D5 G5 B5"), "accomp", 0.5));
-  mar.push(...bar(E + 4, "[G3 D4 G4 B4]:3", "melody", 0.55)); pl.push(...bar(E + 4, "G5:3", "melody", 0.5)); bass.push(...bar(E + 4, "G2:3", "bass", 0.5));
+  mar.push(...bar(E + 4, "[G3 D4 G4 B4]:3 r:1", "melody", 0.55)); pl.push(...bar(E + 4, "G5:3 r:1", "melody", 0.5)); bass.push(...bar(E + 4, "G2:3 r:1", "bass", 0.5));
   const grid = { grid: true };
   const parts: Part[] = [
     { id: "ostinato", inst: "marimba", role: "accomp", notes: ost, gainDb: -6, opts: grid },

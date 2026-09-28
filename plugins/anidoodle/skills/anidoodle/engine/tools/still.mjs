@@ -15,6 +15,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { buildPage } from "./build-page.mjs";
+import { requireFilm } from "./names.mjs";
 import { detect } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
 
@@ -22,7 +23,7 @@ const VAL = new Set(["shot", "out", "scale", "frame", "frames", "sheet", "sheet-
 const pos = [], opt = {};
 for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) opt[a.slice(2)] = VAL.has(a.slice(2)) ? process.argv[++i] : true; else pos.push(a); }
 const die = (m) => { console.error(`still: ${m}`); process.exit(1); };
-const film = pos[0] ?? die("usage: node tools/still.mjs <film> [--shot <id>] [--frame N | --frames a,b,c] [--out out/x.png] [--scale 1] [--sheet out/sheet.jpg]");
+const film = requireFilm(pos[0], "still", "node tools/still.mjs <film> [--shot <id>] [--frame N | --frames a,b,c] [--out out/x.png] [--scale 1] [--sheet out/sheet.jpg]");
 const scale = Number(opt.scale ?? 1);
 if (!(scale > 0)) die(`--scale wants a number > 0, got '${opt.scale}'`);
 if (opt.frame !== undefined && opt.frames !== undefined) die("give --frame N or --frames a,b,c, not both");

@@ -132,7 +132,8 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
 
 ## The material format
 
-Write the score in the film's own file, e.g. `engine/src/canvas-core/<film>Score.ts`, and export it:
+Write the score in the film's own file, next to the film module: `src/canvas-core/<film>Score.ts`
+in a scaffolded project (`engine/src/canvas-core/<film>Score.ts` inside the skill), and export it:
 
 ```ts
 import type { Material } from "./music";
@@ -186,13 +187,15 @@ form to the exact length. `score.ts` is an empty skeleton to copy.
   - A timpani in a drum lane (orchestral, choral, suspense, world) is tuned to the tonic of `key`,
     generated grooves included (`epic`).
 
-**Notation** (bar-checked; a bar that doesn't add up throws):
+**Notation** (bar-checked; a bar that doesn't add up throws, the last bar too: a line that ends
+mid-bar writes its rest, `C2:3 r:1`, never a silent gap):
 - A token is `NOTE:DUR[@VEL]` (a pitch name with an octave, e.g. `F#4`), `[NOTE NOTE ...]:DUR` (a
   chord) or `r:DUR` (a rest).
 - Bars are separated by `|`, or given as array items.
 - Durations are in beats. In 6/8, 9/8 and 12/8 a beat is a dotted quarter, so an eighth is `1/3`.
   In 7/8 a beat is a quarter, so an eighth is `.5` and a bar is 3.5.
 - `@VEL` scales the line's velocity (0..1).
+- In a hand-written piece, a one-bar sting on any beat says so: `line(t, "G6:1", { ..., hit: true })`.
 
 ## Craft notes (what makes it good, not just valid)
 

@@ -53,6 +53,10 @@ Everything you decided is marked as yours so they can veto it in one line.
 - **Show options as one still sheet** when a choice is open (a transition, a lettering medium,
   a palette): three to six variants side by side, picked in one message. Then render.
 - **Review stills for design**, not only for things overlapping (`references/craft-bar.md`).
+- **A picture that draws itself says so**: `kind: "drawing"` in the film's `meta`. A stipple dot
+  or a hatch changes far less than 0.5 % of the frame, so without it the gate calls a drawing
+  dead air; with it, dead air is judged over 1 s at a 0.02 % floor and a hand may rest half a
+  second between passes. `meta: { title, W, H, fps, bpm, durationFrames, kind: "drawing" }`.
 
 ## Alive means real motion
 

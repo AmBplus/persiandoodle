@@ -12,7 +12,7 @@
   "subject rule": "high-key flat decorative ground, one step of shadow on forms, no modelling in depth; no black anywhere: the darkest note is the blue-green contour"
  },
  "params": { "groundStep": 19, "groundLen": 58, "groundW": 20, "patchNoise": 0.006, "contourW": 6.5, "contourSkip": 0.05 },
- "profile": { "file": "anidoodle-research/launch-film/refs/vangogh-almond-blossom.profile.json", "summary": "analyzer's nearest (charcoalErasure, storybook) wrong by eye; nearest by eye paintedOil" },
+ "profile": { "summary": "analyzer's nearest (charcoalErasure, storybook) wrong by eye; nearest by eye paintedOil" },
  "provenance": {
   "reference": "Vincent van Gogh, Almond Blossom (1890), Wikimedia Commons, public domain (File:Vincent van Gogh - Almond blossom - Google Art Project.jpg)",
   "sha256": "6f640dcd79def4223bf16569fd29ca5e37ee9d6cde2670958636e259e2a1c9d0",
@@ -21,5 +21,5 @@
   "embedded": false,
   "copied": "nothing but the hand: no branch, no blossom, no composition; the subject is the launch film's own koi and pond from koi.ts"
  },
- "proof": ["anidoodle-research/samples/adapt-teach/almond/adaptAlmond-still.png", "anidoodle-research/samples/adapt-teach/almond/compare-almond.jpg"]
+ "proof": ["node tools/still.mjs adaptAlmond (from engine/): the plate in this hand"]
 }

@@ -11,7 +11,7 @@ import { loudness, truePeak } from "./meter";
 
 export type SfxSnap = "none" | "bar" | "beat" | "8th" | "16th";
 export type SfxCue = SfxOpts & {
-  /** the frame the sound's sync point lands on (the hit; the pass-by of a whoosh; the END of a riser). */
+  /** the whole frame the sound's sync point lands on (the hit; the pass-by of a whoosh; the END of a riser). A fractional frame throws. */
   frame: number; kind: SfxKind; label?: string;
   /** snap the sync point to the beat grid (needs plan.bpm). Default: plan.snap ?? "none". */
   snap?: SfxSnap;
@@ -64,6 +64,7 @@ export const validateSfxPlan = (plan: SfxPlan) => {
     if (!c || typeof c !== "object") throw new Error(`sfx plan: cue #${i} is not an object`);
     if (!(c.kind in SFX)) throw new Error(`sfx plan: cue #${i} has unknown kind "${String(c.kind)}" (kinds: ${SFX_KINDS.join(", ")})`);
     if (typeof c.frame !== "number" || !Number.isFinite(c.frame) || c.frame < 0 || c.frame >= p.frames) throw new Error(`sfx plan: ${name(c, i)}: frame must be 0..${p.frames - 1}`);
+    if (!Number.isInteger(c.frame)) throw new Error(`sfx plan: ${name(c, i)}: frame must be a whole frame (cues are addressed by the frame the picture shows; for a hit between frames, snap it to the beat grid)`);
     const snap = c.snap ?? p.snap ?? "none";
     if (!(snap === "none" || snap in GRID)) throw new Error(`sfx plan: ${name(c, i)}: snap must be none|bar|beat|8th|16th`);
     if ((snap !== "none" || c.beats !== undefined) && p.bpm === undefined && c.bpm === undefined) throw new Error(`sfx plan: ${name(c, i)}: snap/beats need a bpm (plan.bpm)`);

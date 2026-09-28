@@ -11,10 +11,10 @@ const rep = (cell: string, n: number) => Array.from({ length: n }, () => cell).j
 export const marimbaCurious = (): Piece => {
   const B = 4;
   const ost = L(0, ["D4:.5 A4:.5 E5:.5 F5:.5 A4:.5 E5:.5 D5:.5 A4:.5", "D4:.5 B4:.5 E5:.5 G5:.5 B4:.5 E5:.5 D5:.5 B4:.5",
-    "D4:.5 A4:.5 E5:.5 F5:.5 A4:.5 E5:.5 D5:.5 A4:.5", "[D4 A4]:1"].join(" | "), "accomp", B, 0.55);
+    "D4:.5 A4:.5 E5:.5 F5:.5 A4:.5 E5:.5 D5:.5 A4:.5", "[D4 A4]:1 r:3"].join(" | "), "accomp", B, 0.55);
   // the hook asks (up to D6, then B natural), answers stepwise down to the tonic
-  const hook = L(0, "r:1 A5:.5 C6:.5 D6:1 C6:.5 A5:.5 | B5:1.5 G5:.5 A5:1 r:1 | F5:.5 E5:.5 D5:.5 E5:.5 F5:1 E5:1 | D5:1", "melody", B, 0.8);
-  const low = L(0, "D3:2 A2:2 | G2:2 D3:2 | D3:2 A2:2 | D3:1", "bass", B, 0.7);
+  const hook = L(0, "r:1 A5:.5 C6:.5 D6:1 C6:.5 A5:.5 | B5:1.5 G5:.5 A5:1 r:1 | F5:.5 E5:.5 D5:.5 E5:.5 F5:1 E5:1 | D5:1 r:3", "melody", B, 0.8);
+  const low = L(0, "D3:2 A2:2 | G2:2 D3:2 | D3:2 A2:2 | D3:1 r:3", "bass", B, 0.7);
   return {
     title: "Marimba, curious (D dorian)", seed: 404, tail: 1.2, harmony: H([[0, "Dm"], [4, "G/D"], [8, "Dm"], [12, "Dm"]]),
     plan: { style: "minimalist", tempo: 108, meter: "4/4", ritard: 0.9, sections: [{ id: "a", bars: 4, mood: "curious", key: "D", mode: "dorian", melody: ["ostinato", "hook"], dyn: [0.65, 0.72], ending: "button", repeatable: true }] },
@@ -22,7 +22,7 @@ export const marimbaCurious = (): Piece => {
       { id: "ostinato", inst: "marimba", role: "accomp", notes: ost, gainDb: -3 },
       { id: "hook", inst: "marimba", role: "melody", notes: hook, gainDb: 1 },
       { id: "low", inst: "marimba", role: "bass", notes: low, gainDb: -1 },
-      { id: "halo", inst: "vibes", role: "color", notes: L(0, "[F4 A4 E5]:4 | [G4 B4 E5]:4 | [F4 A4 E5]:4 | [F4 A4 D5]:1", "color", B, 0.35), gainDb: -12, opts: { trem: 4.5 } },
+      { id: "halo", inst: "vibes", role: "color", notes: L(0, "[F4 A4 E5]:4 | [G4 B4 E5]:4 | [F4 A4 E5]:4 | [F4 A4 D5]:1 r:3", "color", B, 0.35), gainDb: -12, opts: { trem: 4.5 } },
     ],
   };
 };
@@ -42,8 +42,8 @@ export const harpTender = (): Piece => {
 /** Guitar (Karplus-Strong), WISTFUL. E dorian fingerpicking, Em - A (the dorian IV) - Em, 4/4 at 84. */
 export const guitarWistful = (): Piece => {
   const B = 4;
-  const pick = L(0, "E2:.5 G3:.5 B3:.5 E4:.5 B2:.5 G3:.5 B3:.5 E4:.5 | A2:.5 E3:.5 C#4:.5 E4:.5 E2:.5 E3:.5 A3:.5 C#4:.5 | [E2 B2 E3 G3 B3 F#4]:1", "accomp", B, 0.55, { roll: 0.022 });
-  const mel = L(0, "B4:1.5 A4:.5 G4:1 F#4:1 | E4:1 C#5:1.5 B4:.5 A4:1 | B4:1", "melody", B, 0.8);
+  const pick = L(0, "E2:.5 G3:.5 B3:.5 E4:.5 B2:.5 G3:.5 B3:.5 E4:.5 | A2:.5 E3:.5 C#4:.5 E4:.5 E2:.5 E3:.5 A3:.5 C#4:.5 | [E2 B2 E3 G3 B3 F#4]:1 r:3", "accomp", B, 0.55, { roll: 0.022 });
+  const mel = L(0, "B4:1.5 A4:.5 G4:1 F#4:1 | E4:1 C#5:1.5 B4:.5 A4:1 | B4:1 r:3", "melody", B, 0.8);
   return {
     title: "Guitar, wistful (E dorian)", seed: 77, tail: 2.0, harmony: H([[0, "Em"], [4, "A"], [8, "Em9"]]),
     plan: { style: "folk", tempo: 84, meter: "4/4", ritard: 0.8, sections: [{ id: "a", bars: 3, mood: "wistful", key: "E", mode: "dorian", melody: ["stepwise"], dyn: [0.6, 0.55], ending: "tail", repeatable: true }] },
@@ -66,8 +66,8 @@ export const celestaWonder = (): Piece => {
 /** FM bell over FM e-piano, HOPEFUL. C major IV-V-vi-V/3 -> I, the bell line climbing in sequence A5 B5 C6 D6 -> E6. 4/4 at 100. */
 export const bellsHopeful = (): Piece => {
   const B = 4;
-  const bell = L(0, "C5:.5 F5:.5 A5:1 D5:.5 G5:.5 B5:1 | E5:.5 A5:.5 C6:1 D5:.5 G5:.5 D6:1 | E6:2", "melody", B, 0.75);
-  const keys = L(0, "[F3 A3 C4 E4]:2 [G3 B3 D4]:2 | [A3 C4 E4]:2 [B2 D4 G4]:2 | [C3 G3 C4 E4]:2", "accomp", B, 0.6, { roll: 0.02 });
+  const bell = L(0, "C5:.5 F5:.5 A5:1 D5:.5 G5:.5 B5:1 | E5:.5 A5:.5 C6:1 D5:.5 G5:.5 D6:1 | E6:2 r:2", "melody", B, 0.75);
+  const keys = L(0, "[F3 A3 C4 E4]:2 [G3 B3 D4]:2 | [A3 C4 E4]:2 [B2 D4 G4]:2 | [C3 G3 C4 E4]:2 r:2", "accomp", B, 0.6, { roll: 0.02 });
   return {
     title: "Bells and e-piano, hopeful (C major)", seed: 31, tail: 2.6, harmony: H([[0, "Fmaj7"], [2, "G"], [4, "Am"], [6, "G/B"], [8, "C"]]),
     plan: { style: "cinematic", tempo: 100, meter: "4/4", ritard: 0.85, sections: [{ id: "a", bars: 3, mood: "hopeful", key: "C", mode: "major", melody: ["sequence"], dyn: [0.5, 0.8], ending: "tail", repeatable: true }] },
@@ -78,11 +78,11 @@ export const bellsHopeful = (): Piece => {
 /** Drive / electronic, DRIVE. A minor i-VI-III-VII at 128: pluck arps and 8th bass from bar 1, the lead hook drops in at bar 3, a stab button. */
 export const driveElectronic = (): Piece => {
   const B = 4, a16 = (x: string) => rep(x.split(" ").map((n) => `${n}:.25`).join(" "), 4);
-  const pluckL = L(0, [a16("A4 C5 E5 A5"), a16("F4 A4 C5 F5"), a16("E4 G4 C5 E5"), a16("D4 G4 B4 D5"), "[A4 C5 E5]:.5"].join(" | "), "accomp", B, 0.6);
-  const bassL = L(0, [rep("A1:.5 A2:.5", 4), rep("F1:.5 F2:.5", 4), rep("C2:.5 C3:.5", 4), rep("G1:.5 G2:.5", 4), "A1:.5"].join(" | "), "bass", B, 0.85);
-  const lead = L(8, "E5:.75 D5:.25 C5:.5 E5:.5 G5:1.5 E5:.5 | D5:.75 C5:.25 B4:.5 D5:.5 G5:1 B4:1 | A5:.5", "melody", B, 0.8);
+  const pluckL = L(0, [a16("A4 C5 E5 A5"), a16("F4 A4 C5 F5"), a16("E4 G4 C5 E5"), a16("D4 G4 B4 D5"), "[A4 C5 E5]:.5 r:3.5"].join(" | "), "accomp", B, 0.6);
+  const bassL = L(0, [rep("A1:.5 A2:.5", 4), rep("F1:.5 F2:.5", 4), rep("C2:.5 C3:.5", 4), rep("G1:.5 G2:.5", 4), "A1:.5 r:3.5"].join(" | "), "bass", B, 0.85);
+  const lead = L(8, "E5:.75 D5:.25 C5:.5 E5:.5 G5:1.5 E5:.5 | D5:.75 C5:.25 B4:.5 D5:.5 G5:1 B4:1 | A5:.5 r:3.5", "melody", B, 0.8);
   const pad = L(0, "[A3 C4 E4]:4 | [F3 A3 C4]:4 | [G3 C4 E4]:4 | [G3 B3 D4]:4", "color", B, 0.45);
-  const kick = L(0, [rep("C4:1", 4), rep("C4:1", 4), rep("C4:1", 4), rep("C4:1", 4), "C4:.5"].join(" | "), "drum", B, 0.9);
+  const kick = L(0, [rep("C4:1", 4), rep("C4:1", 4), rep("C4:1", 4), rep("C4:1", 4), "C4:.5 r:3.5"].join(" | "), "drum", B, 0.9);
   const clap = L(0, "r:1 C4:1 r:1 C4:1 | r:1 C4:1 r:1 C4:1 | r:1 C4:1 r:1 C4:1 | r:1 C4:1 r:1 C4:.5 C4:.5", "drum", B, 0.7);
   const hats = L(0, [1, 2, 3, 4].map(() => rep("r:.5 C4:.5", 4)).join(" | "), "drum", B, 0.7, { kind: "o" });
   return {

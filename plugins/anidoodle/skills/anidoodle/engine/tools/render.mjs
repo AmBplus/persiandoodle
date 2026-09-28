@@ -1,4 +1,4 @@
-// node tools/render.mjs [film] [--scale 1] [--workers 4] [--out out/x.mp4|.gif|.webm|.apng] [--gif-fps 15] [--width 640]
+// node tools/render.mjs <film> [--scale 1] [--workers 4] [--out out/x.mp4|.gif|.webm|.apng] [--gif-fps 15] [--width 640]
 //                       [--blur N] [--from F] [--to F]
 // --blur N  motion blur (N an integer >= 1): every output frame is the average of N subframes over
 //           a one-frame shutter, integrated in linear light and weighted by alpha inside the page.
@@ -30,12 +30,12 @@ import { join, resolve } from "node:path";
 import { buildPage } from "./build-page.mjs";
 import { detect } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
-import { defaultOutput } from "./names.mjs";
+import { defaultOutput, requireFilm } from "./names.mjs";
 import { float32Wav } from "./audio.mjs";
 import { firstFrameBlank } from "./thumb.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
-const film = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "fixtures";
+const film = requireFilm(process.argv[2], "render", "node tools/render.mjs <film> [--scale 1] [--out out/x.mp4|.gif|.webm|.apng] [--from F] [--to F] [--poster-frame N] [--blur N]");
 const BLUR = Number(arg("blur", 1));
 if (!Number.isInteger(BLUR) || BLUR < 1) { console.error(`--blur wants a whole number of subframes >= 1, got '${arg("blur")}'`); process.exit(2); }
 const scale = Number(arg("scale", 1)), fmt = (arg("out", "").match(/\.(gif|webm|apng)$/i)?.[1] ?? "mp4").toLowerCase(), workers = Number(arg("workers", Math.max(1, Math.min(4, Math.floor(cpus().length / 2)))));
@@ -53,15 +53,18 @@ console.log(`using: ${env.chosen}\n`);
 const page = await buildPage({ entry: `src/hosts/page-${film}.ts`, out: resolve(`dist/${film}.html`), title: film });
 console.log(`page: ${page.out} (${(page.bytes / 1024).toFixed(0)} KB)`);
 const t0 = Date.now(), session = await playwright.open(env, page.out, { scale, workers }), meta = await session.info(), N = meta.durationFrames;
-const FROM = Math.max(0, Number(arg("from", 0))), TO = Math.min(N, Number(arg("to", N)));
-if (!Number.isInteger(FROM) || !Number.isInteger(TO) || TO <= FROM) { console.error(`bad range: [${FROM}, ${TO}) of ${N}`); process.exit(2); }
+// out of range is an error that names the valid range, never a silent clamp (the same rule as --poster-frame)
+const FROM = Number(arg("from", 0)), TO = Number(arg("to", N)), bad = (m) => { console.error(`${m}; this film has frames 0-${N - 1}: --from 0..${N - 1}, --to 1..${N} (exclusive)`); process.exit(2); };
+if (!Number.isInteger(FROM) || FROM < 0 || FROM >= N) bad(`--from ${arg("from")} ${Number.isInteger(FROM) ? "is outside the film" : "is not a whole frame number"}`);
+if (!Number.isInteger(TO) || TO < 1 || TO > N) bad(`--to ${arg("to")} ${Number.isInteger(TO) ? "is outside the film" : "is not a whole frame number"}`);
+if (TO <= FROM) bad(`--to ${TO} must be after --from ${FROM}`);
 const ranged = FROM !== 0 || TO !== N;
 // a passage never lands on the finished film's path: default to out/<film>.<from>-<to>.<ext>, and refuse an explicit --out that IS the film
 const full = resolve(defaultOutput(film).replace(/\.mp4$/, `.${fmt}`));
 const out = resolve(arg("out", ranged ? `out/${film}.${FROM}-${TO}.${fmt}` : full));
 if (ranged && out === resolve(defaultOutput(film))) { console.error(`refusing to write a range render over the finished film ${out}; pick another --out or drop --from/--to`); process.exit(2); }
 if (RANGE_ASKED && !ranged) console.log("range covers the whole film: rendering it complete, with its score");
-if (POSTER !== null && POSTER >= N) { console.error(`--poster-frame ${POSTER} is past the film's last frame ${N - 1}`); process.exit(2); }
+if (POSTER !== null && POSTER >= N) { console.error(`--poster-frame ${POSTER} is outside the film; this film has frames 0-${N - 1}`); process.exit(2); }
 if (POSTER !== null) console.log(`poster: frame 0 is frame ${POSTER}, dissolving into the opening by frame ${Math.max(1, FADE)}`);
 const posterAt = (n) => POSTER !== null && n < Math.max(1, FADE); // frames the poster dissolve touches
 const drawAt = (n, w) => (posterAt(n) ? session.poster(n, POSTER, FADE, BLUR, w) : BLUR > 1 ? session.blur(n, BLUR, w) : session.frame(n, w));
@@ -72,6 +75,18 @@ if (ranged) console.log(`range render: frames [${FROM}, ${TO}) of ${N}, silent b
 // audio: pure JS in the page -> WAV here (skipped for a range render: the score would not line up)
 mkdirSync(resolve(".tmp"), { recursive: true }); const wav = resolve(`.tmp/${film}.wav`), a = ranged ? null : await session.audio(48000);
 if (a) writeFileSync(wav, float32Wav(a));
+if (a) { // the audio report: loudness and true peak, and the score's fit against the picture's grid
+  const { build } = await import("esbuild"), js = (await build({ entryPoints: [resolve("src/canvas-core/music/meter.ts")], bundle: true, write: false, format: "esm", platform: "neutral", logLevel: "error" })).outputFiles[0].text;
+  const { loudness, truePeak } = await import("data:text/javascript;base64," + Buffer.from(js).toString("base64"));
+  const pcm = new Float32Array(Uint8Array.from(Buffer.from(a.float32, "base64")).buffer), L = new Float32Array(a.frames), R = new Float32Array(a.frames);
+  for (let i = 0; i < a.frames; i++) { L[i] = pcm[2 * i]; R[i] = pcm[2 * i + 1]; }
+  const lu = loudness([L, R], a.sampleRate).integrated, tp = truePeak([L, R]).dbtp;
+  console.log(`audio: ${lu.toFixed(1)} LUFS integrated, ${tp.toFixed(1)} dBTP true peak`);
+  if (lu < -14.5 && tp > -1.1) console.log(`  NOTE the -1 dBTP ceiling held the gain ${(-14 - lu).toFixed(1)} dB under -14 LUFS (the cross-platform target): peaks are a composing problem (stagger the bass under the loudest downbeat, roll the big chord); a launch template bed takes \`limit: true\``);
+  if (meta.score) { const off = (meta.score.tempo / meta.bpm - 1) * 100;
+    console.log(`score: fitted to the film at ${meta.score.tempo.toFixed(1)} bpm (${meta.score.form}); the picture's grid is ${meta.bpm} bpm (${off >= 0 ? "+" : ""}${off.toFixed(1)} %)`);
+    if (Math.abs(off) > 2) console.log("  NOTE past 2 % the cuts drift off the score's downbeats: a 1-bar stretch section, or the Material's `tail`, lets the fit land nearer the grid"); }
+}
 
 mkdirSync(join(out, ".."), { recursive: true });
 const input = ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(meta.fps), "-c:v", "png", "-i", "-"];

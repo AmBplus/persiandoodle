@@ -8,7 +8,6 @@
     "hero": "a hot-air balloon",
     "module": "engine/src/canvas-core/balloon.ts",
     "drawFilm": "balloonDraw",
-    "samples": "anidoodle-research/samples/balloon/",
     "source": "legacy"
   },
   {
@@ -20,7 +19,6 @@
     "hero": "a watch movement's going train, plan and section A-A",
     "module": "engine/src/canvas-core/blueprint.ts",
     "drawFilm": "blueprint",
-    "samples": "anidoodle-research/samples/blueprint/",
     "source": "scanned"
   },
   {
@@ -32,7 +30,6 @@
     "hero": "a small harbour at sunrise",
     "module": "engine/src/canvas-core/brokenColour.ts",
     "drawFilm": "brokenColour",
-    "samples": "anidoodle-research/samples/brokenColour/",
     "source": "scanned"
   },
   {
@@ -44,7 +41,6 @@
     "hero": "one oak through four seasons on one sheet",
     "module": "engine/src/canvas-core/charcoalErasure.ts",
     "drawFilm": "charcoalErasure",
-    "samples": "anidoodle-research/samples/charcoalErasure/",
     "source": "scanned"
   },
   {
@@ -56,7 +52,6 @@
     "hero": "a wind-up tin robot mending a music box while a crow steals a screw",
     "module": "engine/src/canvas-core/colouredPencil.ts",
     "drawFilm": "colouredPencil",
-    "samples": "anidoodle-research/samples/colouredPencil/",
     "source": "scanned"
   },
   {
@@ -68,7 +63,6 @@
     "hero": "a botanical wreath with a honeybee",
     "module": "engine/src/canvas-core/embroidery.ts",
     "drawFilm": "embroidery",
-    "samples": "anidoodle-research/samples/embroidery/",
     "source": "scanned"
   },
   {
@@ -80,7 +74,6 @@
     "hero": "a regatta of small sailboats on a bay under hills, the leader rounding the mark",
     "module": "engine/src/canvas-core/flatVector.ts",
     "drawFilm": "flatVector",
-    "samples": "anidoodle-research/samples/flatVector/",
     "source": "scanned"
   },
   {
@@ -92,7 +85,6 @@
     "hero": "a boy carrying a rooster through a village kitchen garden at the edge of a birch wood",
     "module": "engine/src/canvas-core/folkTale.ts",
     "drawFilm": "folkTale",
-    "samples": "anidoodle-research/samples/folkTale/",
     "source": "scanned"
   },
   {
@@ -104,7 +96,6 @@
     "hero": "a fox at dusk",
     "module": "engine/src/canvas-core/fox.ts",
     "drawFilm": "foxDraw",
-    "samples": "anidoodle-research/samples/fox/",
     "source": "legacy"
   },
   {
@@ -116,7 +107,6 @@
     "hero": "a steam train crossing a stone viaduct at golden hour",
     "module": "engine/src/canvas-core/halftone.ts",
     "drawFilm": "halftone",
-    "samples": "anidoodle-research/samples/halftone/",
     "source": "scanned"
   },
   {
@@ -128,7 +118,6 @@
     "hero": "a two-floor bakery cutaway at night, lit by its oven, the baker turning with a fresh loaf",
     "module": "engine/src/canvas-core/isometric.ts",
     "drawFilm": "isometric",
-    "samples": "anidoodle-research/samples/isometric/",
     "source": "scanned"
   },
   {
@@ -140,7 +129,6 @@
     "hero": "a Sanke koi turning under lily pads",
     "module": "engine/src/canvas-core/koi.ts",
     "drawFilm": "koiDraw",
-    "samples": "anidoodle-research/samples/koi/",
     "source": "legacy"
   },
   {
@@ -152,7 +140,6 @@
     "hero": "a lighthouse at sunset",
     "module": "engine/src/canvas-core/lighthouse.ts",
     "drawFilm": "lighthouseDraw",
-    "samples": "anidoodle-research/samples/lighthouse/",
     "source": "legacy"
   },
   {
@@ -164,7 +151,6 @@
     "hero": "A mountain lake at dawn: pink-lit range, spruce shores, a red canoe, reflections",
     "module": "engine/src/canvas-core/lowPoly.ts",
     "drawFilm": "lowPoly",
-    "samples": "anidoodle-research/samples/lowPoly/",
     "source": "scanned"
   },
   {
@@ -176,7 +162,6 @@
     "hero": "a moon spiralled out of one line",
     "module": "engine/src/canvas-core/mellan.ts",
     "drawFilm": "mellanUnspool",
-    "samples": "anidoodle-research/samples/mellan/",
     "source": "legacy"
   },
   {
@@ -188,7 +173,6 @@
     "hero": "a hillside village where a girl flies a kite",
     "module": "engine/src/canvas-core/midCentury.ts",
     "drawFilm": "midCentury",
-    "samples": "anidoodle-research/samples/midCentury/",
     "source": "scanned"
   },
   {
@@ -200,7 +184,6 @@
     "hero": "the phases of the moon",
     "module": "engine/src/canvas-core/moonPhases.ts",
     "drawFilm": "moonPhasesDraw",
-    "samples": "anidoodle-research/samples/moonPhases/",
     "source": "legacy"
   },
   {
@@ -212,7 +195,6 @@
     "hero": "two pears and a copper pot by a window",
     "module": "engine/src/canvas-core/paintedOil.ts",
     "drawFilm": "paintedOil",
-    "samples": "anidoodle-research/samples/paintedOil/",
     "source": "scanned"
   },
   {
@@ -224,7 +206,6 @@
     "hero": "A seaside town on a toy-theatre stage: sea rows, harbour houses, a newspaper boat, a sun on a stick",
     "module": "engine/src/canvas-core/paperCraft.ts",
     "drawFilm": "paperCraft",
-    "samples": "anidoodle-research/samples/paperCraft/",
     "source": "scanned"
   },
   {
@@ -236,7 +217,6 @@
     "hero": "a cat mid-pounce after fireflies in a moonlit garden",
     "module": "engine/src/canvas-core/pixelArt.ts",
     "drawFilm": "pixelArt",
-    "samples": "anidoodle-research/samples/pixelArt/",
     "source": "scanned"
   },
   {
@@ -248,7 +228,6 @@
     "hero": "a pocket watch lying on a table",
     "module": "engine/src/canvas-core/pocketWatch.ts",
     "drawFilm": "pocketWatchDraw",
-    "samples": "anidoodle-research/samples/pocketWatch/",
     "source": "legacy"
   },
   {
@@ -260,7 +239,6 @@
     "hero": "a ranunculus in bloom",
     "module": "engine/src/canvas-core/ranunculus.ts",
     "drawFilm": "ranunculusDraw",
-    "samples": "anidoodle-research/samples/ranunculus/",
     "source": "legacy"
   },
   {
@@ -272,7 +250,6 @@
     "hero": "a coffee pot mid-dance-step on a kitchen counter, steam curling",
     "module": "engine/src/canvas-core/rubberHose.ts",
     "drawFilm": "rubberHose",
-    "samples": "anidoodle-research/samples/rubberHose/",
     "source": "scanned"
   },
   {
@@ -284,7 +261,6 @@
     "hero": "How a honeybee finds flowers: the forager, the rose, the waggle dance, the evidence",
     "module": "engine/src/canvas-core/scrapbook.ts",
     "drawFilm": "scrapbook",
-    "samples": "anidoodle-research/samples/scrapbook/",
     "source": "scanned"
   },
   {
@@ -296,7 +272,6 @@
     "hero": "a lynx, head and shoulders, in moonlight",
     "module": "engine/src/canvas-core/scratchboard.ts",
     "drawFilm": "scratchboard",
-    "samples": "anidoodle-research/samples/scratchboard/",
     "source": "scanned"
   },
   {
@@ -308,7 +283,6 @@
     "hero": "a nautilus shell sawn in half, chambers lit from the upper left, cast shadow in dots",
     "module": "engine/src/canvas-core/stipple.ts",
     "drawFilm": "stipple",
-    "samples": "anidoodle-research/samples/stipple/",
     "source": "scanned"
   },
   {
@@ -320,7 +294,6 @@
     "hero": "Bit, waving, in storybook pencil and watercolour",
     "module": "engine/src/canvas-core/storybook.ts",
     "drawFilm": "storybookDraw",
-    "samples": "anidoodle-research/samples/storybook/",
     "source": "legacy"
   },
   {
@@ -332,7 +305,6 @@
     "hero": "bamboo in wind with a tree sparrow",
     "module": "engine/src/canvas-core/sumiE.ts",
     "drawFilm": "sumiE",
-    "samples": "anidoodle-research/samples/sumiE/",
     "source": "scanned"
   },
   {
@@ -344,7 +316,6 @@
     "hero": "a brick-built harbour tugboat on a baseplate",
     "module": "engine/src/canvas-core/toyBrick.ts",
     "drawFilm": "toyBrick",
-    "samples": "anidoodle-research/samples/toyBrick/",
     "source": "scanned"
   },
   {
@@ -356,7 +327,6 @@
     "hero": "two grey herons in rain on a wooden drum bridge",
     "module": "engine/src/canvas-core/woodcut.ts",
     "drawFilm": "woodcut",
-    "samples": "anidoodle-research/samples/woodcut/",
     "source": "scanned"
   },
   {
@@ -368,7 +338,6 @@
     "hero": "a wren",
     "module": "engine/src/canvas-core/wren.ts",
     "drawFilm": "wrenDraw",
-    "samples": "anidoodle-research/samples/wren/",
     "source": "legacy"
   }
 ]

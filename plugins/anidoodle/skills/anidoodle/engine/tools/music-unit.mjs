@@ -45,6 +45,15 @@ for (const [what, m] of [
 { const sjs = (await build({ entryPoints: [join(import.meta.dirname, "../src/canvas-core/score.ts")], bundle: true, write: false, platform: "neutral", format: "esm", logLevel: "error" })).outputFiles[0].text;
   const S = await import("data:text/javascript;base64," + Buffer.from(sjs).toString("base64")); assert.throws(() => S.filmScore(S.scoreSkeleton(), 30, 300), /skeleton/); }
 pass("missing harmony, melody, voicing, groove, form, mood: each throws; the score scaffold is empty and refuses to play");
+// A bar that doesn't add up throws, the last one too: a short final bar is a silent gap nobody wrote.
+{ const o = { role: "bass", bpb: 4 };
+  assert.throws(() => M.line(0, "C2:3", o), /sums to 3 beats.*"C2:3 r:1"/, "a one-bar C2:3 in 4/4 must throw");
+  assert.throws(() => M.line(0, "C2:4 | C2:3", o), /bar 1 sums to 3/);
+  assert.equal(M.line(0, "C2:3 r:1", o).length, 1);
+  assert.equal(M.line(6, "C2:2", o).length, 1, "a line starting off the barline may fill to it");
+  const base = M.launchLofi3Material(), k = Object.keys(base.chords)[0];
+  assert.throws(() => M.composePiece({ ...base, chords: { ...base.chords, [k]: { ...base.chords[k], bass: "C2:3" } } }), /sums to 3 beats/, "a short bass bar must fail compose (and so check)"); }
+pass("notation: a short final bar throws with the rest to write (C2:3 -> C2:3 r:1); compose refuses it");
 
 // 4. Groove families: every family parses in every meter, deterministic, and the seed varies the bars.
 { const meters = ["2/4", "3/4", "4/4", "5/4", "6/8", "7/8", "9/8", "12/8"]; let n = 0;

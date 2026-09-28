@@ -79,4 +79,6 @@ at any frame, from ONE renderer, so the last frame of the timelapse is the finis
 | How to draw a cat sitting (graphite, blue col-erase, kneaded eraser) | a plain request | 8, including a measured ear correction | 844 |
 | Clawd at the piano (coloured pencil) | the owner's crop of Kevin Ngo's piano film | 8, with the guides lifted to a ghost before colour | 9676 |
 
-Outputs: `anidoodle-research/samples/adapt-teach/lesson-cat/`, `lesson-clawd/`.
+The cat lesson ships: `node tools/lesson.mjs lessonCat --out out/lesson-cat` rebuilds its step
+sheet, timelapse, contact sheet and LESSON.md (`engine/src/canvas-core/lessonCat.ts`). The Clawd
+lesson was drawn from the owner's crop of another artist's film, so its outputs stay private.

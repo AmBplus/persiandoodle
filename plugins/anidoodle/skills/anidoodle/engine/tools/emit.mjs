@@ -20,13 +20,14 @@ import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildPage } from "./build-page.mjs";
+import { requireFilm } from "./names.mjs";
 import { pageChecks, probe } from "./adapters/html-player.mjs";
 
 const VAL = new Set(["out", "frames", "scale"]);
 const pos = [], opt = {};
 for (let i = 2; i < process.argv.length; i++) { const a = process.argv[i]; if (a.startsWith("--")) opt[a.slice(2)] = VAL.has(a.slice(2)) ? process.argv[++i] : true; else pos.push(a); }
 const die = (m) => { console.error(`emit: ${m}`); process.exit(1); };
-const film = pos[0] ?? die("usage: node tools/emit.mjs <film> [--out out/x.html] [--frames 24]");
+const film = requireFilm(pos[0], "emit", "node tools/emit.mjs <film> [--out out/x.html] [--frames 24]");
 const kebab = film.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 const out = resolve(opt.out ?? `out/${kebab}.html`);
 const N = Math.max(4, +(opt.frames ?? 24)), SCALE = +(opt.scale ?? 1);

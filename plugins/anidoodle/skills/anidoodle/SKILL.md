@@ -106,7 +106,7 @@ Camera moves (pans, zooms, parallax, shake) come from `engine/src/canvas-core/ca
 linear light per frame); the default path is untouched.
 
 ```bash
-node <skill>/engine/tools/scaffold.mjs ~/art --film intro --format 9x16 --duration 180
+node <skill>/engine/tools/scaffold.mjs ~/art --film intro --format 9x16 --duration 12   # seconds
 cd ~/art && npm install && npx playwright-core install chromium
 node tools/still.mjs intro --frame 0 --out out/look.png --scale 2   # a still, with its hash
 node tools/render.mjs intro                                        # MP4; --out x.gif|x.webm|x.apng

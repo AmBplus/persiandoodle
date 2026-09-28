@@ -141,8 +141,8 @@ export const measureStems = (piece: Piece, sr: number, o: RenderOpts = {}, tolDb
   return stemBalance(r.stems, piece.stemTargets ?? {}, tolDb);
 };
 
-/** Look-ahead peak limiter (1.5 ms look-ahead, 120 ms release), used by dense styles only. */
-const limiter = (L: Float32Array, R: Float32Array, sr: number, ceil: number) => {
+/** Look-ahead peak limiter (1.5 ms look-ahead, 120 ms release), used by dense styles only; `ceil` is linear. */
+export const limiter = (L: Float32Array, R: Float32Array, sr: number, ceil: number) => {
   const n = L.length, la = Math.round(0.0015 * sr), rel = Math.exp(-1 / (0.12 * sr)), need = new Float32Array(n);
   for (let i = 0; i < n; i++) { const a = Math.max(Math.abs(L[i]), Math.abs(R[i])) * 1.12; need[i] = a > ceil ? ceil / a : 1; } // 1.12: inter-sample margin
   const g = new Float32Array(n); let cur = 1;

@@ -37,10 +37,15 @@ export type Piece = { title: string; plan: MusicPlan; parts: Part[]; harmony: Ch
 
 // ---------------------------------------------------------------- notation
 // "Eb4:1 | C5:2 Bb4:.5 Ab4:.5 | [Ab2 Eb3]:1 r:2 | G5:1/3@0.8 ..." ; a token is NOTE:DUR[@VEL] or
-// [CHORD]:DUR[@VEL] or r:DUR. Every complete bar must sum to the meter: a wrong bar throws.
+// [CHORD]:DUR[@VEL] or r:DUR. Every bar must sum to the meter, the last one too (a line that ends
+// mid-bar writes its rest: "C2:3 r:1"): a wrong bar throws, so a gap is always written, never
+// silent. The first bar may instead be a declared `pickup`, or, when the line starts off the
+// barline, exactly the beats left to the next barline. A `hit` (a ping, a sting placed on any beat)
+// is one bar no longer than the meter, said out loud with `hit: true`.
 const dur = (s: string) => { if (s.includes("/")) { const [a, b] = s.split("/").map(Number); return a / b; } return Number(s); };
-export const line = (start: number, src: string, o: { role: Role; v?: number; bpb: number; pickup?: number; roll?: number; kind?: string }): Note[] => {
+export const line = (start: number, src: string, o: { role: Role; v?: number; bpb: number; pickup?: number; roll?: number; kind?: string; hit?: boolean }): Note[] => {
   const out: Note[] = []; let t = start; const bars = src.split("|").map((b) => b.trim()).filter((b, i, a) => b.length || (i > 0 && i < a.length - 1));
+  if (o.hit && bars.length !== 1) throw new Error(`a hit is one bar, got ${bars.length}: "${src}"`);
   bars.forEach((bar, bi) => {
     let sum = 0;
     for (const tok of bar.split(/\s+(?![^\[]*\])/).filter(Boolean)) {
@@ -52,9 +57,9 @@ export const line = (start: number, src: string, o: { role: Role; v?: number; bp
       }
       t += d; sum += d;
     }
-    const first = bi === 0, last = bi === bars.length - 1;
-    const ok = Math.abs(sum - o.bpb) < 1e-6 || (first && o.pickup !== undefined && Math.abs(sum - o.pickup) < 1e-6) || (last && sum <= o.bpb + 1e-6);
-    if (!ok) throw new Error(`bar ${bi} sums to ${sum} beats, meter wants ${o.bpb}: "${bar}"`);
+    const first = bi === 0, toBarline = o.bpb - (((start % o.bpb) + o.bpb) % o.bpb);
+    const ok = Math.abs(sum - o.bpb) < 1e-6 || (first && o.pickup !== undefined && Math.abs(sum - o.pickup) < 1e-6) || (first && toBarline < o.bpb - 1e-6 && Math.abs(sum - toBarline) < 1e-6) || (o.hit === true && sum <= o.bpb + 1e-6);
+    if (!ok) throw new Error(`bar ${bi} sums to ${+sum.toFixed(4)} beats, meter wants ${o.bpb}: "${bar}"${sum < o.bpb && bi === bars.length - 1 ? ` (a line that ends mid-bar writes its rest: "${bar} r:${+(o.bpb - sum).toFixed(4)}")` : ""}`);
   });
   return out;
 };

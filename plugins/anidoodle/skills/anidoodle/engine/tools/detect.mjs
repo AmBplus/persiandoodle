@@ -18,9 +18,19 @@ export const findPlaywright = () => {
   for (const [id, from] of candidates) { const lib = tryRequire(id, from); tried.push(`${id} from ${from}`); if (lib?.chromium) { const version = tryRequire(`${id}/package.json`, from)?.version; return { ok: true, lib, id, from, version }; } }
   return { ok: false, why: `no playwright found (looked in: ${tried.join("; ")})` };
 };
+// The binary playwright really starts headless. Since 1.49 that is chrome-headless-shell (its own
+// download, chromium_headless_shell-<rev>), not the Chrome for Testing that executablePath() names;
+// the two rasterise differently, so the report must name the one that draws.
+const headlessShellOf = (chrome) => {
+  const m = chrome.match(/^(.*[\\/])chromium-(\d+)[\\/]/); if (!m) return null;
+  const root = join(m[1], `chromium_headless_shell-${m[2]}`); if (!existsSync(root)) return null;
+  const stack = [root];
+  while (stack.length) { const dir = stack.pop(); for (const e of readdirSync(dir, { withFileTypes: true })) { const f = join(dir, e.name); if (e.isDirectory()) stack.push(f); else if (/^(chrome-headless-shell|headless_shell)(\.exe)?$/.test(e.name)) return f; } }
+  return null;
+};
 // Prefer the browser playwright expects; otherwise the newest cached headless shell or chromium.
 export const findBrowser = (lib) => {
-  try { const p = lib.chromium.executablePath(); if (p && existsSync(p)) return { ok: true, executablePath: undefined, why: `playwright default: ${p}` }; } catch { /* fall through */ }
+  try { const p = lib.chromium.executablePath(); if (p && existsSync(p)) { const shell = headlessShellOf(p); return { ok: true, executablePath: undefined, launches: shell ?? p, why: shell ? `playwright default, headless: ${shell}` : `playwright default: ${p}` }; } } catch { /* fall through */ }
   const cache = process.env.PLAYWRIGHT_BROWSERS_PATH || join(homedir(), process.platform === "darwin" ? "Library/Caches/ms-playwright" : ".cache/ms-playwright");
   if (!existsSync(cache)) {
     const local = remotionShell();
