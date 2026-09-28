@@ -57,11 +57,12 @@ export const composePiece = (m: Material): Piece => {
   const V = VOCAB[m.style]; need(V, `no vocabulary for style "${m.style}" (have: ${Object.keys(VOCAB).join(", ")}).`);
   const vocab = V!, meter = m.meter ?? vocab.meters[0], bpb = beatsPerBar(meter);
   need(m.title && Number.isFinite(m.seed) && m.mood, "a piece needs its own title, seed and mood.");
+  need(Number.isFinite(m.bpm) && m.bpm > 0, `no tempo: set bpm (this style plays ${vocab.tempo[0]}-${vocab.tempo[1]} bpm).`);
   need(m.sections?.length, "no form: write the sections (kind, bars, harmony, lines).");
   need(m.chords && Object.keys(m.chords).length, "no harmony: write your chords (voicing + bass line per chord).");
   const lay = layout(m.sections), B = lay[lay.length - 1].to;
   need(m.sections.some((s) => s.lead), "no melody: at least one section needs a lead line (your own motif).");
-  const motif = (x: string) => m.motifs?.[x] ?? x;
+  const motif = (x: string) => { const v = m.motifs?.[x]; if (v !== undefined) return v; need(/[:|]/.test(x), `no motif named "${x}": add motifs["${x}"] = "<bars of notation>", or write the notes inline (NOTE:DUR ...).`); return x; };
   const lineOf = (spec: LineSpec) => (Array.isArray(spec) ? spec : [spec]).map(motif).join(" | ");
 
   // ---- harmony per bar (a bar may split into chords: "A B" = two halves)
