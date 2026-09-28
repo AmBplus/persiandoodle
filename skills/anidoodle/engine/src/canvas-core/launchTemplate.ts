@@ -19,9 +19,10 @@
 import type { Ctx, Env, P } from "./core";
 import type { Film } from "./film";
 import {
-  C, GEN, HOME, INPUT, REPLY, SANS, MONO, TEXT, camLerp, caretAt, charTimes, clamp, drawChatFrame, expo, inOut, inkCard, inkDrop,
+  C, SANS, MONO, camLerp, caretAt, charTimes, clamp, drawChatFrame, expo, inOut, inkCard, inkDrop,
   lerp, lerpP, out3, plateLayer, pointer, press, ramp, rr, typedAt, useCam, type Cam, type Drop,
 } from "./launchKit";
+import { launchLayout, SHAPES, type LaunchLayout, type Shape } from "./launchLayout";
 import { beatGrid, bloomFrame, bloomRadius, makeCut, pic, type, typeFrame, type Seg, type TypeLine } from "./launchCut";
 import { measure, writeOn } from "./kinetic";
 import { fitScore, limiter, renderPiece } from "./music/render";
@@ -64,9 +65,9 @@ export type LaunchSpec = {
   score: (() => Piece | Material) | null;
   audio?: Film["audio"];     // or your own finished mix; wins over score
   limit?: boolean;           // let a look-ahead limiter take the score's last peaks so it reaches -14 LUFS (default off: the peak ceiling wins)
+  shape?: Shape;             // the frame: 16x9 (default), 1x1, 4x5, 9x16. Every shape is re-composed by launchLayout, never cropped; film.reshape(s) gives the same film in another shape
 };
 
-const W = 1920, H = 1080;
 // anidoodle's own pieces (the demos and our launch score) are examples of the composer, never a
 // user's soundtrack. Refused by identity, by title and by content (the novelty gate), so a thin or
 // retitled wrapper does not slip through. `audio` is the caller's own finished mix and is not checked.
@@ -82,8 +83,6 @@ const refuseOurs = (score: () => Piece | Material) => {
   if (!v.pass) throw new Error(`launchTemplate: "${score().title}" is too close to anidoodle's own "${v.worst.name.replace(/ #\d+$/, "")}" (similarity ${v.worst.score}, ${v.worst.reusedFragments} reused 6-note fragments); compose a score for this product's brief (references/music/compose.md) or pass score: null`);
 };
 const TYPE_O = { lead: -4, stagger: 18 }; // the word starts as the bloom closes over the frame; lines run on without a gap
-const TOP = 170, VIEW_BOTTOM = INPUT.y - 26, BUBBLE = 58, CARD = 460;
-const GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
 
 // the timing inside one ask beat, from its prompt and its length
 const askTiming = (prompt: string, i: number, ASK: number) => {
@@ -94,8 +93,13 @@ const askTiming = (prompt: string, i: number, ASK: number) => {
   return { times, b, down, up, drop };
 };
 
-export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeof makeCut> } => {
-  const fps = spec.fps ?? 30, n = spec.asks.length;
+export type LaunchFilm = Omit<Film, "reshape"> & { cut: ReturnType<typeof makeCut>; layout: LaunchLayout; reshape: (shape: string) => LaunchFilm };
+export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
+  const fps = spec.fps ?? 30, n = spec.asks.length, shape = spec.shape ?? "16x9";
+  if (!(shape in SHAPES)) throw new Error(`launchTemplate: shape '${shape}' is not one of ${Object.keys(SHAPES).join(", ")}`);
+  const L = launchLayout(shape, { prompts: spec.asks.map((a) => a.prompt), install: spec.install, tagline: spec.tagline, title: spec.title });
+  const W = L.W, H = L.stage.h, G = L.chat, TH = L.thread, CAM = L.cam, CARD = TH.card, VIEW_BOTTOM = TH.viewBottom;
+  const GEN_C: P = [G.GEN.x + G.GEN.w / 2, G.GEN.y + G.GEN.h / 2];
   if (!(spec.bpm > 0)) throw new Error("launchTemplate: set bpm from the brief (the tempo of the score composed for this film)");
   if (spec.score === undefined && !spec.audio) throw new Error("launchTemplate: `score` is required: a piece composed for this product (references/music/compose.md), or null for silence");
   if (spec.score) refuseOurs(spec.score);
@@ -115,43 +119,54 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
   const END0 = BASE[n - 1] + LEN[n - 1]; // content frame where the end card starts
 
   // ---------------------------------------------------------------- the thread
-  type Item = { at: number; h: number; user?: string; card?: number };
+  type Item = { at: number; h: number; user?: string; lines?: string[]; card?: number };
   const items: Item[] = [];
-  T.forEach((t, i) => { items.push({ at: t.base + t.up, h: BUBBLE, user: spec.asks[i].prompt }); items.push({ at: t.base + t.drop.land, h: CARD + 34, card: i }); });
-  const ys = (() => { let y = TOP; return items.map((it) => { const r = y; y += it.h + 26; return r; }); })();
+  T.forEach((t, i) => { items.push({ at: t.base + t.up, h: TH.bubbleH + (TH.bubbles[i].length - 1) * TH.bubbleLineH, user: spec.asks[i].prompt, lines: TH.bubbles[i] }); items.push({ at: t.base + t.drop.land, h: CARD + TH.cardDy, card: i }); });
+  const ys = (() => { let y = TH.top; return items.map((it) => { const r = y; y += it.h + TH.gap; return r; }); })();
   const scrollAt = (f: number) => { let s = 0; items.forEach((it, k) => { const want = Math.max(0, ys[k] + it.h - VIEW_BOTTOM); if (want > s) s += (want - s) * expo(ramp(f, it.at - 2, it.at + 16)); }); return s; };
-  const cardY = (i: number, f: number) => ys[items.findIndex((it) => it.card === i)] + 34 - scrollAt(f);
+  const cardY = (i: number, f: number) => ys[items.findIndex((it) => it.card === i)] + TH.cardDy - scrollAt(f);
   const plateFrame = (i: number, f: number) => { const a = spec.asks[i], t = T[i], from = a.from ?? 0, to = a.to ?? a.plate.meta.durationFrames - 1; return lerp(from, to, ramp(f, t.base + t.drop.land, t.base + t.len - 8)); };
 
-  const bug = (c: Ctx, env: Env) => writeOn(c, env, spec.title, W - 40, H - 34, 24, 1, "ink", { color: C.soft, align: "right", seed: 3 });
+  const bug = (c: Ctx, env: Env) => writeOn(c, env, spec.title, L.bug.x, L.bug.y, L.bug.px, 1, "ink", { color: C.soft, align: "right", seed: 3 });
   const chat = (ctx: Ctx, env: Env, f: number, typed: string, caret: boolean, pr: number, hot: number) => {
-    drawChatFrame(ctx, { typed, caret, placeholder: spec.placeholder ?? "Describe what you want…", genPress: pr, genHot: hot, title: spec.title, subtitle: spec.subtitle ?? "", genLabel: spec.genLabel, accent: spec.accent });
+    drawChatFrame(ctx, { typed, caret, placeholder: spec.placeholder ?? "Describe what you want…", genPress: pr, genHot: hot, title: spec.title, subtitle: spec.subtitle ?? "", genLabel: spec.genLabel, accent: spec.accent }, G);
     const sc = scrollAt(f);
-    ctx.save(); ctx.beginPath(); ctx.rect(300, 158, 1320, VIEW_BOTTOM - 158); ctx.clip();
+    ctx.save(); ctx.beginPath(); ctx.rect(...TH.clip); ctx.clip();
     items.forEach((it, k) => {
       if (f < it.at) return;
       const y = ys[k] - sc; if (y > VIEW_BOTTOM || y + it.h < 100) return;
       if (it.user !== undefined) {
-        ctx.globalAlpha = ramp(f, it.at, it.at + 8); ctx.font = SANS(500, 26);
-        const bw = ctx.measureText(it.user).width + 52; ctx.fillStyle = C.chip; rr(ctx, 1560 - bw, y, bw, BUBBLE - 2, 22); ctx.fill();
-        ctx.fillStyle = C.ink; ctx.textBaseline = "middle"; ctx.fillText(it.user, 1560 - bw + 26, y + 29); ctx.globalAlpha = 1;
+        ctx.globalAlpha = ramp(f, it.at, it.at + 8); ctx.font = SANS(500, G.px.bubble);
+        const bw = Math.max(...it.lines!.map((l) => ctx.measureText(l).width)) + 2 * TH.bubblePad; ctx.fillStyle = C.chip; rr(ctx, TH.bubbleR - bw, y, bw, it.h - 2, TH.bubbleRad); ctx.fill();
+        ctx.fillStyle = C.ink; ctx.textBaseline = "middle"; it.lines!.forEach((l, j) => ctx.fillText(l, TH.bubbleR - bw + TH.bubblePad, y + TH.bubbleH / 2 + j * TH.bubbleLineH)); ctx.globalAlpha = 1;
       } else {
         const i = it.card!, a = spec.asks[i];
         const d = T[i].drop, b = T[i].base;
-        inkCard(ctx, REPLY.x, y + 34, CARD, f, { t0: b + d.t0, land: b + d.land, full: b + d.full }, plateLayer(env, `ask${i}`, a.plate, plateFrame(i, f), 1080), a.label, a.crop);
+        inkCard(ctx, TH.cardX, y + TH.cardDy, CARD, f, { t0: b + d.t0, land: b + d.land, full: b + d.full }, plateLayer(env, `ask${i}`, a.plate, plateFrame(i, f), 1080), a.label, a.crop, G);
       }
     });
     ctx.restore();
-    T.forEach((t, i) => inkDrop(ctx, f, { t0: t.base + t.drop.t0, land: t.base + t.drop.land }, [REPLY.x + CARD / 2, cardY(i, t.base + t.drop.land) + CARD / 2]));
+    T.forEach((t, i) => inkDrop(ctx, f, { t0: t.base + t.drop.t0, land: t.base + t.drop.land }, [TH.cardX + CARD / 2, cardY(i, t.base + t.drop.land) + CARD / 2], G));
   };
   // the camera: macro on the composer while typing, out to the room for the press, then a lean in on the new card
-  const leanOn = (i: number): Cam => ({ c: lerpP(HOME.c, [REPLY.x + CARD / 2, cardY(i, T[i].base + T[i].len) + CARD / 2], 0.55), z: 1.18 });
+  const HOME = CAM.home;
+  const leanOn = (i: number): Cam => ({ c: lerpP(HOME.c, [TH.cardX + CARD / 2, cardY(i, T[i].base + T[i].len) + CARD / 2], 0.55), z: CAM.leanZ });
   // `lean` (0..1) is how far the camera leans in; the corner mark steps aside while it does, since
   // the lean carries the composer under the corner and type never sits over the UI or the art
+  // on a phone frame the words wrap, so the caret jumps back a line: the camera follows a smoothed
+  // caret (the mean of its last 10 frames), a glide down to the new line, never a jump
+  const phoneMacro = (ctx: Ctx, i: number, l: number, z: number): P => {
+    const half = W / 2 / z, lo = G.INPUT.x - 24 * G.k + half, hi = Math.max(lo, G.GEN.x + G.GEN.w + 30 * G.k - half);
+    let x = 0, y = 0; for (let j = 0; j < 10; j++) { const [cx, cy] = caretAt(ctx, typedAt(spec.asks[i].prompt, l - j, T[i].times), G); x += clamp(cx - 110 * G.k, lo, hi); y += cy; }
+    const yLo = G.INPUT.y + (H / 2) / z - 90 * G.k, yHi = G.INPUT.y + G.INPUT.h + 40 * G.k - (H / 2) / z;
+    return [x / 10, clamp(y / 10, Math.min(yLo, yHi), Math.max(yLo, yHi))];
+  };
   const camAt = (ctx: Ctx, f: number, i: number): { cam: Cam; lean: number } => {
-    const t = T[i], l = f - t.base, typed = typedAt(spec.asks[i].prompt, l, t.times), [cx] = caretAt(ctx, typed);
-    // the macro creeps in while the words arrive: the frame is never a still
-    const macro: Cam = { c: [Math.max(TEXT.x + 330, cx - 110), 934], z: 2.4 + 0.25 * inOut(ramp(l, t.times[0] - 8, t.b)) };
+    const t = T[i], l = f - t.base, typed = typedAt(spec.asks[i].prompt, l, t.times), [cx] = caretAt(ctx, typed, G);
+    // the macro creeps in while the words arrive: the frame is never a still. On a phone frame the
+    // whole composer is in view (the words wrap), so it holds on the composer instead of the caret
+    const mz = CAM.macroZ + CAM.macroCreep * inOut(ramp(l, t.times[0] - 8, t.b));
+    const macro: Cam = { c: L.shape === "16x9" ? [Math.max(G.TEXT.x + CAM.macroX0, cx - 110), CAM.macroY] : phoneMacro(ctx, i, l, mz), z: mz };
     if (i > 0 && l < 16) { const k = inOut(ramp(l, 0, 16)); return { cam: camLerp(leanOn(i - 1), macro, k), lean: 1 - k }; }
     if (l > t.drop.full - 10) { const k = inOut(ramp(l, t.drop.full - 10, t.len)); return { cam: camLerp(HOME, leanOn(i), k), lean: k }; }
     return { cam: l < t.b - 4 ? macro : camLerp(macro, HOME, expo(ramp(l, t.b - 4, t.down))), lean: 0 };
@@ -163,43 +178,44 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     const typed = typedAt(spec.asks[i].prompt, l, t.times), pr = press(l, t.down, t.up);
     chat(ctx, env, f, l < t.up ? typed : "", l < t.up, pr, ramp(l, t.down - 10, t.down - 2));
     // the pointer comes in for the press and glides back out; it never pops
-    const off: P = [1780, 1140], on: P = [GEN_C[0] + 18, GEN_C[1] + 6];
-    if (l >= t.b - 4 && l < t.up + 24) pointer(ctx, l < t.up + 4 ? lerpP(off, on, out3(ramp(l, t.b - 4, t.down))) : lerpP(on, off, inOut(ramp(l, t.up + 4, t.up + 24))), pr * 0.8);
+    const off: P = CAM.pointerOff, on: P = CAM.pointerOn;
+    if (l >= t.b - 4 && l < t.up + 24) pointer(ctx, l < t.up + 4 ? lerpP(off, on, out3(ramp(l, t.b - 4, t.down))) : lerpP(on, off, inOut(ramp(l, t.up + 4, t.up + 24))), pr * 0.8, CAM.pointerS);
     // the mark is gone BEFORE the lean moves the composer under it, and back only once the camera has left
     const show = lean > 0 && l > ASK / 2 ? 1 - ramp(l, t.drop.full - 18, t.drop.full - 10) : i > 0 && l < 24 ? ramp(l, 16, 24) : 1;
     if (show > 0) { ctx.globalAlpha = show; bug(ctx, env); ctx.globalAlpha = 1; }
   };
   // ---------------------------------------------------------------- the end card
   const endPage = (c: Ctx, env: Env, e: number) => {
-    const cx = W / 2, size = Math.min(150, (1300 / measure(spec.title, 100)) * 100);
-    writeOn(c, env, spec.title, cx, 400, size, ramp(e, 10, 44), "ink", { color: C.ink, align: "center", seed: 11 });
+    const E = L.end, cx = E.cx, size = Math.min(E.titleMax, (E.titleW / measure(spec.title, 100)) * 100);
+    writeOn(c, env, spec.title, cx, E.titleY, size, ramp(e, 10, 44), "ink", { color: C.ink, align: "center", seed: 11 });
     c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.textAlign = "center"; c.textBaseline = "middle";
-    c.globalAlpha = ramp(e, 34, 46); c.fillStyle = C.soft; c.font = SANS(500, 30); c.fillText(spec.tagline, cx, 520);
-    c.globalAlpha = ramp(e, 40, 52); c.font = MONO(30);
-    const pw = Math.max(...spec.install.map((s) => c.measureText(s).width)) + 120, ph = 60 * spec.install.length + 50, py = 590;
-    c.fillStyle = "#1f1c18"; rr(c, cx - pw / 2, py, pw, ph, 22); c.fill();
-    c.fillStyle = "#ece4d6"; spec.install.forEach((s, k) => c.fillText(s, cx, py + 55 + k * 60));
+    c.globalAlpha = ramp(e, 34, 46); c.fillStyle = C.soft; c.font = SANS(500, E.taglinePx); E.tagline.forEach((t, j) => c.fillText(t, cx, E.taglineY + j * E.taglineLH));
+    c.globalAlpha = ramp(e, 40, 52); c.font = MONO(E.monoPx);
+    const nI = spec.install.length, pw = Math.max(...spec.install.map((s) => c.measureText(s).width)) + 2 * E.padX, ph = E.rowH * nI + 2 * (E.lineY0 - E.panelY) - E.rowH, py = E.panelY;
+    c.fillStyle = "#1f1c18"; rr(c, cx - pw / 2, py, pw, ph, 22 * L.k); c.fill();
+    c.fillStyle = "#ece4d6"; spec.install.forEach((s, k) => c.fillText(s, cx, E.lineY0 + k * E.rowH));
     // a terminal caret blinks after the last line: the hold reads as live, never as a freeze
-    const lastW = c.measureText(spec.install[spec.install.length - 1]).width;
-    if (Math.floor((e - 40) / 15) % 2 === 0) c.fillRect(cx + lastW / 2 + 8, py + 55 + (spec.install.length - 1) * 60 - 17, 16, 34);
-    if (spec.footer) { c.fillStyle = C.soft; c.font = SANS(500, 24); c.fillText(spec.footer, cx, py + ph + 60); }
+    const lastW = c.measureText(spec.install[nI - 1]).width;
+    if (Math.floor((e - 40) / 15) % 2 === 0) c.fillRect(cx + lastW / 2 + 8 * (E.monoPx / 30), E.lineY0 + (nI - 1) * E.rowH - E.caret[1] / 2, E.caret[0], E.caret[1]);
+    if (spec.footer) { c.fillStyle = C.soft; c.font = SANS(500, E.footerPx); c.fillText(spec.footer, cx, E.footerY); }
     c.globalAlpha = 1; c.textAlign = "left";
   };
   const content = (ctx: Ctx, env: Env, f: number) => {
     const g = clamp(Math.round(f), 0, END0 + END - 1);
     if (g < END0) return askScene(ctx, env, g);
     const e = g - END0;
-    bloomFrame(ctx, env, e + 2, END + 2, () => askScene(ctx, env, END0 - 1), (c) => endPage(c, env, e), { close: false, inF: 16 });
+    bloomFrame(ctx, env, e + 2, END + 2, () => askScene(ctx, env, END0 - 1), (c) => endPage(c, env, e), { close: false, inF: 16, W, H });
   };
 
   // ---------------------------------------------------------------- the cut, as data
   const words = spec.words ?? [];
+  const TYPE_OPTS = L.shape === "16x9" ? TYPE_O : { ...TYPE_O, W, H, maxW: L.type.maxW };
   const segs: Seg[] = [];
   spec.asks.forEach((_, i) => {
     const last = i === n - 1;
     const b = BASE[i], e = b + LEN[i];
     segs.push(last && spec.claimBar !== undefined ? pic(b, e, SOLVED) : pic(b, e)); // SOLVED < ASK plays the ask faster; never slower
-    if (!last && words[i]?.length) segs.push(type(words[i], TYPE, e - 1, e));
+    if (!last && words[i]?.length) segs.push(type(fitWords(words[i], L), TYPE, e - 1, e));
   });
   // the score plays at the film's bpm, exactly: the cuts sit on this grid. Sync wins over length, so
   // the end-card hold (not the tempo) takes up the difference: the film becomes whole bars of the score.
@@ -211,26 +227,45 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     const { s, local } = cut.at(F);
     if (s.kind === "pic") content(ctx, env, cut.contentOf(s, local));
     // offset by 2 frames at each end so the bloom is already moving on the first and last frame
-    else typeFrame(ctx, env, s.lines, local + 2, s.len + 4, (first) => content(ctx, env, first ? s.before : s.after), (c) => bug(c, env), TYPE_O);
+    else typeFrame(ctx, env, s.lines, local + 2, s.len + 4, (first) => content(ctx, env, first ? s.before : s.after), (c) => bug(c, env), TYPE_OPTS);
   };
   // declared holds: the words' reading time on each type frame, and the end card once it is all on
   const holds: [number, number][] = [];
   cut.SEGS.forEach((s, k) => {
     if (s.kind !== "type") return;
     const written = 14 + TYPE_O.lead + 18 + (s.lines.length - 1) * TYPE_O.stagger - 2; // local frame the last line is done
-    let open = s.len - 1; while (open > written && bloomRadius(open + 2, s.len + 4) < 1110) open--;   // last fully covered frame
+    let open = s.len - 1; while (open > written && bloomRadius(open + 2, s.len + 4) < L.type.cover) open--;   // last fully covered frame
     holds.push([cut.STARTS[k] + written + 1, cut.STARTS[k] + open + 1]);
   });
   // a solved ask longer than the grid's: the finished card rests on screen until the end card blooms
   if (LEN[n - 1] > ASK) { const S = cut.STARTS[cut.SEGS.length - 2]; holds.push([S + LEN[n - 1] - 18, S + LEN[n - 1] + 6]); }
   holds.push([cut.N - END + 53, cut.N]); // the end card, all on: read it, screenshot it
-  return {
-    meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds, ...(bed ? { score: { tempo: spec.bpm, form: bed.form, grid: true } } : {}) },
+  let memo: Map<string, LaunchFilm> | null = null;
+  const self: LaunchFilm = {
+    meta: { title: `${spec.title} · launch${shape === "16x9" ? "" : ` · ${shape}`}`, W, H: L.H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds, ...(bed ? { score: { tempo: spec.bpm, form: bed.form, grid: true } } : {}) },
     assets: { images: {} },
     shots: [{ id: "cut", start: 0, end: cut.N, draw }],
     audio: spec.audio ?? (bed ? musicBed(() => bed.piece, cut.N, fps, -14, { limit: spec.limit, tempo: spec.bpm }) : undefined),
-    cut,
+    cut, layout: L,
+    // the same film composed for another frame shape (one timeline: the cut, the timing and the sound do not change)
+    reshape: (s: string) => { if (s === shape) return self; memo ??= new Map(); let f = memo.get(s); if (!f) { f = makeLaunchFilm({ ...spec, shape: s as Shape }); memo.set(s, f); } return f; },
   };
+  return self;
+};
+
+// Words sized for the frame: a line that would come out under the phone-safe type size is broken at
+// its middle space (a word page holds at most three lines); one that still cannot is an error.
+export const fitWords = (lines: TypeLine[], L: LaunchLayout): TypeLine[] => {
+  const sizeOf = (ls: TypeLine[]) => Math.min(ls.length === 1 ? 190 : 130, ...ls.map((l) => (L.type.maxW / measure(l.text, 100)) * 100));
+  let out = lines;
+  while (sizeOf(out) < L.type.minPx && out.length < 3) {
+    const k = out.reduce((b, l, i) => (measure(l.text, 100) > measure(out[b].text, 100) ? i : b), 0), words = out[k].text.split(" ");
+    if (words.length < 2) break;
+    let best = 1, bw = Infinity; for (let j = 1; j < words.length; j++) { const w = Math.max(measure(words.slice(0, j).join(" "), 100), measure(words.slice(j).join(" "), 100)); if (w < bw) { bw = w; best = j; } }
+    out = [...out.slice(0, k), { ...out[k], text: words.slice(0, best).join(" ") }, { ...out[k], text: words.slice(best).join(" ") }, ...out.slice(k + 1)];
+  }
+  if (sizeOf(out) < L.type.minPx) throw new Error(`launchTemplate ${L.shape}: the words "${lines.map((l) => l.text).join(" / ")}" would be ${sizeOf(out).toFixed(0)} px on a word page (phone-safe minimum ${L.type.minPx} px): use fewer words`);
+  return out;
 };
 
 type Fit = ReturnType<typeof fitScore>;

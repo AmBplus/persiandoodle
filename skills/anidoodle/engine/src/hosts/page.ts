@@ -4,7 +4,7 @@
 import type { Ctx, Env, Layer } from "../canvas-core/core";
 import { Film, renderFrame, validate } from "../canvas-core/film";
 
-declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string> } }
+declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string>; __SHAPE__?: string } }
 
 // THE BAKE STORE (Env.bake). A finished plate frame, keyed by the hash of the source that draws it
 // (build-page.mjs hashes each film module's whole import closure, plus the engine's own renderer),
@@ -32,6 +32,8 @@ const bakeStore = (surface: (w: number, h: number) => Layer) => {
 };
 
 export const mountFilm = (film: Film) => {
+  // <film>-<shape> (build-page.mjs sets __SHAPE__): the same film, re-composed for that frame
+  if (window.__SHAPE__) { if (!film.reshape) throw new Error(`${film.meta.title} has one shape; ${window.__SHAPE__} is for launch template films (film.reshape)`); film = film.reshape(window.__SHAPE__); }
   const canvas = document.getElementById("film") as HTMLCanvasElement, images = new Map<string, CanvasImageSource>();
   let env: Env, ctx: Ctx, current = 0;
   // Safari before 16.4 has no 2D OffscreenCanvas: fall back to a detached <canvas>. The core cannot tell the difference.

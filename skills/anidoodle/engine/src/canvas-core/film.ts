@@ -21,7 +21,15 @@ export type Film = { meta: {
   // the score as fitted to this film: its tempo and form; render prints it next to the grid's bpm.
   // grid: the film's cuts sit on meta.bpm, so the score must play within 0.5 % of it (render refuses otherwise)
   score?: { tempo: number; form: string; grid?: boolean };
-}; assets: Assets; shots: Shot[]; audio?: (sampleRate: number) => [Float32Array, Float32Array] };
+  // frame-cued sync points the delivered file is checked against (verify-export: audio-to-video sync), and
+  // the words a viewer reads, for .srt/.vtt captions: both in frames of this film
+  sync?: { frame: number; label: string }[];
+  captions?: { from: number; to: number; text: string }[];
+  // a legible frame for the poster image and the thumbnail (render --poster-frame, launch.mjs ship)
+  poster?: number;
+}; assets: Assets; shots: Shot[]; audio?: (sampleRate: number) => [Float32Array, Float32Array];
+  // the same film composed for another frame shape (launch template films); hosts/page.ts calls it for <film>-<shape>
+  reshape?: (shape: string) => Film };
 
 // Cheap structural checks every adapter runs before frame 0. (The full gate is Phase 2.)
 export const validate = (film: Film): string[] => {

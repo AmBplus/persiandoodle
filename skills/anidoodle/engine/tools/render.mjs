@@ -22,7 +22,10 @@
 //          whatever sits behind the page shows through
 //   .apng  animated PNG, alpha kept, loops forever, plays in every browser
 // --width only applies to the silent formats; the MP4 is always the film's own size.
-import { spawn, execFileSync } from "node:child_process";
+// --shapes 16x9,1x1,4x5,9x16  a launch template film in several frame shapes from ONE timeline: each
+//           shape is re-composed by its layout (launchLayout.ts), never cropped, and rendered as the
+//           film <film>-<shape> to out/<film>-<shape>.mp4, one after another, with the other flags.
+import { spawn, spawnSync, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
@@ -35,6 +38,15 @@ import { float32Wav } from "./audio.mjs";
 import { firstFrameBlank } from "./thumb.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
+if (process.argv.includes("--shapes")) {
+  const { SHAPE_NAMES, splitShape } = await import("./names.mjs");
+  const shapes = String(arg("shapes", "")).split(",").map((x) => x.trim()).filter(Boolean), bad = shapes.filter((x) => !SHAPE_NAMES.includes(x));
+  if (!shapes.length || bad.length) { console.error(`--shapes wants a list of ${SHAPE_NAMES.join(", ")}, got '${arg("shapes", "")}'`); process.exit(2); }
+  if (process.argv.includes("--out")) { console.error("--shapes writes out/<film>-<shape>.<ext> for each shape; drop --out"); process.exit(2); }
+  const base = splitShape(process.argv[2]).base, rest = process.argv.slice(3).filter((a, i, all) => a !== "--shapes" && all[i - 1] !== "--shapes");
+  for (const sh of shapes) { console.log(`\n==== ${base}-${sh} ====`); const r = spawnSync(process.execPath, [process.argv[1], `${base}-${sh}`, ...rest], { stdio: "inherit" }); if (r.status) process.exit(r.status); }
+  process.exit(0);
+}
 const film = requireFilm(process.argv[2], "render", "node tools/render.mjs <film> [--scale 1] [--out out/x.mp4|.gif|.webm|.apng] [--from F] [--to F] [--poster-frame N] [--blur N]");
 const BLUR = Number(arg("blur", 1));
 if (!Number.isInteger(BLUR) || BLUR < 1) { console.error(`--blur wants a whole number of subframes >= 1, got '${arg("blur")}'`); process.exit(2); }
