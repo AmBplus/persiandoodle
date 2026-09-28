@@ -35,10 +35,14 @@ cp "${REPO_ROOT}/LICENSE" "${REPO_ROOT}/NOTICE" "${STAGE}/"
 mkdir -p "${STAGE}/assets"
 cp "${REPO_ROOT}/assets/icon.png" "${STAGE}/assets/icon.png"
 cd "${REPO_ROOT}"
+# The installed plugin leaves out what only the repository needs: anidoodle's own launch films
+# (launch, launch2, launch3, launchClip and their helpers and pages), the public-domain reference
+# image they show, and the gallery sheet and the tool that rebuilds it (the docs link to it online).
+EXCLUDE='/canvas-core/(launch|launch2|launch3|launchClip|launchCode|typeOptions|typeStyles)\.ts$|/hosts/page-(launch|launch2|launch3|launchClip|typeOptions|typeStyles)\.ts$|/engine/assets/refs/|/engine/tools/gallery\.mjs$|^skills/anidoodle/assets/styles\.jpg$'
 count=0
 while IFS= read -r f; do
   mkdir -p "${STAGE}/$(dirname "$f")"; cp -p "$f" "${STAGE}/$f"; count=$((count + 1))
-done < <(git ls-files skills/)
+done < <(git ls-files skills/ | grep -v -E "${EXCLUDE}")
 
 [ -f "${STAGE}/skills/anidoodle/SKILL.md" ] || { echo "ERROR: SKILL.md missing after copy (is it committed?)" >&2; exit 4; }
 [ "${count}" -ge 50 ] || { echo "ERROR: only ${count} files copied; expected the whole skill" >&2; exit 4; }

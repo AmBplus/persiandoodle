@@ -14,7 +14,7 @@ pick", pick, say what you picked and why in one line, and carry on.
    explainer, an infographic, a launch or product video, an interactive web piece, a drawing
    lesson, a character, or a style matched from their image. The table in `SKILL.md` routes each
    one to its workflow file.
-2. **Which style?** Show the gallery (`assets/styles.jpg`, one tile per hand; the list with
+2. **Which style?** Show the gallery (https://github.com/alexgreensh/anidoodle/blob/main/skills/anidoodle/assets/styles.jpg, one tile per hand; the list with
    each hand's medium is `references/styles/INDEX.md`). Recommend two or three hands that suit the
    subject and the audience, with one reason each. Offer two other routes:
    - **"Match my image"**: they bring a picture and you adapt its hand (`adapt-a-style.md`).

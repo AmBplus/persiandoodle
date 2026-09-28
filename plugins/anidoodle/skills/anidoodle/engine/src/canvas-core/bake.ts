@@ -2,7 +2,7 @@
 // blurred and toothed). A web page has 6. So an interactive piece does the drawing ONCE, at mount,
 // into sprites, and each frame is a composite of sprites plus a handful of live marks.
 //
-// A sprite is a pure function of its key (and env.scale, which the key includes): contract rule 5.
+// A sprite is a pure function of its id (and env.scale, which the id includes): contract rule 5.
 // It is cropped to exactly the device box the drawing touched, at integer device pixels, so an
 // untransformed blit puts back the very pixels the plate drew. Moving parts are blitted with a
 // rotation or a DOWN-scale about a pivot, never an up-scale (contract rule 6).
@@ -13,15 +13,15 @@ export const stats = { baked: 0, bytes: 0, ms: 0 }; // for the host's report onl
 
 const resettable = (c: unknown) => !!c && typeof (c as { reset?: unknown }).reset === "function";
 const scratch = (env: Env): Layer => {
-  const DW = Math.round(env.W * env.scale), DH = Math.round(env.H * env.scale), key = `bake:scratch:${DW}x${DH}`;
-  let L = env.cache.get(key) as Layer | undefined;
-  if (L && resettable(L.ctx)) (L.ctx as unknown as { reset(): void }).reset(); else { L = env.canvas(DW, DH); env.cache.set(key, L); } /* see bake(): pristine, or new */
+  const DW = Math.round(env.W * env.scale), DH = Math.round(env.H * env.scale), id = `bake:scratch:${DW}x${DH}`;
+  let L = env.cache.get(id) as Layer | undefined;
+  if (L && resettable(L.ctx)) (L.ctx as unknown as { reset(): void }).reset(); else { L = env.canvas(DW, DH); env.cache.set(id, L); } /* see bake(): pristine, or new */
   return L;
 };
 
 // Draw `fn` with a fresh Gfx on a clean full-size scratch, crop what it composited, cache it.
-export const bake = (env: Env, key: string, fn: (g: Gfx) => void, o: { medium?: Medium; frame?: number; full?: boolean; raw?: boolean } = {}): Sprite => {
-  const k = `sprite:${key}@${env.scale}`, hit = env.cache.get(k) as Sprite | undefined; if (hit) return hit;
+export const bake = (env: Env, id: string, fn: (g: Gfx) => void, o: { medium?: Medium; frame?: number; full?: boolean; raw?: boolean } = {}): Sprite => {
+  const k = `sprite:${id}@${env.scale}`, hit = env.cache.get(k) as Sprite | undefined; if (hit) return hit;
   const S = scratch(env), DW = Math.round(env.W * env.scale), DH = Math.round(env.H * env.scale), c = S.ctx;
   c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = "source-over"; c.clearRect(0, 0, DW, DH);
   // Every bake starts from pristine surfaces. Measured in Chromium: a 2D canvas that has EVER filled
@@ -94,5 +94,5 @@ export class Only extends Gfx {
   inkGroup(fn: () => void, o: Parameters<Gfx["inkGroup"]>[1] = {}) { const i = this.n++; this.census.push("inkGroup"); if (this.keep(i)) super.inkGroup(fn, o); }
 }
 // bake() for a part of a plate: `draw(g)` receives an Only that keeps groups in `keep`.
-export const bakePart = (env: Env, key: string, keep: (i: number) => boolean, draw: (g: Gfx) => void, o: { medium?: Medium; frame?: number } = {}): Sprite =>
-  bake(env, key, (g0) => { const g = new Only(g0.main, env, o.frame ?? 0, o.medium ?? PENCIL, keep); draw(g); g0.drawn = g.drawn; }, o);
+export const bakePart = (env: Env, id: string, keep: (i: number) => boolean, draw: (g: Gfx) => void, o: { medium?: Medium; frame?: number } = {}): Sprite =>
+  bake(env, id, (g0) => { const g = new Only(g0.main, env, o.frame ?? 0, o.medium ?? PENCIL, keep); draw(g); g0.drawn = g.drawn; }, o);
