@@ -6,6 +6,8 @@ anidoodle makes illustrations, drawing timelapses, films of any length, explaine
 
 Every mark is a function and every note is arithmetic, so the same source redraws the same picture on every machine, at every size. There are no generated image assets and no image model calls.
 
+Works in Claude Code, Codex and Grok Build, and in any agent that reads skills. It needs Node 20 or newer on your machine; films also use ffmpeg.
+
 ## What it runs
 
 - The skill writes and runs local Node.js scripts from its `engine/` folder (Node 20 or newer).

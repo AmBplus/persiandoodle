@@ -23,6 +23,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
   <img src="https://img.shields.io/badge/every%20render-identical-7c5c99" alt="Every render identical">
 </p>
 
+<p align="center"><sub>Works in <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · and any agent that reads skills. <a href="#get-started">Install</a></sub></p>
+
 <p align="center"><b>English</b> · <a href="README.ja-JP.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ko-KR.md">한국어</a> · <a href="README.fr-FR.md">Français</a> · <a href="README.es-ES.md">Español</a></p>
 
 <p align="center">

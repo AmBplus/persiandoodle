@@ -23,6 +23,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
   <img src="https://img.shields.io/badge/chaque%20rendu-identique-7c5c99" alt="Chaque rendu identique">
 </p>
 
+<p align="center"><sub>Fonctionne dans <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · et tout agent qui lit les skills.</sub></p>
+
 <p align="center"><a href="README.md">English</a> · <a href="README.ja-JP.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ko-KR.md">한국어</a> · <b>Français</b> · <a href="README.es-ES.md">Español</a></p>
 
 <p align="center">
