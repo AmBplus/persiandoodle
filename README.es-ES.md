@@ -23,6 +23,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
   <img src="https://img.shields.io/badge/cada%20render-id%C3%A9ntico-7c5c99" alt="Cada render, idéntico">
 </p>
 
+<p align="center"><sub>Funciona en <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · y cualquier agente que lea skills.</sub></p>
+
 <p align="center"><a href="README.md">English</a> · <a href="README.ja-JP.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ko-KR.md">한국어</a> · <a href="README.fr-FR.md">Français</a> · <b>Español</b></p>
 
 <p align="center">

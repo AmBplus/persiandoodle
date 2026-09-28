@@ -23,6 +23,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
   <img src="https://img.shields.io/badge/%E6%AF%8E%E5%9B%9E%E3%81%AE%E3%83%AC%E3%83%B3%E3%83%80%E3%83%AA%E3%83%B3%E3%82%B0-%E5%90%8C%E4%B8%80-7c5c99" alt="毎回のレンダリングが同一">
 </p>
 
+<p align="center"><sub>対応: <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · スキルを読めるあらゆるエージェント。</sub></p>
+
 <p align="center"><a href="README.md">English</a> · <b>日本語</b> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ko-KR.md">한국어</a> · <a href="README.fr-FR.md">Français</a> · <a href="README.es-ES.md">Español</a></p>
 
 <p align="center">

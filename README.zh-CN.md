@@ -23,6 +23,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
   <img src="https://img.shields.io/badge/%E6%AF%8F%E6%AC%A1%E6%B8%B2%E6%9F%93-%E5%AE%8C%E5%85%A8%E4%B8%80%E8%87%B4-7c5c99" alt="每次渲染，完全一致">
 </p>
 
+<p align="center"><sub>支持 <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · 以及任何能读取技能的智能体。</sub></p>
+
 <p align="center"><a href="README.md">English</a> · <a href="README.ja-JP.md">日本語</a> · <b>简体中文</b> · <a href="README.ko-KR.md">한국어</a> · <a href="README.fr-FR.md">Français</a> · <a href="README.es-ES.md">Español</a></p>
 
 <p align="center">

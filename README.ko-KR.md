@@ -23,6 +23,8 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
   <img src="https://img.shields.io/badge/%EB%AA%A8%EB%93%A0%20%EB%A0%8C%EB%8D%94%EB%A7%81-%EB%8F%99%EC%9D%BC-7c5c99" alt="모든 렌더링이 동일">
 </p>
 
+<p align="center"><sub>지원: <b>Claude Code</b> · <b>Codex</b> · <b>Grok Build</b> · 스킬을 읽는 모든 에이전트.</sub></p>
+
 <p align="center"><a href="README.md">English</a> · <a href="README.ja-JP.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a> · <b>한국어</b> · <a href="README.fr-FR.md">Français</a> · <a href="README.es-ES.md">Español</a></p>
 
 <p align="center">
