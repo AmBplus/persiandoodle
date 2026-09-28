@@ -11,7 +11,8 @@
 //   node tools/music.mjs craft <piece> [more ...] [--json]  # how it is WRITTEN: melody, harmony, rhythm, tension, mood fit (no render, advisory; errors fail)
 //   node tools/music.mjs novelty <piece> [more ...]  # vs every shipped piece (and pairwise when several); FAILS above the threshold or on a reused fragment
 //   node tools/music.mjs list                       # shipped demos and fixtures
-//   node tools/music.mjs render <piece> <out.wav|out.mp3> [--seconds 45] [--flat] [--tempo 66] [--fit] [--loop] [--stems]
+//   node tools/music.mjs render <piece> <out.wav|out.mp3> [--seconds 45] [--flat] [--tempo 66] [--fit] [--loop] [--stems] [--verify]
+//     (--verify renders a second time, serially and without the voice cache, and reports whether it is bit-identical)
 //   node tools/music.mjs stems <piece> [--seconds 45] [--fit]   # each part's stem RMS vs its target, flags > 3 dB off
 //     (--fit uses fitScore: the piece's refit, e.g. a composed score repeats its stretch section so it still ends on its outro;
 //      --loop renders a seamless loop, automatic for a plan.loop piece. LUFS alone once hid a sub 7-10 dB too hot:
@@ -20,17 +21,78 @@
 //   node tools/music.mjs samples <outdir>          # the whole deliverable set + meters.json + .m4a
 //   node tools/music.mjs score <piece>                # the text score, bar by bar
 //   node tools/music.mjs probe                      # piano realism probes
+//   node tools/music.mjs calibrate [--voices]       # palette trims (vocabTrim.ts); --voices: alternates' trims and your own voices' levels (vocabVoices.ts)
+//   (check/render run voices on all but one core; ANIDOODLE_THREADS=1 renders serially, ANIDOODLE_TIMING=1 prints check's stage times)
 import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { writeFileSync, readFileSync, existsSync, mkdirSync, unlinkSync } from "node:fs";
 import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Worker } from "node:worker_threads";
+import { availableParallelism } from "node:os";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SR = 48000;
+let ENGINE_URL = "";
 const load = async () => {
   const r = await build({ entryPoints: [join(here, "../src/canvas-core/music/index.ts")], bundle: true, write: false, format: "esm", platform: "neutral", target: "es2022", logLevel: "error" });
-  return import("data:text/javascript;base64," + Buffer.from(r.outputFiles[0].text).toString("base64"));
+  ENGINE_URL = "data:text/javascript;base64," + Buffer.from(r.outputFiles[0].text).toString("base64");
+  return import(ENGINE_URL);
+};
+
+// ---------------------------------------------------------------- voices in parallel
+// Synthesis is most of a render, and each part's voice is a pure function of its inputs (render.ts
+// VoiceJob). check/render/stems list every voice job they will need (the mix at 48 kHz, each guard
+// role, the stems at 24 kHz), run the distinct ones on a worker pool, and render from that cache:
+// the same code on the same inputs, so the audio is bit-identical to a serial render
+// (tools/music-unit.mjs checks it). ANIDOODLE_THREADS=1 renders serially.
+const WORKER = `const { parentPort, workerData } = require("node:worker_threads");
+import(workerData).then((M) => {
+  parentPort.on("message", ({ id, job, task }) => {
+    if (job) { const o = M.runVoiceJob(job); parentPort.postMessage({ id, o }, [...new Set([o.L.buffer, o.R.buffer, o.halo && o.halo.buffer].filter(Boolean))]); return; }
+    const opts = { ...task.opts, cache: new Map(task.voices) };
+    parentPort.postMessage({ id, out: task.kind === "band" ? M.roleBandDb(task.piece, task.sr, opts, task.spans) : M.measureStems(task.piece, task.sr, opts) });
+  });
+  parentPort.postMessage({ ready: true });
+});`;
+const THREADS = () => Number(process.env.ANIDOODLE_THREADS) || Math.max(1, availableParallelism() - 1);
+/** Run messages on a pool of `threads` workers; resolves to their replies by id, in the order given. */
+const pool = (msgs, threads) => { const queue = msgs.slice(), out = new Map(); return Promise.all(Array.from({ length: Math.min(threads, msgs.length) }, () => new Promise((ok, fail) => {
+  const w = new Worker(WORKER, { eval: true, workerData: ENGINE_URL });
+  const next = () => { const x = queue.shift(); if (!x) { w.terminate(); ok(); return; } w.postMessage(x); };
+  w.on("message", (m) => { if (!m.ready) out.set(m.id, m); next(); }); w.on("error", fail);
+}))).then(() => out); };
+export const prewarm = async (M, cache, jobs) => {
+  const todo = new Map(); for (const j of jobs) { const k = M.voiceJobKey(j); if (!cache.has(k) && !todo.has(k)) todo.set(k, j); }
+  if (Math.min(todo.size, THREADS()) < 2) return; // the render synthesizes on demand
+  const queue = [...todo].sort((a, b) => b[1].n * b[1].keys.length - a[1].n * a[1].keys.length); // biggest first: the slowest voice starts at once
+  for (const [id, m] of await pool(queue.map(([id, job]) => ({ id, job })), THREADS())) cache.set(id, m.o);
+};
+/** What `check` renders besides the mix: the piece the mix plays (a loop's source), its performance, the mix's length, and the masking plan. */
+const checkPlan = (M, piece, tempo, seconds, loop = piece.plan.loop) => {
+  const src = loop ? M.loopSource(piece) : null, p = src ? src.p : piece, o = src ? src.opts : { seconds, tempo };
+  const perf = M.perform(p, o.tempo ?? p.plan.tempo, { expressive: true }), n = src ? Math.round(src.loopS * SR) : o.seconds ? Math.round(o.seconds * SR) : Math.ceil((perf.lastOnset + p.tail) * SR);
+  return { p, o, mask: M.maskingPlan(p, { seconds: n / SR, tempo: o.tempo, perf }) };
+};
+/** Every voice job `check` runs: the mix, each role the masking guard renders from the mix's performance, and the 24 kHz stems. */
+const checkJobs = (M, piece, tempo, seconds, { loop = piece.plan.loop, stems = true } = {}) => {
+  const { p, o, mask } = checkPlan(M, piece, tempo, seconds, loop);
+  return [...M.voiceJobs(p, SR, o), ...(mask ? mask.roles.flatMap((r) => M.voiceJobs(p, SR, mask.opts(r))) : []), ...(stems ? M.voiceJobs(piece, STEM_SR, { tempo, seconds }) : [])];
+};
+/** A piece or a performance as plain data for a worker (its functions stay behind: a refit, the tempo map). */
+const plain = (p) => { const { refit, shortForm, sec, ...rest } = p; void refit; void shortForm; void sec; return rest; };
+/**
+ * The guards' role renders and the stems, started on workers while the caller renders the mix: each
+ * gets the voices it needs from the cache (so nothing is synthesized twice) and returns numbers only.
+ * Resolves to { bands, stems } (either may be undefined: no melody, or stems not asked for).
+ */
+const startGuards = (M, cache, piece, tempo, seconds, { loop = piece.plan.loop, stems = true } = {}) => {
+  if (THREADS() < 2) return Promise.resolve({});
+  const { p, mask } = checkPlan(M, piece, tempo, seconds, loop), voices = (jobs) => jobs.map((j) => { const k = M.voiceJobKey(j); return [k, cache.get(k)]; }).filter(([, v]) => v);
+  const msgs = [];
+  if (mask) for (const r of mask.roles) { const { cache: _c, perf, ...opts } = mask.opts(r); msgs.push({ id: `band:${r}`, task: { kind: "band", piece: plain(p), sr: SR, spans: mask.spans, opts: { ...opts, perf: plain(perf) }, voices: voices(M.voiceJobs(p, SR, mask.opts(r))) } }); }
+  if (stems) msgs.push({ id: "stems", task: { kind: "stems", piece: plain(piece), sr: STEM_SR, opts: { tempo, seconds }, voices: voices(M.voiceJobs(piece, STEM_SR, { tempo, seconds })) } });
+  return pool(msgs, THREADS()).then((out) => ({ bands: mask ? Object.fromEntries(mask.roles.map((r) => [r, out.get(`band:${r}`).out])) : undefined, stems: out.get("stems")?.out }));
 };
 
 /** A piece by demo name, or from a module: "path.ts#export" (default export if no #). Material is composed. */
@@ -84,18 +146,20 @@ const onsetsFromData = (rendered) => {
   for (const t of ts) if (t - last > 0.03) { c++; last = t; } return c;
 };
 
-const renderOne = (M, spec) => {
+const renderOne = async (M, spec) => {
   let piece = spec.make ? spec.make() : (M.DEMOS[spec.piece] ?? M.FIXTURES[spec.piece])();
   let tempo = spec.tempo ?? piece.plan.tempo;
   let form;
   if (spec.fit) { const f = M.fitScore(piece, spec.seconds); piece = f.piece; tempo = f.tempo; form = `${f.form}: ${f.piece.plan.sections.map((x) => x.id).join(", ")}`; }
   const opts = { seconds: spec.seconds, tempo };
   if (spec.flat) Object.assign(opts, { expressive: false, piano: M.PIANO_FLAT, flatVelocity: 0.6 });
-  const loop = spec.loop || piece.plan.loop, go = () => (loop ? M.renderLoop(piece, SR) : M.renderPiece(piece, SR, opts));
-  const t0 = Date.now(), r = go(), ms = Date.now() - t0;
-  // determinism: a second render must be bit-identical
-  const r2 = go(); let same = true; for (let i = 0; i < r.L.length; i += 7) if (r.L[i] !== r2.L[i] || r.R[i] !== r2.R[i]) { same = false; break; }
-  return { r, piece, tempo, ms, deterministic: same, form };
+  const loop = spec.loop || piece.plan.loop, go = (cache) => (loop ? M.renderLoop(piece, SR, { cache, stems: true }) : M.renderPiece(piece, SR, { ...opts, cache, stems: true }));
+  const t0 = Date.now(), par = spec.cache && !spec.flat; if (par) await prewarm(M, spec.cache, checkJobs(M, piece, tempo, spec.seconds, { loop, stems: spec.stems }));
+  const guards = par ? startGuards(M, spec.cache, piece, tempo, spec.seconds, { loop, stems: spec.stems }) : Promise.resolve({}); // on workers while the mix renders here
+  const r = go(spec.cache), ms = Date.now() - t0;
+  // determinism (--verify): a second, fully serial render without any cache must be bit-identical
+  let same = null; if (spec.verify) { const r2 = go(undefined); same = r.L.length === r2.L.length && r.L.every((x, i) => x === r2.L[i]) && r.R.every((x, i) => x === r2.R[i]); }
+  return { r, piece, tempo, ms, deterministic: same, form, guards: await guards };
 };
 
 const voicing = (M, piece, tempo, seconds, flat) => {
@@ -118,7 +182,7 @@ const main = async () => {
   const flag = (k) => args.includes(k), val = (k, d) => { const i = args.indexOf(k); return i >= 0 ? Number(args[i + 1]) : d; };
   if (cmd === "list") { console.log("demos (listening references and the novelty corpus, never a film's score):\n  " + Object.keys(M.DEMOS).join("\n  ") + "\nfixtures (tests):\n  " + Object.keys(M.FIXTURES).join("\n  ")); return; }
   if (cmd === "vocab") { if (args[0] === "--md") vocabMarkdown(M); else printVocab(M, args[0]); return; }
-  if (cmd === "calibrate") { calibrate(M); return; }
+  if (cmd === "calibrate") { if (flag("--voices")) calibrateVoices(M); else calibrate(M); return; }
   if (cmd === "novelty") {
     const refs = args.filter((a) => !a.startsWith("--") && !/^[\d.]+$/.test(a)), pcs = [];
     for (const ref of refs) pcs.push(await getPiece(M, ref));
@@ -140,30 +204,36 @@ const main = async () => {
   if (cmd === "check") {
     const pc = await getPiece(M, args[0]); let piece = pc.make(), tempo = piece.plan.tempo, seconds = val("--seconds", undefined);
     if (flag("--fit")) { const f = M.fitScore(piece, seconds); piece = f.piece; tempo = f.tempo; }
-    const r = piece.plan.loop ? M.renderLoop(piece, SR) : M.renderPiece(piece, SR, { seconds, tempo });
-    const ok = [report(M, r, piece), printStems(M, piece, tempo, seconds)?.ok !== false];
-    { const cr = M.craftReport(piece, { centroidHz: M.centroid([r.L, r.R], SR).mean }); console.log(M.craftText(cr)); ok.push(!cr.findings.some((f) => f.level === "error")); }
+    const T = process.env.ANIDOODLE_TIMING ? (l) => console.error(`[timing] ${l} ${((Date.now() - T0) / 1000).toFixed(1)} s`) : () => {}, T0 = Date.now();
+    const cache = new Map(); await prewarm(M, cache, checkJobs(M, piece, tempo, seconds)); T("voices"); // every voice once, in parallel
+    const pending = startGuards(M, cache, piece, tempo, seconds).then((x) => { T("guard renders + stems"); return x; }); // the guards' role renders and the stems, on workers meanwhile
+    const r = piece.plan.loop ? M.renderLoop(piece, SR, { cache, stems: true }) : M.renderPiece(piece, SR, { seconds, tempo, cache, stems: true }); T("mix"); const g = await pending; // stems: the peak note names the parts that pile up
+    const ok = [report(M, r, piece, cache, g.bands), printStems(M, piece, tempo, seconds, cache, g.stems)?.ok !== false];
+    T("report + stems"); { const cr = M.craftReport(piece, { centroidHz: M.centroid([r.L, r.R], SR).mean }); console.log(M.craftText(cr)); ok.push(!cr.findings.some((f) => f.level === "error")); } T("craft");
     if (!pc.demo) { const fam = [args[0]]; ok.push(printNovelty(M, args[0], M.novelty(piece, M.DEMOS, fam), "shipped pieces")); }
     console.log(ok.every(Boolean) ? "CHECK PASS: now a human listens (an mp3 or wav on a page)" : "CHECK FAIL: fix the items above, then run check again");
     if (!ok.every(Boolean)) process.exitCode = 1; return;
   }
   if (cmd === "render") {
-    const [name, out] = args, pc = await getPiece(M, name); const { r, tempo, ms, deterministic, piece } = renderOne(M, { make: pc.make, seconds: val("--seconds", undefined), tempo: val("--tempo", undefined), flat: flag("--flat"), fit: flag("--fit") });
-    const mp3 = out.endsWith(".mp3"), wav = mp3 ? out.replace(/\.mp3$/, ".wav") : out;
+    const [name, out] = args, pc = await getPiece(M, name), cache = new Map();
+    const { r, tempo, ms, deterministic, piece, guards } = await renderOne(M, { make: pc.make, seconds: val("--seconds", undefined), tempo: val("--tempo", undefined), flat: flag("--flat"), fit: flag("--fit"), loop: flag("--loop"), cache, verify: flag("--verify"), stems: flag("--stems") });
+    // an mp3 is encoded from a private intermediate next to it (never x.wav: rendering x.mp3 must not touch an x.wav you already have)
+    const mp3 = out.endsWith(".mp3"), wav = mp3 ? join(dirname(resolve(out)), `.${basename(out)}.${process.pid}.tmp.wav`) : out;
     if (mp3 && (piece.plan.loop || flag("--loop"))) console.log("NOTE: mp3 is not gapless (encoder padding clicks at the loop point). Ship loops as .wav (or ogg/m4a with gapless metadata).");
     writeWavFloat(wav, r.L, r.R);
-    if (mp3) { execFileSync("ffmpeg", ["-v", "error", "-y", "-i", wav, "-c:a", "libmp3lame", "-b:a", "256k", out]); unlinkSync(wav); }
+    if (mp3) { try { execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "wav", "-i", wav, "-c:a", "libmp3lame", "-b:a", "256k", out]); } finally { if (existsSync(wav)) unlinkSync(wav); } }
     const m = M.measure(decode(out), SR);
     console.log(JSON.stringify({ file: out, tempo, renderMs: ms, deterministic, gainDb: r.gainDb, loopS: r.loopS, ...m, shortTerm: undefined }, null, 1));
-    let good = report(M, r, piece);
-    if (flag("--stems")) good = printStems(M, piece, tempo, val("--seconds", undefined)).ok && good;
+    let good = report(M, r, piece, cache, guards.bands);
+    if (flag("--stems")) good = printStems(M, piece, tempo, val("--seconds", undefined), cache, guards.stems).ok && good;
     if (!good) process.exitCode = 1;
     return;
   }
   if (cmd === "stems") {
     const [name] = args; let piece = (await getPiece(M, name)).make(), tempo = piece.plan.tempo, seconds = val("--seconds", undefined);
     if (flag("--fit")) { const f = M.fitScore(piece, seconds); piece = f.piece; tempo = f.tempo; }
-    printStems(M, piece, tempo, seconds); return;
+    const cache = new Map(); await prewarm(M, cache, M.voiceJobs(piece, STEM_SR, { tempo, seconds }));
+    printStems(M, piece, tempo, seconds, cache); return;
   }
   if (cmd === "meter") { for (const f of args) { const m = M.measure(decode(f), SR), ff = ffmpegEbu(f); console.log(basename(f), `LUFS ${fmt(m.lufs)} (ffmpeg ${fmt(ff.I)}) LRA ${fmt(m.lra)} (ffmpeg ${fmt(ff.LRA)}) TP ${fmt(m.dbtp)} dBTP (ffmpeg ${fmt(ff.TP)}) onsets/s ${fmt(m.onsetsPerS, 2)} centroid ${fmt(m.centroidHz, 0)} Hz (energy-wtd ${fmt(m.centroidEnergyHz, 0)}) dur ${fmt(m.durationS, 2)} lastOnset ${fmt(m.lastOnsetS, 2)}`); } return; }
   if (cmd === "score") { console.log(M.scoreText((await getPiece(M, args[0])).make())); return; }
@@ -194,8 +264,8 @@ const main = async () => {
     mkdirSync(join(dir, "fixtures"), { recursive: true });
     const results = [];
     for (const s of set) {
-      const { r, piece, tempo, ms, deterministic, form } = renderOne(M, s);
-      const g = M.guardReport(r, SR, s.seconds, { masking: !s.noMasking });
+      const cache = new Map(), { r, piece, tempo, ms, deterministic, form } = await renderOne(M, { ...s, verify: true, cache, stems: false });
+      const g = M.guardReport(r, SR, s.seconds, { masking: !s.noMasking, cache });
       const wav = join(dir, s.file + ".wav"); writeWavFloat(wav, r.L, r.R);
       execFileSync("ffmpeg", ["-v", "error", "-y", "-i", wav, "-c:a", "aac", "-b:a", "192k", join(dir, s.file + ".m4a")]);
       const m = M.measure(decode(wav), SR), ff = ffmpegEbu(wav), mm = M.measure(decode(join(dir, s.file + ".m4a")), SR);
@@ -238,15 +308,66 @@ const calibrate = (M) => {
   console.log(`wrote ${file}`);
 };
 
+/**
+ * Alternates and your own voices, on the same scale as the palette (src/canvas-core/music/vocabVoices.ts):
+ * each alternate's trim to its slot's stem target (the style's number plus its fix) on the style's
+ * test signal, two passes (drive and amps are not linear), capped at +-30 dB; and each instrument's
+ * stem level at gainDb 0 on each slot's test line (cinematic test signal with the counter line an octave down;
+ * drums on the lo-fi electronic kit; default options), from which
+ * compose places a composer's own voice at the slot's target.
+ */
+const calibrateVoices = (M) => {
+  const stem = (p, slot) => { const r = M.renderPiece(p, STEM_SR, { stems: true, master: "none", only: (pt) => pt.id === slot }), x = r.stems[slot]; return x ? M.stemRms(x[0], x[1], STEM_SR) : -Infinity; };
+  const alt = {}, altFix = {}; for (const T of [M.VOCAB_ALT_TRIM, M.VOCAB_ALT_TARGET_FIX, M.INST_LEVEL, M.INST_REGISTER, M.SLOT_REF_PITCH]) for (const k of Object.keys(T)) delete T[k];
+  for (const v of Object.values(M.VOCAB)) { alt[v.id] = {};
+    for (const [slot, alts] of Object.entries(v.alternates)) for (const name of Object.keys(alts)) {
+      let trim = 0; (M.VOCAB_ALT_TRIM[v.id] ??= {})[slot] ??= {};
+      for (let pass = 0; pass < 2; pass++) {
+        M.VOCAB_ALT_TRIM[v.id][slot][name] = trim;
+        const p = M.composePiece({ ...M.testMaterial(v, { bars: 4, lines: slot === "counter" || slot === "arp" ? [slot] : [] }), voices: { [slot]: name } }), t = p.stemTargets[slot], rms = stem(p, slot);
+        if (t === undefined || !Number.isFinite(rms)) break;
+        trim = +Math.max(-30, Math.min(30, trim + t - rms)).toFixed(1);
+      }
+      (alt[v.id][slot] ??= {})[name] = trim;
+      // where a 30 dB trim cannot reach the target (a piano's top octave on a counter target set for a harp), the target moves to where the voice sits, as for the palette
+      const p = M.composePiece({ ...M.testMaterial(v, { bars: 4, lines: slot === "counter" || slot === "arp" ? [slot] : [] }), voices: { [slot]: name } }), off = p.stemTargets[slot] === undefined ? 0 : stem(p, slot) - p.stemTargets[slot];
+      if (Math.abs(off) > 1) ((altFix[v.id] ??= {})[slot] ??= {})[name] = +off.toFixed(1);
+      console.log(`${v.id.padEnd(14)} ${slot.padEnd(8)} ${name.padEnd(10)} ${trim >= 0 ? "+" : ""}${trim}${Math.abs(off) > 1 ? `  (target moved ${off.toFixed(1)})` : ""}`);
+    } }
+  const inst = {}, reg = {}, refPitch = {};
+  const DRUM = ["kick", "snare", "hat", "noiseDrum", "timpani"], ALL = ["piano", "musicBox", "bell", "celesta", "marimba", "vibes", "harp", "guitar", "strings", "fmBell", "ePiano", "pulse", "triangle", "noiseDrum", "kick", "snare", "hat", "bass", "warmPad", "softPluck", "sub", "organ", "brass", "woodwind", "choir", "timpani", "leadSynth", "bowedSolo", "glockenspiel", "wurlitzer", "pipeOrgan"];
+  const role = { chords: "accomp", arp: "accomp", lead: "melody", counter: "color", bass: "bass", kick: "drum", snare: "drum", hat: "drum" };
+  // pitched voices on the cinematic test signal, the counter line an octave lower than the palette's (octaves 5-6: where a composer's
+  // own counter line usually sits; the register moves some instruments' level by 8 dB); drums on the lo-fi electronic kit's groove
+  const ref = M.testMaterial(M.VOCAB.cinematic, { bars: 4, lines: ["counter", "arp"] }), kit = M.testMaterial(M.VOCAB.lofiElectronic, { bars: 4 });
+  const lower = { ...ref, sections: ref.sections.map((x) => ({ ...x, counter: x.counter.map((b) => b.replace(/([A-G][#b]?)(\d)/g, (_, n, o) => `${n}${+o - 1}`)) })) };
+  const median = (ns) => { const ps = ns.map((n) => n.p).sort((a, b) => a - b); return ps[Math.floor(ps.length / 2)]; };
+  for (const slot of ["chords", "lead", "counter", "bass", "arp"]) refPitch[slot] = median(M.composePiece(lower).parts.find((x) => x.id === slot).notes);
+  // the register curve: the lead line moved by whole octaves (level at each median pitch), so your own voice is placed for the register it plays in
+  const moved = (k) => ({ ...lower, sections: lower.sections.map((x) => ({ ...x, lead: x.lead.map((b) => b.replace(/([A-G][#b]?)(\d)/g, (_, n, o) => `${n}${+o + k}`)) })) });
+  for (const i of ALL) { inst[i] = {};
+    for (const slot of DRUM.includes(i) ? ["kick", "snare", "hat"] : ["chords", "lead", "counter", "bass", "arp"]) {
+      const p = M.composePiece({ ...(DRUM.includes(i) ? kit : lower), voices: { [slot]: { inst: i, role: role[slot], gainDb: 0 } } }), rms = stem(p, slot);
+      if (Number.isFinite(rms)) inst[i][slot] = +rms.toFixed(1);
+    }
+    if (!DRUM.includes(i)) { reg[i] = []; for (const k of [-3, -2, -1, 0, 1, 2]) { const p = M.composePiece({ ...moved(k), voices: { lead: { inst: i, role: "melody", gainDb: 0 } } }), rms = stem(p, "lead");
+      if (Number.isFinite(rms)) reg[i].push([refPitch.lead + 12 * k, +(rms - inst[i].lead).toFixed(1)]); } }
+    console.log(`${i.padEnd(13)} ${Object.entries(inst[i]).map(([k, x]) => `${k} ${x}`).join("  ")}${reg[i] ? `  | register ${reg[i].map(([p, d]) => `${M.nameOf(p)} ${d >= 0 ? "+" : ""}${d}`).join(" ")}` : ""}`); }
+  const file = join(here, "../src/canvas-core/music/vocabVoices.ts"), head = readFileSync(file, "utf8").split("export const VOCAB_ALT_TRIM")[0], j = (x) => JSON.stringify(x, null, 1).replace(/"(\w+)":/g, "$1:");
+  writeFileSync(file, `${head}export const VOCAB_ALT_TRIM: Record<string, Partial<Record<Slot, Record<string, number>>>> = ${j(alt)};\nexport const VOCAB_ALT_TARGET_FIX: Record<string, Partial<Record<Slot, Record<string, number>>>> = ${j(altFix)};\nexport const INST_LEVEL: Record<string, Partial<Record<Slot, number>>> = ${j(inst)};\nexport const INST_REGISTER: Record<string, [number, number][]> = ${JSON.stringify(reg)};\nexport const SLOT_REF_PITCH: Partial<Record<Slot, number>> = ${j(refPitch)};\n`);
+  console.log(`wrote ${file}`);
+};
+
 const printVocab = (M, id) => {
   if (!id) { for (const v of Object.values(M.VOCAB)) console.log(`${v.id.padEnd(15)} ${v.name}: ${v.atmosphere}\n${"".padEnd(16)}grooves: ${v.grooves.join(", ") || "none (no drums)"} | moods: ${v.moods.join(", ")} | ${v.tempo.join("-")} bpm ${v.meters.join(" ")}`);
     console.log("\ngroove families:"); for (const [k, d] of Object.entries(M.GROOVE_FAMILIES)) console.log(`  ${k.padEnd(10)} ${d}`);
     console.log("\nsection kinds:"); for (const [k, d] of Object.entries(M.KINDS)) console.log(`  ${k.padEnd(10)} ${d.what}`); return; }
   const v = M.VOCAB[id]; if (!v) throw new Error(`no style "${id}" (have: ${Object.keys(M.VOCAB).join(", ")})`);
   console.log(`${v.name} (${v.id}): ${v.atmosphere}\ntempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(" ")}, swing ${v.swing.join("-")}, moods ${v.moods.join(", ")}`);
-  const eff = (slot, x) => +(x.gainDb + (M.VOCAB_TRIM[v.id]?.[slot] ?? 0)).toFixed(1), tgt = (slot) => (v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1));
-  console.log("palette (slot: instrument, gain dB, stem target dB):"); for (const [slot, x] of Object.entries(v.palette)) console.log(`  ${slot.padEnd(8)} ${x.inst.padEnd(10)} ${String(eff(slot, x)).padStart(5)}  ${tgt(slot)} dB${Object.keys(v.alternates[slot] ?? {}).length ? `   alternates: ${Object.entries(v.alternates[slot]).map(([n, a]) => `${n} (${a.inst}, ${a.gainDb} dB)`).join(", ")}` : ""}`);
-  for (const [slot, alts] of Object.entries(v.alternates)) if (!v.palette[slot]) console.log(`  ${slot.padEnd(8)} (no default) alternates: ${Object.entries(alts).map(([n, a]) => `${n} (${a.inst}, ${a.gainDb} dB)`).join(", ")}`);
+  const tgt = (slot) => (v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1));
+  console.log("palette (slot: instrument, stem target dB). Every voice, alternate or your own, is calibrated to its slot's target:\n  levels.<slot> and your own voice's gainDb are dB offsets from there (0 = at the target)");
+  for (const [slot, x] of Object.entries(v.palette)) console.log(`  ${slot.padEnd(8)} ${x.inst.padEnd(10)} ${String(tgt(slot)).padStart(6)} dB${Object.keys(v.alternates[slot] ?? {}).length ? `   alternates: ${Object.entries(v.alternates[slot]).map(([n, a]) => `${n} (${a.inst})`).join(", ")}` : ""}`);
+  for (const [slot, alts] of Object.entries(v.alternates)) if (!v.palette[slot]) console.log(`  ${slot.padEnd(8)} (no default) alternates: ${Object.entries(alts).map(([n, a]) => `${n} (${a.inst})`).join(", ")}`);
   console.log(`stem targets ${v.calibrated ? "calibrated on a listened score" : "are starting numbers (uncalibrated: flags are advisory until a human listens)"}`);
   console.log(`grooves: ${v.grooves.map((g) => `${g} (${M.GROOVE_FAMILIES[g]})`).join("\n         ") || "none"}`);
   for (const [k, x] of Object.entries(v.harmony)) console.log(`harmony.${k}: ${Array.isArray(x) ? x.join(", ") : x}`);
@@ -259,6 +380,7 @@ const printVocab = (M, id) => {
 /** references/music/styles/vocabularies.md, generated from the data so the page never drifts from the code. */
 const vocabMarkdown = (M) => {
   const o = ["# Style vocabularies", "", "> GENERATED by `node tools/music.mjs vocab --md` from `engine/src/canvas-core/music/vocab.ts` and `vocabMore.ts`. Do not edit by hand.", "> A style is a vocabulary: sound, grooves, harmony language, melody rules, arrangement grammar. It never", "> contains notes. You compose the notes ([../compose.md](../compose.md)).", "",
+    "**Levels are one scale.** Every voice in a slot, the palette's, an alternate or your own, is calibrated to the slot's stem target (the \"Stem target dB\" column: the level the stem meter reads when the part plays). Everything you set is a dB offset from there: `levels: { lead: 2 }` is two dB over the target, and your own voice's `gainDb` works the same way (`voices: { counter: { inst: \"strings\", role: \"color\" } }` sits at the counter target; `gainDb: -3` sits 3 dB under it). Engine gains (`Voice.gainDb` inside vocab.ts) are internal and never on this scale.", "",
     "| Style | Atmosphere | Tempo, meters | Moods | Grooves |", "|---|---|---|---|---|"];
   for (const v of Object.values(M.VOCAB)) o.push(`| \`${v.id}\` | ${v.atmosphere} | ${v.tempo.join("-")} bpm; ${v.meters.join(", ")} | ${v.moods.join(", ")} | ${v.grooves.join(", ") || "none (no drums)"} |`);
   o.push("", "## Groove families", "", "Pick a family and its knobs (`density`, `variation`, `fill`, `accent`); the seed varies every bar. Or write the drum bars yourself.", "");
@@ -266,8 +388,10 @@ const vocabMarkdown = (M) => {
   o.push("", "## Section kinds (the arrangement grammar)", "", "A kind decides which layers may sound; your lines sound only where you write them.", "");
   for (const [k, d] of Object.entries(M.KINDS)) o.push(`- \`${k}\` (drums: ${d.drums ?? "none"}, bass: ${d.bass ? "yes" : "no"}): ${d.what}`);
   for (const v of Object.values(M.VOCAB)) {
-    o.push("", `## \`${v.id}\`: ${v.name}`, "", `${v.atmosphere}. Tempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(", ")}, swing ${v.swing.join("-")}.`, "", "| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |", "|---|---|---|---|---|");
-    for (const [slot, x] of Object.entries(v.palette)) o.push(`| ${slot} | \`${x.inst}\` | ${+(x.gainDb + (M.VOCAB_TRIM[v.id]?.[slot] ?? 0)).toFixed(1)} | ${v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1)} | ${Object.entries(v.alternates[slot] ?? {}).map(([n, a]) => `${n} (\`${a.inst}\`, ${a.gainDb} dB)`).join(", ") || "-"} |`);
+    o.push("", `## \`${v.id}\`: ${v.name}`, "", `${v.atmosphere}. Tempo ${v.tempo.join("-")} bpm, meters ${v.meters.join(", ")}, swing ${v.swing.join("-")}.`, "", "| Slot | Voice | Stem target dB | Alternates (name, voice) |", "|---|---|---|---|");
+    const alts = (slot) => Object.entries(v.alternates[slot] ?? {}).map(([n, a]) => `${n} (\`${a.inst}\`)`).join(", ") || "-", tg = (slot) => (v.stemTargets[slot] === undefined ? "-" : +(v.stemTargets[slot] + (M.VOCAB_TARGET_FIX[v.id]?.[slot] ?? 0)).toFixed(1));
+    for (const [slot, x] of Object.entries(v.palette)) o.push(`| ${slot} | \`${x.inst}\` | ${tg(slot)} | ${alts(slot)} |`);
+    for (const slot of Object.keys(v.alternates)) if (!v.palette[slot]) o.push(`| ${slot} | (none) | ${tg(slot)} | ${alts(slot)} |`);
     o.push("", `Stem targets: ${v.calibrated ? "calibrated on a listened score." : "starting numbers from a neutral test signal (advisory until a human listens)."}`, "");
     o.push(`- **Harmony language.** Modes: ${v.harmony.modes.join(", ")}. Qualities: ${v.harmony.qualities}. Tendencies: ${v.harmony.tendencies}. Harmonic rhythm: ${v.harmony.rhythm}. Voicing: ${v.harmony.voicing}. Tension and release: ${v.harmony.tension}.`);
     o.push(`- **Melody.** Range ${v.melody.range}. Contour: ${v.melody.contour}. Density: ${v.melody.density}. Motif: ${v.melody.motif}.`);
@@ -278,14 +402,15 @@ const vocabMarkdown = (M) => {
 };
 
 /** Key/mode problems, composer warnings, the master (did the peak cap stop it short?), and the guards. Returns pass. */
-const report = (M, r, piece) => {
+const report = (M, r, piece, cache, bands) => {
   let ok = true; const probs = M.planProblems(piece), warn = piece.warnings ?? [];
   for (const p of probs) console.log(`PROBLEM  ${p}`); ok = ok && !probs.length;
   for (const w of warn) console.log(`WARNING  ${w}`);
   const lu = M.loudness([r.L, r.R], SR).integrated, tp = M.truePeak([r.L, r.R]).dbtp, target = r.masterMode === "dense" ? -14 : r.masterMode === "gentle" ? -16 : NaN;
   console.log(`master   ${r.masterMode}: ${fmt(lu)} LUFS (target ${fmt(target)}), true peak ${fmt(tp, 2)} dBTP`);
-  if (lu < target - 0.5) console.log(`NOTE     the master stopped ${fmt(target - lu)} dB short of its target: the true-peak ceiling (-1 dBTP) capped the gain. Peaks are a composing problem: stagger the bass under the loudest downbeat, roll the big chord, don't double the climax note, soften the one loudest hit.`);
-  const g = M.guardReport(r, SR, r.L.length / SR);
+  if (lu < target - 0.5) { const pk = M.peakReport(r, SR), who = pk.parts.map((x, i) => `${x.id}${x.notes.length ? ` ${x.notes.join(" ")}` : ""} (${i ? `${fmt(x.db - pk.parts[0].db)} dB` : "loudest"})`).join(", ");
+    console.log(`NOTE     the master stopped ${fmt(target - lu)} dB short of its target: the true-peak ceiling (-1 dBTP) capped the gain. The peak is at bar ${pk.bar} beat ${pk.beat} (${fmt(pk.sec, 2)} s)${who ? `, where ${who} pile up` : ""}. Peaks are a composing problem: stagger the bass under that downbeat, roll the big chord, don't double the climax note, soften the one loudest hit.`); }
+  const g = M.guardReport(r, SR, r.L.length / SR, { cache, bands });
   console.log(`guards   ghost ${g.ghost.pass ? "PASS" : "FAIL"} (${g.ghost.failures}/${g.ghost.windows} windows formless) | reverb ${g.reverb.pass ? "PASS" : "FAIL"} (worst tail ${fmt(g.reverb.worstDb)} dB vs dry) | masking ${g.masking ? `${g.masking.pass ? "PASS" : "FAIL"} (melody clear in ${Math.round(g.masking.shareOfBarsClear * 100)} % of bars, worst ${fmt(g.masking.worstMarginDb)} dB)` : "n/a (no melody)"}`);
   if (g.masking && !g.masking.pass) console.log(`FIX      masking: the melody must beat every other part in 500 Hz-4 kHz by 3 dB in 80 % of its bars. Guards win over stem targets: raise the lead (levels.lead, up to +${M.LEAD_HEADROOM_DB} dB over its target is allowed), thin or lower what sits in its register, or move it.`);
   if (!g.ghost.pass) console.log("FIX      ghost: sustained sound with too few onsets and no cadence. Add a rhythmic layer or motif, shorten tails, cadence.");
@@ -293,17 +418,19 @@ const report = (M, r, piece) => {
   return ok && g.ghost.pass && g.reverb.pass && (!g.masking || g.masking.pass);
 };
 const printNovelty = (M, name, v, what) => {
-  console.log(`novelty: ${name} vs ${v.rows.length} ${what} (fail above ${v.threshold}, or on any reused 6-note melody fragment)`);
-  for (const r of v.rows.slice(0, 5)) console.log(`  ${r.name.padEnd(22)} ${r.score.toFixed(3)}  ${r.reusedFragments ? `REUSED ${r.reusedFragments} fragment(s)  ` : ""}${Object.entries(r.by).map(([k, x]) => `${k} ${x}`).join(" ")}`);
-  console.log(v.pass ? "novelty PASS" : `novelty FAIL: too close to ${v.worst.name}. Change what the numbers point at (the lead's rhythm, the contour, the groove, the chord colours, the form), not just the key.`);
+  console.log(`novelty: ${name} vs ${v.rows.length} ${what} (fail above ${v.threshold}, on any reused 6-note melody fragment, or on an 8-note melody shape quoted in any key, meter or rhythm)`);
+  const shown = [...v.rows.slice(0, 5), ...v.rows.slice(5).filter((r) => r.reusedFragments || r.quotedShapes)];
+  for (const r of shown) console.log(`  ${r.name.padEnd(22)} ${r.score.toFixed(3)}  ${r.reusedFragments ? `REUSED ${r.reusedFragments} fragment(s)  ` : ""}${r.quotedShapes ? `QUOTED ${r.quotedShapes} melody shape(s)  ` : ""}${Object.entries(r.by).map(([k, x]) => `${k} ${x}`).join(" ")}`);
+  const q = v.rows.find((r) => r.quotedShapes || r.reusedFragments);
+  console.log(v.pass ? "novelty PASS" : q && q.score <= v.threshold ? `novelty FAIL: the melody quotes ${q.name} (the same intervals in a row, whatever the key, meter or rhythm). Write your own line.` : `novelty FAIL: too close to ${v.worst.name}. Change what the numbers point at (the lead's rhythm, the contour, the groove, the chord colours, the form), not just the key.`);
   console.log("  (idioms are fine: a ii-V-I, a plagal cadence, a two-chord vamp are vocabulary. What fails is the same music: a multi-bar progression WITH its rhythm, groove, contour and form, or a quoted melody.)");
   return v.pass;
 };
 
 /** Stem balance: each part's unmastered stem level (mid, gated 20 ms blocks: meter.stemRms) vs piece.stemTargets. Measured at 24 kHz, as the targets were. */
 const STEM_SR = 24000;
-const printStems = (M, piece, tempo, seconds) => {
-  const b = M.measureStems(piece, STEM_SR, { tempo, seconds });
+const printStems = (M, piece, tempo, seconds, cache, measured) => {
+  const b = measured ?? M.measureStems(piece, STEM_SR, { tempo, seconds, cache });
   console.log(`stem balance: ${piece.title} (unmastered stem RMS of the mid over the blocks where it plays, vs target, +-${b.tolDb} dB; the lead may sit up to +${b.headroom.lead ?? 0} dB more for the masking guard; targets already include your mood controls' shifts)`);
   for (const r of b.rows) console.log(`  ${r.id.padEnd(9)} ${fmt(r.rmsDb).padStart(6)} dB  ${r.targetDb === null ? "(no target)" : `target ${fmt(r.targetDb).padStart(6)}  off ${(r.offDb >= 0 ? "+" : "") + fmt(r.offDb)}  ${r.ok ? "ok" : `FLAG: ${r.offDb > 0 ? "too hot" : "too quiet"}`}`}`);
   if (!Object.keys(piece.stemTargets ?? {}).length) console.log("  (this piece declares no stemTargets)");

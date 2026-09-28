@@ -4,6 +4,8 @@
 > A style is a vocabulary: sound, grooves, harmony language, melody rules, arrangement grammar. It never
 > contains notes. You compose the notes ([../compose.md](../compose.md)).
 
+**Levels are one scale.** Every voice in a slot, the palette's, an alternate or your own, is calibrated to the slot's stem target (the "Stem target dB" column: the level the stem meter reads when the part plays). Everything you set is a dB offset from there: `levels: { lead: 2 }` is two dB over the target, and your own voice's `gainDb` works the same way (`voices: { counter: { inst: "strings", role: "color" } }` sits at the counter target; `gainDb: -3` sits 3 dB under it). Engine gains (`Voice.gainDb` inside vocab.ts) are internal and never on this scale.
+
 | Style | Atmosphere | Tempo, meters | Moods | Grooves |
 |---|---|---|---|---|
 | `lofiElectronic` | warm, chill but upbeat, clean: a breathing pad, a plucked hook through ping-pong echoes, a round sub, a bouncy kit | 80-100 bpm; 4/4 | calm, joy, hopeful, nostalgic, wistful, curious | bounce, halfTime, broken, skip, pulse, build |
@@ -69,18 +71,18 @@ A kind decides which layers may sound; your lines sound only where you write the
 
 warm, chill but upbeat, clean: a breathing pad, a plucked hook through ping-pong echoes, a round sub, a bouncy kit. Tempo 80-100 bpm, meters 4/4, swing 0.52-0.56.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `warmPad` | -0.6 | -22 | strings (`strings`, -6 dB), piano (`piano`, -4 dB) |
-| lead | `softPluck` | 4.9 | -15.5 | bell (`fmBell`, 0 dB), mallet (`marimba`, 2 dB), guitar (`guitar`, 2 dB) |
-| counter | `softPluck` | 13.5 | -20 | - |
-| bass | `sub` | -5.6 | -18.5 | warm (`bass`, -2 dB) |
-| kick | `kick` | -2.6 | -14.5 | - |
-| snare | `snare` | 6.4 | -19 | - |
-| ghost | `snare` | 4 | - | - |
-| hat | `hat` | 19.5 | -24.5 | - |
-| arp | `softPluck` | 4 | - | - |
-| perc | `hat` | 14 | - | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `warmPad` | -22 | strings (`strings`), piano (`piano`) |
+| lead | `softPluck` | -15.5 | bell (`fmBell`), mallet (`marimba`), guitar (`guitar`) |
+| counter | `softPluck` | -20 | - |
+| bass | `sub` | -18.5 | warm (`bass`) |
+| kick | `kick` | -14.5 | - |
+| snare | `snare` | -19 | - |
+| ghost | `snare` | - | - |
+| hat | `hat` | -24.5 | - |
+| arp | `softPluck` | - | - |
+| perc | `hat` | - | - |
 
 Stem targets: calibrated on a listened score.
 
@@ -93,18 +95,18 @@ Stem targets: calibrated on a listened score.
 
 forward, bright, confident: four-on-the-floor, a pumping supersaw bed, a gritty bass line, a plucked arp. Tempo 110-140 bpm, meters 4/4, swing 0.5-0.52.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `strings` | -1.3 | -23 | - |
-| lead | `strings` | 8.7 | -16 | pluck (`softPluck`, 5 dB) |
-| counter | `fmBell` | 10.8 | -19.5 | - |
-| bass | `bass` | 0 | -16 | sub (`sub`, -5 dB) |
-| kick | `kick` | 1 | -12.5 | - |
-| snare | `snare` | 8.5 | -17 | - |
-| ghost | `snare` | -2 | - | - |
-| hat | `hat` | 12 | -26 | - |
-| arp | `softPluck` | 4.8 | -20.5 | - |
-| perc | `hat` | 15.5 | -26 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `strings` | -23 | - |
+| lead | `strings` | -16 | pluck (`softPluck`) |
+| counter | `fmBell` | -19.5 | - |
+| bass | `bass` | -16 | sub (`sub`) |
+| kick | `kick` | -12.5 | - |
+| snare | `snare` | -17 | - |
+| ghost | `snare` | - | - |
+| hat | `hat` | -26 | - |
+| arp | `softPluck` | -20.5 | - |
+| perc | `hat` | -26 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -117,18 +119,18 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 wide and emotional: string swells, low ostinatos for tension, harp and bell colour, a low boom on the arrival. Tempo 60-120 bpm, meters 4/4, 3/4, 6/8, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `strings` | 2.1 | -18.5 | - |
-| lead | `strings` | 6.9 | -17 | piano (`piano`, 0 dB), bell (`fmBell`, -4 dB), celesta (`celesta`, 0 dB) |
-| counter | `harp` | 18 | -16.4 | piano (`piano`, -3 dB) |
-| bass | `strings` | -0.6 | -19.5 | - |
-| arp | `strings` | 4.5 | -21.5 | - |
-| kick | `kick` | 0.2 | -16.5 | - |
-| snare | `snare` | -2 | -24 | - |
-| ghost | `snare` | -4 | - | - |
-| hat | `hat` | 6 | -32 | - |
-| perc | `fmBell` | -8 | - | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `strings` | -18.5 | - |
+| lead | `strings` | -17 | piano (`piano`), bell (`fmBell`), celesta (`celesta`) |
+| counter | `harp` | -16.4 | piano (`piano`) |
+| bass | `strings` | -19.5 | - |
+| arp | `strings` | -21.5 | - |
+| kick | `kick` | -16.5 | - |
+| snare | `snare` | -24 | - |
+| ghost | `snare` | - | - |
+| hat | `hat` | -32 | - |
+| perc | `fmBell` | - | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -141,17 +143,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 floating, spacious, luminous: long pads, bells and plucks with space around them, a soft heartbeat at most. Tempo 50-80 bpm, meters 4/4, 3/4, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `warmPad` | 1.5 | -20 | - |
-| lead | `fmBell` | 1.6 | -17.5 | pluck (`softPluck`, 5 dB), vibes (`vibes`, 0 dB) |
-| counter | `softPluck` | 7.2 | -26.5 | - |
-| bass | `sub` | -8.3 | -22 | - |
-| arp | `celesta` | -2.4 | -23.5 | - |
-| kick | `kick` | -7 | -20.5 | - |
-| ghost | `snare` | -6 | - | - |
-| hat | `hat` | 6 | -32 | - |
-| perc | `hat` | 4 | - | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `warmPad` | -20 | - |
+| lead | `fmBell` | -17.5 | pluck (`softPluck`), vibes (`vibes`) |
+| counter | `softPluck` | -26.5 | - |
+| bass | `sub` | -22 | - |
+| arp | `celesta` | -23.5 | - |
+| kick | `kick` | -20.5 | - |
+| ghost | `snare` | - | - |
+| hat | `hat` | -32 | - |
+| perc | `hat` | - | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -164,18 +166,18 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 intimate and warm: fingerpicked guitar, soft piano, a harp or celesta line, brushes. Tempo 60-110 bpm, meters 6/8, 3/4, 4/4, swing 0.5-0.54.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `piano` | 13 | -26 | strings (`strings`, -8 dB) |
-| arp | `guitar` | 12.5 | -20.5 | - |
-| lead | `harp` | 16.7 | -13 | piano (`piano`, 0 dB), guitar (`guitar`, 2 dB), strings (`strings`, -2 dB) |
-| counter | `celesta` | 9.7 | -19.5 | - |
-| bass | `bass` | -7.2 | -21 | - |
-| kick | `kick` | -4.5 | -20.5 | - |
-| snare | `snare` | -6 | -26 | - |
-| ghost | `snare` | 2.3 | -24.5 | - |
-| hat | `hat` | 2 | -30 | - |
-| perc | `hat` | 19.4 | -30 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `piano` | -26 | strings (`strings`) |
+| arp | `guitar` | -20.5 | - |
+| lead | `harp` | -13 | piano (`piano`), guitar (`guitar`), strings (`strings`) |
+| counter | `celesta` | -19.5 | - |
+| bass | `bass` | -21 | - |
+| kick | `kick` | -20.5 | - |
+| snare | `snare` | -26 | - |
+| ghost | `snare` | -24.5 | - |
+| hat | `hat` | -30 | - |
+| perc | `hat` | -30 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -188,18 +190,18 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 light, cheeky, springy: marimba and pizzicato-like plucks, a bouncy bass, a skipping kit. Tempo 100-150 bpm, meters 4/4, 6/8, swing 0.5-0.6.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| lead | `marimba` | 6 | -13 | chip (`pulse`, -4 dB), pluck (`softPluck`, 5 dB), bell (`fmBell`, -2 dB) |
-| chords | `vibes` | -2.2 | -21 | - |
-| arp | `harp` | 9.3 | -20 | - |
-| counter | `celesta` | 10.8 | -18.5 | - |
-| bass | `bass` | -4.4 | -18 | tuba (`sub`, -4 dB) |
-| kick | `kick` | -1.8 | -15.5 | - |
-| snare | `snare` | 6.2 | -20 | - |
-| ghost | `snare` | 0 | -26 | - |
-| hat | `hat` | 22.3 | -24 | - |
-| perc | `hat` | 21.5 | -29.5 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| lead | `marimba` | -13 | chip (`pulse`), pluck (`softPluck`), bell (`fmBell`) |
+| chords | `vibes` | -21 | - |
+| arp | `harp` | -20 | - |
+| counter | `celesta` | -18.5 | - |
+| bass | `bass` | -18 | tuba (`sub`) |
+| kick | `kick` | -15.5 | - |
+| snare | `snare` | -20 | - |
+| ghost | `snare` | -26 | - |
+| hat | `hat` | -24 | - |
+| perc | `hat` | -29.5 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -212,13 +214,13 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 small, bright, clockwork, innocent; plucked and never sustained. Tempo 100-132 bpm, meters 12/8, 3/4, 6/8, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| lead | `musicBox` | 2.9 | -13.5 | celesta (`celesta`, 0 dB), bell (`fmBell`, -4 dB) |
-| arp | `musicBox` | -5.1 | -25 | - |
-| bass | `musicBox` | -1.7 | -26 | - |
-| counter | `bell` | 1 | -19.5 | - |
-| chords | `celesta` | -7.7 | -26.5 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| lead | `musicBox` | -13.5 | celesta (`celesta`), bell (`fmBell`) |
+| arp | `musicBox` | -25 | - |
+| bass | `musicBox` | -26 | - |
+| counter | `bell` | -19.5 | - |
+| chords | `celesta` | -26.5 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -231,12 +233,12 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 intimate, expressive, late-night: one piano, rubato, pedal. Tempo 50-76 bpm, meters 3/4, 6/8, 4/4, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| lead | `piano` | 14.1 | -15 | - |
-| chords | `piano` | 17.7 | -23.5 | - |
-| bass | `piano` | 6.5 | -24.5 | - |
-| counter | `strings` | 4.6 | -30.5 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| lead | `piano` | -15 | - |
+| chords | `piano` | -23.5 | - |
+| bass | `piano` | -24.5 | - |
+| counter | `strings` | -30.5 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -249,16 +251,16 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 hypnotic, curious, clean: interlocking ostinatos that change slowly. Tempo 96-144 bpm, meters 4/4, 12/8, 5/4, 7/8, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| arp | `marimba` | 0.1 | -19 | piano (`piano`, -4 dB), pluck (`softPluck`, 3 dB) |
-| lead | `marimba` | 5 | -14 | - |
-| bass | `marimba` | -5.3 | -24 | - |
-| counter | `vibes` | 7.9 | -21 | - |
-| chords | `piano` | 10 | -30.1 | - |
-| kick | `kick` | -6 | - | - |
-| ghost | `snare` | -6 | - | - |
-| perc | `hat` | 0 | - | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| arp | `marimba` | -19 | piano (`piano`), pluck (`softPluck`) |
+| lead | `marimba` | -14 | - |
+| bass | `marimba` | -24 | - |
+| counter | `vibes` | -21 | - |
+| chords | `piano` | -30.1 | - |
+| kick | `kick` | - | - |
+| ghost | `snare` | - | - |
+| perc | `hat` | - | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -271,17 +273,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 loose, warm, clever: swing ride, walking bass, comping piano. Tempo 80-200 bpm, meters 4/4, 3/4, swing 0.6-0.67.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `piano` | 14 | -25.5 | - |
-| lead | `vibes` | 3.5 | -13 | piano (`piano`, 0 dB), clarinet (`woodwind`, 0 dB), flute (`woodwind`, 0 dB), brass (`brass`, -3 dB) |
-| bass | `bass` | -4 | -18 | - |
-| counter | `woodwind` | 10.7 | -18.5 | - |
-| kick | `kick` | -2.8 | -24.5 | - |
-| snare | `snare` | 0 | -26 | - |
-| ghost | `snare` | 7 | -24.5 | - |
-| hat | `hat` | 26.2 | -23 | - |
-| perc | `hat` | 15.5 | -30 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `piano` | -25.5 | - |
+| lead | `vibes` | -13 | piano (`piano`), clarinet (`woodwind`), flute (`woodwind`), brass (`brass`) |
+| bass | `bass` | -18 | - |
+| counter | `woodwind` | -18.5 | - |
+| kick | `kick` | -24.5 | - |
+| snare | `snare` | -26 | - |
+| ghost | `snare` | -24.5 | - |
+| hat | `hat` | -23 | - |
+| perc | `hat` | -30 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -294,13 +296,13 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 soft, rocking, safe. Tempo 56-78 bpm, meters 3/4, 6/8, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| lead | `celesta` | 4.7 | -15 | musicBox (`musicBox`, 0 dB), piano (`piano`, 0 dB), flute (`woodwind`, -2 dB) |
-| arp | `harp` | 8.4 | -23.5 | - |
-| bass | `harp` | 7 | -27 | - |
-| counter | `musicBox` | 10 | -21.7 | - |
-| chords | `strings` | -8 | -28.5 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| lead | `celesta` | -15 | musicBox (`musicBox`), piano (`piano`), flute (`woodwind`) |
+| arp | `harp` | -23.5 | - |
+| bass | `harp` | -27 | - |
+| counter | `musicBox` | -21.7 | - |
+| chords | `strings` | -28.5 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -313,14 +315,14 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 8-bit, bright, game-like: two pulses, a triangle, noise drums. Tempo 110-170 bpm, meters 4/4, 6/8, swing 0.5-0.56.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| lead | `pulse` | 7.4 | -16 | square (`pulse`, -2 dB) |
-| arp | `pulse` | 8.2 | -20 | - |
-| bass | `triangle` | 0.3 | -18 | - |
-| kick | `noiseDrum` | 7.2 | -17.5 | - |
-| snare | `noiseDrum` | 6.7 | -20.5 | - |
-| hat | `noiseDrum` | -10 | -28 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| lead | `pulse` | -16 | square (`pulse`) |
+| arp | `pulse` | -20 | - |
+| bass | `triangle` | -18 | - |
+| kick | `noiseDrum` | -17.5 | - |
+| snare | `noiseDrum` | -20.5 | - |
+| hat | `noiseDrum` | -28 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -333,17 +335,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 hazy, nostalgic, crackly: FM e-piano, vinyl, a lazy swung beat (the dusty cousin of lo-fi electronic). Tempo 68-90 bpm, meters 4/4, swing 0.55-0.62.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `ePiano` | 6.1 | -19.5 | - |
-| lead | `ePiano` | 9 | -16.5 | guitar (`guitar`, 2 dB), flute (`woodwind`, -2 dB) |
-| bass | `bass` | -1.8 | -19 | - |
-| counter | `fmBell` | 12.9 | -20.9 | - |
-| kick | `kick` | -5.8 | -17.5 | - |
-| snare | `snare` | 2.2 | -21 | - |
-| ghost | `snare` | 8.5 | -22 | - |
-| hat | `hat` | 12.9 | -32.8 | - |
-| perc | `hat` | 4 | -29 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `ePiano` | -19.5 | - |
+| lead | `ePiano` | -16.5 | guitar (`guitar`), flute (`woodwind`) |
+| bass | `bass` | -19 | - |
+| counter | `fmBell` | -20.9 | - |
+| kick | `kick` | -17.5 | - |
+| snare | `snare` | -21 | - |
+| ghost | `snare` | -22 | - |
+| hat | `hat` | -32.8 | - |
+| perc | `hat` | -29 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -356,17 +358,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 big and heroic: brass theme, string ostinato engine, choir, timpani. Tempo 70-140 bpm, meters 4/4, 3/4, 6/8, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| lead | `brass` | 14.7 | -13 | strings (`strings`, 0 dB), horn (`brass`, -2 dB), flute (`woodwind`, -2 dB) |
-| chords | `strings` | 0.5 | -19.5 | - |
-| arp | `strings` | 4.7 | -21 | - |
-| bass | `strings` | 0.4 | -20 | - |
-| counter | `choir` | -2 | -23 | flute (`woodwind`, -3 dB), harp (`harp`, 0 dB) |
-| perc | `timpani` | 2.9 | -17.5 | - |
-| kick | `kick` | -5.6 | -17.5 | - |
-| snare | `snare` | 2.3 | -23 | - |
-| hat | `hat` | 4 | -32 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| lead | `brass` | -13 | strings (`strings`), horn (`brass`), flute (`woodwind`) |
+| chords | `strings` | -19.5 | - |
+| arp | `strings` | -21 | - |
+| bass | `strings` | -20 | - |
+| counter | `choir` | -23 | flute (`woodwind`), harp (`harp`) |
+| perc | `timpani` | -17.5 | - |
+| kick | `kick` | -17.5 | - |
+| snare | `snare` | -23 | - |
+| hat | `hat` | -32 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -379,17 +381,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 unsettling, cold, withheld: low drones, heartbeat pulse, high bowed harmonics, stingers. Tempo 50-110 bpm, meters 4/4, 5/4, 3/4, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `strings` | -0.2 | -21.5 | - |
-| bass | `sub` | -6 | -20 | - |
-| lead | `bowedSolo` | 7.2 | -19.5 | choir (`choir`, -2 dB), cello (`bowedSolo`, 0 dB) |
-| counter | `celesta` | 9.5 | -19 | choir (`choir`, -4 dB), bell (`fmBell`, -8 dB) |
-| arp | `strings` | 2.9 | -23 | - |
-| kick | `kick` | -0.3 | -17.5 | - |
-| ghost | `snare` | -4 | -27 | - |
-| perc | `timpani` | 6.2 | -18.5 | - |
-| hat | `hat` | 0 | -32 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `strings` | -21.5 | - |
+| bass | `sub` | -20 | - |
+| lead | `bowedSolo` | -19.5 | choir (`choir`), cello (`bowedSolo`) |
+| counter | `celesta` | -19 | choir (`choir`), bell (`fmBell`) |
+| arp | `strings` | -23 | - |
+| kick | `kick` | -17.5 | - |
+| ghost | `snare` | -27 | - |
+| perc | `timpani` | -18.5 | - |
+| hat | `hat` | -32 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -402,17 +404,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 live-band energy: driven guitars, bass locked to the kick, a tight kit, maybe organ. Tempo 90-160 bpm, meters 4/4, 6/8, swing 0.5-0.52.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `guitar` | 15.5 | -15.5 | strings (`strings`, -6 dB), organ (`organ`, -4 dB), piano (`piano`, -3 dB) |
-| lead | `leadSynth` | 9.9 | -16 | guitar (`guitar`, 17 dB) |
-| bass | `bass` | -1.3 | -17 | - |
-| counter | `organ` | 12 | -27.1 | - |
-| kick | `kick` | -1 | -13.5 | - |
-| snare | `snare` | 8.8 | -16.5 | - |
-| ghost | `snare` | 0 | -26 | - |
-| hat | `hat` | 20.4 | -23.5 | - |
-| perc | `hat` | 15.7 | -25.5 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `guitar` | -15.5 | strings (`strings`), organ (`organ`), piano (`piano`) |
+| lead | `leadSynth` | -16 | guitar (`guitar`) |
+| bass | `bass` | -17 | - |
+| counter | `organ` | -27.1 | - |
+| kick | `kick` | -13.5 | - |
+| snare | `snare` | -16.5 | - |
+| ghost | `snare` | -26 | - |
+| hat | `hat` | -23.5 | - |
+| perc | `hat` | -25.5 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -425,17 +427,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 head-nod or dark trap: heavy 808, crisp clap, rolling hats, a moody loop on top. Tempo 70-100 bpm, meters 4/4, swing 0.52-0.6.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| bass | `sub` | -2.4 | -15 | - |
-| chords | `piano` | 12 | -30.9 | pad (`warmPad`, -3 dB) |
-| lead | `softPluck` | 2.9 | -17.5 | bell (`fmBell`, -2 dB), flute (`woodwind`, -2 dB), choir (`choir`, -4 dB) |
-| counter | `strings` | 9.6 | -25.5 | - |
-| kick | `kick` | -2.7 | -13.5 | - |
-| snare | `snare` | 8.7 | -17 | - |
-| ghost | `snare` | 0 | -26 | - |
-| hat | `hat` | 23.2 | -23 | - |
-| perc | `hat` | 17.7 | -29.5 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| bass | `sub` | -15 | - |
+| chords | `piano` | -30.9 | pad (`warmPad`) |
+| lead | `softPluck` | -17.5 | bell (`fmBell`), flute (`woodwind`), choir (`choir`) |
+| counter | `strings` | -25.5 | - |
+| kick | `kick` | -13.5 | - |
+| snare | `snare` | -17 | - |
+| ghost | `snare` | -26 | - |
+| hat | `hat` | -23 | - |
+| perc | `hat` | -29.5 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -448,18 +450,18 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 euphoric, dancing, bright: four-on-the-floor, offbeat bass, stabs, a big pad. Tempo 118-128 bpm, meters 4/4, swing 0.5-0.54.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `organ` | 6.7 | -20 | pad (`warmPad`, -3 dB), piano (`piano`, -3 dB) |
-| bass | `bass` | 0.5 | -16 | - |
-| lead | `softPluck` | 4.3 | -16.5 | synth (`leadSynth`, -2 dB) |
-| counter | `warmPad` | 7.5 | -23.5 | - |
-| arp | `softPluck` | 5 | -22 | - |
-| kick | `kick` | 1.3 | -12.5 | - |
-| snare | `snare` | 8.8 | -17 | - |
-| ghost | `snare` | 1 | -26 | - |
-| hat | `hat` | 12 | -26 | - |
-| perc | `hat` | 15.1 | -27 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `organ` | -20 | pad (`warmPad`), piano (`piano`) |
+| bass | `bass` | -16 | - |
+| lead | `softPluck` | -16.5 | synth (`leadSynth`) |
+| counter | `warmPad` | -23.5 | - |
+| arp | `softPluck` | -22 | - |
+| kick | `kick` | -12.5 | - |
+| snare | `snare` | -17 | - |
+| ghost | `snare` | -26 | - |
+| hat | `hat` | -26 | - |
+| perc | `hat` | -27 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -472,18 +474,18 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 neon-nostalgic, cinematic 80s: big gated snare, pulsing 8th bass, lush pads, a soaring lead. Tempo 80-118 bpm, meters 4/4, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `strings` | -1.1 | -22 | pad (`warmPad`, -2 dB) |
-| bass | `bass` | -0.2 | -17 | - |
-| lead | `leadSynth` | 11.7 | -16 | brass (`brass`, -2 dB) |
-| arp | `softPluck` | 4.2 | -22 | - |
-| counter | `fmBell` | 8.7 | -20.5 | - |
-| kick | `kick` | 1.2 | -13.5 | - |
-| snare | `snare` | 9.3 | -16.5 | - |
-| ghost | `snare` | 0 | -26 | - |
-| hat | `hat` | 12 | -28 | - |
-| perc | `hat` | 13.5 | -29.5 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `strings` | -22 | pad (`warmPad`) |
+| bass | `bass` | -17 | - |
+| lead | `leadSynth` | -16 | brass (`brass`) |
+| arp | `softPluck` | -22 | - |
+| counter | `fmBell` | -20.5 | - |
+| kick | `kick` | -13.5 | - |
+| snare | `snare` | -16.5 | - |
+| ghost | `snare` | -26 | - |
+| hat | `hat` | -28 | - |
+| perc | `hat` | -29.5 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -496,17 +498,17 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 rooted, spacious, rhythmic: a drone, a modal melody on plucked strings or a flute, hand percussion cycles (write your own melody; name the tradition you draw on). Tempo 60-150 bpm, meters 7/8, 9/8, 12/8, 6/8, 4/4, 5/4, swing 0.5-0.56.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| lead | `woodwind` | 9.5 | -14.5 | pluck (`guitar`, 2 dB), marimba (`marimba`, 1 dB), reed (`woodwind`, 0 dB), bowed (`bowedSolo`, 0 dB) |
-| counter | `harp` | 16 | -18.2 | - |
-| arp | `guitar` | 12.7 | -20.5 | - |
-| chords | `warmPad` | -3.1 | -25.5 | - |
-| bass | `sub` | -9.5 | -22 | - |
-| kick | `timpani` | -1.5 | -17 | - |
-| ghost | `snare` | 10.5 | -20 | - |
-| perc | `hat` | 8 | -28 | - |
-| hat | `hat` | 6 | -30 | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| lead | `woodwind` | -14.5 | pluck (`guitar`), marimba (`marimba`), reed (`woodwind`), bowed (`bowedSolo`) |
+| counter | `harp` | -18.2 | - |
+| arp | `guitar` | -20.5 | - |
+| chords | `warmPad` | -25.5 | - |
+| bass | `sub` | -22 | - |
+| kick | `timpani` | -17 | - |
+| ghost | `snare` | -20 | - |
+| perc | `hat` | -28 | - |
+| hat | `hat` | -30 | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 
@@ -519,15 +521,15 @@ Stem targets: starting numbers from a neutral test signal (advisory until a huma
 
 vast, human, reverent: voices in parts, organ, bells, a slow swell. Tempo 50-90 bpm, meters 4/4, 3/4, swing 0.5-0.5.
 
-| Slot | Voice | Gain dB | Stem target dB | Alternates (voice, gain dB, uncalibrated) |
-|---|---|---|---|---|
-| chords | `choir` | -9.7 | -20 | organ (`organ`, -4 dB), strings (`strings`, -4 dB) |
-| lead | `choir` | -3.8 | -17 | bowed (`bowedSolo`, 0 dB), flute (`woodwind`, -2 dB) |
-| bass | `organ` | 5.6 | -23 | - |
-| counter | `fmBell` | 8.8 | -21.5 | - |
-| arp | `harp` | 8 | -23.5 | - |
-| perc | `timpani` | 5.2 | -20 | - |
-| kick | `timpani` | -6 | - | - |
+| Slot | Voice | Stem target dB | Alternates (name, voice) |
+|---|---|---|---|
+| chords | `choir` | -20 | organ (`organ`), strings (`strings`) |
+| lead | `choir` | -17 | bowed (`bowedSolo`), flute (`woodwind`) |
+| bass | `organ` | -23 | - |
+| counter | `fmBell` | -21.5 | - |
+| arp | `harp` | -23.5 | - |
+| perc | `timpani` | -20 | - |
+| kick | `timpani` | - | - |
 
 Stem targets: starting numbers from a neutral test signal (advisory until a human listens).
 

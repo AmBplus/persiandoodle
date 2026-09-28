@@ -45,9 +45,10 @@ export const smallRoom = (L: ArrayLike<number>, R: ArrayLike<number>, sr: number
     const a = i >= pd ? inL[i - pd] : 0, b = i >= pd ? inR[i - pd] : 0;
     for (let c = 0; c < N; c++) x[c] = c & 1 ? b : a;
     // diffuse
-    for (const st of steps) {
-      for (let c = 0; c < N; c++) { const buf = st.bufs[c], L0 = buf.length, wi = st.idx[c]; buf[wi] = x[c]; y[c] = buf[(wi + 1) % L0] * st.flip[c]; st.idx[c] = (wi + 1) % L0; }
-      for (let c = 0; c < N; c++) x[c] = y[st.perm[c]];
+    for (let k = 0; k < 4; k++) {
+      const st = steps[k], bufs = st.bufs, idx = st.idx, flip = st.flip, perm = st.perm;
+      for (let c = 0; c < N; c++) { const buf = bufs[c], L0 = buf.length, wi = idx[c], nx = wi + 1 === L0 ? 0 : wi + 1; buf[wi] = x[c]; y[c] = buf[nx] * flip[c]; idx[c] = nx; }
+      for (let c = 0; c < N; c++) x[c] = y[perm[c]];
       hadamard8(x);
     }
     let eL = 0, eR = 0; for (let c = 0; c < N; c++) { if (c & 1) eR += x[c] * (c & 2 ? -1 : 1); else eL += x[c] * (c & 2 ? -1 : 1); }

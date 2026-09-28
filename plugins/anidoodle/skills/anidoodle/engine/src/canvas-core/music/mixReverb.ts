@@ -29,7 +29,8 @@ class Line {
   at(d: number) { return this.buf[(this.w - 1 - d) & this.mask]; } // integer delay d >= 0 (0 = last pushed)
   frac(d: number) { const i = Math.floor(d), f = d - i, y0 = this.at(i - 1), y1 = this.at(i), y2 = this.at(i + 1), y3 = this.at(i + 2); const c1 = 0.5 * (y2 - y0), c2 = y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3, c3 = 0.5 * (y3 - y0) + 1.5 * (y1 - y2); return ((c3 * f + c2) * f + c1) * f + y1; }
 }
-const hadamard = (h: Float64Array) => { const N = h.length; for (let s = 1; s < N; s <<= 1) for (let j = 0; j < N; j += s << 1) for (let q = j; q < j + s; q++) { const a = h[q], b = h[q + s]; h[q] = a + b; h[q + s] = a - b; } const k = 1 / Math.sqrt(N); for (let j = 0; j < N; j++) h[j] *= k; };
+const HAD_K = new Map<number, number>(); // 1 / sqrt(N), computed once per size (the same double every call)
+const hadamard = (h: Float64Array) => { const N = h.length; for (let s = 1; s < N; s <<= 1) for (let j = 0; j < N; j += s << 1) for (let q = j; q < j + s; q++) { const a = h[q], b = h[q + s]; h[q] = a + b; h[q + s] = a - b; } let k = HAD_K.get(N); if (k === undefined) { k = 1 / Math.sqrt(N); HAD_K.set(N, k); } for (let j = 0; j < N; j++) h[j] *= k; };
 
 // ---------------------------------------------------------------- FDN
 export const fdnReverb = (L: Float32Array, R: Float32Array, sr: number, s: Space, rng: Rng): Wet => {
@@ -48,13 +49,14 @@ export const fdnReverb = (L: Float32Array, R: Float32Array, sr: number, s: Space
   const pa = lens.map((_, j) => (gDc[j] - gNy[j]) / (gDc[j] + gNy[j])), pb = lens.map((_, j) => gDc[j] * (1 - pa[j])), zf = new Float64Array(N);
   const x8 = new Float64Array(DC), fb = new Float64Array(N), out = new Float64Array(N), twoPi = Math.PI * 2;
   const erG = s.er * 0.75, lateG = s.late * 1.6; // calibrated: at late 0.3 the tail sits where the legacy hall's did (same input, -19.5 dB)
+  const w = rate.map((r) => twoPi * r); // twoPi * rate[j], the same product the per-sample expression starts with
   for (let i = 0; i < n; i++) {
     const xl = i >= pd ? inL[i - pd] : 0, xr = i >= pd ? inR[i - pd] : 0;
     for (let c = 0; c < DC; c++) x8[c] = c % 2 ? xr : xl;
-    for (const st of dif) { for (let c = 0; c < DC; c++) { st.lines[c].push(x8[c]); x8[c] = st.lines[c].at(st.d[c]) * st.flip[c]; } hadamard(x8); }
+    for (let k = 0; k < steps; k++) { const st = dif[k], ln = st.lines, d = st.d, fl = st.flip; for (let c = 0; c < DC; c++) { ln[c].push(x8[c]); x8[c] = ln[c].at(d[c]) * fl[c]; } hadamard(x8); }
     // early: the diffuser output, alternate channels to each side
-    const el = x8[0] - x8[2] + x8[4] - x8[6], er = x8[1] - x8[3] + x8[5] - x8[7];
-    for (let j = 0; j < N; j++) { const md = depth * Math.sin(twoPi * rate[j] * (i / sr) + phase[j]); out[j] = lines[j].frac(lens[j] + md); }
+    const el = x8[0] - x8[2] + x8[4] - x8[6], er = x8[1] - x8[3] + x8[5] - x8[7], t = i / sr;
+    for (let j = 0; j < N; j++) { const md = depth * Math.sin(w[j] * t + phase[j]); out[j] = lines[j].frac(lens[j] + md); }
     // Householder: y = x - 2/N sum(x)
     let sum = 0; for (let j = 0; j < N; j++) sum += out[j]; sum *= 2 / N;
     for (let j = 0; j < N; j++) {

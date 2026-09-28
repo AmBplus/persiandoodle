@@ -4,7 +4,7 @@ import { craftReport, contourClass, classifyCadence, syncopation, metricWeight, 
 import { line, type Piece, type Part, type Role, type InstId, type Meter, type Note } from "../src/canvas-core/music/plan";
 import type { StyleId, MoodId } from "../src/canvas-core/music/tables";
 import type { ModeId } from "../src/canvas-core/music/theory";
-import { DEMOS, FIXTURES, composePiece } from "../src/canvas-core/music/index";
+import { DEMOS, FIXTURES, composePiece, type Material } from "../src/canvas-core/music/index";
 import { breach } from "../src/canvas-core/music/blind/breach";
 import { stillwater } from "../src/canvas-core/music/blind/stillwater";
 import { morningCrumb } from "../src/canvas-core/music/blind/morningCrumb";
@@ -125,6 +125,32 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
     { id: "lead", inst: "piano", role: "melody", src: [sec("C4:2 D4:2"), sec("G4:.5 A4:.5 B4:.5 C5:.5 D5:.5 E5:.5 F5:.5 G5:.5"), sec("E4:4")].join(" | ") },
     { id: "chords", inst: "piano", role: "accomp", src: [C, C, "[B2 D3 F3 G3]:4", "[B2 D3 F3 G3]:4", C, C].join(" | ") }, { id: "bass", inst: "bass", role: "bass", src: [bassC, bassC, "G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5", "G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5", bassC, bassC].join(" | ") }] }));
   ok(!arc.findings.some((f) => f.area === "tension") && arc.tension.sections[1].value > arc.tension.sections[0].value && arc.tension.sections[1].value > arc.tension.sections[2].value, `rise, peak, release (${arc.tension.sections.map((s) => s.value).join(" < > ")}) passes`);
+
+  // intensity, not only harmony (Farbood 2012): a home-chord tutti climax and an EDM drop are the peak; the same sections thin and quiet are not
+  const mat = (style: StyleId, mood: MoodId, secs: Material["sections"], extra: Partial<Material> = {}): Material => ({ style, title: "t", seed: 2, mood, bpm: style === "house" ? 124 : 76, key: "C", mode: "major", ...extra,
+    chords: { I: { voicing: "[E3 G3 C4]", bass: "C2:4" }, vi: { voicing: "[E3 A3 C4]", bass: "A1:4" }, IV: { voicing: "[F3 A3 C4]", bass: "F1:4" }, V: { voicing: "[D3 G3 B3 F4]", bass: "G1:2 G1:2" }, Vb9: { voicing: "[D3 G3 B3 F4 Ab4]", bass: "G1:2 G1:2" }, Vsus: { voicing: "[D3 G3 C4 F4]", bass: "G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5" } },
+    grooves: { main: { family: style === "house" ? "fourFloor" : "pulse", density: 0.5, variation: 0.3 }, build: { family: "build", density: 0.8, variation: 0.2 }, drop: { family: style === "house" ? "fourFloor" : "pulse", density: 0.95, variation: 0.3, fill: true } }, sections: secs });
+  const climax = (tutti: boolean) => mat("cinematic", "hopeful", [
+    { id: "intro", kind: "intro", bars: 2, harmony: ["I", "vi"], lead: "E4:4 | C4:4", chordVel: 0.6, energy: 0.3 },
+    { id: "verse", kind: "verse", bars: 2, harmony: ["IV", "vi"], lead: "F4:2 A4:2 | G4:2 E4:2", groove: null, energy: 0.45 },
+    { id: "lean", kind: "verse", bars: 2, harmony: ["Vb9", "Vb9"], lead: "G4:.5 A4:.5 B4:.5 D5:.5 F5:.5 D5:.5 B4:.5 D5:.5 | F5:.5 Ab5:.5 F5:.5 D5:.5 B4:.5 D5:.5 F5:1", bass: "G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5 G1:.5", groove: null, energy: 0.6 },
+    tutti ? { id: "climax", kind: "swell", bars: 2, harmony: ["I", "I"], lead: "C6:1 B5:.5 G5:.5 E5:1 G5:1 | C6:2 G5:2", counter: "E5:2 G5:2 | E5:4", arp: "C4:.5 E4:.5 G4:.5 C5:.5 E5:.5 G5:.5 C6:.5 G5:.5 | C4:.5 E4:.5 G4:.5 C5:.5 E5:.5 G5:.5 C6:.5 G5:.5", chordVel: 1.1, energy: 0.95 }
+      : { id: "climax", kind: "breath", bars: 2, harmony: ["I", "I"], lead: "C4:4 | r:4", chordVel: 0.4, energy: 0.2 },
+    { id: "outro", kind: "outro", bars: 2, harmony: ["IV", "I"], lead: "A4:2 G4:2 | E4:4", chordVel: 0.6, energy: 0.3 }]);
+  const drop = (full: boolean) => mat("house", "drive", [
+    { id: "groove", kind: "groove", bars: 2, harmony: ["vi", "IV"], lead: "r:4 | r:4", energy: 0.5 },
+    { id: "build", kind: "build", bars: 2, harmony: ["Vsus", "V"], lead: "G4:.5 G4:.5 A4:.5 A4:.5 B4:.5 B4:.5 C5:.5 D5:.5 | D5:.25 D5:.25 D5:.25 D5:.25 E5:.25 E5:.25 F5:.25 F5:.25 G5:1 r:1", groove: "build", energy: 0.65 },
+    full ? { id: "drop", kind: "drop", bars: 4, harmony: ["I", "vi", "IV", "I"], lead: "C6:.75 G5:.75 E5:.5 G5:1 C6:1 | A5:.75 E5:.75 C5:.5 E5:1 A5:1 | F5:.75 C6:.75 A5:.5 F5:1 A5:1 | G5:.75 E5:.75 C5:.5 C6:2", arp: Array(4).fill("C5:.25 E5:.25 G5:.25 C6:.25 ".repeat(4).trim()), groove: "drop", energy: 0.95 }
+      : { id: "drop", kind: "breakdown", bars: 4, harmony: ["I", "vi", "IV", "I"], lead: "C5:4 | r:4 | r:4 | r:4", groove: null, chordVel: 0.5, energy: 0.3 },
+    { id: "button", kind: "outro", bars: 1, harmony: ["I"], lead: "C5:1 r:3", energy: 0.4 }], { meter: "4/4" });
+  const peakOf = (m: Material) => { const t = craftReport(composePiece(m)).tension.sections; return t.reduce((a, x) => (x.value > a.value ? x : a)); };
+  const cg = peakOf(climax(true)), cb = peakOf(climax(false)), dg = peakOf(drop(true)), dbad = peakOf(drop(false));
+  ok(cg.id === "climax", `a home-chord tutti climax reads as the peak (${craftReport(composePiece(climax(true))).tension.sections.map((x) => `${x.id} ${x.value}`).join(", ")})`);
+  ok(cb.id !== "climax", `the same home chord thin and quiet is not the peak (peak: ${cb.id})`);
+  ok(dg.id === "drop", `an EDM drop reads as the peak over its build (${craftReport(composePiece(drop(true))).tension.sections.map((x) => `${x.id} ${x.value}`).join(", ")})`);
+  ok(dbad.id !== "drop", `a "drop" that thins out is not the peak (peak: ${dbad.id})`);
+  const lvl = (o: { loop?: boolean; mood?: MoodId }) => craftReport(piece({ bars: 6, mood: o.mood ?? "joy", loop: o.loop, sections: [["a", 2], ["b", 2], ["c", 2]], parts: [{ id: "lead", inst: "piano", role: "melody", src: [sec("C4:1 D4:1 E4:1 D4:1"), sec("C4:1 E4:1 D4:1 E4:1"), sec("D4:1 C4:1 E4:1 C4:1")].join(" | ") }, { id: "chords", inst: "piano", role: "accomp", src: Array(6).fill(C).join(" | ") }] })).findings;
+  ok(has(lvl({}), "tension", /flat/, "warn") && has(lvl({ loop: true }), "tension", /flat/, "info") && has(lvl({ mood: "calm" }), "tension", /flat/, "info"), "a flat curve warns, but a loop or a calm piece stays level on purpose (a note, not a warning)");
 
   // ---------------- mood fit
   const moody = (tempo: number, mode: ModeId) => craftReport(piece({ mood: "calm", tempo, mode, bars: 2, parts: [{ id: "lead", inst: "piano", role: "melody", src: "E5:1 D5:.5 C5:.5 D5:1 E5:1 | D5:1 C5:.5 D5:.5 E5:1 C5:1" }, { id: "chords", inst: "piano", role: "accomp", src: `${C} | ${C}` }, { id: "bass", inst: "bass", role: "bass", src: "C2:4 | C2:4" }] }));

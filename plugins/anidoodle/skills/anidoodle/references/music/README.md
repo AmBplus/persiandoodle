@@ -127,6 +127,14 @@ upbeat leads into it.
 A hand-written piece with a short form, repeatable sections and optional sections can fit anything
 from a quarter of its length to many times it, and it still ends on its cadence.
 
+A form that already fits keeps its tempo: when the last note plus the tail lands within max(0.5 s,
+one beat) of the length, `fitScore` changes nothing and the tail takes up the difference (the final
+ritard alone would otherwise nudge the tempo). **Music that must hit exact picture moments** (a drop
+on a cut, a sting on a reveal) is composed to the length and rendered without `--fit`, or uses the
+beat-grid mode the launch films use (`gridScore` in `launchTemplate.ts`), where the score plays at
+the film's bpm exactly and every cut sits on a downbeat. A fit that changes the tempo moves every
+hit with it.
+
 ## Styles (21) and moods (21)
 
 Both are rows of numbers in `tables.ts`. The vocabularies are in `vocab.ts` and `vocabMore.ts`, and

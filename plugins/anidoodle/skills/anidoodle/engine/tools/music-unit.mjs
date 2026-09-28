@@ -94,10 +94,16 @@ pass(`${Object.keys(M.VOCAB).length} style vocabularies compose, render (true pe
 for (const secs of [70, 90, 110]) {
   const f = M.fitScore(M.launchLofi3(), secs), perf = M.perform(f.piece, f.tempo, { expressive: true }), p = f.piece;
   assert.equal(p.harmony[p.harmony.length - 1].name, "Cmaj9"); assert.equal(f.form, "full");
-  assert(Math.abs(perf.lastOnset - (secs - p.tail)) < 0.05); assert(f.tempo >= 90 * 0.88 && f.tempo <= 90 * 1.12);
+  assert(Math.abs(perf.lastOnset - (secs - p.tail)) < 0.05 || (f.tempo === 90 && M.fitsAsWritten(p, secs))); assert(f.tempo >= 90 * 0.88 && f.tempo <= 90 * 1.12);
   pass(`fit ${secs} s: ${p.plan.sections[0].bars} bars at ${f.tempo.toFixed(1)} bpm, last onset ${perf.lastOnset.toFixed(2)} s on Cmaj9`);
 }
 { const a = M.filmAudio(M.launchLofi3(), 40)(16000); assert.equal(a[0].length, 40 * 16000); pass("filmAudio: exactly the film's length"); }
+// composed to length: the fit keeps the written tempo (the final ritard must not move the picture's hits); a form that does not fit is still fitted
+{ const p = M.composePiece({ ...M.testMaterial(M.VOCAB.house, { bars: 8 }), tail: 2 }), natural = M.perform(p, p.plan.tempo, { expressive: true }).lastOnset + p.tail, bar = (4 * 60) / p.plan.tempo;
+  const kept = M.fitScore(p, Math.round(natural)), moved = M.fitScore(p, natural + 2 * bar);
+  assert.equal(kept.tempo, p.plan.tempo); assert.equal(M.perform(kept.piece, kept.tempo, { expressive: true }).sec(4 * 4), M.perform(p, p.plan.tempo, { expressive: true }).sec(4 * 4), "bar 5 lands where it was written");
+  assert(moved.tempo !== p.plan.tempo || moved.piece.plan.sections.length !== p.plan.sections.length);
+  pass(`fit: a score composed to ${Math.round(natural)} s keeps ${p.plan.tempo} bpm (natural end ${natural.toFixed(2)} s: the tail takes the difference); ${(natural + 2 * bar).toFixed(1)} s is refitted`); }
 
 // 9. Composer-facing fixes (from the blind composer's report).
 { const t = M.testMaterial(M.VOCAB.playful, { bars: 4 }), sec = t.sections[0];
@@ -131,6 +137,51 @@ for (const secs of [70, 90, 110]) {
   const w = M.composePiece(M.testMaterial(M.VOCAB.world, { bars: 4 })), wr = M.renderPiece(w, SR), g = M.guardReport(wr, SR, wr.L.length / SR);
   assert(Number.isFinite(g.lufs) && g.ghost.windows > 0); pass(`guards run on a 7/8 score (${g.ghost.windows} windows)`); }
 
+// 9b. Chords and bars (from the blind composer's report).
+{
+  // chords: a tie holds over the bar line (no restrike), comping gives the chord part a rhythm with rests, "r" voices a silent chord
+  const mat = (meter, sec, extra = {}) => ({ style: "cinematic", title: "t", seed: 3, mood: "tender", bpm: 80, key: "C", mode: "major", meter, grooves: {}, ...extra,
+    chords: { C: { voicing: "[C4 E4 G4]", bass: meter === "3/4" ? "C2:3" : meter === "5/4" ? "C2:5" : meter === "6/8" ? "C2:2" : meter === "7/8" ? "C2:3.5" : "C2:4" }, F: { voicing: "[C4 F4 A4]", bass: "F2:4" }, N: { voicing: "r", bass: "G2:4" } },
+    sections: [{ kind: "verse", groove: null, lead: "r:" + M.beatsPerBar(meter), ...sec }] });
+  const chordsOf = (p) => p.parts.find((x) => x.id === "chords").notes, bassOf = (p) => p.parts.find((x) => x.id === "bass").notes;
+  { const held = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "~"], lead: "E5:4 | D5:4" })), struck = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "C"], lead: "E5:4 | D5:4" }));
+    assert.equal(chordsOf(held).length, 3); assert(chordsOf(held).every((n) => n.d === 8)); assert.equal(chordsOf(struck).length, 6); assert.deepEqual(held.harmony.map((h) => h.t), [0]);
+    assert.equal(bassOf(held).length, 2, "the bass keeps its line under a held chord");
+    const tiedBass = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "~"], bass: ["C2:4", "~"], lead: "E5:4 | D5:4" })); assert.equal(bassOf(tiedBass).length, 1); assert.equal(bassOf(tiedBass)[0].d, 8);
+    const into = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "~ F"], bass: ["C2:4", "C2:2 F2:2"], lead: "E5:4 | D5:4" })); assert.deepEqual(chordsOf(into).map((n) => [n.t, n.d]).filter(([t]) => t === 0), [[0, 6], [0, 6], [0, 6]]); assert.deepEqual(into.harmony.map((h) => [h.t, h.name]), [[0, "C"], [6, "F"]]);
+    pass("harmony \"~\": the chord holds over the bar line (3 notes of 8 beats, not 6 restrikes), the bass keeps its line unless its bar is \"~\"; \"~ F\" holds into the bar, then changes");
+    const comp = M.composePiece(mat("4/4", { bars: 2, harmony: ["C F"], comp: ["x:1 r:.5 x:.5@0.6 r:1 x:1", "~:1 r:1 x:2"], bass: "C2:2 F2:2", lead: "E5:4 | D5:4" }));
+    const on = (t) => chordsOf(comp).filter((n) => Math.abs(n.t - t) < 1e-9);
+    assert.deepEqual([...new Set(chordsOf(comp).map((n) => n.t))], [0, 1.5, 3, 6]); assert(on(3).some((n) => n.p === 65), "x on beat 4 strikes the chord sounding there (F)");
+    assert(Math.abs(on(1.5)[0].v - on(0)[0].v * 0.6) < 1e-9, "@VEL scales the strike"); assert.equal(on(3)[0].d, 2, "~:1 holds beat 4's strike over the bar line");
+    assert.throws(() => M.composePiece(mat("4/4", { bars: 1, harmony: ["C"], comp: "x:1 r:1", lead: "E5:4" })), /comp bar .* sums to 2/);
+    pass("comp: x strikes the chord sounding at that point, r rests, @VEL accents, ~ ties a push over the bar line; a comp bar that does not add up throws");
+    const rest = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "N"], lead: "E5:4 | D5:4" }));
+    assert(chordsOf(rest).every((n) => n.t < 4)); assert.deepEqual(rest.harmony.map((h) => h.name), ["C", "N"]); assert(bassOf(rest).some((n) => n.t === 4 && n.p === 43));
+    pass("voicing \"r\": the chord part rests for that chord, the harmony still names it and its bass plays"); }
+  { const one = (meter, bar, extra) => { const b = M.beatsPerBar(meter); return M.composePiece(mat(meter, { bars: 1, harmony: [bar], bass: `r:${b}`, lead: `r:${b}` }, extra)).harmony.map((h) => h.t); };
+    assert.deepEqual(one("3/4", "C F"), [0, 2], "3/4: 2+1, never beat 2.5"); assert.deepEqual(one("6/8", "C F"), [0, 1]); assert.deepEqual(one("5/4", "C F"), [0, 3]);
+    assert.deepEqual(one("5/4", "C F", { grouping: [2, 3] }), [0, 2]); assert.deepEqual(one("7/8", "C F"), [0, 2]); assert.deepEqual(one("4/4", "C F"), [0, 2]);
+    assert.deepEqual(one("3/4", "C:1 F:2"), [0, 1]); assert.throws(() => one("3/4", "C:1 F:1"), /adds up to 2/);
+    pass("split bars: 3/4 changes on beat 3 (2+1), 6/8 3+3 eighths, 5/4 3+2 or its grouping (2+3), 7/8 4+3 eighths, explicit beats \"C:1 F:2\"; a wrong sum throws"); }
+}
+// 9c. One level scale: alternates and your own voices are calibrated to the slot's target (the style's number plus its fix).
+{ const stem = (p, slot) => { const r = M.renderPiece(p, SR, { stems: true, master: "none", only: (pt) => pt.id === slot }); return M.stemRms(r.stems[slot][0], r.stems[slot][1], SR); };
+  const tm = (v, slot, voice, extra = {}) => M.composePiece({ ...M.testMaterial(v, { bars: 4, lines: slot === "counter" || slot === "arp" ? [slot] : [] }), voices: { [slot]: voice }, ...extra });
+  let worst = 0, n = 0;
+  for (const v of Object.values(M.VOCAB)) for (const [slot, alts] of Object.entries(v.alternates)) for (const name of Object.keys(alts)) {
+    const p = tm(v, slot, name); if (p.stemTargets[slot] === undefined) continue; const off = stem(p, slot) - p.stemTargets[slot]; n++;
+    assert(Math.abs(off) <= 1.5, `${v.id} ${slot} alternate ${name} sits ${off.toFixed(1)} dB off its target`); worst = Math.max(worst, Math.abs(off)); }
+  const pianoLead = stem(tm(M.VOCAB.cinematic, "lead", "piano"), "lead") - M.VOCAB.cinematic.stemTargets.lead, synthLead = stem(tm(M.VOCAB.house, "lead", "synth"), "lead") - M.VOCAB.house.stemTargets.lead;
+  pass(`alternates: all ${n} in every style sit within ${worst.toFixed(2)} dB of their target (cinematic piano lead ${pianoLead.toFixed(1)}, house synth lead ${synthLead.toFixed(1)}; the blind composer needed +14 and +16.5)`);
+  const role = { chords: "accomp", arp: "accomp", lead: "melody", counter: "color", bass: "bass" }, offs = [];
+  for (const [style, slot, inst] of [["cinematic", "lead", "piano"], ["cinematic", "counter", "strings"], ["house", "lead", "leadSynth"], ["world", "arp", "guitar"], ["folk", "chords", "strings"], ["jazz", "bass", "bass"], ["orchestral", "lead", "woodwind"], ["lofiElectronic", "chords", "ePiano"], ["suspense", "lead", "bowedSolo"], ["playful", "arp", "marimba"]]) {
+    const p = tm(M.VOCAB[style], slot, { inst, role: role[slot] }), off = stem(p, slot) - p.stemTargets[slot]; offs.push(`${style} ${slot} ${inst} ${off >= 0 ? "+" : ""}${off.toFixed(1)}`);
+    assert(Math.abs(off) <= 3, `your own ${inst} as ${style} ${slot} sits ${off.toFixed(1)} dB off`); }
+  const cin = M.VOCAB.cinematic, own = tm(cin, "counter", { inst: "strings", role: "color" });
+  assert.equal(own.stemTargets.counter, cin.stemTargets.counter + M.VOCAB_TARGET_FIX.cinematic.counter, "your own counter takes the slot's corrected target (-16.4, not -7.5)");
+  const up = stem(tm(cin, "counter", { inst: "strings", role: "color", gainDb: 2 }), "counter") - stem(own, "counter"); assert(Math.abs(up - 2) < 0.05, `gainDb 2 = +2 dB (got ${up})`);
+  pass(`your own voice (gainDb left out) sits at the slot's target within 3 dB: ${offs.join(", ")}; its target is the corrected one (cinematic counter ${own.stemTargets.counter.toFixed(1)}); gainDb: 2 = ${up.toFixed(2)} dB over`); }
 // 10. Novelty: the copy Alex heard scores as a copy; the shipped demos stay apart; a reused fragment fails.
 { const d = M.novelty(M.daylightCopy(), M.DEMOS);
   assert(!d.pass && d.worst.name.startsWith("launchLofi") && d.worst.score > 0.6, `daylight copy scored ${d.worst.score} vs ${d.worst.name}`);
@@ -141,6 +192,36 @@ for (const secs of [70, 90, 110]) {
   const quoted = M.composePiece({ ...M.testMaterial(M.VOCAB.playful, { bars: 4 }), sections: [{ kind: "hook", bars: 2, harmony: ["c0"], groove: null, lead: ["G5:1 B5:.5 C6:.5 B5:1 G5:1", "E5:1 G5:.5 A5:.5 G5:1 E5:1"] }] });
   const src = M.composePiece({ ...M.testMaterial(M.VOCAB.playful, { bars: 4 }), sections: [{ kind: "hook", bars: 2, harmony: ["c0"], groove: null, lead: ["D5:1 F#5:.5 G5:.5 F#5:1 D5:1", "B4:1 D5:.5 E5:.5 D5:1 B4:1"] }] });
   const r = M.novelty(quoted, { src: () => src }); assert(!r.pass && r.rows[0].reusedFragments > 0, "a transposed quote must be caught");
-  pass(`novelty: a transposed 6-note quote of a shipped line fails (${r.rows[0].reusedFragments} reused fragments)`); }
+  pass(`novelty: a transposed 6-note quote of a shipped line fails (${r.rows[0].reusedFragments} reused fragments)`);
+  // a shipped melody re-barred into 5/4 (each 4/4 bar gains a beat on its last note), transposed up a tone: its rhythm and bar
+  // positions are new, its 6-note (interval, duration) fragments are broken, but its intervals are the tune: it must FAIL
+  const rebar = (name) => { const src = M.DEMOS[name](), bpb = M.beatsPerBar(src.plan.meter), mel = src.parts.flatMap((p) => p.notes.filter((n) => n.role === "melody")).sort((a, b) => a.t - b.t), last = new Map();
+    for (const n of mel) { const k = Math.floor(n.t / bpb + 1e-9); last.set(k, Math.max(last.get(k) ?? -1, n.t)); }
+    const notes = mel.map((n) => { const k = Math.floor(n.t / bpb + 1e-9); return { ...n, p: n.p + 2, t: n.t + k, d: n.d + (n.t === last.get(k) ? 1 : 0) }; }), bars = Math.ceil((Math.max(...notes.map((n) => n.t + n.d)) + 1) / 5);
+    return { title: "re-barred", seed: 5, tail: 1, harmony: [], parts: [{ id: "lead", inst: "piano", role: "melody", notes }], plan: { style: "folk", tempo: 90, meter: "5/4", sections: [{ id: "a", bars, mood: "calm", key: "D", mode: "major", melody: ["stepwise"], dyn: [0.6, 0.6] }] } }; };
+  for (const name of ["launchLofi3", "nocturne"]) { const v = M.novelty(rebar(name), M.DEMOS), row = v.rows.find((x) => x.name === name);
+    assert(!v.pass && row.quotedShapes > 0, `${name} re-barred into 5/4 passed (score ${row.score}, fragments ${row.reusedFragments}, shapes ${row.quotedShapes})`);
+    pass(`novelty: ${name}'s melody re-barred into 5/4 and transposed FAILS (similarity only ${row.score}, 6-note fragments ${row.reusedFragments}, 8-note shapes quoted ${row.quotedShapes})`); } }
 
+// 11. Speed without a changed bit: the voice cache and the parallel pool render exactly what a serial render does.
+{ const p = M.composePiece(M.testMaterial(M.VOCAB.lofi, { bars: 4 })), cache = new Map(), fresh = md5(M.renderPiece(p, SR));
+  assert.equal(md5(M.renderPiece(p, SR, { cache })), fresh); assert(cache.size > 3); assert.equal(md5(M.renderPiece(p, SR, { cache })), fresh, "a cache hit must be bit-identical");
+  const r = M.renderPiece(p, SR, { cache }), a = M.maskingCheck(p, SR, { seconds: r.L.length / SR, tempo: r.tempo, perf: r.perf }), pl = M.maskingPlan(p, { seconds: r.L.length / SR, tempo: r.tempo, perf: r.perf, cache });
+  assert.deepEqual(M.maskingFromBands(pl, Object.fromEntries(pl.roles.map((x) => [x, M.roleBandDb(p, SR, pl.opts(x), pl.spans)]))), a, "masking from cached role renders must equal the serial guard");
+  const sel = new Float64Array(Array.from({ length: 999 }, (_, i) => Math.sin(i * 7.3) * 5)), sorted = [...sel].sort((x, y) => x - y); assert.equal(M.kth(Float64Array.from(sel), 999, 899), sorted[899]);
+  pass(`voice cache: a hit renders bit-identically (md5 ${fresh.slice(0, 8)}), masking from cached role renders equals the serial guard; quickselect = sort`); }
+// the master note names where its peak is: a spike planted on the lead at bar 3 beat 2 is found there, the lead named first
+{ const p = M.composePiece(M.testMaterial(M.VOCAB.lofiElectronic, { bars: 4 })), r = M.renderPiece(p, SR, { stems: true }), bpb = M.beatsPerBar(p.plan.meter), at = Math.round(r.perf.sec(2 * bpb + 1) * SR);
+  r.L[at] = 1.5; r.stems.lead[0][at] = 1.5; const pk = M.peakReport(r, SR);
+  assert.equal(pk.bar, 3); assert.equal(pk.beat, 2); assert.equal(pk.parts[0].id, "lead"); assert(pk.parts[0].notes.length > 0);
+  pass(`peak report: bar ${pk.bar} beat ${pk.beat}, ${pk.parts.map((x) => `${x.id}${x.notes.length ? ` ${x.notes.join(" ")}` : ""}`).join(", ")}`); }
+{ const { spawnSync } = await import("node:child_process"), { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } = await import("node:fs");
+  const dir = join(import.meta.dirname, "../out/music-unit"); rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "x.wav"), "keep me");
+  const run = spawnSync(process.execPath, [join(import.meta.dirname, "music.mjs"), "render", "lofiNostalgic", join(dir, "x.mp3"), "--seconds", "4", "--verify"], { encoding: "utf8" });
+  const json = JSON.parse(run.stdout.slice(run.stdout.indexOf("{"), run.stdout.indexOf("\n}") + 2));
+  assert.equal(readFileSync(join(dir, "x.wav"), "utf8"), "keep me", "rendering x.mp3 must never touch x.wav");
+  assert(existsSync(join(dir, "x.mp3")) && readdirSync(dir).length === 2, `leftovers: ${readdirSync(dir).join(", ")}`);
+  assert.equal(json.deterministic, true, "the parallel, cached render must equal a serial one bit for bit");
+  pass("render x.mp3 leaves an existing x.wav alone (no temp left behind); the parallel cached render equals a serial one (--verify)"); }
 console.log(`music unit: ${ok.length} checks PASS in ${((Date.now() - t0) / 1000).toFixed(0)} s`);
