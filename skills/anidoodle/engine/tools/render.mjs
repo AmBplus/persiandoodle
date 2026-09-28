@@ -53,15 +53,18 @@ console.log(`using: ${env.chosen}\n`);
 const page = await buildPage({ entry: `src/hosts/page-${film}.ts`, out: resolve(`dist/${film}.html`), title: film });
 console.log(`page: ${page.out} (${(page.bytes / 1024).toFixed(0)} KB)`);
 const t0 = Date.now(), session = await playwright.open(env, page.out, { scale, workers }), meta = await session.info(), N = meta.durationFrames;
-const FROM = Math.max(0, Number(arg("from", 0))), TO = Math.min(N, Number(arg("to", N)));
-if (!Number.isInteger(FROM) || !Number.isInteger(TO) || TO <= FROM) { console.error(`bad range: [${FROM}, ${TO}) of ${N}`); process.exit(2); }
+// out of range is an error that names the valid range, never a silent clamp (the same rule as --poster-frame)
+const FROM = Number(arg("from", 0)), TO = Number(arg("to", N)), bad = (m) => { console.error(`${m}; this film has frames 0-${N - 1}: --from 0..${N - 1}, --to 1..${N} (exclusive)`); process.exit(2); };
+if (!Number.isInteger(FROM) || FROM < 0 || FROM >= N) bad(`--from ${arg("from")} ${Number.isInteger(FROM) ? "is outside the film" : "is not a whole frame number"}`);
+if (!Number.isInteger(TO) || TO < 1 || TO > N) bad(`--to ${arg("to")} ${Number.isInteger(TO) ? "is outside the film" : "is not a whole frame number"}`);
+if (TO <= FROM) bad(`--to ${TO} must be after --from ${FROM}`);
 const ranged = FROM !== 0 || TO !== N;
 // a passage never lands on the finished film's path: default to out/<film>.<from>-<to>.<ext>, and refuse an explicit --out that IS the film
 const full = resolve(defaultOutput(film).replace(/\.mp4$/, `.${fmt}`));
 const out = resolve(arg("out", ranged ? `out/${film}.${FROM}-${TO}.${fmt}` : full));
 if (ranged && out === resolve(defaultOutput(film))) { console.error(`refusing to write a range render over the finished film ${out}; pick another --out or drop --from/--to`); process.exit(2); }
 if (RANGE_ASKED && !ranged) console.log("range covers the whole film: rendering it complete, with its score");
-if (POSTER !== null && POSTER >= N) { console.error(`--poster-frame ${POSTER} is past the film's last frame ${N - 1}`); process.exit(2); }
+if (POSTER !== null && POSTER >= N) { console.error(`--poster-frame ${POSTER} is outside the film; this film has frames 0-${N - 1}`); process.exit(2); }
 if (POSTER !== null) console.log(`poster: frame 0 is frame ${POSTER}, dissolving into the opening by frame ${Math.max(1, FADE)}`);
 const posterAt = (n) => POSTER !== null && n < Math.max(1, FADE); // frames the poster dissolve touches
 const drawAt = (n, w) => (posterAt(n) ? session.poster(n, POSTER, FADE, BLUR, w) : BLUR > 1 ? session.blur(n, BLUR, w) : session.frame(n, w));
