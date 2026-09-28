@@ -20,13 +20,15 @@ const exempt = (arg("exempt", "") || "").split(",").filter(Boolean).map((s) => s
 // decode small: 135x135 grey is plenty to see whether anything moved, and it keeps this honest
 const W = SIZE, H = Math.max(2, Math.round(SIZE * stream.height / stream.width));
 const changed = await changedArea(file, W, H, THRESH), n = changed.length;
+// the window floor is a change per 1/30 s: a 60 fps file is measured frame vs two back (the gate does the same)
+const STRIDE = Math.max(1, Math.round(fpsNum / fpsDen / 30)), per30 = STRIDE > 1 ? await changedArea(file, W, H, THRESH, STRIDE) : changed;
 const probe = execFileSync("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=nb_frames,duration", "-of", "csv=p=0", file]).toString().trim();
 console.log(`${file}\n  ${n} frames decoded at ${W}x${H} grey, threshold ${THRESH}/255 (${probe})`);
 
 const inExempt = (f) => exempt.some(([a, b]) => f >= a && f < b);
 const still = [], windows = [];
 for (let f = 1; f < n; f++) if (changed[f] === 0 && !inExempt(f)) still.push(f);
-for (let f = 1; f + WIN <= n; f++) { let m = 0; for (let k = f; k < f + WIN; k++) m = Math.max(m, changed[k]); if (m < MIN && !inExempt(f)) windows.push([f, f + WIN, m]); }
+for (let f = 1; f + WIN <= n; f++) { let m = 0; for (let k = f; k < f + WIN; k++) m = Math.max(m, per30[k]); if (m < MIN && !inExempt(f)) windows.push([f, f + WIN, m]); }
 const merged = []; windows.forEach(([a, b, m]) => { const last = merged[merged.length - 1]; if (last && a <= last[1]) { last[1] = Math.max(last[1], b); last[2] = Math.max(last[2], m); } else merged.push([a, b, m]); });
 
 const stat = (xs) => { const s = [...xs].sort((x, y) => x - y); return { med: s[s.length >> 1], min: s[0], max: s[s.length - 1] }; };

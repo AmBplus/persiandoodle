@@ -6,7 +6,7 @@
 //   1 DETERMINISM  the same sampled frames drawn twice, at two different worker counts, in two
 //                  different orders. Byte-identical, or PSNR above 45 dB.
 //   2 CONTRACT     a static scan of every module the film draws through.
-//   3 DEAD AIR     no identical consecutive frames, no 15-frame window under 0.5 % changed.
+//   3 DEAD AIR     no identical consecutive frames, no half-second window under 0.5 % changed per 1/30 s.
 //
 // The gate NEVER writes to out/. It renders into .tmp/gate/ and it only ever READS the MP4 it is
 // pointed at, so running it can never damage a finished film.
@@ -43,7 +43,9 @@ const FORBIDDEN = [
   [/from\s+["']react["']/, "react import"], [/from\s+["']remotion["']/, "remotion import"], [/pencil\.tsx/, "pencil.tsx import"],
 ];
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-const motionViolations = (changed, meta) => {
+// windowChanged: the change per 1/30 s (for a 60 fps film, each frame against the one two back). The
+// 0.5 % floor is a 30 fps measure: at 60 fps the same motion changes half the area per frame.
+const motionViolations = (changed, meta, windowChanged = changed) => {
   const declared = (ranges, f) => ranges?.some(([from, to]) => f >= from && f < to) ?? false;
   const step = meta.step ?? (meta.onTwos ? 2 : 1);
   const explained = (f) => {
@@ -54,7 +56,7 @@ const motionViolations = (changed, meta) => {
   let run = 0; const still = [];
   for (let f = 1; f < changed.length; f++) { run = changed[f] === 0 ? run + 1 : 0; if (changed[f] === 0 && !explained(f) && run > pause) still.push(f); }
   const windowSize = drawing ? Math.max(2, Math.round(meta.fps)) : Math.max(2, Math.round(meta.fps / 2));
-  const windows = []; for (let f = 1; f + windowSize <= changed.length; f++) { let m = 0; for (let k = f; k < f + windowSize; k++) m = Math.max(m, changed[k]); if (m < floor && !Array.from({ length: windowSize }, (_, k) => f + k).every((i) => declared(meta.holds, i))) windows.push(f); }
+  const windows = []; for (let f = 1; f + windowSize <= changed.length; f++) { let m = 0; for (let k = f; k < f + windowSize; k++) m = Math.max(m, windowChanged[k]); if (m < floor && !Array.from({ length: windowSize }, (_, k) => f + k).every((i) => declared(meta.holds, i))) windows.push(f); }
   return { still, windows, windowSize };
 };
 const walk = (dir, out = []) => { for (const e of execFileSync("find", [dir, "-name", "*.ts", "-type", "f"]).toString().trim().split("\n").filter(Boolean)) out.push(e); return out; };
@@ -80,7 +82,9 @@ const deadAir = async (mp4, meta) => {
   let changed; try { changed = await changedArea(mp4, W, H); } catch (e) { say(false, "decode MP4", e.message); return; }
   const n = changed.length;
   say(n === meta.durationFrames, "MP4 frame count matches film", `${n}/${meta.durationFrames}`);
-  const { still, windows: win, windowSize } = motionViolations(changed, meta);
+  const stride = Math.max(1, Math.round(meta.fps / 30));
+  let perThirtieth = changed; if (stride > 1) try { perThirtieth = await changedArea(mp4, W, H, 4, stride); } catch (e) { say(false, "decode MP4", e.message); return; }
+  const { still, windows: win, windowSize } = motionViolations(changed, meta, perThirtieth);
   const merged = []; win.forEach((f) => { const l = merged[merged.length - 1]; if (l && f <= l[1]) l[1] = f + windowSize; else merged.push([f, f + windowSize]); });
   for (const [from, to, reason] of meta.locked ?? []) console.log(`        LOCKED ${from}-${to}: ${reason}; violations remain failures`);
   for (const [from, to, reason] of meta.holds ?? []) if (reason) console.log(`        HOLD ${from}-${to}: ${reason}`);
