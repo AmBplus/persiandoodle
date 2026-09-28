@@ -3,6 +3,7 @@
 import { type Rng, TAU, clamp, pan, SVF, Biquad, blep, onePoleCoef, gauss } from "./dsp";
 import type { Played } from "./perform";
 import { kitVoice, type KitCtx } from "./drums";
+import * as E from "./ensemble";
 
 type Out = { L: Float32Array; R: Float32Array };
 type Opts = Record<string, number | boolean | string>;
@@ -67,7 +68,7 @@ export const mallets = (keys: Played[], sr: number, n: number, o: Opts, vibes = 
  * filter for brightness, an allpass for fine tuning, a pick-position comb on the excitation and a
  * velocity low-pass (a softer pluck is darker). Harp rings long and bright; guitar gets a body.
  */
-export const pluck = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, kind: "harp" | "guitar"): Out => {
+const pluckLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, kind: "harp" | "guitar"): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, w = num(o, "width", 0.6);
   for (const k of keys) {
     const f = f0(k.p), i0 = Math.round(k.t * sr), P = sr / f, N = Math.floor(P - 0.5), frac = P - N - 0.5;
@@ -99,7 +100,7 @@ export const pluck = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, ki
 };
 
 /** Soft string ensemble: 5 detuned PolyBLEP saws per note, slow bow attack, delayed vibrato, low-pass, high-pass 150 Hz. */
-export const strings = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
+const stringsLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, atk = num(o, "attack", 0.45), rel = num(o, "release", 0.9), w = num(o, "width", 0.8), bright = num(o, "bright", 1);
   const hpL = new SVF(sr, 150, 0.7), hpR = new SVF(sr, 150, 0.7);
   for (const k of keys) {
@@ -225,7 +226,7 @@ export const hat = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out
   return out;
 };
 /** Warm bass: sine + harmonics, a pluck envelope, and a little saturation so phones hear the line (phone rule). */
-export const bass = (keys: Played[], sr: number, n: number, o: Opts): Out => {
+const bassLegacy = (keys: Played[], sr: number, n: number, o: Opts): Out => {
   const out = { L: new Float32Array(n), R: new Float32Array(n) }, drive = num(o, "drive", 1.6);
   for (const k of keys) { const f = f0(k.p), i0 = Math.round(k.t * sr), dur = k.off - k.t, len = Math.min(n - i0, Math.ceil((dur + 0.1) * sr));
     for (let i = 0; i < len; i++) { const t = i / sr, e = Math.min(1, t * 300) * (0.55 + 0.45 * Math.exp(-t / 0.25)) * (t < dur ? 1 : Math.exp(-(t - dur) / 0.03));
@@ -239,3 +240,10 @@ export const vinyl = (keys: Played[], sr: number, n: number, _o: Opts, r: Rng): 
     for (let i = 0; i < len; i++) { const pop = r() < 7 / sr ? (r() - 0.5) * 0.5 * k.v : 0; const hiss = gauss(r) * 0.004 * k.v; zl += lp * (hiss + pop - zl); zr += lp * (hiss * 0.8 + pop - zr); out.L[i0 + i] += zl; out.R[i0 + i] += zr; } }
   return out;
 };
+
+// ---------------------------------------------------------------- v2 ensemble voices (ensemble.ts)
+// `opts.legacy: true` keeps the v1 voice bit-for-bit (shipped films); everything else gets v2.
+const legacy = (o: Opts) => o.legacy === true;
+export const pluck = (keys: Played[], sr: number, n: number, o: Opts, r: Rng, kind: "harp" | "guitar"): Out => (legacy(o) ? pluckLegacy(keys, sr, n, o, r, kind) : E.pluck(keys, sr, n, o, r, kind));
+export const strings = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? stringsLegacy(keys, sr, n, o, r) : E.strings(keys, sr, n, o, r));
+export const bass = (keys: Played[], sr: number, n: number, o: Opts): Out => (legacy(o) ? bassLegacy(keys, sr, n, o) : E.bass(keys, sr, n, o));
