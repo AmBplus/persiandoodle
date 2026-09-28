@@ -48,14 +48,9 @@ export const kitOf = (o: Opts, style?: string): KitId => (typeof o.kit === "stri
 /** Audience-view placement, -1 left .. 1 right. */
 const PAN: Record<DrumPiece, number> = { kick: 0, snare: 0.06, rimshot: 0.06, ghost: 0.06, cross: 0.08, clap: 0, hat: 0.34, open: 0.34, pedal: 0.3, ride: -0.38, bell: -0.38, crash: 0.42,
   tomHi: 0.2, tomMid: -0.05, tomLo: -0.32, shaker: -0.45, tamb: 0.5, brush: 0.06, sweep: 0.06, dum: -0.1, tek: 0.15, ka: 0.3, cowbell: -0.2 };
-type Lane = "kick" | "snare" | "ghost" | "hat" | "perc";
-const LANE: Record<DrumPiece, Lane> = { kick: "kick", snare: "snare", rimshot: "snare", clap: "snare", ghost: "ghost", cross: "ghost", brush: "ghost", sweep: "ghost", hat: "hat", open: "hat", pedal: "hat", ride: "hat", bell: "hat",
-  crash: "perc", tomHi: "perc", tomMid: "perc", tomLo: "perc", shaker: "perc", tamb: "perc", dum: "kick", tek: "ghost", ka: "perc", cowbell: "perc" };
-/** Microtiming per lane in ms (mean, then the hat lane's 1/f drift sigma): kick on the grid, the snare lays back, hats push. Machines sit on the grid. */
-const FEEL: Record<KitId, Record<Lane, number> & { drift: number }> = {
-  acoustic: { kick: 0, snare: 4, ghost: 2, hat: -3, perc: 0, drift: 3 }, "808": { kick: 0, snare: 6, ghost: 4, hat: -1, perc: 2, drift: 1.5 }, "909": { kick: 0, snare: 0, ghost: 0, hat: 0, perc: 0, drift: 0 },
-  dusty: { kick: 0, snare: 17, ghost: 11, hat: 3, perc: 7, drift: 5 }, brush: { kick: 0, snare: 5, ghost: 4, hat: -6, perc: 2, drift: 4 }, orch: { kick: 0, snare: 2, ghost: 2, hat: 0, perc: 0, drift: 2 },
-};
+// Microtiming is NOT here: perform.ts owns the feel (mixProfiles FEELS, keyed by the style: lane offsets, humanize,
+// jitter, hat drift) and hands the kit keys that are already placed. A kit adding its own offsets doubled them (the
+// dusty snare landed 35 ms late instead of 18; measured at the sound-v2 merge).
 
 // ---------------------------------------------------------------- building blocks
 type Var = { g: number; tune: number; dec: number; bright: number; ph: number; wire: number };
@@ -303,9 +298,8 @@ export const chokeTimes = (parts: { inst: string; opts?: Opts; keys: Played[] }[
 
 /** A kit voice: kick / snare / hat lanes (the inst gives the lane's default piece). */
 export const kitVoice = (inst: string, keys: Played[], sr: number, n: number, o: Opts, r: Rng, ctx: KitCtx = {}): Out => {
-  const kit = kitOf(o, ctx.style), L = new Float32Array(n), R = new Float32Array(n), F = FEEL[kit], grid = o.grid === true, choke = ctx.choke ?? [];
+  const kit = kitOf(o, ctx.style), L = new Float32Array(n), R = new Float32Array(n), choke = ctx.choke ?? [];
   const width = typeof o.width === "number" ? (o.width as number) : 1;
-  let drift = 0;
   const put = (y: Buf | [Buf, Buf], t: number, p: number, g: number) => {
     const i0 = Math.round(t * sr); if (i0 >= n) return;
     const [gl, gr] = pan(p * width);
@@ -317,9 +311,7 @@ export const kitVoice = (inst: string, keys: Played[], sr: number, n: number, o:
     if (kit === "brush" && (pc === "snare" || pc === "ghost" || pc === "cross" || pc === "rimshot")) pc = "brush";
     if (kit !== "brush" && pc === "sweep") pc = "shaker";
     if (kit !== "brush" && pc === "brush") pc = "ghost";
-    const lane = LANE[pc];
-    let t = k.t;
-    if (!grid) { if (lane === "hat") drift = 0.8 * drift + 0.6 * gauss(r) * F.drift; t = Math.max(0, t + (F[lane] + (lane === "hat" ? drift : 0)) / 1000); }
+    const t = k.t;
     const x = vary(r), v = clamp(k.v, 0.02, 1), dur = Math.max(0.02, k.off - k.t), rolled = o.roll === true || k.kind === "roll", g = x.g * (TRIM[pc] ?? 0.5) * lvl(kit, pc), p = PAN[pc] + (r() - 0.5) * 0.04;
     switch (pc) {
       case "kick":
