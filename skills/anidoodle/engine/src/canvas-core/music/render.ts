@@ -8,7 +8,7 @@ import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
 import { keysVoice, renderPianoV2 } from "./keys";
 import * as I from "./instruments";
 import * as O from "./orchestra";
-import { timpani as kitTimpani, chokeTimes, type KitCtx } from "./drums";
+import { chokeTimes, type KitCtx } from "./drums";
 import { room, Biquad, db } from "./dsp";
 import { warmPad, softPluck, sub, duckCurve, tape } from "./lofiKit";
 import { pumpCurve, lofiStem, lofiMaster, LOFI_DUSTY } from "./lofiFx";
@@ -55,7 +55,7 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number, ct
     case "brass": return O.brass(keys, sr, n, o);
     case "woodwind": return O.woodwind(keys, sr, n, o, r);
     case "choir": return O.choir(keys, sr, n, o, r);
-    case "timpani": return ctx.legacy || o.legacy === true ? O.timpani(keys, sr, n, o, r) : kitTimpani(keys, sr, n, o, r);
+    case "timpani": return O.timpani(keys, sr, n, o, r); // v2: the kit timpani (drums.ts); legacy opts: v1
     case "leadSynth": return O.leadSynth(keys, sr, n, o);
     case "bowedSolo": return O.bowedSolo(keys, sr, n, o, r);
     default: throw new Error(`no instrument ${pt.inst}`);

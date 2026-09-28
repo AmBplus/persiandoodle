@@ -5,6 +5,7 @@
 import { type Rng, TAU, clamp, pan, SVF, blep, gauss } from "./dsp";
 import type { Played } from "./perform";
 import * as E from "./ensemble";
+import { timpani as kitTimpani } from "./drums";
 
 type Out = { L: Float32Array; R: Float32Array };
 type Opts = Record<string, number | boolean | string>;
@@ -69,7 +70,7 @@ const choirLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Ou
 };
 
 /** Timpani (`pitch`: a MIDI note to tune it when it plays a drum lane): a tuned membrane (modal partials 1, 1.5, 1.99, 2.44, 2.97 with their own decays), a small downward pitch settle, a felt-mallet thump. Pitched on the note. */
-export const timpani = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
+const timpaniLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
   const out = out0(n), dec = num(o, "decay", 1.6), P = [[1, 1, 1], [1.5, 0.5, 0.7], [1.99, 0.35, 0.5], [2.44, 0.2, 0.35], [2.97, 0.12, 0.25]];
   for (const k of keys) {
     const f = f0(typeof o.pitch === "number" ? (o.pitch as number) : k.p), i0 = Math.round(k.t * sr), len = Math.min(n - i0, Math.ceil(dec * 4 * sr)), lp = new SVF(sr, 400, 0.7);
@@ -117,3 +118,6 @@ export const brass = (keys: Played[], sr: number, n: number, o: Opts): Out => (l
 export const woodwind = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? woodwindLegacy(keys, sr, n, o, r) : E.woodwind(keys, sr, n, o, r));
 export const choir = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? choirLegacy(keys, sr, n, o, r) : E.choir(keys, sr, n, o, r));
 export const bowedSolo = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? bowedSoloLegacy(keys, sr, n, o, r) : E.bowedSolo(keys, sr, n, o, r));
+/** Timpani: the kit's concert timpani (drums.ts: 7 measured membrane modes, velocity pitch glide, stick click, real rolls), 3.7x faster than v1
+ *  (4.5 s vs 16.9 s for a 30 s part at 48 kHz, measured at the sound-v2 merge). v1 (5 sines, recomputed with Math.sin per sample, no rolls) stays for legacy only. */
+export const timpani = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? timpaniLegacy(keys, sr, n, o, r) : kitTimpani(keys, sr, n, o, r));
