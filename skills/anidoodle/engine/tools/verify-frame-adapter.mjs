@@ -11,15 +11,16 @@
 // If the engine is ever installed, this stays useful: it isolates a page-side fault from an
 // engine-side one, which is the difference between an hour and a day.
 //
-//   node tools/verify-frame-adapter.mjs [film]
+//   node tools/verify-frame-adapter.mjs <film>
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildPage } from "./build-page.mjs";
+import { requireFilm } from "./names.mjs";
 import { FRAME_ADAPTER, ENGINE, INSTALL, probe } from "./adapters/hyperframes.mjs";
 import { detect } from "./detect.mjs";
 
-const film = process.argv[2] ?? "mechanicalLepidoptera";
+const film = requireFilm(process.argv[2], "verify-frame-adapter", "node tools/verify-frame-adapter.mjs <film>");
 const dir = resolve(".tmp/hyperframes", film); mkdirSync(dir, { recursive: true });
 const out = join(dir, `${film}.html`);
 const built = await buildPage({ entry: `src/hosts/page-${film}.ts`, out, title: film });

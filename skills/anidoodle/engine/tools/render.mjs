@@ -1,4 +1,4 @@
-// node tools/render.mjs [film] [--scale 1] [--workers 4] [--out out/x.mp4|.gif|.webm|.apng] [--gif-fps 15] [--width 640]
+// node tools/render.mjs <film> [--scale 1] [--workers 4] [--out out/x.mp4|.gif|.webm|.apng] [--gif-fps 15] [--width 640]
 //                       [--blur N] [--from F] [--to F]
 // --blur N  motion blur (N an integer >= 1): every output frame is the average of N subframes over
 //           a one-frame shutter, integrated in linear light and weighted by alpha inside the page.
@@ -30,12 +30,12 @@ import { join, resolve } from "node:path";
 import { buildPage } from "./build-page.mjs";
 import { detect } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
-import { defaultOutput } from "./names.mjs";
+import { defaultOutput, requireFilm } from "./names.mjs";
 import { float32Wav } from "./audio.mjs";
 import { firstFrameBlank } from "./thumb.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
-const film = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "fixtures";
+const film = requireFilm(process.argv[2], "render", "node tools/render.mjs <film> [--scale 1] [--out out/x.mp4|.gif|.webm|.apng] [--from F] [--to F] [--poster-frame N] [--blur N]");
 const BLUR = Number(arg("blur", 1));
 if (!Number.isInteger(BLUR) || BLUR < 1) { console.error(`--blur wants a whole number of subframes >= 1, got '${arg("blur")}'`); process.exit(2); }
 const scale = Number(arg("scale", 1)), fmt = (arg("out", "").match(/\.(gif|webm|apng)$/i)?.[1] ?? "mp4").toLowerCase(), workers = Number(arg("workers", Math.max(1, Math.min(4, Math.floor(cpus().length / 2)))));
