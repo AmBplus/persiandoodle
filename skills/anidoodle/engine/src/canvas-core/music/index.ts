@@ -17,6 +17,7 @@ export * from "./calibration";
 export * as instruments from "./instruments";
 export * from "./sfx";
 export * as orchestra from "./orchestra";
+export { MIX_PROFILES, FEELS, mixProfile, describeMix, type MixProfile, type Feel } from "./mixProfiles";
 import { nocturne, pianoPhrase8 } from "./pieces/nocturne";
 import { launchLofi, launchLofi2, launchLofi3, launchLofi3Material } from "./pieces/launch";
 import { musicBoxJoy, minorPianoMelancholy, cinematicAwe, chiptunePlayful, lofiNostalgic } from "./pieces/samplers";

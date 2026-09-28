@@ -3,6 +3,7 @@
 // a piece to ANY film duration (tempo inside the style's range, then repeat or drop sections).
 import { midi, type ModeId, MODES, detectMode, pcOf, modeFit } from "./theory";
 import { MOODS, STYLES, REFUSED_BLENDS, type MoodId, type StyleId, type MelodyType } from "./tables";
+import type { MixProfile } from "./mixProfiles";
 
 export type Meter = "2/4" | "3/4" | "4/4" | "5/4" | "6/8" | "7/8" | "9/8" | "12/8";
 /** Beats per bar. Simple meters count quarters (7/8 = 3.5 quarters, write eighths as .5); compound meters (6/8, 9/8, 12/8) count dotted quarters (write eighths as 1/3). */
@@ -29,6 +30,8 @@ export type Chord = { t: number; name: string };
 /** Bus moves (lofiKit): `duck` pumps the named parts on every onset of the `by` part; `tape` wobbles and saturates the master. */
 export type PieceFx = { clean?: boolean /* skip the lo-fi master tone (low-pass, shelf, saturation) */; duck?: { by: string; parts: string[]; depth?: number; release?: number }; tape?: { wowCents?: number; wowHz?: number; flutterCents?: number; flutterHz?: number; drive?: number } };
 export type Piece = { title: string; plan: MusicPlan; parts: Part[]; harmony: Chord[]; tail: number; seed: number; fx?: PieceFx;
+  /** a shipped score frozen on the old sound (bit-identical): render takes the legacy voices and fx paths */ legacy?: boolean;
+  /** override any field of the style's mix/space/feel profile (mixProfiles.ts) */ mix?: Partial<MixProfile>;
   /** a shorter complete form of the same music, chosen automatically when the film is too short for this one */ shortForm?: () => Piece;
   /** rebuild the same music for a film `seconds` long so it still ends on its phrase (lofiElectronic: loop cycles added or removed); `fitScore` calls it before fitToDuration */ refit?: (seconds: number) => Piece;
   /** composer-facing notes from compose (a line shorter than its section, ...): printed by tools/music.mjs check */ warnings?: string[];

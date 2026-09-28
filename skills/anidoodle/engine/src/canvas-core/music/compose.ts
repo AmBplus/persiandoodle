@@ -11,6 +11,7 @@ import { perform } from "./perform";
 import { drumBar, type Groove, type Lane } from "./grooves";
 import { VOCAB_TRIM, VOCAB_TARGET_FIX } from "./vocabTrim";
 import { VOCAB, KINDS, BASE_SLOTS, resolveVoice, moodVoice, moodFx, fullMood, type Slot, type Voice, type SectionKind, type MoodControls } from "./vocab";
+import type { MixProfile } from "./mixProfiles";
 
 /** One chord of YOUR harmony: its voicing (a notation chord) and a one-bar bass line you wrote for it. */
 export type ComposedChord = { voicing: string; bass?: string };
@@ -40,6 +41,8 @@ export type Material = {
   /** 0.5 straight .. 0.67 hard swing (default the style's lower bound) */ swing?: number;
   /** the piece's dynamic level [start, end] 0..1, ramped over the whole piece (default [0.62, 0.66]); section `energy` shapes it locally */ dyn?: [number, number];
   /** seconds of ring-out after the last onset (default 3.2) */ tail?: number; loop?: boolean;
+  /** a shipped score frozen on the old sound (the launch film): never set this for a new piece */ legacy?: boolean;
+  /** override the style's mix/space/feel profile (mixProfiles.ts), e.g. { space: {...}, feel: "tight" } */ mix?: Partial<MixProfile>;
 };
 
 /** line() with the composer's context on its error: which section, slot or chord wrote the bad bar. */
@@ -144,10 +147,11 @@ export const composePiece = (m: Material): Piece => {
   const planSections = regions.length === 1 ? [{ id: "a", bars: B, mood: m.mood, key: m.key, mode: m.mode, melody: ["stepwise", "hook"] as MelodyType[], dyn, ending: "tail" as const, repeatable: false }]
     : regions.map((r, i) => ({ id: `key${i}`, bars: r.to - r.from, mood: m.mood, key: r.key, mode: r.mode, melody: ["stepwise", "hook"] as MelodyType[], dyn: [lvl(r.from), lvl(r.to)] as [number, number], ending: "tail" as const, repeatable: false }));
   const piece: Piece = {
-    title: m.title, seed: m.seed, tail: m.tail ?? 3.2, harmony, parts,
+    title: m.title, seed: m.seed, tail: m.tail ?? 3.2, harmony, parts, ...(m.legacy ? { legacy: true } : {}),
     plan: { style: m.style, tempo: m.bpm, meter, swing: m.swing ?? vocab.swing[0], ritard: m.loop ? 1 : 0.92, loop: m.loop,
       sections: planSections },
     fx: mood ? moodFx(vocab.fx, mood) : vocab.fx, stemTargets: targets,
+    ...(m.mix ? { mix: m.mix } : {}),
     arrangement: lay.map((x) => ({ id: x.id, kind: x.s.kind, from: x.from, bars: x.s.bars })),
     warnings, refit: m.loop ? undefined : (seconds: number) => composePiece(refitMaterial(m, seconds)),
   };
