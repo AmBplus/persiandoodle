@@ -194,6 +194,7 @@ mid-bar writes its rest, `C2:3 r:1`, never a silent gap):
 - Durations are in beats. In 6/8, 9/8 and 12/8 a beat is a dotted quarter, so an eighth is `1/3`.
   In 7/8 a beat is a quarter, so an eighth is `.5` and a bar is 3.5.
 - `@VEL` scales the line's velocity (0..1).
+- In a hand-written piece, a one-bar sting on any beat says so: `line(t, "G6:1", { ..., hit: true })`.
 
 ## Craft notes (what makes it good, not just valid)
 
