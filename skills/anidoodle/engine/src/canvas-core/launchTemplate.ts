@@ -31,7 +31,9 @@ import * as launchPieces from "./music/pieces/launch";
 import * as nocturnePieces from "./music/pieces/nocturne";
 import * as samplers from "./music/pieces/samplers";
 import type { Piece } from "./music/plan";
-import { composePiece, type Material } from "./music/compose";
+import { composePiece, stretchIndex, withStretch, type Material } from "./music/compose";
+import { perform } from "./music/perform";
+import { beatsPerBar } from "./music/plan";
 import { novelty } from "./music/novelty";
 
 export type LaunchAsk = {
@@ -98,10 +100,11 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
   if (spec.score === undefined && !spec.audio) throw new Error("launchTemplate: `score` is required: a piece composed for this product (references/music/compose.md), or null for silence");
   if (spec.score) refuseOurs(spec.score);
   const grid = beatGrid(spec.bpm, fps);
-  const ASK = Math.round((spec.askBeats ?? 6) * grid.beat), TYPE = Math.round((spec.typeBeats ?? 4) * grid.beat), END = Math.round((spec.endBeats ?? 8) * grid.beat);
+  const ASK = Math.round((spec.askBeats ?? 6) * grid.beat), TYPE = Math.round((spec.typeBeats ?? 4) * grid.beat), END0_HOLD = Math.round((spec.endBeats ?? 8) * grid.beat);
+  let END = END0_HOLD; // the end card is a hold: a scored film sets it so the film is whole bars of its score
   if (n < 1 || n > 3) throw new Error("launchTemplate: 1 to 3 asks; more is a feature list, not a story");
   if (ASK < 100) throw new Error(`launchTemplate: an ask beat needs 100 frames or more (it has ${ASK}); raise askBeats`);
-  if (END < 3 * fps + 40) throw new Error("launchTemplate: the end card must hold the install lines 3 s or more; raise endBeats");
+  if (END < MIN_END(fps)) throw new Error("launchTemplate: the end card must hold the install lines 3 s or more; raise endBeats");
   const T = spec.asks.map((a, i) => ({ ...askTiming(a.prompt, i, ASK), base: i * ASK }));
   const END0 = n * ASK; // content frame where the end card starts
 
@@ -191,6 +194,10 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     segs.push(last && spec.claimBar !== undefined ? pic(i * ASK, (i + 1) * ASK, grid.solve(spec.claimBar, fixed, 60)) : pic(i * ASK, (i + 1) * ASK));
     if (!last && words[i]?.length) segs.push(type(words[i], TYPE, (i + 1) * ASK - 1, (i + 1) * ASK));
   });
+  // the score plays at the film's bpm, exactly: the cuts sit on this grid. Sync wins over length, so
+  // the end-card hold (not the tempo) takes up the difference: the film becomes whole bars of the score.
+  const bed = !spec.audio && spec.score ? gridScore(spec.score, spec.bpm, fps, segs.reduce((a, x) => a + x.len, 0), END) : null;
+  if (bed) END = bed.end;
   segs.push(pic(END0, END0 + END));
   const cut = makeCut(segs);
   const draw = (ctx: Ctx, F: number, env: Env) => {
@@ -208,31 +215,56 @@ export const makeLaunchFilm = (spec: LaunchSpec): Film & { cut: ReturnType<typeo
     holds.push([cut.STARTS[k] + written + 1, cut.STARTS[k] + open + 1]);
   });
   holds.push([cut.N - END + 53, cut.N]); // the end card, all on: read it, screenshot it
-  // the score, fitted to the film's exact length so it ends on its phrase (fitScore: its stretch section
-  // repeated or dropped, then the tempo trimmed); the fitted tempo goes in meta so render prints it
-  // beside the grid's bpm (compose at the film's bpm and they stay within a few percent)
-  const bed = !spec.audio && spec.score ? scoreFit(asPiece(spec.score), cut.N, fps) : null;
   return {
-    meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds, ...(bed ? { score: { tempo: bed.fit.tempo, form: bed.fit.form } } : {}) },
+    meta: { title: `${spec.title} · launch`, W, H, fps, bpm: spec.bpm, durationFrames: cut.N, raster: "cpu", kind: "launch", holds, ...(bed ? { score: { tempo: spec.bpm, form: bed.form, grid: true } } : {}) },
     assets: { images: {} },
     shots: [{ id: "cut", start: 0, end: cut.N, draw }],
-    audio: spec.audio ?? (bed ? musicBed(() => bed.fit, cut.N, fps, -14, { limit: spec.limit }) : undefined),
+    audio: spec.audio ?? (bed ? musicBed(() => bed.piece, cut.N, fps, -14, { limit: spec.limit, tempo: spec.bpm }) : undefined),
     cut,
   };
 };
 
 type Fit = ReturnType<typeof fitScore>;
-const scoreFit = (piece: () => Piece, frames: number, fps: number) => ({ fit: fitScore(piece(), frames / fps) });
+const MIN_END = (fps: number) => 3 * fps + 40; // the install lines held 3 s or more, after the card writes on
 
-// A music bed: the piece FITTED to the film (fitScore, exactly as filmAudio: its stretch section
-// repeated or dropped so it lands on its outro, the tempo trimmed so the tail rings out on the last
-// frame; never cut and faded), then set to `lufs` integrated (default -14, the one published
+/**
+ * The score for a beat-grid film: played at the film's bpm exactly (the cuts sit on that grid), and
+ * the film made whole bars of it. A Material's stretch section is repeated 0..n times; each form is
+ * `bars` long plus whole bars for its tail to ring out, and the form whose length puts the end-card
+ * hold nearest the one asked for wins (the hold stays between 3 s and the asked hold + 4 bars).
+ * No tempo is changed; if no form fits, it throws. Bars before the final ritard are checked against
+ * the grid to half a frame, so a rubato or a breath can never pull a downbeat off a cut.
+ */
+export const gridScore = (score: () => Piece | Material, bpm: number, fps: number, before: number, hold: number) => {
+  const x = score(), barF = (4 * 60 * fps) / bpm, lo = MIN_END(fps), hi = hold + 4 * barF;
+  const forms: (() => Piece)[] = "plan" in x ? [() => x] : stretchIndex(x) < 0 ? [() => composePiece(x)] : Array.from({ length: 33 }, (_, r) => () => composePiece(withStretch(x, r)));
+  let best: { piece: Piece; end: number; bars: number; ring: number } | null = null, tried: string[] = [];
+  for (const make of forms) {
+    const p = make(), bpb = beatsPerBar(p.plan.meter);
+    if (bpb !== 4) throw new Error(`launchTemplate: the score is in ${p.plan.meter}; a launch film's cuts sit on 4-beat bars, so compose it in 4/4`);
+    if (p.plan.pickupBeats) throw new Error(`launchTemplate: the score opens with a ${p.plan.pickupBeats}-beat pickup; frame 0 is a downbeat, so start the score on the bar`);
+    const bars = p.plan.sections.reduce((a, q) => a + q.bars, 0), ring = Math.ceil((p.tail * bpm) / 60 / 4 - 1e-9), end = Math.round((bars + ring) * barF) - before;
+    tried.push(`${bars}+${ring} bars -> hold ${(end / fps).toFixed(1)} s`);
+    if (end >= lo && end <= hi && (!best || Math.abs(end - hold) < Math.abs(best.end - hold))) best = { piece: p, end, bars, ring };
+    if (end > hi) break; // more repeats only make it longer
+  }
+  if (!best) throw new Error(`launchTemplate: the score cannot end on a bar of this film at ${bpm} bpm without changing its tempo. The cut before the end card is ${(before / fps).toFixed(1)} s and the end-card hold must be ${(lo / fps).toFixed(1)}-${(hi / fps).toFixed(1)} s; the score's forms give ${tried.join(", ")}. Compose a 1-bar stretch section (stretch: true), or change askBeats/endBeats/claimBar.`);
+  const piece: Piece = { ...best.piece, plan: { ...best.piece.plan, tempo: bpm, rubato: 0 } }, perf = perform(piece, bpm, { expressive: true }), spb = 60 / bpm;
+  const lastBar = Math.floor((perf.lastOnset / spb - 6) / 4); // the final ritard lives in the last 6 beats, inside the end card
+  for (let k = 0; k <= lastBar; k++) { const drift = perf.sec(4 * k) - 4 * k * spb; if (Math.abs(drift) > 0.5 / fps) throw new Error(`launchTemplate: the score's bar ${k} lands ${(drift * 1000).toFixed(0)} ms off the film's grid (a breath or a caesura in the score); a launch film's cuts need every downbeat on the grid: even out the section dynamics there`); }
+  return { piece, end: best.end, bars: best.bars, form: `${best.bars} bars + ${best.ring} to ring, at the film's ${bpm} bpm` };
+};
+
+// A music bed: the piece FITTED to the film, never cut and faded. With `tempo` (a beat-grid film, as
+// the launch template passes it) the piece plays at exactly that tempo and the film is already whole
+// bars of it (gridScore); without, fitScore fits it as filmAudio does (its stretch section repeated or
+// dropped, the tempo trimmed so the tail rings out on the last frame). Then it is set to `lufs` integrated (default -14, the one published
 // cross-platform target) with the true peak held at or under -1 dBTP. A dynamic piece stops at the
 // peak ceiling first (render prints how far short); `limit: true` lets a look-ahead limiter take
 // those few peaks instead so the bed reaches the target. Compose the piece for this film at the
 // film's bpm, so the cuts sit on its downbeats. `piece` may return a Piece or a fitScore result.
-export const musicBed = (piece: () => Piece | Fit, frames: number, fps = 30, lufs = -14, o: { limit?: boolean } = {}) => (sr: number): [Float32Array, Float32Array] => {
-  const seconds = frames / fps, x = piece(), fit = "order" in x ? x : fitScore(x, seconds);
+export const musicBed = (piece: () => Piece | Fit, frames: number, fps = 30, lufs = -14, o: { limit?: boolean; tempo?: number } = {}) => (sr: number): [Float32Array, Float32Array] => {
+  const seconds = frames / fps, x = piece(), fit = "order" in x ? x : o.tempo ? { piece: x, tempo: o.tempo } : fitScore(x, seconds);
   const m = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo }), n = Math.round(seconds * sr);
   const L = new Float32Array(n), R = new Float32Array(n); L.set(m.L.subarray(0, n)); R.set(m.R.subarray(0, n));
   const gain = (dB: number) => { const g = Math.pow(10, dB / 20); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } };

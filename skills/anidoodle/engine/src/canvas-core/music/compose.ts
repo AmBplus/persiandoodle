@@ -162,14 +162,20 @@ export const lofiElectronic = (m: Omit<Material, "style">): Piece => composePiec
  * groove/hook/verse/drop) is played more or fewer times (0 = dropped), whichever puts the last
  * onset nearest `seconds - tail` at the written tempo. fitToDuration then trims the tempo.
  */
-export const refitMaterial = (m: Material, seconds: number): Material => {
-  const secs = m.sections, want = seconds - (m.tail ?? 3.2);
-  let si = secs.findIndex((s) => s.stretch);
+/** The section a film fit repeats or drops: the one marked `stretch`, else the longest groove/hook/verse/drop; -1 when none. */
+export const stretchIndex = (m: Material) => {
+  const secs = m.sections; let si = secs.findIndex((s) => s.stretch);
   if (si < 0) secs.forEach((s, i) => { if (["groove", "hook", "verse", "drop"].includes(s.kind) && (si < 0 || s.bars * (s.repeat ?? 1) > secs[si].bars * (secs[si].repeat ?? 1))) si = i; });
+  return si;
+};
+/** The same material with its stretch section played `r` times (0 = dropped). */
+export const withStretch = (m: Material, r: number): Material => { const si = stretchIndex(m); return si < 0 ? m : { ...m, sections: m.sections.map((s, i) => (i === si ? { ...s, repeat: r } : s)).filter((s) => (s.repeat ?? 1) > 0) }; };
+export const refitMaterial = (m: Material, seconds: number): Material => {
+  const want = seconds - (m.tail ?? 3.2), si = stretchIndex(m);
   if (si < 0 || want <= 0) return m;
   let best: { m: Material; cost: number } | null = null;
   for (let r = 0; r <= 64; r++) {
-    const m2: Material = { ...m, sections: secs.map((s, i) => (i === si ? { ...s, repeat: r } : s)).filter((s) => (s.repeat ?? 1) > 0) };
+    const m2 = withStretch(m, r);
     if (!m2.sections.some((s) => s.lead)) continue;
     const t = perform(composePiece(m2), m.bpm, { expressive: true }).lastOnset, tempo = m.bpm * (t / want), cost = Math.abs(Math.log(tempo / m.bpm));
     if (!best || cost < best.cost) best = { m: m2, cost };

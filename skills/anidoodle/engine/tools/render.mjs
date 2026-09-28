@@ -68,6 +68,8 @@ if (POSTER !== null && POSTER >= N) { console.error(`--poster-frame ${POSTER} is
 if (POSTER !== null) console.log(`poster: frame 0 is frame ${POSTER}, dissolving into the opening by frame ${Math.max(1, FADE)}`);
 const posterAt = (n) => POSTER !== null && n < Math.max(1, FADE); // frames the poster dissolve touches
 const drawAt = (n, w) => (posterAt(n) ? session.poster(n, POSTER, FADE, BLUR, w) : BLUR > 1 ? session.blur(n, BLUR, w) : session.frame(n, w));
+// a film whose cuts sit on its beat grid (meta.score.grid) must hear its score at that grid's tempo
+if (meta.score?.grid && Math.abs(meta.score.tempo / meta.bpm - 1) > 0.005) { console.error(`render: the score plays at ${meta.score.tempo.toFixed(2)} bpm but this film's cuts sit on a ${meta.bpm} bpm grid (${((meta.score.tempo / meta.bpm - 1) * 100).toFixed(1)} %, limit 0.5 %): the cuts would drift off the downbeats. Play the score at the film's bpm and make the film whole bars of it (launchTemplate does), or compose a 1-bar stretch section`); process.exit(2); }
 console.log(`film: "${meta.title}" ${meta.W}x${meta.H} @ ${meta.fps} fps, ${N} frames, ${meta.bpm} bpm, scale ${scale}, ${session.workers} page(s)`);
 if (BLUR > 1) console.log(`motion blur: ${BLUR} subframes per frame, one-frame shutter, linear light`);
 if (ranged) console.log(`range render: frames [${FROM}, ${TO}) of ${N}, silent by design`);
@@ -84,8 +86,8 @@ if (a) { // the audio report: loudness and true peak, and the score's fit agains
   console.log(`audio: ${lu.toFixed(1)} LUFS integrated, ${tp.toFixed(1)} dBTP true peak`);
   if (lu < -14.5 && tp > -1.1) console.log(`  NOTE the -1 dBTP ceiling held the gain ${(-14 - lu).toFixed(1)} dB under -14 LUFS (the cross-platform target): peaks are a composing problem (stagger the bass under the loudest downbeat, roll the big chord); a launch template bed takes \`limit: true\``);
   if (meta.score) { const off = (meta.score.tempo / meta.bpm - 1) * 100;
-    console.log(`score: fitted to the film at ${meta.score.tempo.toFixed(1)} bpm (${meta.score.form}); the picture's grid is ${meta.bpm} bpm (${off >= 0 ? "+" : ""}${off.toFixed(1)} %)`);
-    if (Math.abs(off) > 2) console.log("  NOTE past 2 % the cuts drift off the score's downbeats: a 1-bar stretch section, or the Material's `tail`, lets the fit land nearer the grid"); }
+    console.log(`score: ${meta.score.tempo.toFixed(2)} bpm (${meta.score.form}); the picture's grid is ${meta.bpm} bpm (${off >= 0 ? "+" : ""}${off.toFixed(2)} %)`);
+    if (!meta.score.grid && Math.abs(off) > 2) console.log("  NOTE past 2 % the score's downbeats drift from meta.bpm: a 1-bar stretch section, or the Material's `tail`, lets the fit land nearer it"); }
 }
 
 mkdirSync(join(out, ".."), { recursive: true });
