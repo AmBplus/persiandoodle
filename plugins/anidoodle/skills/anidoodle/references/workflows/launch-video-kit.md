@@ -8,7 +8,7 @@ product. The rules they serve are in `launch-video.md`.
 `launchTemplate.ts` turns data into a film: one to three asks, a type frame between them, and an
 end card with your install lines. `launchExample.ts` is a complete one for a made-up product (the
 drawn look, chat asks); `launchExampleClean.ts` is the second look on a UI-first product (the
-product's own UI, a split beat, a film in a card, 60 fps). Copy their shape, not their contents:
+product's own UI in three screens, two of them split beats, 60 fps). Copy their shape, not their contents:
 the plates, the UI data and the score are the product's own, made for its brief.
 
 ```bash
@@ -20,7 +20,27 @@ node tools/launch.mjs ship myLaunch --shapes 16x9,1x1,9x16 --blur auto --gate
 `ship` renders every shape to `out/myLaunch-<shape>.mp4`, writes its poster (`.poster.png`, the
 film's own legible frame) and its captions (`.srt`, `.vtt`), runs `verify-export --delivery` on each
 file (size, frames, score, A/V sync at every marker, the true peak after the encode, a legible frame
-0) and, with `--gate`, the gate; one table at the end, exit 1 if any shape fails.
+0), `framecheck.mjs` on every frame (no text, no card, no product window cut by the frame's edge)
+and, with `--gate`, the gate; one table at the end, exit 1 if any shape fails.
+
+### Design review checklist (every shape, before anything ships)
+
+The gate proves a film is deterministic; it cannot see whether it is well designed. Review the
+contact sheet of EVERY shape against this list, and fix, never waive:
+
+- **No clipped type.** Every word a viewer reads is whole on every frame: the typed prompt, the
+  bubbles, the labels, the words, the install lines. `framecheck.mjs` (run by `ship`) fails any
+  line of text the frame's edge cuts through.
+- **No edge-cropped content.** A card, a product window, a film's card sits whole in the frame
+  with a margin, unless it is a deliberate full-bleed (the whole frame is that one thing). What
+  the camera is about to cut fades before it does. `framecheck.mjs` checks the cards and windows.
+- **Balanced composition per shape.** The subject owns the frame (a product UI about 70-80 % of a
+  16x9 frame's width), a split beat is a real two-column grid with the words sized as the design,
+  the end card is one centred group with presence; no big dead areas, nothing huddled in a corner.
+- **Coherent example content.** Every ask shows THIS product: its UI, its plates, its words. No
+  stock plate or another product's screen inside a film about something else.
+- **Judge design, not only collisions**: hierarchy, spacing, whether each frame would pass as a
+  poster.
 
 ```ts
 import { C } from "./launchKit";
@@ -46,10 +66,12 @@ export const myLaunch = makeLaunchFilm({
 
 What you get, from data:
 
-- **Chat asks** (`kind` omitted): the first prompt already being typed at frame 0 in a close-up (a
-  hook that reads muted), the camera easing out for the press, an ink drop arcing from Generate
+- **Chat asks** (`kind` omitted): the first prompt already being typed at frame 0, the whole
+  composer in frame so every typed word stays readable (a hook that reads muted; on a phone frame
+  the composer starts in the middle of the empty thread and docks on send, the way a chat app opens), the camera easing out for the press, an ink drop arcing from Generate
   into the thread and blooming open into a card where the plate draws itself live (the card opens
-  on a spring), the thread keeping earlier answers and scrolling, a gentle lean onto each new card.
+  on a spring), the thread keeping earlier answers and scrolling, a gentle lean onto each new card that keeps it whole with a margin (what the camera is about
+  to cut fades first).
 - **UI asks** (`kind: "ui"`): the product's interface drawn from data (`productUI.ts`) in its
   `before` state; the ask typed into its command bar if it has a `prompt`; the pointer presses its
   `action`; every item springs to its place in the `after` state (matched by `id`: rows move,
@@ -95,8 +117,8 @@ identity, by title and by content (the same novelty gate `music.mjs check` runs)
 `shape: "16x9" | "1x1" | "4x5" | "9x16"` (or `film.reshape(shape)`, or the film name
 `myLaunch-9x16` in any tool) composes the same cut for another frame through `launchLayout.ts`:
 the chat window, composer and card are laid out for the frame (a phone composer wraps the prompt
-and the camera glides after the caret, a line at a time), word pages re-set their lines, the split
-beat stacks, the end card stacks and centres. The timing, the cut and the sound do not change.
+and the camera keeps the whole composer in frame), word pages re-set their lines, the split beat
+stacks, the end card stacks and centres. The timing, the cut and the sound do not change.
 Every line a viewer must read is phone-safe on 1x1, 4x5 and 9x16: at least 32 px at 1080 across
 (about 11 pt on a phone) for prompts, bubbles, card labels, tagline and install lines, 64 px for a
 word page; the layout throws with the fix when one cannot be (an install line too long for 9x16).

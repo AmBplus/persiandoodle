@@ -11,7 +11,7 @@
 //   logo(ctx, env, x, y, em, p, opts)                     the anidoodle wordmark, written by a dip pen
 //   logoBug(ctx, env, frame, x, y, scale, opts)           the wordmark as a corner mark that lives
 //   caption(ctx, env, text, x, y, size, p, kind, opts)    a small hand-lettered callout, underline or arrow
-import { fractal, rng, sample, type Ctx, type Env, type Layer, type P } from "./core";
+import { fractal, probeRect, rng, sample, type Ctx, type Env, type Layer, type P } from "./core";
 import { G, type Glyph } from "./drafting";
 import { DOT, TAIL, WORD, inkStroke, outlineOf, type Nib } from "./lettering";
 
@@ -264,6 +264,7 @@ export const writeOn = (ctx: Ctx, env: Env, text: string, x: number, y: number, 
   screen(ctx, env);
   if (style === "brick" && o.track === undefined) o = { ...o, track: 2.6, slant: o.slant ?? 0 };
   const lay = layout(env, text, x, y, size, o), us = reach(lay, p), color = o.color ?? PALETTE[style], popK = o.pop ?? 1, seed = o.seed ?? 1;
+  if (env.root && lay.boxes.length) { const bx = lay.boxes; probeRect(ctx, env, Math.min(...bx.map((b) => b.c[0] - b.w / 2)), y - size * 1.05, Math.max(...bx.map((b) => b.c[0] + b.w / 2)) - Math.min(...bx.map((b) => b.c[0] - b.w / 2)), size * 1.3, text, "text"); }
   ctx.save();
   if (style === "ink") drawInk(ctx, lay, us, size * (o.weight ?? 1), color, p, popK);
   else if (style === "marker") drawMarker(ctx, lay, us, size * (o.weight ?? 1), color, p, popK);
@@ -395,7 +396,9 @@ const SET_FONT = (w: number, px: number) => `${w} ${px}px "Avenir Next", "Helvet
 export const setWidth = (ctx: Ctx, text: string, size: number, o: SetOpts = {}) => { ctx.font = (o.font ?? SET_FONT)(o.weight ?? 700, size); return ctx.measureText(text).width + Math.max(0, text.length - 1) * (o.track ?? -0.02) * size; };
 export const setType = (ctx: Ctx, env: Env, text: string, x: number, y: number, size: number, p: number, o: SetOpts = {}) => {
   if (p <= 0) return;
-  screen(ctx, env); ctx.save();
+  screen(ctx, env);
+  { const w = setWidth(ctx, text, size, o), x0 = o.align === "center" ? x - w / 2 : o.align === "right" ? x - w : x; probeRect(ctx, env, x0, y - size * 0.8, w, size, text, "text"); }
+  ctx.save();
   ctx.font = (o.font ?? SET_FONT)(o.weight ?? 700, size); ctx.textBaseline = "alphabetic"; ctx.fillStyle = o.color ?? "#111214";
   const tr = (o.track ?? -0.02) * size, words = text.split(" "), space = ctx.measureText(" ").width;
   const wOf = (w: string) => ctx.measureText(w).width + Math.max(0, w.length - 1) * tr, total = words.reduce((a, w) => a + wOf(w), 0) + space * (words.length - 1);

@@ -75,7 +75,7 @@ export const plateLayer = (env: Env, key: string, film: Film, frame: number, px 
 // a surface the launch film draws into itself (a scene inside a scene), same reuse rule
 export const selfLayer = (env: Env, key: string, w: number, h: number): Layer => {
   const lk = `self:${key}:${w}x${h}`; let L = env.cache.get(lk) as Layer | undefined;
-  if (!L) { L = env.canvas(w, h); env.cache.set(lk, L); }
+  if (!L) { L = env.canvas(w, h); env.cache.set(lk, L); if (env.root && w === Math.round(env.W * env.scale) && h === Math.round(env.H * env.scale)) (L.ctx as unknown as { __frame?: boolean }).__frame = true; } // a full-frame sheet: its text lands in the frame (the probe)
   L.ctx.setTransform(1, 0, 0, 1, 0, 0); L.ctx.clearRect(0, 0, w, h); return L;
 };
 
@@ -124,6 +124,8 @@ export type ChatState = {
   label?: string; labelAlpha?: number;      // the reply's byline
   // your product: the thread's name and subline, the button's word, the accent (defaults: anidoodle's own)
   title?: string; subtitle?: string; genLabel?: string; accent?: string;
+  // focus pulls: the header's and the composer's opacity while the camera is close on something else (default 1)
+  head?: number; composer?: number;
 };
 
 // THE CHAT'S GEOMETRY. One chat component, laid out per frame shape (launchLayout.ts): the window,
@@ -171,11 +173,13 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState, g: ChatGeom = CHAT_GEOM) =
   softShadow(ctx, CHAT.x, CHAT.y, CHAT.w, CHAT.h, CHAT.r, 1.2);
   ctx.fillStyle = P.card; rr(ctx, CHAT.x, CHAT.y, CHAT.w, CHAT.h, CHAT.r); ctx.fill();
   // the thread's head: a small ink dot and a name, nothing that belongs to anyone else
+  if (s.head !== undefined) ctx.globalAlpha = s.head;
   ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(CHAT.x + 58 * k, CHAT.y + 52 * k, 9 * k, 0, Math.PI * 2); ctx.fill();
   ctx.font = SANS(600, px.head); ctx.fillStyle = P.ink; ctx.textBaseline = "middle"; ctx.fillText(s.title ?? "anidoodle", CHAT.x + 80 * k, CHAT.y + 53 * k);
   const subX = s.title === undefined ? CHAT.x + 196 * k : CHAT.x + 80 * k + ctx.measureText(s.title).width + 16 * k;
   ctx.font = SANS(500, px.sub); ctx.fillStyle = P.mute; ctx.fillText(s.subtitle ?? "drawn in code", subX, CHAT.y + 54 * k);
   ctx.fillStyle = P.line; ctx.fillRect(CHAT.x + 32 * k, CHAT.y + 98 * k, CHAT.w - 64 * k, 1.5 * k);
+  if (s.head !== undefined) ctx.globalAlpha = 1;
   // the sent message, right aligned
   if (s.sent) {
     ctx.globalAlpha = s.sentAlpha ?? 1; ctx.font = SANS(500, px.bubble);
@@ -188,6 +192,7 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState, g: ChatGeom = CHAT_GEOM) =
   }
   if (s.label) { ctx.globalAlpha = s.labelAlpha ?? 1; ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(REPLY.x + 9 * k, REPLY.y - 26 * k, 7 * k, 0, Math.PI * 2); ctx.fill(); ctx.font = SANS(600, px.label); ctx.textBaseline = "middle"; ctx.fillText(s.label, REPLY.x + 26 * k, REPLY.y - 25 * k); ctx.globalAlpha = 1; }
   // the composer
+  if (s.composer !== undefined) ctx.globalAlpha = s.composer;
   ctx.fillStyle = P.paper; rr(ctx, INPUT.x, INPUT.y, INPUT.w, INPUT.h, INPUT.r); ctx.fill();
   ctx.lineWidth = 2 * k; ctx.strokeStyle = P.line; ctx.stroke();
   ctx.font = SANS(500, TEXT.px); ctx.textBaseline = "alphabetic";
@@ -205,6 +210,7 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState, g: ChatGeom = CHAT_GEOM) =
   const pr = s.genPress ?? 0, hot = s.genHot ?? 0, q = 1 - 0.07 * pr, gx = GEN.x + (GEN.w * (1 - q)) / 2, gy = GEN.y + (GEN.h * (1 - q)) / 2;
   ctx.fillStyle = hot > 0 ? mixHex(acc, s.accent ? deepen(acc) : P.accentDeep, 0.35 * hot + 0.4 * pr) : acc; rr(ctx, gx, gy, GEN.w * q, GEN.h * q, GEN.r * q); ctx.fill();
   ctx.fillStyle = "#fff"; ctx.font = SANS(600, px.gen * q); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText(s.genLabel ?? "Generate", GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1 * k); ctx.textAlign = "left";
+  if (s.composer !== undefined) ctx.globalAlpha = 1;
 };
 // where the caret is: the end of the typed words (on their last line in a wrapping composer)
 export const caretAt = (ctx: Ctx, typed: string, g: ChatGeom = CHAT_GEOM): P => {
@@ -252,9 +258,9 @@ export const inkDropAt = (f: number, d: { t0: number; land: number }, to: P, g: 
 // `grow` (default an out-cubic from land to full) is how open the card is at frame f: the template
 // passes a spring, so the card lands on the spring's first arrival and its sound cue can sit there
 export const inkCard = (ctx: Ctx, x: number, y: number, s: number, f: number, d: Drop, art: Layer, label: string, crop?: [number, number, number, number], g: ChatGeom = CHAT_GEOM, growAt?: (f: number) => number) => {
-  const k = g.k, P = pal(g);
-  ctx.fillStyle = P.ink; ctx.globalAlpha = ramp(f, d.land, d.land + 10); ctx.beginPath(); ctx.arc(x + 9 * k, y - 16 * k, 7 * k, 0, Math.PI * 2); ctx.fill();
-  ctx.font = SANS(600, g.px.label); ctx.textBaseline = "middle"; ctx.fillText(label, x + 26 * k, y - 15 * k); ctx.globalAlpha = 1;
+  const k = g.k, P = pal(g), A = ctx.globalAlpha; // a card drawn under a focus pull keeps the caller's opacity
+  ctx.fillStyle = P.ink; ctx.globalAlpha = A * ramp(f, d.land, d.land + 10); ctx.beginPath(); ctx.arc(x + 9 * k, y - 16 * k, 7 * k, 0, Math.PI * 2); ctx.fill();
+  ctx.font = SANS(600, g.px.label); ctx.textBaseline = "middle"; ctx.fillText(label, x + 26 * k, y - 15 * k); ctx.globalAlpha = A;
   const grow = growAt ? growAt(f) : out3(ramp(f, d.land, d.full)), c: P = [x + s / 2, y + s / 2];
   softShadow(ctx, x, y, s, s, 20 * k, Math.min(1, grow) * 1.3);
   ctx.save(); rr(ctx, x, y, s, s, 20 * k); ctx.clip();

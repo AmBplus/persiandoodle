@@ -1,7 +1,7 @@
 // THE ONE GENERATED PAGE. Playwright, the HTML player and (Phase 5) Hyperframes all drive this
 // same page through window.FILM. Everything host-specific (DOM, clocks, asset decoding, Web
 // Audio) lives HERE; the art core never sees it.
-import type { Ctx, Env, Layer } from "../canvas-core/core";
+import type { Ctx, Env, Layer, ProbeRec } from "../canvas-core/core";
 import { Film, renderFrame, validate } from "../canvas-core/film";
 
 declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string>; __SHAPE__?: string } }
@@ -40,7 +40,7 @@ export const mountFilm = (film: Film) => {
   const opts = film.meta.raster === "cpu" ? { willReadFrequently: true } : undefined;   // see Film.meta.raster
   const surface = (w: number, h: number): Layer => { const c = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }); return { canvas: c, ctx: c.getContext("2d", opts) as unknown as Ctx } as Layer; };
   const bakes = bakeStore(surface);
-  const mount = (scale = 1) => { canvas.width = Math.round(film.meta.W * scale); canvas.height = Math.round(film.meta.H * scale); ctx = canvas.getContext("2d", opts) as CanvasRenderingContext2D; env = { W: film.meta.W, H: film.meta.H, scale, cache: new Map(), canvas: surface, image: (n) => images.get(n), bake: bakes.bake }; return film.meta; };
+  const mount = (scale = 1) => { canvas.width = Math.round(film.meta.W * scale); canvas.height = Math.round(film.meta.H * scale); ctx = canvas.getContext("2d", opts) as CanvasRenderingContext2D; env = { W: film.meta.W, H: film.meta.H, scale, cache: new Map(), canvas: surface, image: (n) => images.get(n), bake: bakes.bake, root: true }; return film.meta; };
   // contract rule 4: every asset is loaded AND decoded before frame 0, or the film refuses to start
   const ready = (async () => {
     const problems = validate(film); if (problems.length) throw new Error("timeline: " + problems.join("; "));
@@ -124,6 +124,32 @@ export const mountFilm = (film: Film) => {
     ctx.putImageData(img, 0, 0); current = n;
     return { shot: shot.id, ms: performance.now() - t0, samples, speed };
   };
+  // THE FRAME PROBE (tools/framecheck.mjs). For each frame asked, every line of text (fillText on the
+  // frame or a full-frame sheet, writeOn, setType) and every content box the art core reports
+  // (probeRect: a card, a window) is collected in device pixels; a box the frame's edge cuts through
+  // is returned. Whatever lies wholly outside the frame, or wholly inside it, is fine.
+  const probe = (frames: number[]) => {
+    const out: (ProbeRec & { frame: number })[] = [], g = globalThis as { __ANIDOODLE_PROBE__?: (r: ProbeRec) => void };
+    const protos = [CanvasRenderingContext2D.prototype, ...(typeof OffscreenCanvasRenderingContext2D !== "undefined" ? [OffscreenCanvasRenderingContext2D.prototype] : [])] as unknown as { fillText: (t: string, x: number, y: number, w?: number) => void }[];
+    const orig = protos.map((p) => p.fillText);
+    let frame = 0, recs: ProbeRec[] = [];
+    protos.forEach((p, i) => { p.fillText = function (this: Ctx & { __frame?: boolean }, t: string, x: number, y: number, w?: number) {
+      if ((this === ctx || this.__frame) && this.globalAlpha >= 0.1 && String(t).trim()) {
+        const m = this.measureText(t), a = this.textAlign, dx = a === "center" ? -m.width / 2 : a === "right" || a === "end" ? -m.width : 0, T = this.getTransform();
+        const bx = [[x + dx, y - m.actualBoundingBoxAscent], [x + dx + m.width, y - m.actualBoundingBoxAscent], [x + dx, y + m.actualBoundingBoxDescent], [x + dx + m.width, y + m.actualBoundingBoxDescent]].map(([u, v]) => [T.a * u + T.c * v + T.e, T.b * u + T.d * v + T.f]);
+        recs.push({ kind: "text", label: String(t), x0: Math.min(...bx.map((q) => q[0])), y0: Math.min(...bx.map((q) => q[1])), x1: Math.max(...bx.map((q) => q[0])), y1: Math.max(...bx.map((q) => q[1])) });
+      }
+      return (orig[i] as (t: string, x: number, y: number, w?: number) => void).call(this, t, x, y, w);
+    }; });
+    g.__ANIDOODLE_PROBE__ = (r) => recs.push(r);
+    try {
+      for (frame of frames) {
+        recs = []; seek(frame); const W = canvas.width, H = canvas.height, tol = 1.5;
+        for (const r of recs) { const inter = r.x1 > 0 && r.x0 < W && r.y1 > 0 && r.y0 < H, inside = r.x0 >= -tol && r.y0 >= -tol && r.x1 <= W + tol && r.y1 <= H + tol; if (inter && !inside) out.push({ ...r, frame }); }
+      }
+    } finally { protos.forEach((p, i) => (p.fillText = orig[i] as never)); delete g.__ANIDOODLE_PROBE__; }
+    return out;
+  };
   const audio = (sr: number) => { if (!film.audio) return null; const [L, R] = film.audio(sr); if (L.length !== R.length) throw new Error("audio channels have different lengths"); const pcm = new Float32Array(L.length * 2); for (let i = 0; i < L.length; i++) { pcm[i * 2] = L[i]; pcm[i * 2 + 1] = R[i]; } return { sampleRate: sr, frames: L.length, float32: b64(new Uint8Array(pcm.buffer)) }; };
   const warm = () => film.shots.forEach((s) => { seek(s.start); seek(s.start + ((s.end - s.start) >> 1)); }); // first + middle frame of every shot: builds tiles, pre-allocates the layer pool
   // POSTER. Platforms show frame 0 as the thumbnail, so a delivery may open on a chosen frame (the
@@ -145,7 +171,7 @@ export const mountFilm = (film: Film) => {
     if (u > 0 && posterOf) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = Math.min(1, u); ctx.globalCompositeOperation = "source-over"; if (u >= 1) ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(posterOf.img, 0, 0); ctx.restore(); }
     current = n; return r;
   };
-  window.FILM = { meta: { ...film.meta, hasAudio: typeof film.audio === "function", shots: film.shots.map(({ id, start, end }) => ({ id, start, end })) }, ready, mount, seek, hash, audio, warm, blur, poster, bakes: { load: bakes.load, take: bakes.take, hashes: bakes.hashes, stats: () => bakes.stats }, png: () => canvas.toDataURL("image/png").slice(22), frame: () => current };
+  window.FILM = { probe, meta: { ...film.meta, hasAudio: typeof film.audio === "function", shots: film.shots.map(({ id, start, end }) => ({ id, start, end })) }, ready, mount, seek, hash, audio, warm, blur, poster, bakes: { load: bakes.load, take: bakes.take, hashes: bakes.hashes, stats: () => bakes.stats }, png: () => canvas.toDataURL("image/png").slice(22), frame: () => current };
 
   // ---- the player: click or space to play, arrows to step, ?frame=N to open on a frame
   ready.then(() => {

@@ -18,6 +18,21 @@ export type Env = {
   // get() returns the exact pixels renderFrame would draw for (film, frame) at w x h, or nothing;
   // put() offers a freshly drawn one. A core that never calls it draws exactly the same frames.
   bake?: { get(film: object, frame: number, w: number, h: number): CanvasImageSource | undefined; put(film: object, frame: number, layer: Layer): void };
+  // set by the host on the film's own env (never on a plate's): what is drawn with it lands in the
+  // frame, so the frame probe (framecheck.mjs) may hold its text and content boxes to the frame's edges
+  root?: boolean;
+};
+
+// ---------------------------------------------------------------- the frame probe
+// With a probe installed (hosts/page.ts, only while framecheck.mjs asks), drawing code reports the
+// device-pixel box of what the viewer must see whole: a line of text, a card, a window. A box the
+// frame's edge cuts through is a design fault (clipped type, an edge-cropped card). Off by default: no cost.
+export type ProbeRec = { kind: "text" | "box"; label: string; x0: number; y0: number; x1: number; y1: number };
+export const probeRect = (ctx: Ctx, env: Env, x: number, y: number, w: number, h: number, label: string, kind: ProbeRec["kind"] = "box") => {
+  const p = (globalThis as { __ANIDOODLE_PROBE__?: (r: ProbeRec) => void }).__ANIDOODLE_PROBE__;
+  if (!p || !env.root || ctx.globalAlpha < 0.1) return;
+  const m = ctx.getTransform(), pts = [[x, y], [x + w, y], [x, y + h], [x + w, y + h]].map(([a, b]) => [m.a * a + m.c * b + m.e, m.b * a + m.d * b + m.f]);
+  p({ kind, label, x0: Math.min(...pts.map((q) => q[0])), y0: Math.min(...pts.map((q) => q[1])), x1: Math.max(...pts.map((q) => q[0])), y1: Math.max(...pts.map((q) => q[1])) });
 };
 
 // ---------------------------------------------------------------- deterministic randomness

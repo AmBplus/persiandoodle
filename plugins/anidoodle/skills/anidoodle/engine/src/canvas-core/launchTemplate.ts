@@ -22,7 +22,7 @@
 //
 //   export const myLaunch = makeLaunchFilm({ title: "Tally", asks: [...], words: [...], ... });
 //   (or: node tools/launch.mjs new myLaunch; then node tools/launch.mjs ship myLaunch --shapes 16x9,9x16)
-import type { Ctx, Env, P } from "./core";
+import { probeRect, type Ctx, type Env, type P } from "./core";
 import type { Film } from "./film";
 import {
   C, SANS, MONO, camLerp, caretAt, charTimes, clamp, drawChatFrame, expo, inOut, inkCard, inkDrop,
@@ -191,49 +191,68 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     if (clean) { c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.font = SANS(600, L.bug.px * 0.8); c.fillStyle = PAL.soft; c.textAlign = "right"; c.textBaseline = "alphabetic"; c.fillText(spec.title, L.bug.x, L.bug.y); c.textAlign = "left"; return; }
     writeOn(c, env, spec.title, L.bug.x, L.bug.y, L.bug.px, 1, "ink", { color: C.soft, align: "right", seed: 3 });
   };
-  const chat = (ctx: Ctx, env: Env, f: number, typed: string, caret: boolean, pr: number, hot: number) => {
-    drawChatFrame(ctx, { typed, caret, placeholder: spec.placeholder ?? "Describe what you want…", genPress: pr, genHot: hot, title: spec.title, subtitle: spec.subtitle ?? "", genLabel: spec.genLabel, accent: ACC }, G);
-    const sc = scrollAt(f);
+  // focus: while the camera is close on the composer the thread recedes (it would be cut by the frame's
+  // edge), and while it leans on a card everything but that card does; nothing is ever half off-frame
+  // And whatever the camera's edge is about to cut fades before it does: an element's opacity is how
+  // far inside the view it sits (full at 24 px in, none at the edge), so nothing shows half off-frame.
+  type Focus = { macro: number; lean: number; keep: number; cam: Cam };
+  const seen = (cam: Cam, x0: number, y0: number, x1: number, y1: number) => { const hw = W / 2 / cam.z, hh = H / 2 / cam.z, d = Math.min(x0 - (cam.c[0] - hw), cam.c[0] + hw - x1, y0 - (cam.c[1] - hh), cam.c[1] + hh - y1) * cam.z; return clamp(d / (24 * k)); };
+  // (on a phone the close-up is nearly the whole window, so the header and thread stay, cut only by `seen`)
+  const chat = (ctx: Ctx, env: Env, f: number, typed: string, caret: boolean, pr: number, hot: number, fo: Focus = { macro: 0, lean: 0, keep: -1, cam: CAM.home }, Gc: ChatGeom = G) => {
+    const C0 = G.CHAT, mf = L.phone ? 0 : fo.macro, headA = Math.min(1 - mf, seen(fo.cam, C0.x + 40 * k, C0.y + 30 * k, C0.x + C0.w - 40 * k, C0.y + 76 * k)), compA = seen(fo.cam, Gc.INPUT.x, Gc.INPUT.y, Gc.INPUT.x + Gc.INPUT.w, Gc.INPUT.y + Gc.INPUT.h);
+    drawChatFrame(ctx, { typed, caret, placeholder: spec.placeholder ?? "Describe what you want…", genPress: pr, genHot: hot, title: spec.title, subtitle: spec.subtitle ?? "", genLabel: spec.genLabel, accent: ACC, head: headA, composer: compA }, Gc);
+    const sc = scrollAt(f), rest = (1 - mf) * (1 - fo.lean), [, cyT, , chH] = TH.clip;
     ctx.save(); ctx.beginPath(); ctx.rect(...TH.clip); ctx.clip();
     items.forEach((it, k) => {
       if (f < it.at) return;
       const y = ys[k] - sc; if (y > VIEW_BOTTOM || y + it.h < 100) return;
+      // what of it the thread's window shows, and whether the camera shows all of that
+      const vy0 = Math.max(y, cyT), vy1 = Math.min(y + it.h, cyT + chH), x0 = it.card !== undefined ? TH.cardX : TH.bubbleR - TH.bubbleMaxW, x1 = it.card !== undefined ? TH.cardX + CARD : TH.bubbleR;
+      const A = (it.card === fo.keep ? 1 - mf : rest) * (vy1 > vy0 ? seen(fo.cam, x0, vy0, x1, vy1) : 1); if (A < 0.01) return;
       if (it.user !== undefined) {
-        ctx.globalAlpha = ramp(f, it.at, it.at + 8); ctx.font = SANS(500, G.px.bubble);
+        ctx.globalAlpha = A * ramp(f, it.at, it.at + 8); ctx.font = SANS(500, G.px.bubble);
         const bw = Math.max(...it.lines!.map((l) => ctx.measureText(l).width)) + 2 * TH.bubblePad; ctx.fillStyle = PAL.chip; rr(ctx, TH.bubbleR - bw, y, bw, it.h - 2, TH.bubbleRad); ctx.fill();
         ctx.fillStyle = PAL.ink; ctx.textBaseline = "middle"; it.lines!.forEach((l, j) => ctx.fillText(l, TH.bubbleR - bw + TH.bubblePad, y + TH.bubbleH / 2 + j * TH.bubbleLineH)); ctx.globalAlpha = 1;
       } else {
         const i = it.card!, a = spec.asks[i] as PlateAsk;
         const d = T[i].drop, b = T[i].base;
-        inkCard(ctx, TH.cardX, y + TH.cardDy, CARD, f, { t0: b + d.t0, land: b + d.land, full: b + d.full }, plateLayer(env, `ask${i}`, a.plate, plateFrame(i, f), 1080), a.label, a.crop, G, growAt(i));
+        { const py0 = Math.max(y + TH.cardDy, cyT), py1 = Math.min(y + TH.cardDy + CARD, cyT + chH); ctx.globalAlpha = A; if (py1 > py0) probeRect(ctx, env, TH.cardX, py0, CARD, py1 - py0, `answer card ${i}`); } // the part the thread's window shows
+        inkCard(ctx, TH.cardX, y + TH.cardDy, CARD, f, { t0: b + d.t0, land: b + d.land, full: b + d.full }, plateLayer(env, `ask${i}`, a.plate, plateFrame(i, f), 1080), y + TH.cardDy - 30 * k > cyT ? a.label : "", a.crop, G, growAt(i)); // a byline scrolled under the window's top is not drawn at all
+        ctx.globalAlpha = 1;
       }
     });
     ctx.restore();
     chatIdx.forEach((i) => { const t = T[i]; inkDrop(ctx, f, { t0: t.base + t.drop.t0, land: t.base + t.drop.land }, [TH.cardX + CARD / 2, cardY(i, t.base + t.drop.land) + CARD / 2], G); });
   };
-  // the camera: macro on the composer while typing, out to the room for the press, then a lean in on the new card
+  // the camera: close on the composer while typing (the WHOLE composer in frame, so the typed words
+  // never leave it), out to the room for the press, then a lean onto the new card, which stays whole
+  // with a margin on every side
   const HOME = CAM.home;
-  const leanOn = (i: number): Cam => ({ c: lerpP(HOME.c, [TH.cardX + CARD / 2, cardY(i, T[i].base + T[i].len) + CARD / 2], 0.55), z: CAM.leanZ });
-  type CaretFn = (typed: string) => P;
-  // on a phone frame the words wrap, so the caret jumps back a line: the camera follows a smoothed
-  // caret (the mean of its last 10 frames), a glide down to the new line, never a jump
-  const phoneMacro = (caret: CaretFn, i: number, l: number, z: number): P => {
-    const half = W / 2 / z, lo = G.INPUT.x - 24 * k + half, hi = Math.max(lo, G.GEN.x + G.GEN.w + 30 * k - half);
-    let x = 0, y = 0; for (let j = 0; j < 10; j++) { const [cx, cy] = caret(typedAt((spec.asks[i] as PlateAsk).prompt, l - j, T[i].times)); x += clamp(cx - 110 * k, lo, hi); y += cy; }
-    const yLo = G.INPUT.y + H / 2 / z - 90 * k, yHi = G.INPUT.y + G.INPUT.h + 40 * k - H / 2 / z;
-    return [x / 10, clamp(y / 10, Math.min(yLo, yHi), Math.max(yLo, yHi))];
+  const inView = (c: P, z: number): P => { const hw = W / 2 / z, hh = H / 2 / z; return [clamp(c[0], Math.min(hw, W - hw), Math.max(hw, W - hw)), clamp(c[1], Math.min(hh, H - hh), Math.max(hh, H - hh))]; };
+  // (a phone composer is nearly the frame's width, so there the close-up IS the window: the empty state, creeping 3 %)
+  const MZ = L.phone ? 1 : Math.max(1, Math.min(CAM.macroZ, (0.9 * W) / (G.INPUT.w + 48 * k), (0.8 * H) / (G.INPUT.h + 48 * k)) / 1.03);
+  const leanOn = (i: number): Cam => {
+    const cy = cardY(i, T[i].base + T[i].len), lab = 44 * k, box = { x: TH.cardX, y: cy - lab, w: CARD, h: CARD + lab }, m = 36 * k;
+    const z = Math.max(1, Math.min(CAM.leanZ, (0.86 * W) / box.w, (0.86 * H) / box.h)), hw = W / 2 / z, hh = H / 2 / z;
+    const c = lerpP(HOME.c, [box.x + box.w / 2, box.y + box.h / 2], 0.55);
+    return { c: [clamp(c[0], box.x + box.w + m - hw, box.x - m + hw), clamp(c[1], box.y + box.h + m - hh, box.y - m + hh)], z };
   };
+  type CaretFn = (typed: string) => P;
   const prevChat = (i: number) => i > 0 && isChat(spec.asks[i - 1]) && T[i].tin === 0;
-  // `lean` (0..1) is how far the camera leans in; the corner mark steps aside while it does, since
-  // the lean carries the composer under the corner and type never sits over the UI or the art
-  const camAt = (caret: CaretFn, f: number, i: number): { cam: Cam; lean: number } => {
-    const t = T[i], l = f - t.base, typed = typedAt((spec.asks[i] as PlateAsk).prompt, l, t.times), [cx] = caret(typed);
-    // the macro creeps in while the words arrive: the frame is never a still
-    const mz = CAM.macroZ + CAM.macroCreep * inOut(ramp(l, t.times[0] - 8, t.b));
-    const macro: Cam = { c: L.shape === "16x9" ? [Math.max(G.TEXT.x + CAM.macroX0, cx - 110), CAM.macroY] : phoneMacro(caret, i, l, mz), z: mz };
-    if (prevChat(i) && l < 16) { const q = inOut(ramp(l, 0, 16)); return { cam: camLerp(leanOn(i - 1), macro, q), lean: 1 - q }; }
-    if (l > t.drop.full - 10) { const q = inOut(ramp(l, t.drop.full - 10, t.len)); return { cam: camLerp(HOME, leanOn(i), q), lean: q }; }
-    return { cam: l < t.b - 4 ? macro : camLerp(macro, HOME, expo(ramp(l, t.b - 4, t.down))), lean: 0 };
+  // the empty state: on a phone the first ask's composer starts in the middle of the empty thread (the
+  // way a chat app opens) and docks at the bottom as Generate is pressed; the hook is the prompt, centred
+  const liftDy = (i: number, l: number) => (L.phone && i === chatIdx[0] && !prevChat(i) ? (G.CHAT.y + G.CHAT.h * 0.52 - (G.INPUT.y + G.INPUT.h / 2)) * (1 - expo(ramp(l, T[i].b - 4, T[i].down))) : 0);
+  const lifted = (dy: number): ChatGeom => (dy ? { ...G, INPUT: { ...G.INPUT, y: G.INPUT.y + dy }, GEN: { ...G.GEN, y: G.GEN.y + dy }, TEXT: { ...G.TEXT, base: G.TEXT.base + dy } } : G);
+  // `lean` (0..1) is how far the camera leans in, `macro` how close it is on the composer; the corner
+  // mark steps aside while it leans, since the lean carries the composer under the corner
+  const camAt = (_caret: CaretFn, f: number, i: number): { cam: Cam; lean: number; macro: number; keep: number } => {
+    const t = T[i], l = f - t.base;
+    // the close-up creeps in while the words arrive: the frame is never a still
+    const mz = MZ * (1 + 0.03 * ramp(l, -20, t.b)), dy = liftDy(i, l), macro: Cam = { c: inView([G.INPUT.x + G.INPUT.w / 2, G.INPUT.y + G.INPUT.h / 2 + dy], mz), z: mz };
+    if (prevChat(i) && l < 16) { const q = inOut(ramp(l, 0, 16)); return { cam: camLerp(leanOn(i - 1), macro, q), lean: 1 - q, macro: q, keep: i - 1 }; }
+    if (l > t.drop.full - 10) { const q = inOut(ramp(l, t.drop.full - 10, t.len)); return { cam: camLerp(HOME, leanOn(i), q), lean: q, macro: 0, keep: i }; }
+    const w = l < t.b - 4 ? 1 : 1 - expo(ramp(l, t.b - 4, t.down));
+    return { cam: l < t.b - 4 ? macro : camLerp(macro, HOME, expo(ramp(l, t.b - 4, t.down))), lean: 0, macro: w, keep: -1 };
   };
   // the same camera without a canvas (for the sound's pan): the caret from the build-time width estimate
   const caretEst: CaretFn = (typed) => {
@@ -245,13 +264,13 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     if (l >= t.b - 4 && l < t.up + 24) pointer(ctx, l < t.up + 4 ? lerpP(off, on, out3(ramp(l, t.b - 4, t.down))) : lerpP(on, off, inOut(ramp(l, t.up + 4, t.up + 24))), pr * 0.8, CAM.pointerS);
   };
   const chatScene = (ctx: Ctx, env: Env, f: number, i: number) => {
-    const t = T[i], l = f - t.base, caret: CaretFn = (s) => caretAt(ctx, s, G);
-    const { cam, lean } = camAt(caret, f, i);
+    const t = T[i], l = f - t.base, Gc = lifted(liftDy(i, l)), caret: CaretFn = (s) => caretAt(ctx, s, Gc);
+    const { cam, lean, macro, keep } = camAt(caret, f, i);
     useCam(ctx, env, cam);
     const typed = typedAt((spec.asks[i] as PlateAsk).prompt, l, t.times), pr = press(l, t.down, t.up);
-    chat(ctx, env, f, l < t.up ? typed : "", l < t.up, pr, ramp(l, t.down - 10, t.down - 2));
+    chat(ctx, env, f, l < t.up ? typed : "", l < t.up, pr, ramp(l, t.down - 10, t.down - 2), { macro, lean, keep, cam }, Gc);
     // the pointer comes in for the press and glides back out; it never pops
-    pointerPath(ctx, l, t, CAM.pointerOn, pr);
+    pointerPath(ctx, l, t, [CAM.pointerOn[0], CAM.pointerOn[1] + (Gc.GEN.y - G.GEN.y)], pr);
     // the mark is gone BEFORE the lean moves the composer under it, and back only once the camera has left
     const show = lean > 0 && l > ASK / 2 ? 1 - ramp(l, t.drop.full - 18, t.drop.full - 10) : prevChat(i) && l < 24 ? ramp(l, 16, 24) : 1;
     if (show > 0) { ctx.globalAlpha = show; bug(ctx, env); ctx.globalAlpha = 1; }
@@ -265,10 +284,12 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   // a full-frame UI ask has the chat's camera grammar: close on the command bar while the ask is typed
   // (creeping in), out to the whole window for the press, then a lean onto the items as they land
   const uiCam = (i: number, l: number): Cam => {
-    const a = spec.asks[i] as UiAsk, t = T[i], r = panelOf(i), win = uiWindow(r, a.ui, minPx), cmd = uiCommandAt(r, a.ui, minPx);
-    const lean: Cam = { c: lerpP(HOME.c, [win.x + win.w / 2, win.y + win.h * 0.6], 0.4), z: 1.07 };
-    if (l >= t.drop.t0) return camLerp(HOME, lean, inOut(ramp(l, t.drop.t0, t.len + 40))); // still moving when the ask ends
-    const z0 = cmd && a.prompt ? Math.min(2.2, (W * 0.92) / cmd.w) : 1.04, open: Cam = { c: cmd && a.prompt ? [cmd.x + cmd.w / 2, cmd.y + cmd.h / 2] : HOME.c, z: z0 * (1 + 0.06 * ramp(l, -20, t.b)) }; // already creeping on frame 0
+    // the window stays whole in frame on every frame: the camera creeps toward it, eases back for the
+    // press, then leans in as the items land, never closer than the window's own fit
+    const a = spec.asks[i] as UiAsk, t = T[i], win = uiWindow(panelOf(i), a.ui, minPx), wc: P = [win.x + win.w / 2, win.y + win.h / 2];
+    const fit = Math.max(1, Math.min((0.94 * W) / win.w, (0.92 * H) / win.h)), toward = (z: number): Cam => ({ c: inView(lerpP(HOME.c, wc, clamp((z - 1) / (fit - 1 || 1))), z), z });
+    if (l >= t.down) return toward(1 + (fit - 1) * 0.9 * inOut(ramp(l, t.down, t.len + 40))); // from the press on, never resting; still moving when the ask ends
+    const open = toward(1 + (fit - 1) * 0.5 * ramp(l, -20, t.b)); // already creeping on frame 0
     return camLerp(open, HOME, expo(ramp(l, t.b - 4, t.down)));
   };
   const ground = (ctx: Ctx, env: Env) => { ctx.setTransform(env.scale, 0, 0, env.scale, 0, 0); ctx.fillStyle = PAL.bg; ctx.fillRect(0, 0, W, H); };
@@ -276,6 +297,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     const a = spec.asks[i] as UiAsk, t = T[i], l = f - t.base, r = panelOf(i), pr = press(l, t.down, t.up);
     ground(ctx, env); if (a.split?.length) push(ctx, env, r, l, t.len, t.drop.t0); else useCam(ctx, env, uiCam(i, l));
     const typed = a.prompt ? typedAt(a.prompt, l, t.times) : "";
+    { const w = uiWindow(r, a.ui, minPx); probeRect(ctx, env, w.x, w.y, w.w, w.h, "product window"); }
     drawProductUI(ctx, r, a.ui, { f: l, t0: t.drop.t0 }, THEME, { minPx, typed, caret: !!a.prompt && l < t.down, press: pr, hot: ramp(l, t.down - 10, t.down - 2), accent: ACC });
     pointerPath(ctx, l, t, (([x, y]) => [x + 14 * k, y + 8 * k] as P)(uiActionAt(r, a.ui, minPx)), pr);
     if (a.split?.length) splitWords(ctx, env, a.split, l, t.tin);
@@ -293,13 +315,15 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     bug(ctx, env);
   };
   // words in their own column beside the live UI (stacked above it on a phone): sized to the column, written or set on
-  const splitLines = (lines: TypeLine[]) => { const col = L.split.words, out: TypeLine[] = []; for (const ln of lines) { const size = Math.min(L.split.wordsPx, (col.w / measure(ln.text, 100)) * 100); if (size >= L.split.wordsPx * 0.62 || !ln.text.includes(" ")) out.push(ln); else wrapEst(ln.text, L.split.wordsPx, col.w * 1.05).forEach((t) => out.push({ ...ln, text: t })); } return out; };
+  // the words are the design of the beat: as large as their column allows (set type is wider than it is tall, so its cap is higher)
+  const wordsCap = clean ? L.split.wordsPx * 1.6 : L.split.wordsPx, wOf = (t: string, sz: number) => (clean ? estWidth(t, sz) * 1.12 : measure(t, sz));
+  const splitLines = (lines: TypeLine[]) => { const col = L.split.words, out: TypeLine[] = []; for (const ln of lines) { const size = Math.min(wordsCap, (col.w / wOf(ln.text, 100)) * 100); if (size >= wordsCap * 0.62 || !ln.text.includes(" ")) out.push(ln); else wrapEst(ln.text, wordsCap, col.w * 1.05).forEach((t) => out.push({ ...ln, text: t })); } return out; };
   const splitWords = (ctx: Ctx, env: Env, lines0: TypeLine[], l: number, tin: number) => {
-    const col = L.split.words, lines = splitLines(lines0), size = Math.min(L.split.wordsPx, ...lines.map((x) => (col.w / measure(x.text, 100)) * 100)), gap = size * 1.3;
+    const col = L.split.words, lines = splitLines(lines0), size = Math.min(wordsCap, ...lines.map((x) => (col.w / wOf(x.text, 100)) * 100)), gap = size * (clean ? 1.08 : 1.3);
     const y0 = L.split.vertical ? col.y + size : col.y + col.h / 2 - ((lines.length - 1) * gap) / 2 + size * 0.35;
     lines.forEach((x, j) => {
       const p = ramp(l, tin + j * 12, tin + 18 + j * 12);
-      if (clean) setType(ctx, env, x.text, col.x, y0 + j * gap, size * 0.82, p, { color: x.color === C.accent ? THEME.accent : x.color ?? PAL.ink, weight: 800 });
+      if (clean) setType(ctx, env, x.text, col.x, y0 + j * gap, size, p, { color: x.color === C.accent ? THEME.accent : x.color ?? PAL.ink, weight: 800 });
       else writeOn(ctx, env, x.text, col.x, y0 + j * gap, size, p, x.style, { color: x.color, align: "left", seed: 21 + j });
     });
   };
@@ -311,10 +335,20 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
 
   // ---------------------------------------------------------------- the motif: the drop that becomes the mark's dot
   const MOTIF = spec.motif !== false;
-  const titleSize = clean ? Math.min(L.end.titleMax * 0.8, (L.end.titleW / (estWidth(spec.title, 100) * 1.1)) * 100) : Math.min(L.end.titleMax, (L.end.titleW / measure(spec.title, 100)) * 100);
+  const titleSize = clean ? Math.min(L.end.titleMax * 1.6, (L.end.titleW / (estWidth(spec.title, 100) * 1.1)) * 100) : Math.min(L.end.titleMax, (L.end.titleW / measure(spec.title, 100)) * 100);
+  // the clean end card is ONE centred group with presence: the wordmark large, the line under it,
+  // the install block, the footer, stacked and centred in the frame (the drawn one keeps its layout)
+  const END_L = (() => {
+    if (!clean) return L.end;
+    const E = L.end, n = spec.install.length, tp = E.taglinePx * 1.5, tl = wrapEst(spec.tagline, tp, W * 0.8), tLH = Math.round(tp * 1.3);
+    const mono = Math.min(E.monoPx * 1.35, ...spec.install.map((x) => (W * 0.86 - 2 * E.padX) / (x.length * 0.61))), rowH = Math.round(mono * 2), ph = rowH * n + 50 * k;
+    const g1 = titleSize * 0.42, g2 = tLH * 0.9, g3 = spec.footer ? 44 * k : 0, block = titleSize * 0.74 + g1 + tl.length * tLH + g2 + ph + g3 + (spec.footer ? E.footerPx : 0);
+    const titleY = (H - block) / 2 + titleSize * 0.74, taglineY = titleY + g1 + tLH / 2, panelY = taglineY + (tl.length - 0.5) * tLH + g2;
+    return { ...E, titleY, tagline: tl, taglinePx: tp, taglineLH: tLH, taglineY, panelY, monoPx: mono, rowH, lineY0: panelY + 25 * k + rowH / 2, footerY: panelY + ph + g3 + E.footerPx / 2, caret: [Math.round(mono * 0.53), Math.round(mono * 1.13)] as [number, number] };
+  })();
   const titleW = clean ? estWidth(spec.title, titleSize) * 1.08 : measure(spec.title, titleSize);
   const dotR = titleSize * (clean ? 0.1 : 0.085), dotGap = titleSize * 0.1;
-  const P1: P = [L.end.cx + titleW / 2 - (dotGap + 2 * dotR) / 2 + dotGap + dotR, L.end.titleY - dotR * 1.05];
+  const P1: P = [END_L.cx + titleW / 2 - (dotGap + 2 * dotR) / 2 + dotGap + dotR, END_L.titleY - dotR * 1.05];
   const coverFrom = (p: P) => Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([x, y]) => Math.hypot(x - p[0], y - p[1])));
   const RAD = coverFrom(P1) * 1.14, R0 = bloomRadius(2, 1e6, { inF: 16, close: false, radius: RAD }), RIM = Math.max(1, dotR - R0);
   // where the drop lifts off: Generate as the viewer sees it on the last chat ask (the card's centre if the lean hid it), the product's action, or the film's card
@@ -340,13 +374,14 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   const askScene = (ctx: Ctx, env: Env, f: number, withDrop = true) => {
     const i = askOf(f), t = T[i], l = f - t.base;
     // a seam between kinds: the new scene blooms open over the last frame of the one before
-    if (t.tin && l < t.tin) bloomFrame(ctx, env, l + 2, 1e6, () => sceneOf(ctx, env, t.base - 1, i - 1), (c) => sceneOf(c, env, f, i), { close: false, inF: 14, W, H, ...bloomOpts });
+    // (+4: a bloom's first frames open by less than a pixel)
+    if (t.tin && l < t.tin) bloomFrame(ctx, env, l + 4, 1e6, () => sceneOf(ctx, env, t.base - 1, i - 1), (c) => sceneOf(c, env, f, i), { close: false, inF: 14, W, H, ...bloomOpts });
     else sceneOf(ctx, env, f, i);
     if (withDrop) motifDrop(ctx, env, f);
   };
   // ---------------------------------------------------------------- the end card
   const endPage = (c: Ctx, env: Env, e: number) => {
-    const E = L.end, cx = E.cx, size = titleSize;
+    const E = END_L, cx = E.cx, size = titleSize;
     // (with the motif the page blooms from the dot, wider and sooner: the name starts as it opens, so no frame waits)
     if (MOTIF) { const tx = P1[0] - dotR - dotGap; if (clean) setType(c, env, spec.title, tx, E.titleY, size, ramp(e, 4, 26), { align: "right", color: PAL.ink, weight: 800 }); else writeOn(c, env, spec.title, tx, E.titleY, size, ramp(e, 4, 40), "ink", { color: C.ink, align: "right", seed: 11 }); c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.fillStyle = INK; c.beginPath(); c.arc(P1[0], P1[1], dotR, 0, Math.PI * 2); c.fill(); }
     else if (clean) setType(c, env, spec.title, cx, E.titleY, size, ramp(e, 8, 30), { align: "center", color: PAL.ink, weight: 800 });
@@ -391,7 +426,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   // a clean word page: a round iris, the lines SET (heavy sans, left-aligned at the margin, each rising into place)
   const cleanType = (ctx: Ctx, env: Env, lines: TypeLine[], local: number, len: number, under: (first: boolean) => void) => bloomFrame(ctx, env, local, len, under, (c) => {
     const nL = lines.length, maxW = L.type.maxW, x0 = (W - maxW) / 2;
-    const size = Math.min(nL === 1 ? 170 : 124, ...lines.map((l) => (maxW / (estWidth(l.text, 100) * 1.12)) * 100)), gap = size * 1.12, y0 = H / 2 - ((nL - 1) * gap) / 2 + size * 0.36;
+    const size = Math.min(nL === 1 ? 220 : 170, ...lines.map((l) => (maxW / (estWidth(l.text, 100) * 1.12)) * 100)), gap = size * 1.12, y0 = H / 2 - ((nL - 1) * gap) / 2 + size * 0.36;
     lines.forEach((l, i) => setType(c, env, l.text, x0, y0 + i * gap, size, ramp(local, 14 + TYPE_O.lead + i * CLEAN_ST, 14 + TYPE_O.lead + 18 + i * CLEAN_ST), { color: l.color === C.accent ? THEME.accent : l.color ?? PAL.ink, weight: 800 }));
     bug(c, env);
   }, { W, H, ...bloomOpts, rim: 4, ink: THEME.accent, radius: TYPE_R });

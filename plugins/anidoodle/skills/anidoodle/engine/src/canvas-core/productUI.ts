@@ -43,8 +43,8 @@ export const springLand = (t0: number, omega = DEF.omega, zeta = DEF.zeta) => {
 // ---------------------------------------------------------------- geometry
 type Geo = { u: number; win: Rect; px: { title: number; nav: number; row: number; small: number; value: number; stat: number }; head: Rect; action: Rect; command: Rect | null; stats: Rect | null; body: Rect; row: number };
 // the window is fitted to its content (rows at a comfortable height) and centred in the rectangle it is given
-const geo = (r0: Rect, ui: ProductUI, minPx: number): Geo => {
-  const u = clamp(Math.min(r0.w / 880, r0.h / 640), 0.55, 2.4), f = (x: number, lo = minPx) => Math.max(x * u, lo);
+const geo = (r0: Rect, ui: ProductUI, minPx: number): Geo => { // sized to own its panel: a 720 x 600 design at 1x
+  const u = clamp(Math.min(r0.w / 720, r0.h / 600), 0.55, 2.4), f = (x: number, lo = minPx) => Math.max(x * u, lo);
   const px = { title: f(30), nav: f(20, minPx * 0.8), row: f(26), small: f(20, minPx * 0.8), value: f(26), stat: f(46) };
   const pad = 28 * u, headH = Math.max(76 * u, px.title * 2.1), cmdH = Math.max(66 * u, px.row * 2.3);
   const nStats = Math.max(ui.before.stats?.length ?? 0, ui.after.stats?.length ?? 0), statH = px.stat * 1.1 + px.small * 1.6 + 30 * u;

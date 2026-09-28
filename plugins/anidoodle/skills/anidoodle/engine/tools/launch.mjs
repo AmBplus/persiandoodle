@@ -13,7 +13,8 @@
 //         3 captions out/<name>-<shape>.srt and .vtt (the sidecar; captions: "burn" also burns them in)
 //         4 verify   verify-export --delivery: size, frame count, duration, the score, the sync of every
 //                    marker, the true peak after the encode, a legible frame 0
-//         5 gate     with --gate: gate.mjs (determinism, contract, dead air) on the rendered file
+//         5 frame    framecheck.mjs: no text and no card or window cut by the frame's edge, every frame
+//         6 gate     with --gate: gate.mjs (determinism, contract, dead air) on the rendered file
 //       then one table. Exit 1 if any shape fails anything.
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -104,7 +105,7 @@ const quiet = (args) => { const r = spawnSync(process.execPath, args, { encoding
 mkdirSync(resolve("out"), { recursive: true });
 const rows = [];
 for (const sh of shapes) {
-  const f = `${film}-${sh}`, mp4 = `out/${f}.mp4`, row = { shape: sh, mp4, render: false, poster: "", captions: 0, verify: "", gate: "" };
+  const f = `${film}-${sh}`, mp4 = `out/${f}.mp4`, row = { shape: sh, mp4, render: false, poster: "", captions: 0, verify: "", frame: "", gate: "" };
   console.log(`\n==================== ${f} ====================`);
   row.render = node(["tools/render.mjs", f, ...pass]);
   if (row.render) {
@@ -113,12 +114,13 @@ for (const sh of shapes) {
     row.captions = (await writeCaptions(f)).count;
     const v = quiet(["tools/verify-export.mjs", f, "--file", mp4, "--delivery"]); console.log(v.out.split("\n").filter((l) => /FAIL|PASS  (frame|true peak|decoded)|VERIFY-EXPORT/.test(l)).join("\n"));
     row.verify = (v.out.match(/VERIFY-EXPORT: (PASS|FAIL)[^\n]*/) ?? ["", "FAIL"])[0].replace("VERIFY-EXPORT: ", "");
+    const fc = quiet(["tools/framecheck.mjs", f]); row.frame = (fc.out.match(/FRAMECHECK: (PASS|FAIL)[^\n]*/) ?? ["", "FAIL"])[0].replace("FRAMECHECK: ", ""); if (!fc.ok) console.log(fc.out.split("\n").filter((l) => /FAIL/.test(l)).join("\n"));
     if (rest.includes("--gate")) { const g = quiet(["tools/gate.mjs", f, "--mp4", mp4]); row.gate = (g.out.match(/GATE: (PASS|FAIL)[^\n]*/) ?? [g.ok ? "PASS" : "FAIL"])[0]; if (!g.ok) console.log(g.out.split("\n").filter((l) => /FAIL/.test(l)).join("\n")); }
   }
   rows.push(row);
 }
 console.log(`\nSHIP ${film}`);
-for (const r of rows) console.log(`  ${r.shape.padEnd(5)} ${r.render ? r.mp4 : "RENDER FAILED"}\n        verify ${r.verify || "-"}${r.gate ? `   gate ${r.gate}` : ""}\n        poster ${r.poster || "-"}   captions ${r.captions} cues -> out/${film}-${r.shape}.srt/.vtt`);
-const ok = rows.every((r) => r.render && /^PASS/.test(r.verify) && r.poster !== "FAIL" && (!r.gate || /PASS/.test(r.gate)));
+for (const r of rows) console.log(`  ${r.shape.padEnd(5)} ${r.render ? r.mp4 : "RENDER FAILED"}\n        verify ${r.verify || "-"}\n        frame  ${r.frame || "-"}${r.gate ? `\n        gate   ${r.gate}` : ""}\n        poster ${r.poster || "-"}   captions ${r.captions} cues -> out/${film}-${r.shape}.srt/.vtt`);
+const ok = rows.every((r) => r.render && /^PASS/.test(r.verify) && /^PASS/.test(r.frame) && r.poster !== "FAIL" && (!r.gate || /PASS/.test(r.gate)));
 console.log(ok ? `\nSHIP: PASS  ${rows.length} shape(s)` : "\nSHIP: FAIL");
 process.exit(ok ? 0 : 1);
