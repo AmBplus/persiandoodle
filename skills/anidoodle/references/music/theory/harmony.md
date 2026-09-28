@@ -105,19 +105,29 @@ blur the metre (`craft`: "chord changes on beats").
 
 ## 8. Tension curve
 
-`craft` draws a per-bar tension curve. It blends:
+`craft` draws a per-bar tension curve. Felt tension follows intensity first and harmony second
+(Farbood 2012), so the blend is:
 
-- the chord's distance from home (Lerdahl 2001, simplified);
-- the sonority's dissonance (Huron 1994 interval-class ratings);
-- density;
-- the melody's register;
-- loudness.
+| Term | Weight | What it reads |
+|---|---|---|
+| loudness | 0.35 | every part sounding in the bar, velocity squared (section `energy` and `chordVel` included), weighted by its stem target; 1 at the piece's loudest bar, 0 at 12 dB under it |
+| density | 0.25 | onsets per beat, against the piece's busiest bar |
+| register | 0.15 | the melody's mean pitch within its range (the top voice where the melody rests) |
+| harmonic lean | 0.25 | the chord root's distance from home (Lerdahl 2001, simplified; 0.15) and the sonority's dissonance (Huron 1994 interval-class ratings; 0.10) |
+
+So a home-chord tutti climax or an EDM drop reads as the peak: its chord is at rest, but everything
+plays, loud and high. A dominant that leans quietly does not. `craft` prints each section's four
+terms under the curve, so you can see what drives it.
 
 Plan the curve **before** the notes: rise, a dip just before the peak (a breath or breakdown), the
 peak on the key picture moment, then release. It warns on a flat curve, on a first section that is the
-most intense, and on a last section with no release.
+most intense, and on a last section with no release. A loop, an ambient piece or a calm one stays
+level on purpose (a site loop is low arousal: [mood.md](mood.md)), so a flat curve there is a note,
+not a warning.
 
 Sources: Aldwell & Schachter, *Harmony and Voice Leading* (2011); Kostka & Payne, *Tonal Harmony*
 (8th ed., 2018); Piston, *Harmony* (1941/1987); Tymoczko, *A Geometry of Music* (2011); Levine, *The
 Jazz Theory Book* (1995); Lehman, *Hollywood Harmony* (2018); Lerdahl, *Tonal Pitch Space* (2001);
-Huron, "Interval-class content of equally tempered pitch-class sets", *Music Perception* 11 (1994).
+Huron, "Interval-class content of equally tempered pitch-class sets", *Music Perception* 11 (1994);
+Farbood, "A parametric, temporal model of musical tension", *Music Perception* 29 (2012); Lerdahl &
+Krumhansl, "Modeling tonal tension", *Music Perception* 24 (2007).

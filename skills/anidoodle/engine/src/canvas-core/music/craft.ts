@@ -128,12 +128,44 @@ const classifyNct = (prev: Note | undefined, n: Note, next: Note | undefined): N
   return "other";
 };
 
+// ------------------------------------------------------------------ tension
+type TensionBar = { harm: number; loud: number; dens: number; reg: number };
+/**
+ * Weights of the per-bar tension blend. Intensity leads (loudness 0.35, onset density 0.25, the top
+ * voice's register 0.15), harmonic lean follows (0.25: the chord root's function 0.15, the
+ * sonority's dissonance 0.10). Calibrated on the craft tests' good and bad fixtures (a home-chord
+ * tutti climax and an EDM drop must read as the peak; a dominant that leans quietly must not).
+ */
+export const TENSION_WEIGHTS = { loudness: 0.35, density: 0.25, register: 0.15, root: 0.15, dissonance: 0.1 };
+/** Loudness range (dB under the piece's loudest bar) that the loudness term spans 1 -> 0. */
+export const TENSION_LOUD_RANGE_DB = 12;
+const tensionBars = (c: Ctx, ch: { t: number; name: string }[]) => {
+  const { bpb, mel } = c, nBars = Math.max(1, Math.ceil(c.end / bpb - E)), targets = c.p.stemTargets ?? {};
+  const top = topVoice(c.notes.filter((n) => n.role !== "drum" && n.role !== "bass")), topR = top.length ? [Math.min(...top.map((n) => n.p)), Math.max(...top.map((n) => n.p))] : [60, 72];
+  const melR = mel.length ? [Math.min(...mel.map((n) => n.p)), Math.max(...mel.map((n) => n.p))] : topR;
+  const raw = Array.from({ length: nBars }, (_, b) => { const a = b * bpb, z = a + bpb, ns = c.notes.filter((n) => n.t >= a - E && n.t < z - E);
+    const h = ch.filter((x) => x.t <= a + E).pop(), k = c.keyAt(a), r = rootAt(c, h ? Math.max(h.t, a) : a), fn = r < 0 ? 0 : ROOT_TENSION[mod12(r - k.tonic)];
+    const pcs = [...new Set(sounding(c, a + 0.01, ["accomp", "inner", "bass", "melody", "color"]).map((n) => mod12(n.p)))]; let ds = 0, pr = 0; for (let i = 0; i < pcs.length; i++) for (let j = i + 1; j < pcs.length; j++) { const ic = Math.min(mod12(pcs[j] - pcs[i]), 12 - mod12(pcs[j] - pcs[i])); ds += IC_DISSONANCE[ic]; pr++; }
+    // loudness: every part sounding in the bar adds power, v^2 x its share of the bar (a hit counts a quarter beat), weighted by the part's stem target when the piece has them
+    const pow = new Map<string, number>();
+    for (const n of c.notes) { const on = Math.min(z, n.t + (n.role === "drum" ? 0.25 : n.d)) - Math.max(a, n.t); if (on <= E) continue; const part = (n as { part?: string }).part ?? "";
+      pow.set(part, Math.max(pow.get(part) ?? 0, n.v * n.v * Math.min(1, on / Math.min(bpb, n.role === "drum" ? 0.25 : bpb)))); }
+    let power = 0; for (const [part, x] of pow) power += x * (targets[part] !== undefined ? 10 ** (targets[part] / 10) : 1e-2);
+    // register: the melody's mean pitch over its range; a bar without melody reads the top voice over its range
+    const mb = mel.filter((n) => n.t >= a - E && n.t < z - E), tb = top.filter((n) => n.t >= a - E && n.t < z - E);
+    const reg = mb.length ? (mean(mb.map((n) => n.p)) - melR[0]) / Math.max(1, melR[1] - melR[0]) : tb.length ? (mean(tb.map((n) => n.p)) - topR[0]) / Math.max(1, topR[1] - topR[0]) : 0;
+    return { fn, diss: pr ? ds / pr : 0, onsets: new Set(ns.map((n) => Math.round(n.t * 48))).size / bpb, power, reg }; });
+  const loudDb = raw.map((x) => (x.power > 0 ? 10 * Math.log10(x.power) : -Infinity)), maxDb = Math.max(...loudDb), md = Math.max(E, ...raw.map((x) => x.onsets)), W = TENSION_WEIGHTS;
+  const out: TensionBar[] = raw.map((x, i) => ({ harm: (W.root * x.fn + W.dissonance * x.diss) / (W.root + W.dissonance), loud: Number.isFinite(loudDb[i]) ? Math.max(0, 1 - (maxDb - loudDb[i]) / TENSION_LOUD_RANGE_DB) : 0, dens: x.onsets / md, reg: x.reg }));
+  return { raw: out, bars: out.map((x) => +((W.root + W.dissonance) * x.harm + W.loudness * x.loud + W.density * x.dens + W.register * x.reg).toFixed(3)) };
+};
+
 // ------------------------------------------------------------------ the report
 export type CraftReport = {
   melody: { phrases: number; contours: Record<string, number>; leaps: number; leapsRecovered: number; stepShare: number; range: [string, string] | null; repetition: number; development: Record<Development, number>; exactBarCopies: number; stableEnds: number; lastNote: string | null; climax: { note: string; at: number; times: number } | null; strongBeatChordTones: number; ncts: Record<NCT, number> };
   harmony: { cadences: { id: string; type: string; motion: string }[]; parallels: number; octaveDoublings: number; innerJumps: number; meanMotion: number; leadUnderChords: number; mud: { at: string; notes: string }[] };
   rhythm: { syncopation: { melody: number; bass: number; drums: number }; density: { id: string; perBeat: number; layers: number }[]; grooveConsistency: number | null; chordChangesOnBeats: number; repeatedSections: string[] };
-  tension: { sections: { id: string; value: number }[]; peakAt: number; bars: number[] };
+  tension: { sections: { id: string; value: number; harmonic: number; loudness: number; density: number; register: number }[]; peakAt: number; bars: number[] };
   mood: { mood: MoodId; checks: { what: string; value: string; want: string; ok: boolean }[] };
   scores: { melody: number; harmony: number; rhythm: number; tension: number; mood: number };
   findings: Finding[];
@@ -260,20 +292,19 @@ export const craftReport = (p: Piece, o: { centroidHz?: number } = {}): CraftRep
   for (let i = 1; i < c.spans.length; i++) { const A = c.spans[i - 1], B = c.spans[i]; if (B.b - B.a >= 4 * bpb - E && Math.abs((A.b - A.a) - (B.b - B.a)) < E && sig(A) && sig(A) === sig(B)) repeated.push(B.id); }
   if (repeated.length) add({ level: "warn", area: "rhythm", msg: `section(s) ${repeated.join(", ")} repeat the previous section note for note`, fix: "vary the repeat: the motif an octave up, a counter line, thinner or fuller layers, a new last bar" });
 
-  // ---------------- tension curve (per bar)
-  const nBars = Math.max(1, Math.ceil(c.end / bpb - E)), melRange = mel.length ? [Math.min(...mel.map((n) => n.p)), Math.max(...mel.map((n) => n.p))] : [60, 72];
-  const raw = Array.from({ length: nBars }, (_, b) => { const a = b * bpb, z = a + bpb, ns = c.notes.filter((n) => n.t >= a - E && n.t < z - E);
-    const h = ch.filter((x) => x.t <= a + E).pop(), k = c.keyAt(a), r = rootAt(c, h ? Math.max(h.t, a) : a), fn = r < 0 ? 0 : ROOT_TENSION[mod12(r - k.tonic)];
-    const pcs = [...new Set(sounding(c, a + 0.01, ["accomp", "inner", "bass", "melody", "color"]).map((n) => mod12(n.p)))]; let ds = 0, pr = 0; for (let i = 0; i < pcs.length; i++) for (let j = i + 1; j < pcs.length; j++) { const ic = Math.min(mod12(pcs[j] - pcs[i]), 12 - mod12(pcs[j] - pcs[i])); ds += IC_DISSONANCE[ic]; pr++; }
-    const mb = mel.filter((n) => n.t >= a - E && n.t < z - E), reg = mb.length ? (mean(mb.map((n) => n.p)) - melRange[0]) / Math.max(1, melRange[1] - melRange[0]) : 0;
-    return { fn, diss: pr ? ds / pr : 0, dens: new Set(ns.map((n) => Math.round(n.t * 48))).size / bpb, reg, loud: ns.length ? mean(ns.map((n) => n.v)) * Math.min(1, new Set(ns.map((n) => (n as { part?: string }).part)).size / 6) : 0 }; });
-  const mx = (f: (x: (typeof raw)[number]) => number) => Math.max(E, ...raw.map(f));
-  const md = mx((x) => x.dens), ml = mx((x) => x.loud);
-  const bars = raw.map((x) => +(0.25 * x.fn + 0.2 * x.diss + 0.25 * (x.dens / md) + 0.15 * x.reg + 0.15 * (x.loud / ml)).toFixed(3));
-  const tsec = c.spans.map((s) => ({ id: s.id, value: +mean(bars.slice(Math.max(0, Math.floor(s.a / bpb + E)), Math.ceil(s.b / bpb - E))).toFixed(2) }));
-  const peakBar = bars.indexOf(Math.max(...bars)), peakAt = (peakBar + 0.5) / nBars;
+  // ---------------- tension curve (per bar): harmonic lean AND intensity (loudness, density, register)
+  // Felt tension follows loudness and onset density most, then pitch height, then harmony (Farbood 2012, "A
+  // parametric, temporal model of musical tension", Music Perception 29; Lerdahl & Krumhansl 2007): a home-chord
+  // tutti climax or an EDM drop is the peak even though its chord is at rest, so intensity carries most weight.
+  const tb = tensionBars(c, ch), bars = tb.bars;
+  const tsec = c.spans.map((s) => { const a = Math.max(0, Math.floor(s.a / bpb + E)), z = Math.ceil(s.b / bpb - E), avg = (f: (x: TensionBar) => number) => +mean(tb.raw.slice(a, z).map(f)).toFixed(2);
+    return { id: s.id, value: +mean(bars.slice(a, z)).toFixed(2), harmonic: avg((x) => x.harm), loudness: avg((x) => x.loud), density: avg((x) => x.dens), register: avg((x) => x.reg) }; });
+  const nBars = bars.length, peakBar = bars.indexOf(Math.max(...bars)), peakAt = (peakBar + 0.5) / nBars;
+  // loops and low-arousal pieces stay level on purpose (theory/mood.md: a site loop is low arousal, no sharp accents; ambient and calm pieces
+  // hold one state): a flat curve there is the brief, not a fault, so it is a note
+  const levelOk = loop || p.plan.style === "ambient" || ["calm"].includes(moodId);
   if (tsec.length >= 3) { const vs = tsec.map((x) => x.value), rng = Math.max(...vs) - Math.min(...vs);
-    if (rng < 0.1) add({ level: "warn", area: "tension", msg: `the tension curve is flat (sections span ${rng.toFixed(2)})`, fix: "plan the arc before the notes: rise (denser, higher, leaning chords), a dip before the peak, then release" });
+    if (rng < 0.1) add({ level: levelOk ? "info" : "warn", area: "tension", msg: `the tension curve is flat (sections span ${rng.toFixed(2)})`, fix: levelOk ? `${loop ? "a loop" : "a calm or ambient piece"} stays level on purpose; keep it if that is the brief (a slow change of colour or register still helps it breathe)` : "plan the arc before the notes: rise (louder, denser, higher, leaning chords), a dip before the peak, then release" });
     const peakS = vs.indexOf(Math.max(...vs));
     if (!loop && peakS === 0) add({ level: "warn", area: "tension", msg: `the first section (${tsec[0].id}) is the most intense`, fix: "start below the peak so the piece has somewhere to go" });
     if (!loop && !openOk && vs[vs.length - 1] >= Math.max(...vs) - 1e-9) add({ level: "warn", area: "tension", msg: `the last section (${tsec[tsec.length - 1].id}) is the most intense: no release`, fix: "after the peak, release: fewer layers, home chord, the motif's last word" }); }
@@ -298,7 +329,7 @@ export const craftReport = (p: Piece, o: { centroidHz?: number } = {}): CraftRep
     melody: s01([recShare, Math.min(1, stepShare / 0.6), Math.min(1, rep.index / 0.5), 1 - Math.max(0, rep.exact - 0.4), phrases.length ? stable / phrases.length : 1, sbct]),
     harmony: s01([mudList.length ? Math.max(0, 1 - mudList.length / 6) : 1, profile.parallels === "forbid" ? Math.max(0, 1 - parallels / 4) : 1, 1 - leadUnder, meanMotion ? Math.min(1, 3 / meanMotion) : 1]),
     rhythm: s01([cob, grooveConsistency ?? 1, repeated.length ? 0.5 : 1, profile.groove && hasDrums ? Math.min(1, (syn.bass + syn.drums + syn.melody) / 0.15) : 1]),
-    tension: s01([tsec.length >= 3 ? Math.min(1, (Math.max(...tsec.map((x) => x.value)) - Math.min(...tsec.map((x) => x.value))) / 0.2) : 1, loop || peakAt >= 0.3 ? 1 : 0.5]),
+    tension: s01([tsec.length >= 3 && !levelOk ? Math.min(1, (Math.max(...tsec.map((x) => x.value)) - Math.min(...tsec.map((x) => x.value))) / 0.2) : 1, loop || peakAt >= 0.3 ? 1 : 0.5]),
     mood: checks.length ? +(checks.filter((x) => x.ok).length / checks.length).toFixed(2) : 1,
   };
   return {
@@ -320,6 +351,7 @@ export const craftText = (r: CraftReport) => {
     `  rhythm   syncopation melody ${f2(y.syncopation.melody)} bass ${f2(y.syncopation.bass)} kick/snare ${f2(y.syncopation.drums)} | groove consistency ${y.grooveConsistency === null ? "-" : f2(y.grooveConsistency)} | chord changes on beats ${pct(y.chordChangesOnBeats)}`,
     `           density (onsets/beat, layers) ${y.density.map((d) => `${d.id} ${d.perBeat.toFixed(1)}/${d.layers}`).join("  ")}`,
     `  tension  ${r.tension.sections.map((s) => `${s.id} ${spark[Math.min(7, Math.floor(s.value * 8))]}${f2(s.value)}`).join("  ")} | bars ${r.tension.bars.map((v) => spark[Math.min(7, Math.floor(v * 8))]).join("")} | peak at ${pct(r.tension.peakAt)}`,
+    `           what drives it (loudness/density/register/harmony, 0..1) ${r.tension.sections.map((s) => `${s.id} ${f2(s.loudness)}/${f2(s.density)}/${f2(s.register)}/${f2(s.harmonic)}`).join("  ")}`,
     `  mood     ${r.mood.mood}: ${r.mood.checks.map((c) => `${c.what} ${c.value} ${c.ok ? "ok" : `(typical ${c.want})`}`).join(" | ")}`];
   for (const f of r.findings) o.push(`${f.level === "error" ? "ERROR  " : f.level === "warn" ? "CRAFT  " : "note   "} ${f.area}: ${f.msg}${f.fix ? `\n           fix: ${f.fix}` : ""}`);
   return o.join("\n");
