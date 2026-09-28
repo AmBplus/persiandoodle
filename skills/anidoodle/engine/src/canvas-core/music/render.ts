@@ -5,6 +5,7 @@
 import { type Piece, type Part, resequence, beatsPerBar } from "./plan";
 import { perform, type Performance, type Played } from "./perform";
 import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
+import { keysVoice, renderPianoV2 } from "./keys";
 import * as I from "./instruments";
 import * as O from "./orchestra";
 import { timpani as kitTimpani, chokeTimes, type KitCtx } from "./drums";
@@ -26,6 +27,7 @@ export type Rendered = { L: Float32Array; R: Float32Array; perf: Performance; te
 const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number, ctx: KitCtx = {}) => {
   // Piece.legacy is the one freeze flag: legacy pieces hand every voice `legacy: true` so a rebuilt voice keeps its old path for them
   const o = ctx.legacy ? { ...(pt.opts ?? {}), legacy: true } : pt.opts ?? {}, r = mkRng(seed);
+  if (!ctx.legacy) { const kv = keysVoice(pt.inst, keys, sr, n, o, seed); if (kv) return kv; } // keys rebuild (keys.ts)
   switch (pt.inst) {
     case "musicBox": return I.musicBox(keys, sr, n, o);
     case "bell": return I.bell(keys, sr, n, o);
@@ -43,6 +45,9 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number, ct
     case "kick": case "snare": case "hat": return I.drumVoice(pt.inst, keys, sr, n, o, r, ctx);
     case "bass": return I.bass(keys, sr, n, o);
     case "vinyl": return I.vinyl(keys, sr, n, o, r);
+    case "glockenspiel": return I.celesta(keys, sr, n, o); // new instruments have no legacy voice: the nearest old one
+    case "wurlitzer": return I.ePiano(keys, sr, n, o);
+    case "pipeOrgan": return O.organ(keys, sr, n, o);
     case "warmPad": return warmPad(keys, sr, n, o, r);
     case "softPluck": return softPluck(keys, sr, n, o);
     case "sub": return sub(keys, sr, n, o);
@@ -135,7 +140,8 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
     if (o.only && !o.only(pt)) return;
     const keys = perf.parts[pi].keys; if (!keys.length) return;
     let sL: Float32Array, sR: Float32Array;
-    if (pt.inst === "piano") { const r = renderPiano(keys, perf.pedal, sr, n, o.piano ?? PIANO_REAL, piece.seed + pi); sL = r.L; sR = r.R; if ((o.piano ?? PIANO_REAL).pedal) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
+    // piano v2 (keysPiano.ts) unless the caller asks for the v1 model by passing RenderOpts.piano
+    if (pt.inst === "piano") { const old = !!o.piano, r = old ? renderPiano(keys, perf.pedal, sr, n, o.piano!, piece.seed + pi) : renderPianoV2(keys, perf.pedal, sr, n, pt.opts ?? {}, piece.seed + pi); sL = r.L; sR = r.R; if (old ? o.piano!.pedal : pt.opts?.pedal !== false) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
     else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi, kitCtx); sL = r.L; sR = r.R; }
     if (lofi) lofiStem(lofi, pt.id, sL, sR, sr, keys.map((k) => k.t), piece.seed, period);
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }

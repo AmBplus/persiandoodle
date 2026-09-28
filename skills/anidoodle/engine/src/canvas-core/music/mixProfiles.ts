@@ -13,7 +13,7 @@ export type EqClass = "kick" | "snare" | "hat" | "chipDrum" | "boom" | "bass" | 
 export const EQ_CLASS: Record<InstId, EqClass> = {
   kick: "kick", snare: "snare", hat: "hat", noiseDrum: "chipDrum", timpani: "boom", bass: "bass", sub: "bass", triangle: "chip", pulse: "chip",
   piano: "piano", ePiano: "keys", organ: "keys", warmPad: "pad", strings: "pad", choir: "pad", brass: "lead", woodwind: "lead", leadSynth: "lead", bowedSolo: "lead",
-  guitar: "pluck", harp: "pluck", softPluck: "pluck", musicBox: "bell", bell: "bell", celesta: "bell", marimba: "bell", vibes: "bell", fmBell: "bell", vinyl: "fx",
+  guitar: "pluck", harp: "pluck", softPluck: "pluck", musicBox: "bell", bell: "bell", celesta: "bell", marimba: "bell", vibes: "bell", fmBell: "bell", glockenspiel: "bell", wurlitzer: "keys", pipeOrgan: "keys", vinyl: "fx",
 };
 /** Corrective EQ per class: clear the mud (200-500 Hz), give each thing its own band, roll off what it doesn't use. */
 export const CLASS_EQ: Record<EqClass, StemEq> = {

@@ -37,3 +37,4 @@ export const DEMOS = { launchLofi, launchLofi2, launchLofi3, nocturne, pianoPhra
 export const DEMO_FAMILIES: Record<string, string[]> = { launch: ["launchLofi", "launchLofi2", "launchLofi3"], nocturne: ["nocturne", "pianoPhrase8"] };
 /** Test fixtures, never scores: the ghost (must fail the ghost guard), the copy (must fail novelty). */
 export const FIXTURES = { ghostFixture, daylightCopy };
+export * from "./keys";
