@@ -385,3 +385,26 @@ export const caption = (ctx: Ctx, env: Env, text: string, x: number, y: number, 
   }
   ctx.restore();
 };
+
+// ---------------------------------------------------------------- set type (the clean register)
+// Type as the design: a line SET in a heavy sans, not written. Each word rises into place from
+// behind its own baseline (a mask the size of the line), one after another, on an out-cubic: a
+// gentle move with no bounce and no fade-in. `p` 0..1 is the line's progress. Screen space.
+export type SetOpts = { color?: string; align?: "left" | "center" | "right"; weight?: number; font?: (w: number, px: number) => string; track?: number };
+const SET_FONT = (w: number, px: number) => `${w} ${px}px "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif`;
+export const setWidth = (ctx: Ctx, text: string, size: number, o: SetOpts = {}) => { ctx.font = (o.font ?? SET_FONT)(o.weight ?? 700, size); return ctx.measureText(text).width + Math.max(0, text.length - 1) * (o.track ?? -0.02) * size; };
+export const setType = (ctx: Ctx, env: Env, text: string, x: number, y: number, size: number, p: number, o: SetOpts = {}) => {
+  if (p <= 0) return;
+  screen(ctx, env); ctx.save();
+  ctx.font = (o.font ?? SET_FONT)(o.weight ?? 700, size); ctx.textBaseline = "alphabetic"; ctx.fillStyle = o.color ?? "#111214";
+  const tr = (o.track ?? -0.02) * size, words = text.split(" "), space = ctx.measureText(" ").width;
+  const wOf = (w: string) => ctx.measureText(w).width + Math.max(0, w.length - 1) * tr, total = words.reduce((a, w) => a + wOf(w), 0) + space * (words.length - 1);
+  let cx = o.align === "center" ? x - total / 2 : o.align === "right" ? x - total : x;
+  ctx.beginPath(); ctx.rect(cx - size, y - size * 1.05, total + 2 * size, size * 1.35); ctx.clip(); // the line's own window: words rise into it
+  words.forEach((w, i) => {
+    const q = Math.max(0, Math.min(1, p * (1 + 0.35 * (words.length - 1)) - 0.35 * i)), e = 1 - Math.pow(1 - q, 3);
+    if (q > 0) { const dy = (1 - e) * size * 0.9; let wx = cx; for (const ch of w) { ctx.fillText(ch, wx, y + dy); wx += ctx.measureText(ch).width + tr; } }
+    cx += wOf(w) + space;
+  });
+  ctx.restore();
+};

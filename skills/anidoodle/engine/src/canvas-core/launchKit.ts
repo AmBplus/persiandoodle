@@ -137,6 +137,8 @@ export type ChatGeom = {
   REPLY: { x: number; y: number; s: number }; TEXT: { x: number; base: number; px: number };
   k: number; px: { head: number; sub: number; bubble: number; label: number; gen: number }; wrap: number; lineH: number;
   theme?: Partial<typeof C>;
+  drop?: string;   // the ink drop's colour (default the ink): the clean preset's drop is its one accent
+  iris?: boolean;  // the answer card opens as a clean round iris instead of an ink bloom (the clean preset)
 };
 export const CHAT_GEOM: ChatGeom = { CHAT, INPUT, GEN, REPLY, TEXT, k: 1, px: { head: 22, sub: 18, bubble: 26, label: 20, gen: 24 }, wrap: 0, lineH: 44 };
 // the same component at any size: derived from the window's rectangle, a length scale and the type
@@ -230,7 +232,7 @@ export const typedAt = (text: string, f: number, times: number[]) => text.slice(
 // The drop: a bead of ink lifts off Generate and arcs to where the answer card will land.
 export type Drop = { t0: number; land: number; full: number };
 export const inkDrop = (ctx: Ctx, f: number, d: { t0: number; land: number }, to: P, g: ChatGeom = CHAT_GEOM) => {
-  const { GEN, k } = g, ink = pal(g).ink, GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
+  const { GEN, k } = g, ink = g.drop ?? pal(g).ink, GEN_C: P = [GEN.x + GEN.w / 2, GEN.y + GEN.h / 2];
   if (f < d.t0 - 6 || f >= d.land) return;
   if (f < d.t0) { const w = out3(ramp(f, d.t0 - 6, d.t0)); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(GEN_C[0], GEN.y + 6 * k - w * 22 * k, 30 * k * (0.3 + 0.7 * w), 0, Math.PI * 2); ctx.fill(); return; }
   const at = (t: number): P => { const u = ramp(t, d.t0, d.land), e = inOut(u); return [lerp(GEN_C[0], to[0], e), lerp(GEN.y - 16 * k, to[1], e) - Math.sin(Math.PI * u) * 150 * k]; };
@@ -247,14 +249,17 @@ export const inkDropAt = (f: number, d: { t0: number; land: number }, to: P, g: 
 };
 // The answer card in the thread: a byline, then the art, revealed by the landed drop blooming open.
 // `art` is any layer (plateLayer gives a live plate); `crop` picks a source rectangle.
-export const inkCard = (ctx: Ctx, x: number, y: number, s: number, f: number, d: Drop, art: Layer, label: string, crop?: [number, number, number, number], g: ChatGeom = CHAT_GEOM) => {
+// `grow` (default an out-cubic from land to full) is how open the card is at frame f: the template
+// passes a spring, so the card lands on the spring's first arrival and its sound cue can sit there
+export const inkCard = (ctx: Ctx, x: number, y: number, s: number, f: number, d: Drop, art: Layer, label: string, crop?: [number, number, number, number], g: ChatGeom = CHAT_GEOM, growAt?: (f: number) => number) => {
   const k = g.k, P = pal(g);
   ctx.fillStyle = P.ink; ctx.globalAlpha = ramp(f, d.land, d.land + 10); ctx.beginPath(); ctx.arc(x + 9 * k, y - 16 * k, 7 * k, 0, Math.PI * 2); ctx.fill();
   ctx.font = SANS(600, g.px.label); ctx.textBaseline = "middle"; ctx.fillText(label, x + 26 * k, y - 15 * k); ctx.globalAlpha = 1;
-  const grow = out3(ramp(f, d.land, d.full)), c: P = [x + s / 2, y + s / 2];
-  softShadow(ctx, x, y, s, s, 20 * k, grow * 1.3);
+  const grow = growAt ? growAt(f) : out3(ramp(f, d.land, d.full)), c: P = [x + s / 2, y + s / 2];
+  softShadow(ctx, x, y, s, s, 20 * k, Math.min(1, grow) * 1.3);
   ctx.save(); rr(ctx, x, y, s, s, 20 * k); ctx.clip();
-  if (grow < 1) { pathOf(ctx, blot(c, lerp(16 * k, s * 0.8, grow) + 28 * k * (1 - grow), 77)); ctx.fillStyle = P.ink; ctx.fill(); pathOf(ctx, blot(c, Math.max(0, lerp(16 * k, s * 0.8, grow) - 5 * k), 77)); ctx.clip(); }
+  if (grow < 1 && g.iris) { ctx.beginPath(); ctx.arc(c[0], c[1], Math.max(0, lerp(18 * k, s * 0.72, grow)), 0, Math.PI * 2); ctx.clip(); }
+  else if (grow < 1) { pathOf(ctx, blot(c, lerp(16 * k, s * 0.8, grow) + 28 * k * (1 - grow), 77)); ctx.fillStyle = g.drop ?? P.ink; ctx.fill(); pathOf(ctx, blot(c, Math.max(0, lerp(16 * k, s * 0.8, grow) - 5 * k), 77)); ctx.clip(); }
   ctx.fillStyle = P.paper; ctx.fillRect(x, y, s, s);
   if (crop) ctx.drawImage(art.canvas, ...crop, x, y, s, s); else ctx.drawImage(art.canvas, x, y, s, s);
   ctx.restore();
