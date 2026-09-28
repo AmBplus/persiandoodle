@@ -75,7 +75,7 @@ export const owlPiece = (sp: OwlSoundPlan): Piece => {
   const parts: Part[] = [
     { id: "ostinato", inst: "marimba", role: "accomp", notes: ost, gainDb: -6, opts: grid },
     { id: "bass", inst: "marimba", role: "bass", notes: bass, gainDb: -3, opts: grid },
-    { id: "pizz", inst: "guitar", role: "melody", notes: pl, gainDb: 1, opts: grid, pan: -0.15 },
+    { id: "pizz", inst: "guitar", role: "melody", notes: pl, gainDb: 1, opts: { ...grid, legacy: true }, pan: -0.15 },
     { id: "hook", inst: "marimba", role: "melody", notes: mar, gainDb: -1, opts: grid, pan: 0.15 },
     { id: "steps", inst: "celesta", role: "color", notes: ping, gainDb: -5, opts: grid, pan: 0.25 },
     { id: "tada", inst: "bell", role: "color", notes: bell, gainDb: -7, opts: grid },

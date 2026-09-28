@@ -4,6 +4,7 @@
 // DECISION B). Each voice states the physics it borrows.
 import { type Rng, TAU, clamp, pan, SVF, blep, gauss } from "./dsp";
 import type { Played } from "./perform";
+import * as E from "./ensemble";
 
 type Out = { L: Float32Array; R: Float32Array };
 type Opts = Record<string, number | boolean | string>;
@@ -27,7 +28,7 @@ export const organ = (keys: Played[], sr: number, n: number, o: Opts): Out => {
 };
 
 /** Brass: a PolyBLEP saw whose low-pass opens with loudness (the brass "bite"), the pitch rising ~25 cents into the note, vibrato delayed. `attack`, `bright`. */
-export const brass = (keys: Played[], sr: number, n: number, o: Opts): Out => {
+const brassLegacy = (keys: Played[], sr: number, n: number, o: Opts): Out => {
   const out = out0(n), atk = num(o, "attack", 0.06), bright = num(o, "bright", 1), w = num(o, "width", 0.5);
   for (const k of keys) {
     const f = f0(k.p), i0 = Math.round(k.t * sr), dur = k.off - k.t, len = Math.min(n - i0, Math.ceil((dur + 0.3) * sr)), lp = new SVF(sr, 800, 0.8), [gl, gr] = byPitch(k.p, w); let ph = 0;
@@ -39,7 +40,7 @@ export const brass = (keys: Played[], sr: number, n: number, o: Opts): Out => {
 };
 
 /** Woodwind: flute (sine + weak 2nd/3rd + breath noise at the pitch) or `reed: true` clarinet (odd harmonics, darker). Delayed vibrato. */
-export const woodwind = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
+const woodwindLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
   const out = out0(n), reed = o.reed === true, breath = num(o, "breath", reed ? 0.02 : 0.08), w = num(o, "width", 0.3);
   for (const k of keys) {
     const f = f0(k.p), i0 = Math.round(k.t * sr), dur = k.off - k.t, len = Math.min(n - i0, Math.ceil((dur + 0.2) * sr)), bp = new SVF(sr, f, 4), [gl, gr] = byPitch(k.p, w); let ph = 0;
@@ -53,7 +54,7 @@ export const woodwind = (keys: Played[], sr: number, n: number, o: Opts, r: Rng)
 
 const VOWELS: Record<string, [number, number, number]> = { a: [700, 1220, 2600], o: [450, 800, 2830], u: [325, 700, 2530], e: [530, 1840, 2480], i: [300, 2200, 3000] };
 /** Choir: three detuned saws per note through the formants of a vowel (`vowel`: a o u e i), slow attack. Texture and pads; never a lead. */
-export const choir = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
+const choirLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
   const out = out0(n), fm = VOWELS[String(o.vowel ?? "a")] ?? VOWELS.a, atk = num(o, "attack", 0.35), w = num(o, "width", 0.8);
   for (const k of keys) {
     const f = f0(k.p), i0 = Math.round(k.t * sr), dur = k.off - k.t, len = Math.min(n - i0, Math.ceil((dur + 0.8) * sr));
@@ -97,7 +98,7 @@ export const leadSynth = (keys: Played[], sr: number, n: number, o: Opts): Out =
 };
 
 /** Bowed solo (violin / cello): one saw with delayed vibrato and bow noise through body resonances (~280, 450, 2800 Hz), a bowed attack. */
-export const bowedSolo = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
+const bowedSoloLegacy = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => {
   const out = out0(n), atk = num(o, "attack", 0.09), vibC = num(o, "vibrato", 22), [gl, gr] = pan(num(o, "pan", -0.1));
   const body = o.cello === true ? [140, 300, 1600] : [280, 450, 2800];
   for (const k of keys) {
@@ -108,3 +109,11 @@ export const bowedSolo = (keys: Played[], sr: number, n: number, o: Opts, r: Rng
   }
   return out;
 };
+
+// ---------------------------------------------------------------- v2 ensemble voices (ensemble.ts)
+// `opts.legacy: true` keeps the v1 voice bit-for-bit (shipped films); everything else gets v2.
+const legacy = (o: Opts) => o.legacy === true;
+export const brass = (keys: Played[], sr: number, n: number, o: Opts): Out => (legacy(o) ? brassLegacy(keys, sr, n, o) : E.brass(keys, sr, n, o));
+export const woodwind = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? woodwindLegacy(keys, sr, n, o, r) : E.woodwind(keys, sr, n, o, r));
+export const choir = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? choirLegacy(keys, sr, n, o, r) : E.choir(keys, sr, n, o, r));
+export const bowedSolo = (keys: Played[], sr: number, n: number, o: Opts, r: Rng): Out => (legacy(o) ? bowedSoloLegacy(keys, sr, n, o, r) : E.bowedSolo(keys, sr, n, o, r));

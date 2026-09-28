@@ -66,7 +66,7 @@ export const renderPiece = (piece: Piece, sr: number, o: RenderOpts = {}): Rende
     const keys = perf.parts[pi].keys; if (!keys.length) return;
     let sL: Float32Array, sR: Float32Array;
     if (pt.inst === "piano") { const r = renderPiano(keys, perf.pedal, sr, n, o.piano ?? PIANO_REAL, piece.seed + pi); sL = r.L; sR = r.R; if ((o.piano ?? PIANO_REAL).pedal) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
-    else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi); sL = r.L; sR = r.R; }
+    else { const r = voice((piece as { legacy?: boolean }).legacy ? { ...pt, opts: { ...(pt.opts ?? {}), legacy: true } } : pt, keys, sr, n, piece.seed * 101 + pi); sL = r.L; sR = r.R; } // Piece.legacy (shipped scores) -> the v1 voices
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     const g = db(pt.gainDb ?? 0);
     if (pt.pan) { const a = Math.max(0, pt.pan), b = Math.max(0, -pt.pan); for (let i = 0; i < n; i++) { sL[i] *= 1 - a * 0.6; sR[i] *= 1 - b * 0.6; } }
