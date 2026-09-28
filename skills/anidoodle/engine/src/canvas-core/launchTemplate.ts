@@ -30,8 +30,8 @@ import {
 } from "./launchKit";
 import { launchLayout, estWidth, wrapEst, SHAPES, type LaunchLayout, type Shape } from "./launchLayout";
 import { beatGrid, bloomFrame, bloomRadius, makeCut, pic, type, typeFrame, type Seg, type TypeLine } from "./launchCut";
-import { measure, writeOn, setType, type KStyle } from "./kinetic";
-import { drawProductUI, springLand, uiActionAt, uiCommandAt, uiSettles, type ProductUI, type UiTheme } from "./productUI";
+import { measure, writeOn, setType } from "./kinetic";
+import { drawProductUI, springLand, uiActionAt, uiCommandAt, uiSettles, uiWindow, type ProductUI, type UiTheme } from "./productUI";
 import { relay, checkRelay, type MotifPose, type Seam } from "./motif";
 import { launchAudio, type LaunchCue } from "./launchSound";
 import { fitScore, limiter, renderPiece } from "./music/render";
@@ -121,8 +121,8 @@ const askTiming = (prompt: string, i: number, ASK: number, a0 = 0) => {
   return { times, b, down, up, drop };
 };
 // a UI ask: the ask typed into the product's command bar (if it has a prompt), then its action pressed
-const uiTiming = (prompt: string | undefined, i: number, ASK: number, a0: number) => {
-  const b = Math.round(ASK * (prompt ? 0.3 : 0.2)) + a0;
+const uiTiming = (prompt: string | undefined, i: number, ASK: number, a0: number, split = false) => {
+  const b = Math.round(ASK * (prompt ? 0.3 : split ? 0.13 : 0.2)) + a0; // a split beat's words are the wait: its press follows them
   let times: number[] = [];
   if (prompt) { const raw = charTimes(prompt, 0, 1, 11 + i * 4), last = raw[raw.length - 1] || 1, a = i === 0 ? -Math.round(b * 0.8) : 6 + a0; times = raw.map((t) => a + (t / last) * (b - a)); }
   const down = b + 14, up = down + 5;
@@ -171,7 +171,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   const BASE = LEN.map((_, i) => LEN.slice(0, i).reduce((a, b) => a + b, 0));
   // a seam between two kinds (or into a UI or a film) with no word page on it opens with a bloom-in
   const TIN = spec.asks.map((a, i) => (i > 0 && !(isChat(a) && isChat(spec.asks[i - 1])) && !words[i - 1]?.length ? TR : 0));
-  const T = spec.asks.map((a, i) => ({ ...(isChat(a) ? askTiming(a.prompt, i, ASK, TIN[i]) : a.kind === "ui" ? uiTiming(a.prompt, i, ASK, TIN[i]) : { times: [], b: 0, down: 0, up: 0, drop: { t0: 0, land: 0, full: 0 } }), base: BASE[i], len: LEN[i], tin: TIN[i] }));
+  const T = spec.asks.map((a, i) => ({ ...(isChat(a) ? askTiming(a.prompt, i, ASK, TIN[i]) : a.kind === "ui" ? uiTiming(a.prompt, i, ASK, TIN[i], !!a.split?.length) : { times: [], b: 0, down: 0, up: 0, drop: { t0: 0, land: 0, full: 0 } }), base: BASE[i], len: LEN[i], tin: TIN[i] }));
   const END0 = BASE[n - 1] + LEN[n - 1]; // content frame where the end card starts
   const askOf = (f: number) => { let i = n - 1; while (i > 0 && T[i].base > f) i--; return i; };
 
@@ -258,12 +258,23 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   };
   // ---------------------------------------------------------------- the product UI, a film in a card, and a split beat's words
   const panelOf = (i: number): Rect => ((spec.asks[i] as UiAsk | FilmAsk).split?.length ? L.split.ui : UI_FULL);
-  // never a still: the panel breathes 3 % closer over the ask, about its own centre (it never grows into the words' column)
-  const push = (ctx: Ctx, env: Env, r: Rect, l: number, len: number) => { const z = 1 + 0.03 * inOut(ramp(l, 0, len)), cx = r.x + r.w / 2, cy = r.y + r.h / 2; ctx.setTransform(env.scale * z, 0, 0, env.scale * z, env.scale * cx * (1 - z), env.scale * cy * (1 - z)); };
+  // never a still: a panel beside its words creeps closer about its own centre all through the ask
+  // (8 %) and leans 4 % more once its items land (it never grows into the words' column)
+  const pushZ = (l: number, len: number, t0: number) => 1 + 0.08 * ramp(l, 0, len) + 0.04 * inOut(ramp(l, t0, len + 30));
+  const push = (ctx: Ctx, env: Env, r: Rect, l: number, len: number, t0 = 0) => { const z = pushZ(l, len, t0 || len), cx = r.x + r.w / 2, cy = r.y + r.h / 2; ctx.setTransform(env.scale * z, 0, 0, env.scale * z, env.scale * cx * (1 - z), env.scale * cy * (1 - z)); };
+  // a full-frame UI ask has the chat's camera grammar: close on the command bar while the ask is typed
+  // (creeping in), out to the whole window for the press, then a lean onto the items as they land
+  const uiCam = (i: number, l: number): Cam => {
+    const a = spec.asks[i] as UiAsk, t = T[i], r = panelOf(i), win = uiWindow(r, a.ui, minPx), cmd = uiCommandAt(r, a.ui, minPx);
+    const lean: Cam = { c: lerpP(HOME.c, [win.x + win.w / 2, win.y + win.h * 0.6], 0.4), z: 1.07 };
+    if (l >= t.drop.t0) return camLerp(HOME, lean, inOut(ramp(l, t.drop.t0, t.len + 40))); // still moving when the ask ends
+    const z0 = cmd && a.prompt ? Math.min(2.2, (W * 0.92) / cmd.w) : 1.04, open: Cam = { c: cmd && a.prompt ? [cmd.x + cmd.w / 2, cmd.y + cmd.h / 2] : HOME.c, z: z0 * (1 + 0.06 * ramp(l, -20, t.b)) }; // already creeping on frame 0
+    return camLerp(open, HOME, expo(ramp(l, t.b - 4, t.down)));
+  };
   const ground = (ctx: Ctx, env: Env) => { ctx.setTransform(env.scale, 0, 0, env.scale, 0, 0); ctx.fillStyle = PAL.bg; ctx.fillRect(0, 0, W, H); };
   const uiScene = (ctx: Ctx, env: Env, f: number, i: number) => {
     const a = spec.asks[i] as UiAsk, t = T[i], l = f - t.base, r = panelOf(i), pr = press(l, t.down, t.up);
-    ground(ctx, env); push(ctx, env, r, l, t.len);
+    ground(ctx, env); if (a.split?.length) push(ctx, env, r, l, t.len, t.drop.t0); else useCam(ctx, env, uiCam(i, l));
     const typed = a.prompt ? typedAt(a.prompt, l, t.times) : "";
     drawProductUI(ctx, r, a.ui, { f: l, t0: t.drop.t0 }, THEME, { minPx, typed, caret: !!a.prompt && l < t.down, press: pr, hot: ramp(l, t.down - 10, t.down - 2), accent: ACC });
     pointerPath(ctx, l, t, (([x, y]) => [x + 14 * k, y + 8 * k] as P)(uiActionAt(r, a.ui, minPx)), pr);
@@ -276,7 +287,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     ground(ctx, env); push(ctx, env, c, l, t.len);
     for (let q = 5; q >= 1; q--) { ctx.fillStyle = `rgba(40,30,20,${0.022})`; rr(ctx, c.x - q * 2, c.y + q * 3, c.w + q * 4, c.h + q * 3, 22 * k + q * 2); ctx.fill(); }
     ctx.save(); rr(ctx, c.x, c.y, c.w, c.h, 22 * k); ctx.clip();
-    ctx.drawImage(plateLayer(env, `film${i}`, a.film, lerp(from, to, ramp(l, t.tin, t.len - 1)), Math.round(c.w * env.scale)).canvas, c.x, c.y, c.w, c.h);
+    ctx.drawImage(plateLayer(env, `film${i}`, a.film, lerp(from, to, ramp(l, 0, t.len - 1)), Math.round(c.w * env.scale)).canvas, c.x, c.y, c.w, c.h);
     ctx.restore();
     if (a.split?.length) splitWords(ctx, env, a.split, l, t.tin);
     bug(ctx, env);
@@ -287,13 +298,16 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     const col = L.split.words, lines = splitLines(lines0), size = Math.min(L.split.wordsPx, ...lines.map((x) => (col.w / measure(x.text, 100)) * 100)), gap = size * 1.3;
     const y0 = L.split.vertical ? col.y + size : col.y + col.h / 2 - ((lines.length - 1) * gap) / 2 + size * 0.35;
     lines.forEach((x, j) => {
-      const p = ramp(l, tin + 4 + j * 14, tin + 22 + j * 14);
+      const p = ramp(l, tin + j * 12, tin + 18 + j * 12);
       if (clean) setType(ctx, env, x.text, col.x, y0 + j * gap, size * 0.82, p, { color: x.color === C.accent ? THEME.accent : x.color ?? PAL.ink, weight: 800 });
       else writeOn(ctx, env, x.text, col.x, y0 + j * gap, size, p, x.style, { color: x.color, align: "left", seed: 21 + j });
     });
   };
+  // where a UI ask's world point is on screen at content frame f (its camera, or the split panel's push)
+  const uiScreen = (i: number, f: number, p: P): P => { const a = spec.asks[i] as UiAsk, l = f - T[i].base; if (!a.split?.length) return toScreen(uiCam(i, l), p, W, H); const r = panelOf(i), t = T[i], z = pushZ(l, t.len, t.drop.t0), cx = r.x + r.w / 2, cy = r.y + r.h / 2; return [cx + (p[0] - cx) * z, cy + (p[1] - cy) * z]; };
   const sceneOf = (ctx: Ctx, env: Env, f: number, i: number) => { const a = spec.asks[i]; if (isChat(a)) chatScene(ctx, env, f, i); else if (a.kind === "ui") uiScene(ctx, env, f, i); else filmScene(ctx, env, f, i); };
   const bloomOpts = clean ? { shape: "circle" as const, rim: 0, bg: PAL.bg } : {};
+  const CLEAN_ST = 12; // a clean word page's lines follow each other closer: set type settles sooner than a brush
 
   // ---------------------------------------------------------------- the motif: the drop that becomes the mark's dot
   const MOTIF = spec.motif !== false;
@@ -306,7 +320,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   // where the drop lifts off: Generate as the viewer sees it on the last chat ask (the card's centre if the lean hid it), the product's action, or the film's card
   const liftAt = (f: number): P => {
     const i = n - 1, a = spec.asks[i];
-    if (!isChat(a)) return a.kind === "ui" ? uiActionAt(panelOf(i), a.ui, minPx) : ((c) => [c.x + c.w / 2, c.y + c.h / 2] as P)(filmCard(i));
+    if (!isChat(a)) return a.kind === "ui" ? uiScreen(i, f, uiActionAt(panelOf(i), a.ui, minPx)) : ((c) => [c.x + c.w / 2, c.y + c.h / 2] as P)(filmCard(i));
     const cam = camAt(caretEst, f, i).cam, g = toScreen(cam, GEN_C, W, H), inFrame = g[0] > 60 && g[0] < W - 60 && g[1] > 60 && g[1] < H - 60;
     return inFrame ? g : toScreen(cam, [TH.cardX + CARD / 2, cardY(i, f) + CARD / 2], W, H);
   };
@@ -338,16 +352,20 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     else if (clean) setType(c, env, spec.title, cx, E.titleY, size, ramp(e, 8, 30), { align: "center", color: PAL.ink, weight: 800 });
     else writeOn(c, env, spec.title, cx, E.titleY, size, ramp(e, 10, 44), "ink", { color: C.ink, align: "center", seed: 11 });
     c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.textAlign = "center"; c.textBaseline = "middle";
-    c.globalAlpha = ramp(e, 34, 46); c.fillStyle = PAL.soft; c.font = SANS(500, E.taglinePx); E.tagline.forEach((t, j) => c.fillText(t, cx, E.taglineY + j * E.taglineLH));
-    c.globalAlpha = ramp(e, 40, 52); c.font = MONO(E.monoPx);
+    const Q = clean && MOTIF ? -14 : 0; // the clean name is set in 22 frames, not written in 36: the rest follows it closer
+    // the clean look's lines rise into place as they appear, like its type (the drawn look's fade in under the written name)
+    const rise = (a: number) => (clean ? (1 - out3(ramp(e, a, a + 12))) * 22 * L.k : 0);
+    c.globalAlpha = ramp(e, 34 + Q, 46 + Q); c.fillStyle = PAL.soft; c.font = SANS(500, E.taglinePx); E.tagline.forEach((t, j) => c.fillText(t, cx, E.taglineY + j * E.taglineLH + rise(34 + Q)));
+    c.translate(0, rise(40 + Q));
+    c.globalAlpha = ramp(e, 40 + Q, 52 + Q); c.font = MONO(E.monoPx);
     const nI = spec.install.length, pw = Math.max(...spec.install.map((s) => c.measureText(s).width)) + 2 * E.padX, ph = E.rowH * nI + 2 * (E.lineY0 - E.panelY) - E.rowH, py = E.panelY;
     c.fillStyle = clean ? PAL.ink : "#1f1c18"; rr(c, cx - pw / 2, py, pw, ph, 22 * L.k); c.fill();
     c.fillStyle = clean ? "#ffffff" : "#ece4d6"; spec.install.forEach((s, j) => c.fillText(s, cx, E.lineY0 + j * E.rowH));
     // a terminal caret blinks after the last line: the hold reads as live, never as a freeze
     const lastW = c.measureText(spec.install[nI - 1]).width;
-    if (Math.floor((e - 40) / 15) % 2 === 0) { if (clean) c.fillStyle = THEME.accent; c.fillRect(cx + lastW / 2 + 8 * (E.monoPx / 30), E.lineY0 + (nI - 1) * E.rowH - E.caret[1] / 2, E.caret[0], E.caret[1]); }
+    if (Math.floor((e - 40 - Q) / 15) % 2 === 0) { if (clean) c.fillStyle = THEME.accent; c.fillRect(cx + lastW / 2 + 8 * (E.monoPx / 30), E.lineY0 + (nI - 1) * E.rowH - E.caret[1] / 2, E.caret[0], E.caret[1]); }
     if (spec.footer) { c.fillStyle = PAL.soft; c.font = SANS(500, E.footerPx); c.fillText(spec.footer, cx, E.footerY); }
-    c.globalAlpha = 1; c.textAlign = "left";
+    c.globalAlpha = 1; c.textAlign = "left"; c.setTransform(env.scale, 0, 0, env.scale, 0, 0);
   };
   const content = (ctx: Ctx, env: Env, f: number, exact: boolean) => {
     const g = clamp(exact ? Math.round(f) : f, 0, END0 + END - 1);
@@ -374,9 +392,9 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   const cleanType = (ctx: Ctx, env: Env, lines: TypeLine[], local: number, len: number, under: (first: boolean) => void) => bloomFrame(ctx, env, local, len, under, (c) => {
     const nL = lines.length, maxW = L.type.maxW, x0 = (W - maxW) / 2;
     const size = Math.min(nL === 1 ? 170 : 124, ...lines.map((l) => (maxW / (estWidth(l.text, 100) * 1.12)) * 100)), gap = size * 1.12, y0 = H / 2 - ((nL - 1) * gap) / 2 + size * 0.36;
-    lines.forEach((l, i) => setType(c, env, l.text, x0, y0 + i * gap, size, ramp(local, 14 + TYPE_O.lead + i * TYPE_O.stagger, 14 + TYPE_O.lead + 18 + i * TYPE_O.stagger), { color: l.color === C.accent ? THEME.accent : l.color ?? PAL.ink, weight: 800 }));
+    lines.forEach((l, i) => setType(c, env, l.text, x0, y0 + i * gap, size, ramp(local, 14 + TYPE_O.lead + i * CLEAN_ST, 14 + TYPE_O.lead + 18 + i * CLEAN_ST), { color: l.color === C.accent ? THEME.accent : l.color ?? PAL.ink, weight: 800 }));
     bug(c, env);
-  }, { W, H, ...bloomOpts, radius: TYPE_R });
+  }, { W, H, ...bloomOpts, rim: 4, ink: THEME.accent, radius: TYPE_R });
   // a word page's bloom is sized to the frame it covers (the desktop's 1250 px over a 1110 px cover):
   // on a smaller frame a fixed bloom would cover it before the words start, and two frames would match
   const TYPE_R = L.shape === "16x9" ? undefined : Math.round((1250 * L.type.cover) / 1110);
@@ -423,14 +441,16 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   const holds: [number, number][] = [];
   cut.SEGS.forEach((s, k) => {
     if (s.kind !== "type") return;
-    const written = 14 + TYPE_O.lead + 18 + (s.lines.length - 1) * TYPE_O.stagger - 2; // local frame the last line is done
-    let open = s.len - 1; while (open > written && bloomRadius(open + 2, s.len + 4, { radius: TYPE_R }) < L.type.cover) open--;   // last fully covered frame
+    const written = 14 + TYPE_O.lead + 18 + (s.lines.length - 1) * (clean ? CLEAN_ST : TYPE_O.stagger) - (clean ? 9 : 2); // local frame the last line is done (set type's out-cubic settles to the pixel sooner)
+    // last frame the page still fills the frame (a round iris only clips the corners for its first closing frames: still a still)
+    const cover = clean ? Math.hypot(W, H) / 2 * 0.9 : L.type.cover;
+    let open = s.len - 1; while (open > written && bloomRadius(open + 2, s.len + 4, { radius: TYPE_R }) < cover) open--;
     holds.push([cut.STARTS[k] + written + 1, cut.STARTS[k] + open + 1]);
   });
   // a solved ask longer than the grid's: the finished card rests on screen until the end card blooms
   // (with the motif the drop is in flight over those frames, so they are not a hold)
   if (LEN[n - 1] > ASK && isChat(spec.asks[n - 1]) && !MOTIF) { const S = cut.STARTS[cut.SEGS.length - 2]; holds.push([S + LEN[n - 1] - 18, S + LEN[n - 1] + 6]); }
-  holds.push([cut.N - END + 53, cut.N]); // the end card, all on: read it, screenshot it
+  holds.push([cut.N - END + (clean && MOTIF ? 39 : 53), cut.N]); // the end card, all on: read it, screenshot it
 
   // ---------------------------------------------------------------- sound: the picture's own cues
   const cues: LaunchCue[] = [];
@@ -453,7 +473,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
         add(arrive(i), { kind: "pop", variant: "cork", x: screenX(i, arrive(i), card(arrive(i))), role: "land", label: "the card lands (spring)" });
       } else if (a.kind === "ui") {
         const r = panelOf(i);
-        add(b + t.down, { kind: "press", variant: "thock", x: uiActionAt(r, a.ui, minPx)[0], role: "press", label: a.ui.action });
+        add(b + t.down, { kind: "press", variant: "thock", x: uiScreen(i, b + t.down, uiActionAt(r, a.ui, minPx))[0], role: "press", label: a.ui.action });
         // the items land on their springs: one cue per landing, never two within 4 frames, at most 4
         let last = -99, count = 0;
         for (const s of uiSettles(a.ui, { t0: b + t.drop.t0 }).sort((x, y) => x.frame - y.frame)) { if (s.kind === "out" || s.frame - last < 4 || count >= 4) continue; last = s.frame; count++; add(s.frame, { kind: "pop", variant: s.kind === "in" ? "tiny" : "cork", x: r.x + r.w / 2, role: s.kind === "in" ? "arrive" : "land", label: `${s.id} lands` }); }
@@ -471,7 +491,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
 
   let memo: Map<string, LaunchFilm> | null = null;
   const self: LaunchFilm = {
-    meta: { title: `${spec.title} · launch${shape === "16x9" ? "" : ` · ${shape}`}`, W, H: L.H, fps, bpm: spec.bpm, durationFrames: cut.N * m, raster: "cpu", kind: "launch", holds: holds.map(([a, b]) => [a * m, b * m] as [number, number]), ...(bed ? { score: { tempo: spec.bpm, form: bed.form, grid: true } } : {}),
+    meta: { title: `${spec.title} · launch${shape === "16x9" ? "" : ` · ${shape}`}`, W, H: L.H, fps, bpm: spec.bpm, durationFrames: cut.N * m, raster: "cpu", kind: "launch", holds: holds.map(([a, b]) => [a * m - (m - 1), b * m] as [number, number]), ...(bed ? { score: { tempo: spec.bpm, form: bed.form, grid: true } } : {}),
       sync, captions: caps.map((c) => ({ from: Math.round(c.from * m), to: Math.round(c.to * m), text: c.text })), poster: Math.round((cut.N - END + 60) * m) },
     assets: { images: {} },
     shots: [{ id: "cut", start: 0, end: cut.N * m, draw }],

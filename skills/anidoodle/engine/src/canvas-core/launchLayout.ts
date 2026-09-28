@@ -13,7 +13,7 @@
 //   L.split             a feature beat: the words' column and the live UI's, which never overlap
 //   L.stage / L.band    the picture's area and, with captions burned in, the captions' own band
 //   L.roles             every text role and its size, which launchLayout checks against minPx
-import { CHAT, CHAT_GEOM, chatGeom, type ChatGeom, type Rect } from "./launchKit";
+import { CHAT_GEOM, chatGeom, type ChatGeom, type Rect } from "./launchKit";
 import type { Cam } from "./launchKit";
 import type { P } from "./core";
 
@@ -141,4 +141,3 @@ export const launchLayout = (shape: Shape, c: LayoutContent): LaunchLayout => {
   return L;
 };
 
-export { CHAT };
