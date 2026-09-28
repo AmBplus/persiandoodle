@@ -333,7 +333,8 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   // ---------------------------------------------------------------- the end card
   const endPage = (c: Ctx, env: Env, e: number) => {
     const E = L.end, cx = E.cx, size = titleSize;
-    if (MOTIF) { const tx = P1[0] - dotR - dotGap; if (clean) setType(c, env, spec.title, tx, E.titleY, size, ramp(e, 8, 30), { align: "right", color: PAL.ink, weight: 800 }); else writeOn(c, env, spec.title, tx, E.titleY, size, ramp(e, 10, 44), "ink", { color: C.ink, align: "right", seed: 11 }); c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.fillStyle = INK; c.beginPath(); c.arc(P1[0], P1[1], dotR, 0, Math.PI * 2); c.fill(); }
+    // (with the motif the page blooms from the dot, wider and sooner: the name starts as it opens, so no frame waits)
+    if (MOTIF) { const tx = P1[0] - dotR - dotGap; if (clean) setType(c, env, spec.title, tx, E.titleY, size, ramp(e, 4, 26), { align: "right", color: PAL.ink, weight: 800 }); else writeOn(c, env, spec.title, tx, E.titleY, size, ramp(e, 4, 40), "ink", { color: C.ink, align: "right", seed: 11 }); c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.fillStyle = INK; c.beginPath(); c.arc(P1[0], P1[1], dotR, 0, Math.PI * 2); c.fill(); }
     else if (clean) setType(c, env, spec.title, cx, E.titleY, size, ramp(e, 8, 30), { align: "center", color: PAL.ink, weight: 800 });
     else writeOn(c, env, spec.title, cx, E.titleY, size, ramp(e, 10, 44), "ink", { color: C.ink, align: "center", seed: 11 });
     c.setTransform(env.scale, 0, 0, env.scale, 0, 0); c.textAlign = "center"; c.textBaseline = "middle";
@@ -375,8 +376,11 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
     const size = Math.min(nL === 1 ? 170 : 124, ...lines.map((l) => (maxW / (estWidth(l.text, 100) * 1.12)) * 100)), gap = size * 1.12, y0 = H / 2 - ((nL - 1) * gap) / 2 + size * 0.36;
     lines.forEach((l, i) => setType(c, env, l.text, x0, y0 + i * gap, size, ramp(local, 14 + TYPE_O.lead + i * TYPE_O.stagger, 14 + TYPE_O.lead + 18 + i * TYPE_O.stagger), { color: l.color === C.accent ? THEME.accent : l.color ?? PAL.ink, weight: 800 }));
     bug(c, env);
-  }, { W, H, ...bloomOpts });
-  const TYPE_OPTS = L.shape === "16x9" ? TYPE_O : { ...TYPE_O, W, H, maxW: L.type.maxW };
+  }, { W, H, ...bloomOpts, radius: TYPE_R });
+  // a word page's bloom is sized to the frame it covers (the desktop's 1250 px over a 1110 px cover):
+  // on a smaller frame a fixed bloom would cover it before the words start, and two frames would match
+  const TYPE_R = L.shape === "16x9" ? undefined : Math.round((1250 * L.type.cover) / 1110);
+  const TYPE_OPTS = L.shape === "16x9" ? TYPE_O : { ...TYPE_O, W, H, maxW: L.type.maxW, radius: TYPE_R };
   const drawStage = (ctx: Ctx, env: Env, t: number) => {
     const { s, local } = cut.at(t), exact = Number.isInteger(t);
     if (s.kind === "pic") content(ctx, env, cut.contentOf(s, local), exact);
@@ -420,7 +424,7 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   cut.SEGS.forEach((s, k) => {
     if (s.kind !== "type") return;
     const written = 14 + TYPE_O.lead + 18 + (s.lines.length - 1) * TYPE_O.stagger - 2; // local frame the last line is done
-    let open = s.len - 1; while (open > written && bloomRadius(open + 2, s.len + 4) < L.type.cover) open--;   // last fully covered frame
+    let open = s.len - 1; while (open > written && bloomRadius(open + 2, s.len + 4, { radius: TYPE_R }) < L.type.cover) open--;   // last fully covered frame
     holds.push([cut.STARTS[k] + written + 1, cut.STARTS[k] + open + 1]);
   });
   // a solved ask longer than the grid's: the finished card rests on screen until the end card blooms
