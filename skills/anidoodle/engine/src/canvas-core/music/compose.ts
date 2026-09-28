@@ -13,19 +13,36 @@ import { VOCAB_TRIM, VOCAB_TARGET_FIX } from "./vocabTrim";
 import { VOCAB, KINDS, BASE_SLOTS, resolveVoice, moodVoice, moodFx, fullMood, type Slot, type Voice, type SectionKind, type MoodControls } from "./vocab";
 import type { MixProfile } from "./mixProfiles";
 
-/** One chord of YOUR harmony: its voicing (a notation chord) and a one-bar bass line you wrote for it. */
+/**
+ * One chord of YOUR harmony: its voicing and a one-bar bass line you wrote for it. The voicing is a
+ * notation chord ("[C3 G3 E4]"), one note ("E4"), or "r": the chord part rests while the chord is
+ * still the harmony (named for the key check, craft, novelty and the bass), for a bar the bass or an
+ * arp states alone.
+ */
 export type ComposedChord = { voicing: string; bass?: string };
 /** A line = notation bars, or names of your motifs, joined in order from the section's first bar. */
 export type LineSpec = string | string[];
 export type ComposedSection = {
   id?: string; kind: SectionKind; bars: number;
-  /** chord names per bar (keys of `chords`), cycled to fill the section; a bar may hold two: "Dm9 G13" splits it */
+  /**
+   * chord names per bar (keys of `chords`), cycled to fill the section. A bar may hold several: "Dm9 G13"
+   * splits it where the meter splits (splitBar: 4/4 2+2, 3/4 2+1, 5/4 3+2, 6/8 3+3 eighths, 7/8 4+3
+   * eighths, or your `grouping`), or give each chord its beats: "Dm9:1 G13:2". "~" holds the chord before
+   * it: tied over the bar line, no restrike ("Cmaj9", "~" = one chord for two bars; "~ G13" holds into
+   * the bar, then changes).
+   */
   harmony: string[];
+  /**
+   * the chord part's rhythm, one bar per item (or bars joined with "|"), cycled over the section:
+   * "x:DUR[@VEL]" strikes the chord sounding at that point, "r:DUR" rests, "~:DUR" (a bar's first token)
+   * holds the last strike over the bar line. Without it, each chord is held for its whole span.
+   */
+  comp?: string | string[];
   /** lines play ONCE from the section's first bar (harmony cycles, lines do not); a shorter line leaves rests, unless `loopLines` */
   lead?: LineSpec; counter?: LineSpec; arp?: LineSpec;
   /** repeat each line to fill the section (a 2-bar motif in an 8-bar section plays 4 times) */ loopLines?: boolean;
   /** modulate: this section's key and mode (default the piece's); the key check reads each key region separately */ key?: string; mode?: ModeId;
-  /** override the chords' bass lines for this section (one bar of notation, or one per bar) */ bass?: string | string[];
+  /** override the chords' bass lines for this section (one bar of notation, or one per bar; "~" ties the bass over that bar line) */ bass?: string | string[];
   /** a key of `grooves`, or null for no drums; default by kind (main / half / build / none) */ groove?: string | null;
   /** chord velocity scale (0..1.2), e.g. 0.8 for a softer intro */ chordVel?: number;
   /** 0..1 (0.5 = as written): the section's dynamics for EVERY part (velocity x 0.55..1.45, about -5..+3 dB) and the density of generated grooves */ energy?: number;
@@ -41,6 +58,7 @@ export type Material = {
   /** 0.5 straight .. 0.67 hard swing (default the style's lower bound) */ swing?: number;
   /** the piece's dynamic level [start, end] 0..1, ramped over the whole piece (default [0.62, 0.66]); section `energy` shapes it locally */ dyn?: [number, number];
   /** seconds of ring-out after the last onset (default 3.2) */ tail?: number; loop?: boolean;
+  /** how a bar divides into beat groups (in beats, summing to the bar), e.g. [2, 3] for a 5/4 felt 2+3 or [1.5, 1, 1] for a 7/8 felt 3+2+2: where a split bar ("A B", "A B C") changes chord (default: splitBar's table) */ grouping?: number[];
   /** a shipped score frozen on the old sound (the launch film): never set this for a new piece */ legacy?: boolean;
   /** override the style's mix/space/feel profile (mixProfiles.ts), e.g. { space: {...}, feel: "tight" } */ mix?: Partial<MixProfile>;
 };
@@ -50,6 +68,25 @@ const lineIn = (where: string, ...a: Parameters<typeof line>) => { try { return 
 const need = (ok: unknown, msg: string) => { if (!ok) throw new Error(`compose: ${msg} The style supplies sound, never notes: compose it yourself (references/music/compose.md).`); };
 const fmt = (x: number) => String(+x.toFixed(4));
 const lanes: Lane[] = ["kick", "snare", "ghost", "hat", "perc"];
+
+/**
+ * Where a bar of `k` chords changes, in beats per chord. Two chords split on the meter's strong
+ * division, not the arithmetic middle: 2/4 1+1, 3/4 2+1 (a waltz changes on beat 3, never on 2.5),
+ * 4/4 2+2, 5/4 3+2, 6/8 1+1 (3+3 eighths), 7/8 2+1.5 (4+3 eighths), 9/8 2+1, 12/8 2+2. Three chords:
+ * 3/4 1+1+1, 4/4 2+1+1, 5/4 2+1+2... see the table. A `grouping` with k groups wins; otherwise a
+ * count the table does not name divides the bar evenly. Explicit beats ("A:1 B:2") override all of it.
+ */
+const SPLITS: Partial<Record<Meter, Record<number, number[]>>> = {
+  "2/4": { 2: [1, 1] }, "3/4": { 2: [2, 1], 3: [1, 1, 1] }, "4/4": { 2: [2, 2], 3: [2, 1, 1], 4: [1, 1, 1, 1] },
+  "5/4": { 2: [3, 2], 3: [2, 1, 2], 5: [1, 1, 1, 1, 1] }, "6/8": { 2: [1, 1] }, "7/8": { 2: [2, 1.5], 3: [1, 1, 1.5] },
+  "9/8": { 2: [2, 1], 3: [1, 1, 1] }, "12/8": { 2: [2, 2], 3: [2, 1, 1], 4: [1, 1, 1, 1] },
+};
+export const splitBar = (meter: Meter, k: number, grouping?: number[]): number[] => {
+  const bpb = beatsPerBar(meter);
+  if (k <= 1) return [bpb];
+  if (grouping && grouping.length === k) return grouping;
+  return SPLITS[meter]?.[k] ?? Array.from({ length: k }, () => bpb / k);
+};
 
 /** Expand repeats: the sections as played, with their first bar. */
 export const layout = (sections: ComposedSection[]) => {
@@ -70,13 +107,27 @@ export const composePiece = (m: Material): Piece => {
   const motif = (x: string) => { const v = m.motifs?.[x]; if (v !== undefined) return v; need(/[:|]/.test(x), `no motif named "${x}": add motifs["${x}"] = "<bars of notation>", or write the notes inline (NOTE:DUR ...).`); return x; };
   const lineOf = (spec: LineSpec) => (Array.isArray(spec) ? spec : [spec]).map(motif).join(" | ");
 
-  // ---- harmony per bar (a bar may split into chords: "A B" = two halves)
-  const chordAt: string[][] = [];
+  // ---- harmony per bar: chords with their beats; "~" holds the chord before it (tied, no restrike)
+  need(!m.grouping || Math.abs(m.grouping.reduce((a, x) => a + x, 0) - bpb) < 1e-6, `grouping [${m.grouping?.join(", ")}] must add up to the bar (${bpb} beats in ${meter}).`);
+  type Seg = { name: string; at: number; d: number; tie: boolean };
+  const bars: Seg[][] = []; let prev: string | undefined;
   for (const x of lay) {
     need(x.s.harmony?.length, `section "${x.id}" has no harmony: write the chord names for its bars.`);
-    for (let i = 0; i < x.s.bars; i++) { const names = x.s.harmony[i % x.s.harmony.length].trim().split(/\s+/); for (const n of names) need(m.chords[n], `chord "${n}" (section "${x.id}") has no voicing: add chords["${n}"] = { voicing: "[...]", bass: "..." }.`); chordAt.push(names); }
+    for (let i = 0; i < x.s.bars; i++) {
+      const src = x.s.harmony[i % x.s.harmony.length].trim(), toks = src.split(/\s+/).map((t) => { const [name, beats] = t.split(":"); return { name, beats: beats === undefined ? undefined : Number(beats) }; });
+      const given = toks.filter((t) => t.beats !== undefined).length;
+      need(given === 0 || given === toks.length, `harmony bar "${src}" (section "${x.id}"): give every chord its beats ("A:2 B:1") or none ("A B" splits where the meter does).`);
+      const ds = given ? toks.map((t) => t.beats!) : splitBar(meter, toks.length, m.grouping);
+      need(ds.every((d) => Number.isFinite(d) && d > 0) && Math.abs(ds.reduce((a, d) => a + d, 0) - bpb) < 1e-6, `harmony bar "${src}" (section "${x.id}") adds up to ${+ds.reduce((a, d) => a + d, 0).toFixed(4)} beats; a ${meter} bar is ${bpb}.`);
+      let at = 0; const segs: Seg[] = [];
+      toks.forEach((t, j) => { const tie = t.name === "~"; need(!tie || prev, `section "${x.id}": "~" holds the chord before it, but nothing comes before it.`);
+        const name = tie ? prev! : t.name; need(m.chords[name], `chord "${name}" (section "${x.id}") has no voicing: add chords["${name}"] = { voicing: "[...]", bass: "..." }.`);
+        segs.push({ name, at, d: ds[j], tie }); at += ds[j]; prev = name; });
+      bars.push(segs);
+    }
   }
-  const harmony = chordAt.flatMap((names, b) => names.map((name, j) => ({ t: b * bpb + (j * bpb) / names.length, name })));
+  const chordAt = bars.map((segs) => [...new Set(segs.map((g) => g.name))]);
+  const harmony = bars.flatMap((segs, b) => segs.filter((g) => !g.tie).map((g) => ({ t: b * bpb + g.at, name: g.name })));
   const at = (b: number) => lay.find((x) => b >= x.from && b < x.to)!;
 
   // ---- notes
@@ -84,14 +135,36 @@ export const composePiece = (m: Material): Piece => {
   const push = (slot: Slot, ns: Note[]) => { (notes[slot] ??= []).push(...ns); };
   const vel: Record<Slot, number> = { chords: 0.62, lead: 0.72, counter: 0.5, bass: 0.85, arp: 0.55, kick: 0.85, snare: 0.7, ghost: 0.5, hat: 0.5, perc: 0.45 };
   const role = (slot: Slot): Role => (slot === "chords" || slot === "arp" ? "accomp" : slot === "lead" ? "melody" : slot === "counter" ? "color" : slot === "bass" ? "bass" : "drum");
+  /** extend the chord-part notes that end exactly at beat t by d beats: a tie, no restrike */
+  const holdIn = (slot: Slot) => (t: number, d: number) => { for (const n of notes[slot] ?? []) if (Math.abs(n.t + n.d - t) < 1e-9) n.d += d; };
+  /** a tie: the chord part's (hold) or the bass's (hold2) notes that end exactly at beat t sound d beats longer, no restrike */
+  const hold = holdIn("chords"), hold2 = holdIn("bass");
+  const comps = new Map<ComposedSection, string[]>();
+  for (const x of lay) if (x.s.comp !== undefined) comps.set(x.s, (Array.isArray(x.s.comp) ? x.s.comp : [x.s.comp]).join(" | ").split("|").map((z) => z.trim()).filter(Boolean));
   for (let b = 0; b < B; b++) {
-    const x = at(b), cv = x.s.chordVel, names = chordAt[b], d = bpb / names.length;
-    const src = names.map((n) => `${m.chords[n].voicing}:${fmt(d)}${cv !== undefined ? `@${fmt(cv)}` : ""}`).join(" ");
-    push("chords", lineIn(`section "${x.id}" chords (bar ${b})`, b * bpb, src, { role: "accomp", v: vel.chords, bpb, roll: 0.03 }));
+    const x = at(b), cv = x.s.chordVel, names = chordAt[b], segs = bars[b], vtok = (name: string, d: number, v?: number) => { const k = v === undefined ? cv : (cv ?? 1) * v; return `${m.chords[name].voicing}:${fmt(d)}${k !== undefined ? `@${fmt(k)}` : ""}`; };
+    const comp = comps.get(x.s);
+    if (comp) { // the chord part's rhythm: x strikes the chord sounding at that point, r rests, ~ holds the last strike over the bar line
+      const cb = comp[(b - x.from) % comp.length], toks: string[] = []; let o = 0;
+      cb.split(/\s+/).forEach((tk, i) => { const q = /^(x|r|~):([0-9./]+)(?:@([0-9.]+))?$/.exec(tk); need(q, `section "${x.id}" comp bar "${cb}": "${tk}" is not x:DUR[@VEL], r:DUR or ~:DUR.`);
+        const d = q![2].includes("/") ? Number(q![2].split("/")[0]) / Number(q![2].split("/")[1]) : Number(q![2]);
+        if (q![1] === "~") { need(i === 0, `section "${x.id}" comp bar "${cb}": "~" holds the last strike over the bar line, so it comes first.`); hold(b * bpb, d); toks.push(`r:${fmt(d)}`); }
+        else if (q![1] === "r") toks.push(`r:${fmt(d)}`);
+        else toks.push(vtok(segs.filter((g) => g.at <= o + 1e-9).pop()!.name, d, q![3] ? Number(q![3]) : undefined));
+        o += d; });
+      need(Math.abs(o - bpb) < 1e-6, `section "${x.id}" comp bar "${cb}" sums to ${+o.toFixed(4)} beats; a ${meter} bar is ${bpb}${o < bpb ? ` (end it with its rest: "${cb} r:${+(bpb - o).toFixed(4)}")` : ""}.`);
+      push("chords", lineIn(`section "${x.id}" comp (bar ${b})`, b * bpb, toks.join(" "), { role: "accomp", v: vel.chords, bpb, roll: 0.03 }));
+    } else {
+      segs.forEach((g) => { if (g.tie) hold(b * bpb + g.at, g.d); });
+      const src = segs.map((g) => (g.tie ? `r:${fmt(g.d)}` : vtok(g.name, g.d))).join(" ");
+      if (segs.some((g) => !g.tie)) push("chords", lineIn(`section "${x.id}" chords (bar ${b})`, b * bpb, src, { role: "accomp", v: vel.chords, bpb, roll: 0.03 }));
+    }
     if (KINDS[x.s.kind].bass) {
+      // the bass keeps its own rhythm under a held chord (the chord's bass line plays again); a bass bar "~" ties the bass over the bar line instead
       const ov = x.s.bass, bl = ov !== undefined ? (Array.isArray(ov) ? ov[(b - x.from) % ov.length] : ov) : names.length === 1 ? m.chords[names[0]].bass : undefined;
       need(bl !== undefined, names.length > 1 ? `bar ${b} splits into ${names.join(" + ")}: give section "${x.id}" a bass override for it.` : `chord "${names[0]}" (section "${x.id}") has no bass line: add chords["${names[0]}"].bass (one bar), or a section bass override.`);
-      if (bl) push("bass", lineIn(`section "${x.id}" bass (bar ${b}${names.length === 1 && ov === undefined ? `, chords["${names[0]}"].bass` : ""})`, b * bpb, bl, { role: "bass", v: vel.bass, bpb }));
+      if (bl?.trim() === "~") hold2(b * bpb, bpb);
+      else if (bl) push("bass", lineIn(`section "${x.id}" bass (bar ${b}${names.length === 1 && ov === undefined ? `, chords["${names[0]}"].bass` : ""})`, b * bpb, bl, { role: "bass", v: vel.bass, bpb }));
     }
     // drums
     const def = KINDS[x.s.kind].drums, gname = x.s.groove === undefined ? def : x.s.groove;

@@ -137,6 +137,34 @@ for (const secs of [70, 90, 110]) {
   const w = M.composePiece(M.testMaterial(M.VOCAB.world, { bars: 4 })), wr = M.renderPiece(w, SR), g = M.guardReport(wr, SR, wr.L.length / SR);
   assert(Number.isFinite(g.lufs) && g.ghost.windows > 0); pass(`guards run on a 7/8 score (${g.ghost.windows} windows)`); }
 
+// 9b. Chords and bars (from the blind composer's report).
+{
+  // chords: a tie holds over the bar line (no restrike), comping gives the chord part a rhythm with rests, "r" voices a silent chord
+  const mat = (meter, sec, extra = {}) => ({ style: "cinematic", title: "t", seed: 3, mood: "tender", bpm: 80, key: "C", mode: "major", meter, grooves: {}, ...extra,
+    chords: { C: { voicing: "[C4 E4 G4]", bass: meter === "3/4" ? "C2:3" : meter === "5/4" ? "C2:5" : meter === "6/8" ? "C2:2" : meter === "7/8" ? "C2:3.5" : "C2:4" }, F: { voicing: "[C4 F4 A4]", bass: "F2:4" }, N: { voicing: "r", bass: "G2:4" } },
+    sections: [{ kind: "verse", groove: null, lead: "r:" + M.beatsPerBar(meter), ...sec }] });
+  const chordsOf = (p) => p.parts.find((x) => x.id === "chords").notes, bassOf = (p) => p.parts.find((x) => x.id === "bass").notes;
+  { const held = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "~"], lead: "E5:4 | D5:4" })), struck = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "C"], lead: "E5:4 | D5:4" }));
+    assert.equal(chordsOf(held).length, 3); assert(chordsOf(held).every((n) => n.d === 8)); assert.equal(chordsOf(struck).length, 6); assert.deepEqual(held.harmony.map((h) => h.t), [0]);
+    assert.equal(bassOf(held).length, 2, "the bass keeps its line under a held chord");
+    const tiedBass = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "~"], bass: ["C2:4", "~"], lead: "E5:4 | D5:4" })); assert.equal(bassOf(tiedBass).length, 1); assert.equal(bassOf(tiedBass)[0].d, 8);
+    const into = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "~ F"], bass: ["C2:4", "C2:2 F2:2"], lead: "E5:4 | D5:4" })); assert.deepEqual(chordsOf(into).map((n) => [n.t, n.d]).filter(([t]) => t === 0), [[0, 6], [0, 6], [0, 6]]); assert.deepEqual(into.harmony.map((h) => [h.t, h.name]), [[0, "C"], [6, "F"]]);
+    pass("harmony \"~\": the chord holds over the bar line (3 notes of 8 beats, not 6 restrikes), the bass keeps its line unless its bar is \"~\"; \"~ F\" holds into the bar, then changes");
+    const comp = M.composePiece(mat("4/4", { bars: 2, harmony: ["C F"], comp: ["x:1 r:.5 x:.5@0.6 r:1 x:1", "~:1 r:1 x:2"], bass: "C2:2 F2:2", lead: "E5:4 | D5:4" }));
+    const on = (t) => chordsOf(comp).filter((n) => Math.abs(n.t - t) < 1e-9);
+    assert.deepEqual([...new Set(chordsOf(comp).map((n) => n.t))], [0, 1.5, 3, 6]); assert(on(3).some((n) => n.p === 65), "x on beat 4 strikes the chord sounding there (F)");
+    assert(Math.abs(on(1.5)[0].v - on(0)[0].v * 0.6) < 1e-9, "@VEL scales the strike"); assert.equal(on(3)[0].d, 2, "~:1 holds beat 4's strike over the bar line");
+    assert.throws(() => M.composePiece(mat("4/4", { bars: 1, harmony: ["C"], comp: "x:1 r:1", lead: "E5:4" })), /comp bar .* sums to 2/);
+    pass("comp: x strikes the chord sounding at that point, r rests, @VEL accents, ~ ties a push over the bar line; a comp bar that does not add up throws");
+    const rest = M.composePiece(mat("4/4", { bars: 2, harmony: ["C", "N"], lead: "E5:4 | D5:4" }));
+    assert(chordsOf(rest).every((n) => n.t < 4)); assert.deepEqual(rest.harmony.map((h) => h.name), ["C", "N"]); assert(bassOf(rest).some((n) => n.t === 4 && n.p === 43));
+    pass("voicing \"r\": the chord part rests for that chord, the harmony still names it and its bass plays"); }
+  { const one = (meter, bar, extra) => { const b = M.beatsPerBar(meter); return M.composePiece(mat(meter, { bars: 1, harmony: [bar], bass: `r:${b}`, lead: `r:${b}` }, extra)).harmony.map((h) => h.t); };
+    assert.deepEqual(one("3/4", "C F"), [0, 2], "3/4: 2+1, never beat 2.5"); assert.deepEqual(one("6/8", "C F"), [0, 1]); assert.deepEqual(one("5/4", "C F"), [0, 3]);
+    assert.deepEqual(one("5/4", "C F", { grouping: [2, 3] }), [0, 2]); assert.deepEqual(one("7/8", "C F"), [0, 2]); assert.deepEqual(one("4/4", "C F"), [0, 2]);
+    assert.deepEqual(one("3/4", "C:1 F:2"), [0, 1]); assert.throws(() => one("3/4", "C:1 F:1"), /adds up to 2/);
+    pass("split bars: 3/4 changes on beat 3 (2+1), 6/8 3+3 eighths, 5/4 3+2 or its grouping (2+3), 7/8 4+3 eighths, explicit beats \"C:1 F:2\"; a wrong sum throws"); }
+}
 // 10. Novelty: the copy Alex heard scores as a copy; the shipped demos stay apart; a reused fragment fails.
 { const d = M.novelty(M.daylightCopy(), M.DEMOS);
   assert(!d.pass && d.worst.name.startsWith("launchLofi") && d.worst.score > 0.6, `daylight copy scored ${d.worst.score} vs ${d.worst.name}`);

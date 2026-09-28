@@ -101,7 +101,7 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
    bars yourself as notation, one or more bars per lane: `kick`, `snare`, `ghost`, `hat`, `perc`.
    Use a second groove for contrast (`half`, `build`). Keep the kick and backbeat stable, and syncopate on
    top of them ([theory/rhythm.md](theory/rhythm.md)).
-7. **Write the form.** Sections are `{ kind, bars, harmony, lead, counter, arp, groove, bass,
+7. **Write the form.** Sections are `{ kind, bars, harmony, lead, counter, arp, comp, groove, bass,
    chordVel, energy, repeat, stretch }`.
    - The **kind** sets which layers may sound: intro, verse, groove, hook, build, half, breakdown,
      drop, bridge, swell, breath, outro. See the arrangement grammar in vocabularies.md.
@@ -110,6 +110,12 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
      seconds, and at 30 fps a beat is `1800 / bpm` frames.
    - Mark one section `stretch: true`: a film fit repeats or drops it to reach the exact length and
      still end on your outro.
+   - **Music that must hit exact picture moments** (a drop on the reveal at 16.0 s): compose it to
+     the length (bars x beats x 60 / bpm) and render without `--fit`, or use the beat-grid mode the
+     launch films use (`gridScore` in `launchTemplate.ts`: the score plays at the film's bpm exactly
+     and the cuts sit on its downbeats). `--fit` keeps your tempo when the form already ends within
+     max(0.5 s, one beat) of the length, and the tail takes up the difference. Past that it changes
+     the tempo, and every hit moves with it.
    - Song and cue forms, builds, and orchestration slots: [theory/form.md](theory/form.md).
 8. **Revise with craft, before you render.** `craft` reads the notes in milliseconds:
    ```
@@ -122,7 +128,9 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
      finding is one you chose on purpose (an open ending for suspense, parallel fifths in rock). Say
      which ones in your note to the person.
    - Compare the printed tension curve with your sketch from step 3. If the peak is not where you
-     planned it, the arrangement is wrong, not the sketch.
+     planned it, the arrangement is wrong, not the sketch. The line under the curve says what drives
+     each section (loudness, density, register, harmony): loudness and density weigh most, so a
+     home-chord tutti or a drop is the peak ([theory/harmony.md](theory/harmony.md), section 8).
 
    | `craft` says | Usual fix |
    |---|---|
@@ -134,7 +142,7 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
    | close intervals below their low limit | spread the voicing: 1-5-3', or lift the upper note an octave |
    | melody under the chords | voice the chords lower, or the melody higher |
    | no syncopation (groove idiom) | anticipate a bass or melody note by an eighth |
-   | flat tension curve / no release | change layers, register and harmony by section; release after the peak |
+   | flat tension curve / no release | change layers, loudness (`energy`), register and harmony by section; release after the peak (a loop, ambient or calm piece may stay level: a note, not a warning) |
    | mood cues (tempo, mode, register, density) | move the cue toward the mood, or declare the mood you wrote |
 9. **Check, render, listen:**
    ```
@@ -153,7 +161,9 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
    - novelty.
 
    It exits non-zero on any failure. `render` prints the same report (stems with `--stems`), except
-   novelty.
+   novelty. Both synthesize each voice once, on all but one of your cores, and render the guards and
+   the stems in parallel with the mix: the audio is bit-identical to a serial render (`render
+   --verify` renders again serially and compares; `ANIDOODLE_THREADS=1` turns the pool off).
    - **Stems:** fix any part flagged more than 3 dB off with `levels`. `levels` is a **dB offset** per
      slot (+2 = two dB louder), added on top of the calibrated gain, the trims and the mood controls'
      shifts. LUFS alone once hid a sub 7-10 dB too hot.
@@ -163,8 +173,10 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
      stem targets with the sound (for example, brightness lifts the hats and their target); the
      printed targets already include that.
    - **Master short of target:** a gentle master (-16 LUFS) never compresses. If one peak blocks the
-     gain, the whole piece stays quieter, and `check` says by how much. Fix it in the notes: stagger
-     the bass under the loudest downbeat, roll the big chord, don't double the climax note.
+     gain, the whole piece stays quieter, and `check` says by how much, where the peak is (bar, beat
+     and seconds) and which parts pile up there, loudest first, with the notes they are playing.
+     Fix it in the notes at that spot: stagger the bass under that downbeat, roll the big chord, don't
+     double the climax note.
    - **Novelty:** if it fails, change what the numbers point at. The per-feature scores name it:
      the lead's rhythm, the contour, the groove, the chord colours, the form. Changing the key fixes
      nothing.
@@ -191,6 +203,7 @@ export const score = (): Material => ({
     { kind: "intro", bars: <n>, harmony: ["<chord>", /* per bar, cycled */], chordVel: <0..1> },
     { kind: "hook", bars: <n>, harmony: [/* ... */], lead: ["<motif>", "<motif variant>", "r:<beats>"], stretch: true, energy: <0..1> },
     { kind: "groove", bars: <n>, harmony: [/* ... */], lead: ["<2-bar motif>"], loopLines: true },
+    { kind: "verse", bars: <n>, harmony: ["<chord>", "~"], comp: ["x:1 r:.5 x:.5 r:2"] }, // held over the bar line; a comped rhythm
     { kind: "bridge", bars: <n>, key: "<new tonic>", mode: "<mode>", harmony: [/* in the new key */], lead: [/* ... */] },
     /* ... */
     { kind: "outro", bars: <n>, harmony: ["<home chord>"], lead: ["<the motif's last word>"] },
@@ -204,8 +217,35 @@ form to the exact length. `score.ts` is an empty skeleton to copy.
 - **Voices:** `voices: { lead: "<alternate name>" }` swaps a slot for one of the style's
   alternates. Or give your own `{ inst, role, gainDb, opts }` (instruments: README table).
 - **Loops:** `loop: true`, and the form length is the loop. `render` makes it seamless.
-- **Split bars:** `harmony: ["<chord> <chord>"]` splits a bar in two. Give that section a `bass`
-  override for it.
+- **Split bars:** `harmony: ["<chord> <chord>"]` splits a bar where the meter divides, not at its
+  arithmetic middle. Give that section a `bass` override for it.
+
+  | Meter | 2 chords | 3 chords |
+  |---|---|---|
+  | 2/4 | 1 + 1 | even |
+  | 3/4 | 2 + 1 (the change on beat 3) | 1 + 1 + 1 |
+  | 4/4 | 2 + 2 | 2 + 1 + 1 |
+  | 5/4 | 3 + 2 | 2 + 1 + 2 |
+  | 6/8 | 1 + 1 (3 + 3 eighths) | even |
+  | 7/8 | 2 + 1.5 (4 + 3 eighths) | 1 + 1 + 1.5 (2 + 2 + 3) |
+  | 9/8 | 2 + 1 | 1 + 1 + 1 |
+  | 12/8 | 2 + 2 | 2 + 1 + 1 |
+
+  Beats are the meter's beats (in 6/8, 9/8 and 12/8 a dotted quarter). To feel the bar another
+  way, set the piece's `grouping` (for example `grouping: [2, 3]` for a 5/4 felt 2 + 3): a split
+  into as many chords as it has groups follows it. Or give each chord its beats: `"Dm9:1 G13:2"`.
+- **Held chords:** `"~"` holds the chord before it over the bar line, with no restrike, so a pad
+  never dips at the bar line: `harmony: ["Cmaj9", "~", "Am9", "~"]` is two chords of two bars each.
+  `"~ G13"` holds into the bar, then changes. The bass keeps its own line under a held chord (the
+  chord's bass line plays again). To tie the bass too, write that bar of the section's `bass` as `"~"`.
+- **Comping:** a section's `comp` gives the chord part a rhythm, one bar per item, cycled over the
+  section. `x:DUR` strikes the chord sounding at that point, `r:DUR` rests, `x:DUR@0.7` accents, and
+  a bar may start with `~:DUR` to hold the last strike over the bar line (a pushed chord):
+  `comp: ["x:1 r:.5 x:.5 r:1 x:1", "r:3.5 x:.5", "~:1 r:1 x:2"]`. A comp bar must add up to the bar.
+  Without `comp`, each chord sounds for its whole span.
+- **A silent chord:** `voicing: "r"` makes the chord part rest while the chord still names the
+  harmony: the key check, `craft`, novelty and the bass all read it. Use it for a bar that the bass
+  or an arp states alone, or a stop-time break.
 - **Lines play once.** `lead`, `counter` and `arp` start at the section's first bar and play ONCE,
   even though `harmony` cycles. A shorter line leaves rests, and `check` warns. Set
   `loopLines: true` to repeat the line until the section is full. `repeat: n` replays the whole
