@@ -16,3 +16,12 @@ Every mark is a function and every note is arithmetic, so the same source redraw
 
 - Source, gallery and full docs: https://github.com/alexgreensh/anidoodle
 - License: Apache-2.0, by Alex Greenshpun
+
+## Notes for directory reviewers
+
+The directory scan holds one finding, "Uses a credential from the user's machine". It pairs two false matches:
+
+- `engine/src/canvas-core/bake.ts` calls `env.cache.set(...)`. `env` is the renderer's own object and `cache` is its in-memory drawing cache. Nothing reads environment variables or runs `env` or `set` in a shell.
+- `engine/src/canvas-core/adaptAlmond.ts` builds a cache label for lily pad `i` as `pad${i}`. It is a string key, not a command.
+
+anidoodle reads no credentials and sends nothing off the machine. It renders locally with Node, Chromium and ffmpeg, as described above.
