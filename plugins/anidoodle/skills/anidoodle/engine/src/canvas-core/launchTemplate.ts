@@ -510,6 +510,9 @@ export const makeLaunchFilm = (spec: LaunchSpec): LaunchFilm => {
   // (with the motif the drop is in flight over those frames, so they are not a hold)
   if (LEN[n - 1] > ASK && isChat(spec.asks[n - 1]) && !MOTIF) { const S = cut.STARTS[cut.SEGS.length - 2]; holds.push([S + LEN[n - 1] - 18, S + LEN[n - 1] + 6]); }
   holds.push([cut.N - END + (clean && MOTIF ? 39 : 53), cut.N]); // the end card, all on: read it, screenshot it
+  // a UI ask's action button bottoms out: the press lands before the items move (a stationary point by
+  // design, one or two frames; at 60 fps and in small shapes the gate reads it as a still)
+  spec.asks.forEach((a, i) => { if (isChat(a) || a.kind !== "ui") return; const F = cut.cutOf(T[i].base + T[i].up); if (F > 0) holds.push([F - 1, F + 2]); });
 
   // ---------------------------------------------------------------- sound: the picture's own cues
   const cues: LaunchCue[] = [];
