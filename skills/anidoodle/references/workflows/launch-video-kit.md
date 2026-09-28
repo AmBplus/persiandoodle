@@ -3,10 +3,9 @@
 The pieces anidoodle's own launch film is made of, in `engine/src/canvas-core/`, usable for any
 product. The rules they serve are in `launch-video.md`.
 
-## Start from the template (16 s, 16:9, one file)
+## Start from the template (16 s, one file)
 
-`launchTemplate.ts` turns data into a film, 1920x1080 (16:9; square, 4:5 and 9:16 from the
-template are coming): two or three prompts answered by plates drawing
+`launchTemplate.ts` turns data into a film: two or three prompts answered by plates drawing
 themselves in a chat thread, a type frame between them, and an end card with your install lines.
 `launchExample.ts` is a complete one for a made-up product. Copy its shape, not its contents:
 the plates and the score are the product's own, made for its brief.
@@ -15,7 +14,7 @@ the plates and the score are the product's own, made for its brief.
 import { C } from "./launchKit";
 import { makeLaunchFilm } from "./launchTemplate";
 import { dashboardSketch, onboardingSketch } from "./myProductPlates"; // drawn for YOUR subject
-import { myProductScore } from "./myProductScore";                      // a Piece written for YOUR brief
+import { myProductScore } from "./myProductScore";                      // composed for YOUR brief
 
 export const myLaunch = makeLaunchFilm({
   title: "Your Product", subtitle: "the one line it lives by",
@@ -26,7 +25,7 @@ export const myLaunch = makeLaunchFilm({
   words: [[{ text: "IDEA IN.", style: "ink", color: C.ink }, { text: "ART OUT.", style: "ink", color: C.accent }]],
   tagline: "One sentence that says what it is",
   install: ["npm install your-product", "your-product init"],
-  bpm: 96, // the tempo of the score you wrote; the brief sets it, there is no default
+  bpm: 96, // the tempo of the score you composed; the brief sets it, there is no default
   askBeats: 6, typeBeats: 4, endBeats: 8, claimBar: 4,
   score: myProductScore, // or null for a silent film
 });
@@ -49,10 +48,10 @@ answers and scrolling, a gentle lean onto each new card, full-frame word pages b
 and the end card blooming open and holding. The corner mark (your name, hand-lettered) steps
 aside before any lean. Real holds are declared, so the gate passes. Sync wins over length: the
 score plays at the film's bpm exactly, so every cut sits on its downbeats, and the film is made
-whole bars of the score (`gridScore`: the end-card hold, which is a hold, grows or shrinks to the
-bar; the tail rings out in whole bars). A score in 4/4 with no pickup, starting on frame 0. If it
-does not fit, the build throws and names the score lengths in bars that would, or change
-askBeats/endBeats/claimBar. Render refuses a beat-grid film whose score is more
+whole bars of the score (`gridScore`: the stretch section repeated or dropped, then the end-card
+hold, which is a hold, grows or shrinks to the bar; the tail rings out in whole bars). A score in
+4/4 with no pickup, starting on frame 0. If no form fits, the build throws: compose a 1-bar
+stretch section or change askBeats/endBeats. Render refuses a beat-grid film whose score is more
 than 0.5 % off its bpm. The bed is set to -14 LUFS with the true peak at or under -1 dBTP
 (`musicBed`); a dynamic piece stops at the peak ceiling first and render says how far short;
 `limit: true` lets a look-ahead limiter take those peaks instead.
@@ -61,7 +60,7 @@ than 0.5 % off its bpm. The bed is set to -14 LUFS with the true peak at or unde
 to the user's subject (`references/styles.md`): draw their dashboard, their mascot, their
 product's world in the chosen hand, as a still plus its `*Draw` film. anidoodle's own plates
 (the lighthouse and fox in `launchExample.ts`) are placeholders, never a user's film. The score
-is written for the brief's style, mood and length (`references/music/README.md`); `score` is
+is composed for the brief's style, mood and length (`references/music/compose.md`); `score` is
 required (`null` means silent), `bpm` has no default, and the template refuses anidoodle's own
 pieces, by identity, by title and by content (the same novelty gate `music.mjs check` runs).
 
@@ -73,16 +72,11 @@ pieces, by identity, by title and by content (the same novelty gate `music.mjs c
 | `tagline`, `install[]`, `footer` | the end card; install lines are shown exactly as given |
 | `bpm` (required), `fps`, `askBeats`, `typeBeats`, `endBeats` | the beat grid (a beat is 60 x fps / bpm frames) and each part's length in beats |
 | `claimBar` | land the end card on this bar's downbeat, counting from bar 0 (`claimBar: 4` = frame 4 x bar); throws if it cannot. A longer last ask is really longer, never slowed |
-| `score` (required) or `audio` | the score written for this product (a function returning a `Piece`), as a bed; `null` for silence; or your own finished mix (not checked) |
+| `score` (required) or `audio` | the score composed for this product (the `Material` function compose.md writes, or a `Piece`), as a bed; `null` for silence; or your own finished mix (not checked) |
 
 The template refuses a feature list (more than 3 asks) and an end card too short to read.
 
 ## The parts, for a film of your own shape
-
-A film built from the parts can be any size today: set its `meta.W` and `meta.H` (1080x1920 for
-9:16) and pass the same `W` and `H` to `bloomFrame` and `typeFrame`, which default to 1920x1080.
-`writeOn` and `useCam` follow the film's frame. `drawChatFrame` and the template's layout are
-drawn for 1920x1080, so frame them with the camera; never crop a wide render.
 
 **`launchKit.ts`**: timing and UI.
 - Easing: `ramp`, `inOut`, `out3`, `in3`, `expo`, a closed-form `spring`, `press` (a button

@@ -6,6 +6,7 @@ import { type Piece, type Part, resequence, beatsPerBar } from "./plan";
 import { perform, type Performance, type Played } from "./perform";
 import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
 import * as I from "./instruments";
+import * as O from "./orchestra";
 import { room, Biquad, db } from "./dsp";
 import { warmPad, softPluck, sub, duckCurve, tape } from "./lofiKit";
 import { loudness, truePeak, stemBalance } from "./meter";
@@ -40,6 +41,13 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number) =>
     case "warmPad": return warmPad(keys, sr, n, o, r);
     case "softPluck": return softPluck(keys, sr, n, o);
     case "sub": return sub(keys, sr, n, o);
+    case "organ": return O.organ(keys, sr, n, o);
+    case "brass": return O.brass(keys, sr, n, o);
+    case "woodwind": return O.woodwind(keys, sr, n, o, r);
+    case "choir": return O.choir(keys, sr, n, o, r);
+    case "timpani": return O.timpani(keys, sr, n, o, r);
+    case "leadSynth": return O.leadSynth(keys, sr, n, o);
+    case "bowedSolo": return O.bowedSolo(keys, sr, n, o, r);
     default: throw new Error(`no instrument ${pt.inst}`);
   }
 };
@@ -102,6 +110,8 @@ export const master = (L: Float32Array, R: Float32Array, sr: number, masterMode:
     if (masterMode === "gentle") { const cut = tp + 1.05; gainDb -= cut; for (let i = 0; i < n; i++) { L[i] *= db(-cut); R[i] *= db(-cut); } }
     else {
       limiter(L, R, sr, db(-1.3)); const again = target - loudness([L, R], sr).integrated; if (again > 0) { const g = db(Math.min(again, 1)); for (let i = 0; i < n; i++) { L[i] *= g; R[i] *= g; } limiter(L, R, sr, db(-1.3)); }
+      const tp2 = truePeak([L, R]).dbtp; // harsh waveforms (pulses) can still overshoot between samples: a last static trim
+      if (tp2 > -1) { const cut = tp2 + 1.05; gainDb -= cut; for (let i = 0; i < n; i++) { L[i] *= db(-cut); R[i] *= db(-cut); } }
     }
   }
   return gainDb;
@@ -121,6 +131,9 @@ export const renderLoop = (piece: Piece, sr: number): Rendered & { loopS: number
   const mode = STYLES[piece.plan.style].master, gainDb = master(L, R, sr, mode);
   return { ...r, L, R, gainDb, masterMode: mode, loopS };
 };
+
+/** The score for a film `seconds` long: the piece's own `refit` first (so it still ends on a phrase), then fitToDuration for the tempo. */
+export const fitScore = (piece: Piece, seconds: number) => fitToDuration(piece.refit ? piece.refit(seconds) : piece, seconds);
 
 /** Each part's stem level against the piece's targets (unmastered, pre-room: the mix as the parts were set). */
 export const measureStems = (piece: Piece, sr: number, o: RenderOpts = {}, tolDb = 3) => {
@@ -177,6 +190,6 @@ export const fitToDuration = (piece: Piece, seconds: number): { piece: Piece; te
 
 /** What a Film's `audio(sampleRate)` returns: [L, R] at exactly the film's length. */
 export const filmAudio = (piece: Piece, seconds: number) => (sr: number): [Float32Array, Float32Array] => {
-  const fit = fitToDuration(piece, seconds), r = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo });
+  const fit = fitScore(piece, seconds), r = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo });
   return [r.L, r.R];
 };

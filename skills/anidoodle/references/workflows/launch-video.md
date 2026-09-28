@@ -32,7 +32,7 @@ that invents its subject draws a mascot of a product, not the product.
 ## Made for this product, every frame and every note
 
 The film's pictures are drawn for this product's subject in the style recipe the brief picked
-(`references/styles.md`); its score is written for this brief. anidoodle's own plates and
+(`references/styles.md`); its score is composed for this brief. anidoodle's own plates and
 pieces are examples of the craft, never material for someone else's film.
 
 ## The story
@@ -84,9 +84,10 @@ pieces are examples of the craft, never material for someone else's film.
 ## Sound
 
 - **Music first, heard as an mp3 by a human** before it scores anything (you cannot hear it).
-  Write it for THIS brand: pick the style and a mood per section from the brief (energy,
-  audience, where it runs), then write the notes (`references/music/README.md`); `music.mjs check`
-  must pass. Never reuse our score or a stock piece.
+  Compose it for THIS brand: pick the style and a mood per section from the brief (energy,
+  audience, where it runs), then write the notes (`references/music/compose.md`). anidoodle's own
+  launch chose chill lo-fi electronic, one example (`references/music/styles/lofi-electronic.md`);
+  never reuse our score or a stock piece.
 - **Balance by stem RMS, not only LUFS**: an integrated -14 LUFS hid a sub 7-10 dB too hot.
 - **Cut on downbeats, not every beat.** Land the claim on a chord (launch3's lands on bar 26,
   the home chord); `beatGrid().solve()` fits a flexible segment so it does.
@@ -100,9 +101,7 @@ pieces are examples of the craft, never material for someone else's film.
   a platform version rather than pushing one master everywhere. Cut whole beats; never speed
   the whole film up (it breaks the beat grid and reads rushed).
 - **Shapes**: `16x9` for YouTube and the site, `1x1` or `4x5` for feeds, `9x16` for Reels and
-  Shorts. Reframe per shape; never crop a wide render. The template renders 16:9 today, and the
-  other shapes from it are coming. A film built from the parts can target any size now: set
-  `meta.W`/`meta.H` and lay it out for that frame (`launch-video-kit.md`).
+  Shorts. Reframe per shape from one timeline; never crop a wide render.
 - **The first frame is the thumbnail.** Platforms and players show frame 1 before play. Make
   it legible and on brand (anidoodle's is the wall of styles; the template's is the prompt, big,
   mid-sentence); never a blank, a fade from black, or a whole chat window too small to read.

@@ -101,7 +101,7 @@ Sin muestras ni grabaciones. Las notas se escriben como datos y cada sonido se s
 | [Cinemático, asombro](assets/audio/sampler-cinematic-awe-8s.mp3) · [Lo-fi](assets/audio/sampler-lofi-nostalgic-8s.mp3) · [Marimba](assets/audio/sampler-marimba-curious-8s.mp3) · [Electrónica](assets/audio/sampler-drive-electronic-8s.mp3) | más estados de ánimo e instrumentos |
 | [El tema del nocturno en 15 segundos](assets/audio/fit-theme-15s.mp3) | El compositor elige la forma que cabe en ese tiempo |
 
-Y además: un **kit de efectos de sonido**, catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)).
+Y además: **lo-fi electrónico**, relajado y alegre, con pads cálidos y desafinados, una melodía suave punteada y un leve vaivén de cinta (la banda sonora del vídeo de lanzamiento se compuso en él; [el vocabulario](skills/anidoodle/references/music/styles/lofi-electronic.md)), y un **kit de efectos de sonido**: catorce efectos en capas y con semilla, sincronizados con el fotograma exacto, con la música bajando bajo cada uno ([diseño de sonido](skills/anidoodle/references/music/sound-design.md)). Un estilo es un vocabulario con el que componer, nunca notas ya hechas: cada película recibe una banda sonora escrita para ella.
 
 ## Páginas web que se fijan en ti
 
@@ -236,7 +236,7 @@ Cuatro backends comparten un mismo núcleo de arte, y el núcleo vive felizmente
 
 ## La película de ejemplo
 
-`skills/anidoodle/example/` contiene **Mechanical Lepidoptera**: 1.410 fotogramas, 47 segundos, una mariposa de relojería que se dibuja a sí misma, cobra vida en acuarela y deja su plano entre la hierba. Es el motor entero en una sola pieza: puntos de control colocados a mano sobre anatomía real, una clave de caché que nombra cada entrada de la que depende un píxel, una banda sonora construida a partir de la receta, y un movimiento continuo desde el boceto hasta la vida. Las láminas de estilo están junto al motor en `skills/anidoodle/engine/src/canvas-core/`, cada una con su receta escrita en la parte de arriba. Abre cualquiera de ellas, cambia un número, y mira qué se mueve.
+`skills/anidoodle/example/` contiene **Mechanical Lepidoptera**: 1.410 fotogramas, 47 segundos, una mariposa de relojería que se dibuja a sí misma, cobra vida en acuarela y deja su plano entre la hierba. Es el motor entero en una sola pieza: puntos de control colocados a mano sobre anatomía real, una clave de caché que nombra cada entrada de la que depende un píxel, una banda sonora compuesta para ella, y un movimiento continuo desde el boceto hasta la vida. Las láminas de estilo están junto al motor en `skills/anidoodle/engine/src/canvas-core/`, cada una con su receta escrita en la parte de arriba. Abre cualquiera de ellas, cambia un número, y mira qué se mueve.
 
 ## Honesto por diseño
 
