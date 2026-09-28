@@ -291,11 +291,11 @@ const printNovelty = (M, name, v, what) => {
   return v.pass;
 };
 
-/** Stem balance: each part's unmastered stem RMS (active samples) vs piece.stemTargets. Measured at 24 kHz, as the targets were. */
+/** Stem balance: each part's unmastered stem level (mid, gated 20 ms blocks: meter.stemRms) vs piece.stemTargets. Measured at 24 kHz, as the targets were. */
 const STEM_SR = 24000;
 const printStems = (M, piece, tempo, seconds) => {
   const b = M.measureStems(piece, STEM_SR, { tempo, seconds });
-  console.log(`stem balance: ${piece.title} (unmastered stem RMS over active samples vs target, +-${b.tolDb} dB; the lead may sit up to +${b.headroom.lead ?? 0} dB more for the masking guard; targets already include your mood controls' shifts)`);
+  console.log(`stem balance: ${piece.title} (unmastered stem RMS of the mid over the blocks where it plays, vs target, +-${b.tolDb} dB; the lead may sit up to +${b.headroom.lead ?? 0} dB more for the masking guard; targets already include your mood controls' shifts)`);
   for (const r of b.rows) console.log(`  ${r.id.padEnd(9)} ${fmt(r.rmsDb).padStart(6)} dB  ${r.targetDb === null ? "(no target)" : `target ${fmt(r.targetDb).padStart(6)}  off ${(r.offDb >= 0 ? "+" : "") + fmt(r.offDb)}  ${r.ok ? "ok" : `FLAG: ${r.offDb > 0 ? "too hot" : "too quiet"}`}`}`);
   if (!Object.keys(piece.stemTargets ?? {}).length) console.log("  (this piece declares no stemTargets)");
   const cal = M.VOCAB[piece.plan.style]?.calibrated !== false;

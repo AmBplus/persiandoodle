@@ -91,8 +91,12 @@ MusicPlan + notes (you write)  ->  perform  ->  instruments (one stem per part) 
    - cinematic and drive: a hall;
    - chiptune: nothing.
 5. **Master.**
-   - **Gentle styles:** one static gain to **-16 LUFS**, true peak <= -1 dBTP, never a compressor.
-     If the peak blocks the gain, the loudness goes down. The cure is musical (see "Peaks" below).
+   - **Gentle styles:** one static gain to **-16 LUFS**, true peak <= -1 dBTP, never a compressor on the master.
+     Struck stems (plucks, plucked basses, piano, mallets and bells, timpani) first go through a transient-aware
+     gain in the mix (only the pick or hammer spike above the note's own body comes down, up to 6 dB, the stem's
+     level unchanged), so their attacks don't hold the master under the ceiling. `RenderOpts.gentleGlue` (a <= 1 dB
+     2:1 bus glue) exists but is off by default: Alex's call. If the peak still blocks the gain, the loudness goes
+     down. The cure is musical (see "Peaks" below): a solo piano with a 10 LU range (the nocturne demo) masters at -17.5.
    - **Dense styles** (lofiElectronic, lofi, drive, house, synthwave, hipHop, rock, chiptune): **-14 LUFS** through a look-ahead true-peak limiter, then a static trim if an inter-sample peak still passes -1 dBTP.
 
 A film's `audio` is `filmAudio(piece, seconds)`, which returns `(sampleRate) => [L, R]` at exactly
