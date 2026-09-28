@@ -175,7 +175,16 @@ for (const secs of [70, 90, 110]) {
   const quoted = M.composePiece({ ...M.testMaterial(M.VOCAB.playful, { bars: 4 }), sections: [{ kind: "hook", bars: 2, harmony: ["c0"], groove: null, lead: ["G5:1 B5:.5 C6:.5 B5:1 G5:1", "E5:1 G5:.5 A5:.5 G5:1 E5:1"] }] });
   const src = M.composePiece({ ...M.testMaterial(M.VOCAB.playful, { bars: 4 }), sections: [{ kind: "hook", bars: 2, harmony: ["c0"], groove: null, lead: ["D5:1 F#5:.5 G5:.5 F#5:1 D5:1", "B4:1 D5:.5 E5:.5 D5:1 B4:1"] }] });
   const r = M.novelty(quoted, { src: () => src }); assert(!r.pass && r.rows[0].reusedFragments > 0, "a transposed quote must be caught");
-  pass(`novelty: a transposed 6-note quote of a shipped line fails (${r.rows[0].reusedFragments} reused fragments)`); }
+  pass(`novelty: a transposed 6-note quote of a shipped line fails (${r.rows[0].reusedFragments} reused fragments)`);
+  // a shipped melody re-barred into 5/4 (each 4/4 bar gains a beat on its last note), transposed up a tone: its rhythm and bar
+  // positions are new, its 6-note (interval, duration) fragments are broken, but its intervals are the tune: it must FAIL
+  const rebar = (name) => { const src = M.DEMOS[name](), bpb = M.beatsPerBar(src.plan.meter), mel = src.parts.flatMap((p) => p.notes.filter((n) => n.role === "melody")).sort((a, b) => a.t - b.t), last = new Map();
+    for (const n of mel) { const k = Math.floor(n.t / bpb + 1e-9); last.set(k, Math.max(last.get(k) ?? -1, n.t)); }
+    const notes = mel.map((n) => { const k = Math.floor(n.t / bpb + 1e-9); return { ...n, p: n.p + 2, t: n.t + k, d: n.d + (n.t === last.get(k) ? 1 : 0) }; }), bars = Math.ceil((Math.max(...notes.map((n) => n.t + n.d)) + 1) / 5);
+    return { title: "re-barred", seed: 5, tail: 1, harmony: [], parts: [{ id: "lead", inst: "piano", role: "melody", notes }], plan: { style: "folk", tempo: 90, meter: "5/4", sections: [{ id: "a", bars, mood: "calm", key: "D", mode: "major", melody: ["stepwise"], dyn: [0.6, 0.6] }] } }; };
+  for (const name of ["launchLofi3", "nocturne"]) { const v = M.novelty(rebar(name), M.DEMOS), row = v.rows.find((x) => x.name === name);
+    assert(!v.pass && row.quotedShapes > 0, `${name} re-barred into 5/4 passed (score ${row.score}, fragments ${row.reusedFragments}, shapes ${row.quotedShapes})`);
+    pass(`novelty: ${name}'s melody re-barred into 5/4 and transposed FAILS (similarity only ${row.score}, 6-note fragments ${row.reusedFragments}, 8-note shapes quoted ${row.quotedShapes})`); } }
 
 // 11. Speed without a changed bit: the voice cache and the parallel pool render exactly what a serial render does.
 { const p = M.composePiece(M.testMaterial(M.VOCAB.lofi, { bars: 4 })), cache = new Map(), fresh = md5(M.renderPiece(p, SR));

@@ -6,8 +6,9 @@
 //   melody intervals (transposition-free n-grams), other lines' rhythm (counter, bass), drum bars,
 //   chord function (root vs key + quality) n-grams, chord-quality n-grams, section-kind sequence.
 // Each feature is a bag of n-grams; similarity is the cosine of the bags; the score is a weighted
-// mean. `demoReuse` is the stricter gate: any 6-note melody fragment (intervals + durations) taken
-// from a demo fails outright, transposed or not.
+// mean. Two stricter gates fail outright: any 6-note melody fragment (intervals + durations) taken
+// from a shipped piece, transposed or not; and any distinctive 8-note melody shape (intervals only),
+// so a quote re-barred into another meter, stretched or re-rhythmed is caught too.
 import type { Piece, Note } from "./plan";
 import { beatsPerBar } from "./plan";
 import { pcOf } from "./theory";
@@ -56,17 +57,30 @@ export const similarity = (a: Fingerprint, b: Fingerprint) => {
   return { score: w ? s / w : 0, by };
 };
 
+const tune = (p: Piece) => voice(p.parts.flatMap((pt) => pt.notes.filter((n) => n.role === "melody" || n.role === "color")));
 /** Every melody 6-note fragment as (interval, duration) pairs: transposition-free. */
-const fragments = (p: Piece) => { const mel = voice(p.parts.flatMap((pt) => pt.notes.filter((n) => n.role === "melody" || n.role === "color"))); const out = new Set<string>(); for (let i = 0; i + 6 <= mel.length; i++) { const g = mel.slice(i, i + 6); out.add(g.slice(1).map((n, j) => `${n.p - g[j].p}/${q(n.t - g[j].t)}`).join(" ")); } return out; };
+const fragments = (p: Piece) => { const mel = tune(p), out = new Set<string>(); for (let i = 0; i + 6 <= mel.length; i++) { const g = mel.slice(i, i + 6); out.add(g.slice(1).map((n, j) => `${n.p - g[j].p}/${q(n.t - g[j].t)}`).join(" ")); } return out; };
+/** A quoted tune survives a new key, a new meter and a new rhythm: its intervals do not. The pitch-only fragment gate compares this many notes. */
+export const QUOTE_NOTES = 8;
+/**
+ * Every QUOTE_NOTES-note melody fragment as its interval sequence alone (no rhythm, no key, no meter):
+ * the same tune re-barred into 5/4, stretched or transposed has the same intervals. Only distinctive
+ * shapes count (3+ different intervals, a leap of 3+ semitones, at most 3 repeated notes), so a scale
+ * run or a repeated-note figure, which every tune shares, never fails a piece.
+ */
+export const melodyShapes = (p: Piece) => { const mel = tune(p), out = new Set<string>();
+  for (let i = 0; i + QUOTE_NOTES <= mel.length; i++) { const iv = mel.slice(i + 1, i + QUOTE_NOTES).map((n, j) => n.p - mel[i + j].p);
+    if (new Set(iv).size >= 3 && iv.some((x) => Math.abs(x) >= 3) && iv.filter((x) => x === 0).length <= 3) out.add(iv.join(",")); }
+  return out; };
 
 /** Score a piece against a corpus. `family` names the pieces that ARE this piece (its own cuts) and are skipped. */
 export const novelty = (p: Piece, corpus: Record<string, () => Piece>, skip: string[] = [], threshold = NOVELTY_THRESHOLD) => {
-  const fp = fingerprint(p), mine = fragments(p);
+  const fp = fingerprint(p), mine = fragments(p), shapes = melodyShapes(p);
   const rows = Object.entries(corpus).filter(([name]) => !skip.includes(name)).map(([name, mk]) => {
-    const other = mk(), sim = similarity(fp, fingerprint(other)), theirs = fragments(other);
-    let reused = 0; for (const f of mine) if (theirs.has(f)) reused++;
-    return { name, score: +sim.score.toFixed(3), by: sim.by, reusedFragments: reused };
+    const other = mk(), sim = similarity(fp, fingerprint(other)), theirs = fragments(other), theirShapes = melodyShapes(other);
+    let reused = 0, quoted = 0; for (const f of mine) if (theirs.has(f)) reused++; for (const f of shapes) if (theirShapes.has(f)) quoted++;
+    return { name, score: +sim.score.toFixed(3), by: sim.by, reusedFragments: reused, quotedShapes: quoted };
   }).sort((a, b) => b.score - a.score);
   const worst = rows[0];
-  return { rows, threshold, pass: rows.every((r) => r.score <= threshold && r.reusedFragments === 0), worst };
+  return { rows, threshold, pass: rows.every((r) => r.score <= threshold && r.reusedFragments === 0 && r.quotedShapes === 0), worst };
 };

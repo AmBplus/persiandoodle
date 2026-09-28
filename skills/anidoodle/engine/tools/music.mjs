@@ -362,9 +362,11 @@ const report = (M, r, piece, cache, bands) => {
   return ok && g.ghost.pass && g.reverb.pass && (!g.masking || g.masking.pass);
 };
 const printNovelty = (M, name, v, what) => {
-  console.log(`novelty: ${name} vs ${v.rows.length} ${what} (fail above ${v.threshold}, or on any reused 6-note melody fragment)`);
-  for (const r of v.rows.slice(0, 5)) console.log(`  ${r.name.padEnd(22)} ${r.score.toFixed(3)}  ${r.reusedFragments ? `REUSED ${r.reusedFragments} fragment(s)  ` : ""}${Object.entries(r.by).map(([k, x]) => `${k} ${x}`).join(" ")}`);
-  console.log(v.pass ? "novelty PASS" : `novelty FAIL: too close to ${v.worst.name}. Change what the numbers point at (the lead's rhythm, the contour, the groove, the chord colours, the form), not just the key.`);
+  console.log(`novelty: ${name} vs ${v.rows.length} ${what} (fail above ${v.threshold}, on any reused 6-note melody fragment, or on an 8-note melody shape quoted in any key, meter or rhythm)`);
+  const shown = [...v.rows.slice(0, 5), ...v.rows.slice(5).filter((r) => r.reusedFragments || r.quotedShapes)];
+  for (const r of shown) console.log(`  ${r.name.padEnd(22)} ${r.score.toFixed(3)}  ${r.reusedFragments ? `REUSED ${r.reusedFragments} fragment(s)  ` : ""}${r.quotedShapes ? `QUOTED ${r.quotedShapes} melody shape(s)  ` : ""}${Object.entries(r.by).map(([k, x]) => `${k} ${x}`).join(" ")}`);
+  const q = v.rows.find((r) => r.quotedShapes || r.reusedFragments);
+  console.log(v.pass ? "novelty PASS" : q && q.score <= v.threshold ? `novelty FAIL: the melody quotes ${q.name} (the same intervals in a row, whatever the key, meter or rhythm). Write your own line.` : `novelty FAIL: too close to ${v.worst.name}. Change what the numbers point at (the lead's rhythm, the contour, the groove, the chord colours, the form), not just the key.`);
   console.log("  (idioms are fine: a ii-V-I, a plagal cadence, a two-chord vamp are vocabulary. What fails is the same music: a multi-bar progression WITH its rhythm, groove, contour and form, or a quoted melody.)");
   return v.pass;
 };

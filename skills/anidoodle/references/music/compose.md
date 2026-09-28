@@ -19,7 +19,8 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
 > **Never reuse shipped material.** The demos (`node tools/music.mjs list`) and our own film scores
 > are listening references and the novelty corpus. They are never a film's score or a template. Don't
 > copy them, transpose them or re-rhythm them. `node tools/music.mjs novelty` fails a score that
-> sounds like any shipped piece, or that quotes a 6-note fragment of one (transposed or not).
+> sounds like any shipped piece, or that quotes one: a 6-note fragment (transposed or not), or an
+> 8-note melody shape in any key, meter or rhythm.
 >
 > **Idioms are fine.** A ii-V-I, a plagal amen, a two-chord vamp, a I-bVII-IV are vocabulary. The
 > style pages name them so you can use them. What is not fine is reusing the same music: a
@@ -177,9 +178,28 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
      and seconds) and which parts pile up there, loudest first, with the notes they are playing.
      Fix it in the notes at that spot: stagger the bass under that downbeat, roll the big chord, don't
      double the climax note.
-   - **Novelty:** if it fails, change what the numbers point at. The per-feature scores name it:
-     the lead's rhythm, the contour, the groove, the chord colours, the form. Changing the key fixes
-     nothing.
+   - **Novelty:** if it fails, change what the numbers point at. Changing the key fixes nothing.
+     Each feature is a bag of n-grams compared by cosine (0 = nothing shared, 1 = the same); the
+     score is their weighted mean, and it fails above 0.5:
+
+     | Feature | Weight | What it counts |
+     |---|---|---|
+     | `melodyRhythm` | 0.20 | the lead's onset positions in each bar, and its inter-onset-interval trigrams |
+     | `melodyContour` | 0.15 | the lead's up / down / same 4-grams |
+     | `melodyIntervals` | 0.10 | the lead's interval trigrams, in semitones (transposition-free) |
+     | `lineRhythm` | 0.15 | the counter line's rhythm plus the bass's rhythm (bar positions and inter-onset trigrams of each) |
+     | `drums` | 0.15 | each drum part's hit positions per bar |
+     | `chords` | 0.10 | chord-function trigrams: each root against the key, with its quality |
+     | `qualities` | 0.07 | chord-quality trigrams (maj7, min, dom, sus ...) |
+     | `form` | 0.08 | the order of section kinds, in pairs |
+
+     The lead is the top note of each onset of the melody part. Bar positions depend on the meter;
+     the inter-onset trigrams, the contour, the intervals and both quote gates do not. Two gates fail
+     outright whatever the score: a **6-note fragment** of a shipped melody (its intervals and
+     durations, in any key), and an **8-note melody shape** (its intervals alone, in any key, meter
+     or rhythm: a quote re-barred into 5/4 or stretched is still the tune). Only distinctive shapes
+     count (three or more different intervals, a leap of a third or more, at most three repeated
+     notes), so a scale run is never a quote.
    - **Listen:** the person hears it before it is used. Meters prove you aren't obviously wrong.
      Only an ear says right. For a **loop**, deliver a `.wav`: mp3 adds encoder padding, so it clicks
      or gaps at the loop point.
@@ -315,6 +335,6 @@ mid-bar writes its rest, `C2:3 r:1`, never a silent gap):
 | masking guard | `check`, `render` | the melody doesn't clear the other parts in 500 Hz-4 kHz |
 | stems | `check`, `render --stems`, `stems` | a part is more than 3 dB off target (lead: up to +6 dB allowed); advisory for uncalibrated styles |
 | craft | `craft`, `check` | (advisory scores and fixes) melody, harmony, rhythm, tension, mood fit; fails only on a note an acoustic instrument cannot play |
-| novelty | `check`, `novelty` | similarity above 0.5 to a shipped piece (or to each other), or a reused 6-note melody fragment |
+| novelty | `check`, `novelty` | similarity above 0.5 to a shipped piece (or to each other), a reused 6-note melody fragment, or an 8-note melody shape in any key, meter or rhythm |
 
 `tools/music-unit.mjs` keeps the engine honest: determinism, no defaults, every vocabulary renders.
