@@ -61,6 +61,26 @@ export const saturate = (x: Float32Array, sr: number, drive: number, bias = 0, m
   return x;
 };
 
+/**
+ * Guitar amp + cab, in place on a stereo stem (a part with `opts.amp` = drive, 1 clean .. 8 high gain). The DI is
+ * normalised so the playing peak hits the same point of the curve whatever the fader, then: a tube-screamer style
+ * pre-EQ (HP 110 Hz, +3 dB at 750 Hz), 2x oversampled asymmetric saturation (even harmonics), a 4x12 cab curve
+ * (HP 80 Hz, +2 dB at 2.4 kHz, 12 dB/oct low-pass at 5 kHz) and the stem's energy matched back: the fader keeps the balance.
+ */
+export const ampSim = (L: Float32Array, R: Float32Array, sr: number, drive: number) => {
+  let pk = 0, e0 = 0; for (let i = 0; i < L.length; i++) { pk = Math.max(pk, Math.abs(L[i]), Math.abs(R[i])); e0 += L[i] * L[i] + R[i] * R[i]; }
+  if (pk < 1e-9 || drive <= 0) return;
+  const ref = 0.5 / pk;
+  for (const c of [L, R]) {
+    for (let i = 0; i < c.length; i++) c[i] *= ref;
+    for (const b of [Biquad.make(sr, "hp", 110, 0.7071), Biquad.make(sr, "peak", 750, 0.8, 3)]) b.run(c);
+    saturate(c, sr, drive, 0.12);
+    for (const b of [Biquad.make(sr, "hp", 80, 0.7071), Biquad.make(sr, "peak", 2400, 1.1, 2), Biquad.make(sr, "lp", 5000, 0.7071)]) b.run(c);
+  }
+  let e1 = 0; for (let i = 0; i < L.length; i++) e1 += L[i] * L[i] + R[i] * R[i];
+  if (e1 > 0) { const k = Math.sqrt(e0 / e1); for (let i = 0; i < L.length; i++) { L[i] *= k; R[i] *= k; } }
+};
+
 // ---------------------------------------------------------------- compressor
 export type CompOpts = { ratio: number; attackMs: number; releaseMs: number; kneeDb?: number; /** target gain reduction on the loud passages (p90 of GR while active); the threshold is solved for it */ targetGrDb: number; maxGrDb?: number };
 /** Stereo-linked feed-forward compressor with auto threshold (solved so the loud passages see `targetGrDb`) and RMS makeup. Returns the measured GR stats. */

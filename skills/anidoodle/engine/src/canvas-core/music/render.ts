@@ -15,7 +15,7 @@ import { pumpCurve, lofiStem, lofiMaster, LOFI_DUSTY } from "./lofiFx";
 import { loudness, truePeak, stemBalance } from "./meter";
 import { STYLES } from "./tables";
 import { rng as mkRng } from "../core";
-import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter } from "./mixDsp";
+import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter, ampSim } from "./mixDsp";
 import { reverb, type Space } from "./mixReverb";
 import { mixProfile, partEq, ROLE_SEND, type MixProfile } from "./mixProfiles";
 
@@ -144,6 +144,7 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
     if (pt.inst === "piano") { const old = !!o.piano, r = old ? renderPiano(keys, perf.pedal, sr, n, o.piano!, piece.seed + pi) : renderPianoV2(keys, perf.pedal, sr, n, pt.opts ?? {}, piece.seed + pi); sL = r.L; sR = r.R; if (old ? o.piano!.pedal : pt.opts?.pedal !== false) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0); }
     else { const r = voice(pt, keys, sr, n, piece.seed * 101 + pi, kitCtx); sL = r.L; sR = r.R; }
     if (lofi) lofiStem(lofi, pt.id, sL, sR, sr, keys.map((k) => k.t), piece.seed, period);
+    if (typeof pt.opts?.amp === "number") ampSim(sL, sR, sr, pt.opts.amp); // a guitar (or any DI) through the amp + cab
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     // corrective EQ, then match the stem's RMS back (+-3 dB cap): EQ shapes the tone, the fader keeps the calibrated balance
     // the stem meter reads the part as the fader set it (pre-EQ): the EQ is energy-neutral in the audible band, while stemRms
