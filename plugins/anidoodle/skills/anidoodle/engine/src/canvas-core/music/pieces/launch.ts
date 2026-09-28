@@ -4,7 +4,7 @@
 // (lofiKit.ts): no electric piano, no vinyl, no bit-crush, a clean master, a tight detuned-saw pad
 // pumping under the kick, a bright pluck lead through a dotted-eighth ping-pong delay, high sparkle
 // plucks, a sine sub, a bouncy kick, a snare on 2 and 4 with rim ghosts, 16th hats. Levels were set
-// by measuring each part (anidoodle-research/launch-film/tools/stems.mjs) against published targets.
+// by measuring each part (node tools/music.mjs stems) against published targets.
 // Harmony: the ii-V-I-vi loop Dm9 G13 Cmaj9 Am9 from bar 2, every 4 bars, so bar 36 (the film's
 // "All in pure code.") lands on Cmaj9, home, and the last bar holds it.
 //
