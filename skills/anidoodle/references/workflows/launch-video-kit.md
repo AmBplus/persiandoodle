@@ -56,7 +56,7 @@ product's world in the chosen hand, as a still plus its `*Draw` film. anidoodle'
 (the lighthouse and fox in `launchExample.ts`) are placeholders, never a user's film. The score
 is composed for the brief's style, mood and length (`references/music/compose.md`); `score` is
 required (`null` means silent), `bpm` has no default, and the template refuses anidoodle's own
-pieces, by identity and by title.
+pieces, by identity, by title and by content (the same novelty gate `music.mjs check` runs).
 
 | Spec field | Meaning |
 |---|---|
@@ -66,7 +66,7 @@ pieces, by identity and by title.
 | `tagline`, `install[]`, `footer` | the end card; install lines are shown exactly as given |
 | `bpm` (required), `fps`, `askBeats`, `typeBeats`, `endBeats` | the beat grid (a beat is 60 x fps / bpm frames) and each part's length in beats |
 | `claimBar` | land the end card on this bar's downbeat; throws if it cannot |
-| `score` (required) or `audio` | a piece composed for this product, as a bed; `null` for silence; or your own finished mix |
+| `score` (required) or `audio` | the score composed for this product (the `Material` function compose.md writes, or a `Piece`), as a bed; `null` for silence; or your own finished mix (not checked) |
 
 The template refuses a feature list (more than 3 asks) and an end card too short to read.
 
