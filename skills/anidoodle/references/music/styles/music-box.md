@@ -1,11 +1,10 @@
-# Style: music box
+# Style preset: music-box (the default)
 
-> The original anidoodle music recipe, kept below for its SOUND numbers (the `musicBox` and `bell`
-> instruments implement them) and its scar story (why the guards exist). It is one style among the
-> vocabularies in `engine/src/canvas-core/music/vocab.ts` (`VOCAB.musicBox`), not a default: there is
-> no default style. Its fixed composing choices (one progression, one scale, one accompaniment
-> figure) were rewritten below as ranges: the composer writes the notes ([../compose.md](../compose.md)).
-> Its ban list is the rule for THIS style only; for other styles the bans became measured guards.
+> The original anidoodle music recipe, kept **verbatim** below as one style preset among the eleven
+> in `engine/src/canvas-core/music/tables.ts` (`STYLES.musicBox`). Its numbers are what the
+> `musicBox` and `bell` instruments implement. Its ban list is now the rule for THIS preset only;
+> for every other style the bans became measured guards (see `../README.md`, "Guards"). The scar
+> story is kept because it is why the guards exist.
 
 ---
 
@@ -28,11 +27,11 @@
 - bass: same pluck one to two octaves down with only the first two partials, gain 0.5. It is still a pluck. It never sustains.
 - "room": ONE early reflection, 30 ms late, 14 dB down. No tail.
 
-**Key, register, harmony.** Any major, lydian, dorian or minor key you choose for the mood (a minor music box is a real, uncanny sound). Melody between C5 and C7, bass C3 to G3. Harmonic rhythm one chord per bar; the progression is yours (plagal and deceptive turns read well; the original film used the plainest possible one and said "nothing cleverer", which is a choice, not a rule). For a lift at the payoff, move the key up a step.
+**Key, register, harmony.** C, G or D major. Melody between C5 and C7, bass C3 to G3. One chord per bar, **I, IV, V, I**, and nothing cleverer. If you want a lift for the payoff, go up a whole step and play the same thing.
 
-**Melody.** Chord tones plus the mode's scale, mostly steps, leaps onto chord tones. Four-bar phrases in pairs: the QUESTION ends off the tonic, the ANSWER lands on it, **and the answer follows immediately.** Your own motif, with its own rhythm.
+**Melody.** Chord tones and the major pentatonic (1 2 3 5 6). Mostly steps, leaps only onto chord tones. Four-bar phrases in pairs: the QUESTION ends on the 5th over V, the ANSWER ends on the root over I, **and the answer follows immediately.** The story may hold its resolution back for a minute; the tune may not. What you hold back is the ARRANGEMENT: the octave doubling, the full arpeggio and the bell arrive with the payoff.
 
-**Rhythm.** At 120 bpm and 30 fps a beat is 15 frames and a straight eighth is 7.5 frames, which does not exist. Use triplet eighths, 5 frames: 12/8, which is what a music box plays anyway. Accompaniment is an arpeggio figure you design on the triplets (choose its order of chord tones and its cycle length; a 4-note cell over 3-note groups makes a gentle hemiola); melody mostly on beats. Every onset is a row in a cue table with its FRAME, and the module asserts at load that each sample index equals `round(frame / fps * sampleRate)`.
+**Rhythm.** At 120 bpm and 30 fps a beat is 15 frames and a straight eighth is 7.5 frames, which does not exist. Use triplet eighths, 5 frames: 12/8, which is what a music box plays anyway. Accompaniment is a rolling 1-5-3-5 arpeggio on the triplets; melody mostly on beats. Every onset is a row in a cue table with its FRAME, and the module asserts at load that each sample index equals `round(frame / fps * sampleRate)`.
 
 **Sound events ride on top, quietly:** a tick is a 2 ms noise burst through a band-pass at 3 kHz, the tock at 2 kHz, 20 dB under the melody. A landing is one soft pluck on its beat. The DING is a bell on the tonic (partials 1, 2, 3, 4.2, tau 1.2 s, doubled an octave down) on the final downbeat, with at least four beats of film after it.
 
