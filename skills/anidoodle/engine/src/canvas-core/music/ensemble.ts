@@ -295,7 +295,7 @@ export const choir = (keys: Played[], sr: number, n: number, o: Opts, r0: Rng): 
 type PluckSpec = { width: number; beta: number; noise: number; lpMul: number; /** absolute excitation low-pass (Hz) instead of lpMul x f */ lpAbs?: number; /** contact width grows as (f / 131 Hz)^widthExp (thicker treble strings, softer finger) */ widthExp?: number; loss: number; t60: (f: number) => number; relT60: number; ring: boolean; pol2: number; ir?: IRSpec; pick: number; level: number };
 const PLUCK: Record<string, PluckSpec> = {
   nylon: { width: 0.0022, beta: 0.2, noise: 0.25, lpMul: 3.5, loss: 0.3, t60: (f) => clamp(3.4 * Math.pow(196 / f, 0.55), 0.7, 7), relT60: 0.18, ring: false, pol2: 0.6, ir: IR_NYLON, pick: 0, level: LEVEL.guitar },
-  steel: { width: 0.0007, beta: 0.13, noise: 0.4, lpMul: 9, loss: 0.16, t60: (f) => clamp(4.5 * Math.pow(196 / f, 0.5), 1, 9), relT60: 0.15, ring: false, pol2: 0.7, ir: IR_STEEL, pick: 0.05, level: LEVEL.guitar },
+  steel: { width: 0.0009, beta: 0.13, noise: 0.4, lpMul: 8, loss: 0.16, t60: (f) => clamp(4.5 * Math.pow(196 / f, 0.5), 1, 9), relT60: 0.15, ring: false, pol2: 0.7, ir: IR_STEEL, pick: 0.03, level: LEVEL.guitar },
   electric: { width: 0.0008, beta: 0.12, noise: 0.35, lpMul: 7, loss: 0.14, t60: (f) => clamp(6 * Math.pow(196 / f, 0.45), 1.5, 12), relT60: 0.12, ring: false, pol2: 0.4, pick: 0.035, level: LEVEL.guitar },
   // harp: brightness, pluck point and ring fitted by ear-free A/B to VCSL Concert Harp C3/C5 (CC0; tools/ensemble-check.mjs ref)
   harp: { width: 0.0018, widthExp: 0.35, beta: 0.1, noise: 0.2, lpMul: 3, lpAbs: 900, loss: 0.14, t60: (f) => clamp(9.5 * Math.pow(262 / f, 0.45), 1.5, 16), relT60: 1, ring: true, pol2: 0.5, ir: IR_HARP, pick: 0, level: LEVEL.harp },
