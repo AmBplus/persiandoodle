@@ -46,6 +46,8 @@ export const loadBanks = (M, dir, ids) => {
     const zones = entry.zones.map((zone) => ({ zone, channels: decodeFlac(root, id, zone) }));
     M.registerBank(id, { entry, zones });
     const calibrated = M.calibrateBank(id);
+    console.log(`spectrum ${id}: zone | 500 Hz-4 kHz fraction dB | excess over modeled dB`);
+    for (const t of calibrated.trim) console.log(`  ${t.file} | ${t.bandFractionDb.toFixed(2)} | ${t.bandExcessDb.toFixed(2)}`);
     console.log(`calibration ${id}: median trim ${calibrated.trim[0].medianDb.toFixed(2)} dB; zone | layer | measured dB | modeled dB | requested dB | applied dB | deviation dB`);
     for (const t of calibrated.trim) console.log(`  ${t.file} | ${t.layer} | ${t.measuredDb.toFixed(2)} | ${t.modeledDb.toFixed(2)} | ${t.requestedDb.toFixed(2)} | ${t.correctionDb.toFixed(2)} | ${(t.correctionDb - t.medianDb).toFixed(2)}${Math.abs(t.correctionDb) > 9 ? " | FLAG applied >9 dB (includes instrument trim)" : ""}${Math.abs(t.requestedDb - t.medianDb) > 9 ? " | FLAG >9 dB deviation: capped, inspect zone/reference" : ""}${t.boostLimited ? " | prefer louder layer" : ""}`);
   }

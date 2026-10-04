@@ -142,16 +142,26 @@ export const calibrateBank = (id: string) => {
   // Gated RMS would match the average tail instead of energy per strike, changing a fast
   // arpeggio's balance when recorded and modeled decays differ. Use one fixed 12 s window.
   const level = (r: VoiceOut) => { const mid = Float32Array.from(r.L, (x, i) => (x + r.R[i]) * 0.5); Biquad.make(sr, "hp", 30, 0.7071).run(mid); let energy = 0; for (const x of mid) energy += x * x; return 10 * Math.log10(energy / n); };
-  const references = new Map<string, number>();
+  const bandFraction = (r: VoiceOut) => {
+    const mid = Float32Array.from(r.L, (x, i) => (x + r.R[i]) * 0.5);
+    Biquad.make(sr, "hp", 40, Math.SQRT1_2).run(mid);
+    let total = 0; for (const x of mid) total += x * x;
+    Biquad.make(sr, "hp", 500, Math.SQRT1_2).run(mid); Biquad.make(sr, "lp", 4000, Math.SQRT1_2).run(mid);
+    let band = 0; for (const x of mid) band += x * x;
+    return 10 * Math.log10(Math.max(1e-15, band) / Math.max(1e-15, total));
+  };
+  const references = new Map<string, { level: number; band: number }>();
   const trim: SampleTrim[] = bank.zones.filter(({ zone }) => zone.art !== "rel").map((z) => {
     const p = z.zone.midi, v = bank.entry.layerVelocity?.[z.zone.layer - 1] ?? (z.zone.layer - 0.5) / bank.entry.layers;
     const keys: Played[] = [{ p, v, tone: v, t: 0, off: 1, role: "melody", w: v }], one: SampleBank = { entry: { ...bare.entry, zones: [{ ...z.zone, art: undefined }] }, zones: [{ ...z, zone: { ...z.zone, art: undefined } }] }, recorded = samplerVoice(one, keys, [], sr, n, opts, 1);
-    const ref = `${p}:${v}`; let modeledDb = references.get(ref);
-    if (modeledDb === undefined) { const modeled = inst === "piano" ? renderPianoV2(keys, [], sr, n, opts, 1) : voice({ id: "ref", inst: inst as Part["inst"], role: "melody", notes: [], opts }, keys, sr, n, 1); modeledDb = level(modeled); references.set(ref, modeledDb); }
+    const ref = `${p}:${v}`; let modeled = references.get(ref);
+    if (modeled === undefined) { const r = inst === "piano" ? renderPianoV2(keys, [], sr, n, opts, 1) : voice({ id: "ref", inst: inst as Part["inst"], role: "melody", notes: [], opts }, keys, sr, n, 1); modeled = { level: level(r), band: bandFraction(r) }; references.set(ref, modeled); }
+    const modeledDb = modeled.level;
     const measuredDb = level(recorded);
     const correctionDb = modeledDb - measuredDb;
     if (!Number.isFinite(correctionDb)) throw new Error(`${id}: silent calibration at MIDI ${p}`);
-    return { file: z.zone.file, midi: p, layer: z.zone.layer, measuredDb, modeledDb, correctionDb };
+    const bandFractionDb = bandFraction(recorded);
+    return { file: z.zone.file, midi: p, layer: z.zone.layer, measuredDb, modeledDb, correctionDb, bandFractionDb, bandExcessDb: bandFractionDb - modeled.band };
   });
   const sorted = trim.map((t) => t.correctionDb).sort((a, b) => a - b), middle = Math.floor(sorted.length / 2), medianDb = sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
   return registerBank(id, { ...bare, trim: trim.map((t) => ({ ...t, requestedDb: t.correctionDb, medianDb, correctionDb: medianDb + Math.max(-9, Math.min(9, t.correctionDb - medianDb)), boostLimited: t.correctionDb > medianDb + 9 })) });

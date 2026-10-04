@@ -114,6 +114,7 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
     const original = calibration.zones.map((z) => Float32Array.from(z.channels[0])); registerBank("piano", calibration);
     const calibrated = calibrateBank("piano"), redo = calibrateBank("piano");
     ok(calibrated.hash === redo.hash && JSON.stringify(calibrated.trim) === JSON.stringify(redo.trim), "pitch/layer calibration is deterministic from PCM and fixed modeled references");
+    ok(calibrated.trim!.every(t => Number.isFinite(t.bandFractionDb) && Number.isFinite(t.bandExcessDb)), "load calibration measures every zone's masking-band fraction and excess over its modeled reference");
     ok(calibrated.zones.every((z, i) => same(z.channels[0], original[i])), "calibration never changes recording PCM or tone");
     const measured = (x: Float32Array, y: Float32Array) => { const mid = Float32Array.from(x, (v, i) => (v + y[i]) * 0.5); Biquad.make(SR, "hp", 30, 0.7071).run(mid); let energy = 0; for (const v of mid) energy += v * v; return 10 * Math.log10(energy / (SR * 12)); };
     const levels = [1, 2, 3].map((layer) => { const v = (layer - 0.5) / 3, r = render(calibrated, [{ ...key(60, v, 0, 1), tone: v }], SR, [], { pedal: false }); return measured(r.L, r.R); });

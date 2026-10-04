@@ -9,7 +9,9 @@ import { pianoVelocity } from "./keysPiano";
 
 export type SampleZone = { file: string; midi: number; layer: number; rr: number; frames: number; channels: number; peakDb: number; rmsDb: number; sha256: string; art?: "sus" | "rel"; unpitched?: boolean; measuredHz?: number; loop?: [number, number] };
 export type SampleEntry = { title: string; source: string; license: string; kind: "struck" | "sustained"; range: [number, number]; layers: number; layerVelocity?: number[]; sparse?: boolean; maxShift?: number; damped: boolean; normalized?: boolean; zones: SampleZone[] };
-export type SampleTrim = { file: string; midi: number; layer: number; measuredDb: number; modeledDb: number; correctionDb: number; requestedDb?: number; medianDb?: number; boostLimited?: boolean };
+export type SampleTrim = { file: string; midi: number; layer: number; measuredDb: number; modeledDb: number; correctionDb: number; requestedDb?: number; medianDb?: number; boostLimited?: boolean;
+  /** 500 Hz-4 kHz energy as a fraction of audible energy, and its excess over the modeled reference. */
+  bandFractionDb?: number; bandExcessDb?: number };
 export type SampleBank = { entry: SampleEntry; zones: { zone: SampleZone; channels: Float32Array[] }[]; /** fixed modeled references at each recording's pitch and layer centre */ trim?: SampleTrim[] };
 export type RegisteredBank = SampleBank & { id: string; hash: string };
 const banks = new Map<string, RegisteredBank>();
@@ -46,7 +48,7 @@ export const registerBank = (id: string, bank: SampleBank): RegisteredBank => {
     if (JSON.stringify(z) !== JSON.stringify(e.zones[i]) || !Number.isInteger(z.midi) || z.midi < e.range[0] || z.midi > e.range[1] || !Number.isInteger(z.layer) || z.layer < 1 || z.layer > e.layers || !Number.isInteger(z.rr) || z.rr < 1 || !Number.isInteger(z.frames) || z.frames < 1 || ![1, 2].includes(z.channels) || !/^[a-f0-9]{64}$/i.test(z.sha256) || channels.length !== z.channels || channels.some((c) => !(c instanceof Float32Array) || c.length !== z.frames)) throw new Error(`${id}: invalid zone or PCM ${z.file}`);
   });
   if (!e.zones.some((z) => !z.art)) throw new Error(`${id}: no ordinary sample zones`);
-  if (bank.trim && (new Set(bank.trim.map((t) => t.file)).size !== bank.trim.length || bank.trim.some((t) => !e.zones.some((z) => z.file === t.file && z.midi === t.midi && z.layer === t.layer) || ![t.measuredDb, t.modeledDb, t.correctionDb, t.requestedDb ?? 0, t.medianDb ?? 0].every(Number.isFinite) || (t.medianDb !== undefined && Math.abs(t.correctionDb - t.medianDb) > 9.000001) || (t.boostLimited !== undefined && typeof t.boostLimited !== "boolean")))) throw new Error(`${id}: invalid sampled calibration`);
+  if (bank.trim && (new Set(bank.trim.map((t) => t.file)).size !== bank.trim.length || bank.trim.some((t) => !e.zones.some((z) => z.file === t.file && z.midi === t.midi && z.layer === t.layer) || ![t.measuredDb, t.modeledDb, t.correctionDb, t.requestedDb ?? 0, t.medianDb ?? 0, t.bandFractionDb ?? 0, t.bandExcessDb ?? 0].every(Number.isFinite) || (t.medianDb !== undefined && Math.abs(t.correctionDb - t.medianDb) > 9.000001) || (t.boostLimited !== undefined && typeof t.boostLimited !== "boolean")))) throw new Error(`${id}: invalid sampled calibration`);
   const identity = bankIdentity(e), b = { ...bank, id, hash: bank.trim ? hash(JSON.stringify([identity, bank.trim])) : identity }; banks.set(id, b); return b;
 };
 
