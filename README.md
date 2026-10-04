@@ -94,7 +94,7 @@ Every style ships the finished picture and, from the same source, a film of it b
 
 ## Music, composed in code
 
-The notes are written as data and every sound is synthesized in code. A music style is a vocabulary the model composes from, never a preset: 21 of them, from lo-fi electronic, house and synthwave to orchestral, jazz, folk and solo piano. Each gives the sound, the grooves and the harmony language; the chords, the motif and the form are written new, so every film gets its own score.
+The notes are written as data and the engine makes every sound: nothing loaded, nothing downloaded. A music style is a vocabulary the model composes from, never a preset: 21 of them, from lo-fi electronic, house and synthwave to orchestral, jazz, folk and solo piano. Each gives the sound, the grooves and the harmony language; the chords, the motif and the form are written new, so every film gets its own score.
 
 Install the optional sound pack and eight acoustic instruments play recordings of real ones: a Steinway grand and an upright, concert harp, marimba, vibraphone, glockenspiel, tubular bells and timpani, in three recorded rooms. Synths, lo-fi colour, electronic drums and sound effects stay in code. Without the pack every score still plays, unchanged.
 
