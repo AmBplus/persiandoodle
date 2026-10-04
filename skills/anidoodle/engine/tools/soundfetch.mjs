@@ -46,6 +46,12 @@ const DEFAULT_URL = "https://github.com/alexgreensh/anidoodle/releases/download/
 // sha256 of anidoodle-sounds-v1.json for the release, produced by `soundpack.mjs dist` of
 // pack-v1; a tampered index is refused before anything downloads.
 const INDEX_SHA256 = "558d7fcb9138afa090ccf16b23355edbf8b98f63c26151646bf1721a6969840a";
+// Download size of each v1 instrument archive, in MB: printed when a piece could play recordings
+// that are not installed, so the user is asked with the real cost. Travels with the pin above.
+export const PACK_MB = { piano: 233, "piano.upright": 56, harp: 31, vibes: 25, "bell.tubular": 20, timpani: 16, glockenspiel: 7, marimba: 3 };
+// "No thanks" is remembered here, outside any pack directory, so the question is asked once.
+const DECLINED = () => join(homedir(), ".anidoodle", "sounds-declined");
+export const soundsDeclined = () => existsSync(DECLINED());
 const MAX_INDEX_BYTES = 8 * 1024 * 1024; // the real index is ~100 KB; this is headroom, not fit
 const MAX_ARCHIVE_BYTES = 8 * 1024 * 1024 * 1024; // 8 GiB: a sane bound, far over the ~234 MB real
 
@@ -358,6 +364,7 @@ const installArchive = async (a, root, index) => {
     swap(root, stage, top);
     mergeManifest(root, a.manifest);
     console.log("installed");
+    rmSync(DECLINED(), { force: true }); // they said yes after all
   } finally {
     rmSync(tmp, { force: true });
     rmSync(stage, { recursive: true, force: true });
@@ -411,6 +418,8 @@ const cmdList = async () => {
   const m = readMerged(root);
   const src = source();
   console.log(`install: ${root}${m ? "" : " (nothing installed)"}`);
+  if (soundsDeclined()) console.log("recordings: declined by the user. Do not ask again; `get` still installs them.");
+  else if (!m) console.log(`recordings: not installed and not yet offered. ASK THE USER whether they want real recorded instruments: ${Object.entries(PACK_MB).map(([id, mb]) => `${id} ${mb} MB`).join(", ")}, rooms 0.4 MB. Yes: get <ids> rooms. No: decline.`);
   if (isLocalSrc(src)) {
     // a local or file:// source is read from disk - no network involved - so the index's
     // available set can be shown beside the installed state
@@ -487,8 +496,9 @@ if (isMain()) (async () => {
   else if (cmd === "where" && !args.length) { claimRoot(installRoot()); console.log(installRoot()); }
   else if (cmd === "verify" && !args.length) cmdVerify();
   else if (cmd === "remove" && args.length === 1) await cmdRemove(args[0]);
+  else if (cmd === "decline" && !args.length) { mkdirSync(dirname(DECLINED()), { recursive: true }); writeFileSync(DECLINED(), new Date().toISOString() + "\n"); console.log("noted: films keep the code-built instruments and nobody is asked again. `get` installs recordings any time."); }
   else {
-    console.error("usage: node tools/soundfetch.mjs list | get <id...|all> | where | verify | remove <id>");
+    console.error("usage: node tools/soundfetch.mjs list | get <id...|all> | where | verify | remove <id> | decline");
     process.exit(2);
   }
 })().catch((e) => { console.error(`error: ${e.message}`); process.exit(1); });

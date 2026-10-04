@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { overlay } from './overlay.mjs';
 import { splitShape, requireFilm } from './names.mjs';
-import { loadBanks, soundIds, printSounds, codeBuiltNotice } from './sounds.mjs';
+import { loadBanks, soundIds, printSounds, soundsNotice } from './sounds.mjs';
 import { soundsDir } from './soundfetch.mjs';
 let filmModuleId = 0;
 
@@ -25,7 +25,7 @@ export const prepareFilmSounds = (film, M, pack = process.env.ANIDOODLE_SOUNDS |
   for (const p of scores) printSounds(M, p);
   const recorded = scores.some(p => !p.legacy && (p.parts.some(part => part.notes.length && part.opts?.sampled !== false && M.bankFor(part.inst, typeof part.opts?.variant === 'string' ? part.opts.variant : undefined)) ||
     [p.plan.space?.room ?? M.mixProfile(p.plan.style, p.mix).space?.room, M.mixProfile(p.plan.style, p.mix).drumRoom?.room].some(id => M.roomFor(id))));
-  if (!recorded) codeBuiltNotice();
+  soundsNotice(M, scores);
   return recorded;
 };
 export const filmFloat32 = (film, sampleRate = 48000) => {

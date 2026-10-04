@@ -100,7 +100,7 @@ Install the optional sound pack and eight acoustic instruments play recordings o
 
 ```bash
 node <skill>/engine/tools/soundfetch.mjs list    # the install directory and what is installed
-node <skill>/engine/tools/soundfetch.mjs get all # download, verify by hash, unpack
+node <skill>/engine/tools/soundfetch.mjs get all # download (373 MB), verify by hash, unpack; your agent asks you first
 ```
 
 - **Keys:** a piano modelled on a real Steinway grand, Rhodes and Wurlitzer electric pianos, tonewheel and pipe organs, mallets and bells.

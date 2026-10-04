@@ -32,7 +32,7 @@ import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
-import { loadBanks, soundIds, printSounds, codeBuiltNotice } from "./sounds.mjs";
+import { loadBanks, soundIds, printSounds, soundsNotice } from "./sounds.mjs";
 import { soundsDir } from './soundfetch.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -42,7 +42,7 @@ let SOUNDS_DIR;
 let ROOM_ID;
 const SOUNDS_URL = new URL("./sounds.mjs", import.meta.url).href;
 let noticed = false;
-const loadSounds = (M, piece) => { loadBanks(M, SOUNDS_DIR, soundIds(piece)); if (!SOUNDS_DIR && !noticed) { codeBuiltNotice(); noticed = true; } };
+const loadSounds = (M, piece) => { loadBanks(M, SOUNDS_DIR, soundIds(piece)); if (!noticed) noticed = soundsNotice(M, [piece]); };
 const load = async () => {
   const r = await build({ entryPoints: [join(here, "../src/canvas-core/music/index.ts")], bundle: true, write: false, format: "esm", platform: "neutral", target: "es2022", logLevel: "error" });
   ENGINE_URL = "data:text/javascript;base64," + Buffer.from(r.outputFiles[0].text).toString("base64");
