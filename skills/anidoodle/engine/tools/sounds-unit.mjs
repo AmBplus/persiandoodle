@@ -5,7 +5,7 @@ import { build } from "esbuild";
 import { strict as assert } from "node:assert";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync, symlinkSync, chmodSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, symlinkSync, chmodSync, existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { loadBanks } from "./sounds.mjs";
 
@@ -62,6 +62,13 @@ check('forced FLAC demuxers decode the exact hashed bytes even after the path ch
   }
   try { process.env.PATH = wrappers + ':' + oldPath; M.clearBanks(); loadBanks(M, root, ['piano']); assert.equal(M.bankFor('piano').zones[0].channels[0].length, frames); }
   finally { process.env.PATH = oldPath; writeFileSync(file, bytes); }
+});
+check('a wedged decoder is killed and retried', () => {
+  const wrappers = join(root, 'wedge-wrappers'), marker = join(root, 'wedged-once'); mkdirSync(wrappers, { recursive: true });
+  const oldPath = process.env.PATH, real = execFileSync('which', ['ffmpeg'], { encoding: 'utf8' }).trim();
+  writeFileSync(join(wrappers, 'ffmpeg'), `#!/usr/bin/env node\nimport {readFileSync,writeFileSync,existsSync} from 'node:fs';\nimport {execFileSync} from 'node:child_process';\nconst input=readFileSync(0);\nif(!existsSync(${JSON.stringify(marker)})){writeFileSync(${JSON.stringify(marker)},'x');setInterval(()=>{},1000);}\nelse process.stdout.write(execFileSync(${JSON.stringify(real)},process.argv.slice(2),{input,maxBuffer:1<<28}));\n`); chmodSync(join(wrappers, 'ffmpeg'), 0o755);
+  try { process.env.PATH = wrappers + ':' + oldPath; process.env.ANIDOODLE_DECODE_TIMEOUT_MS = '3000'; M.clearBanks(); loadBanks(M, root, ['piano']); assert.equal(M.bankFor('piano').zones[0].channels[0].length, frames); assert.ok(existsSync(marker)); }
+  finally { process.env.PATH = oldPath; delete process.env.ANIDOODLE_DECODE_TIMEOUT_MS; }
 });
 check('room directFrames is loaded and participates in reload identity', () => {
   manifest.rooms = { test: { ...originalRoom, directFrames: 120 } }; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));

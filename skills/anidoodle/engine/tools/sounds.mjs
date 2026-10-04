@@ -18,15 +18,26 @@ const decoderPath = (command) => {
   }
   throw new Error(`${command}: executable missing from absolute PATH directories`);
 };
+// A piped child can wedge at 0% CPU with its input half read (seen live on macOS, from a worker).
+// Decoding is deterministic, so kill it after a minute and try again rather than hang the render.
+const runDecoder = (command, args, opts, what) => {
+  for (let attempt = 1; ; attempt++) {
+    try { return execFileSync(decoderPath(command), args, { timeout: Number(process.env.ANIDOODLE_DECODE_TIMEOUT_MS) || 60000, killSignal: "SIGKILL", ...opts }); }
+    catch (e) {
+      if (e.code !== "ETIMEDOUT") throw e;
+      if (attempt === 3) throw new Error(`${command} timed out three times on ${what}`);
+    }
+  }
+};
 const decodeFlac = (root, id, zone) => {
   if (typeof zone.file !== "string" || isAbsolute(zone.file) || !zone.file.endsWith(".flac")) throw new Error(`${id}: invalid FLAC path`);
   const file = realpathSync(resolve(root, zone.file)); if (!file.startsWith(root + sep)) throw new Error(`${id}: zone escapes pack: ${zone.file}`);
   const bytes = readFileSync(file), sha = createHash("sha256").update(bytes).digest("hex");
   if (typeof zone.sha256 !== "string" || sha !== zone.sha256.toLowerCase()) throw new Error(`${id}: sha256 mismatch: ${zone.file}`);
   // Count frames so ffprobe consumes the complete verified buffer rather than closing stdin early.
-  const info = JSON.parse(execFileSync(decoderPath("ffprobe"), ["-v", "error", "-f", "flac", "-i", "pipe:0", "-count_frames", "-show_streams", "-of", "json"], { input: bytes, encoding: "utf8", maxBuffer: 1 << 20 })).streams;
+  const info = JSON.parse(runDecoder("ffprobe", ["-v", "error", "-f", "flac", "-i", "pipe:0", "-count_frames", "-show_streams", "-of", "json"], { input: bytes, encoding: "utf8", maxBuffer: 1 << 20 }, zone.file)).streams;
   if (info.length !== 1 || info[0].codec_name !== "flac" || Number(info[0].sample_rate) !== 48000 || Number(info[0].bits_per_raw_sample) !== 24 || info[0].channels !== zone.channels || ![1, 2].includes(zone.channels)) throw new Error(`${id}: expected 48 kHz 24-bit FLAC with ${zone.channels} channels: ${zone.file}`);
-  const pcm = execFileSync(decoderPath("ffmpeg"), ["-v", "error", "-f", "flac", "-i", "pipe:0", "-vn", "-f", "f32le", "-acodec", "pcm_f32le", "-ar", "48000", "pipe:1"], { input: bytes, maxBuffer: 1 << 28 });
+  const pcm = runDecoder("ffmpeg", ["-v", "error", "-f", "flac", "-i", "pipe:0", "-vn", "-f", "f32le", "-acodec", "pcm_f32le", "-ar", "48000", "pipe:1"], { input: bytes, maxBuffer: 1 << 28 }, zone.file);
   if (!Number.isInteger(zone.frames) || zone.frames < 1 || pcm.length !== zone.frames * zone.channels * 4) throw new Error(`${id}: frame count mismatch: ${zone.file}`);
   const channels = Array.from({ length: zone.channels }, () => new Float32Array(zone.frames));
   for (let i = 0; i < zone.frames; i++) for (let c = 0; c < zone.channels; c++) { const v = pcm.readFloatLE((i * zone.channels + c) * 4); if (!Number.isFinite(v)) throw new Error(`${id}: non-finite PCM: ${zone.file}`); channels[c][i] = v; }
