@@ -39,6 +39,13 @@ const hfShare = (M, L) => {
   return 10 * Math.log10(Math.max(hi, 1e-30) / Math.max(tot, 1e-30));
 };
 const dcOf = (L) => { let s = 0; for (const x of L) s += x; return s / L.length; };
+const harshColumns = (h) => {
+  const f = (v) => v === null ? "n/a" : v.toFixed(2);
+  return `band cue/score ${f(h.cueBandDb)}/${f(h.musicBandDb)}  lift ${f(h.liftDb)}  full ${f(h.cueRmsDb)}  tilt ${f(h.tiltDb)}  peak/score ${f(h.peakDb)}/${f(h.musicPeakDb)}  peak over score ${f(h.peakMarginDb)}  body(150ms) ${f(h.bodyDb)}  peak-body ${f(h.crestDb)} dB  harsh ${h.ok ? "PASS" : "FAIL"}${h.mode === "tame" ? `  tame -${f(h.reductionDb)} dB` : ""}${h.conflict ? "  conflict: " + h.conflict : ""}`;
+};
+const printAudibility = (mix) => {
+  for (const a of mix.audibility) console.log(`  ${a.atS.toFixed(2).padStart(6)} s  ${(a.kind + ":" + a.variant).padEnd(16)} ${a.label.padEnd(22)} margin ${a.marginDb.toFixed(1).padStart(5)} dB  (peak ${a.peakMarginDb.toFixed(1)} dB)  ${harshColumns(mix.harshness.find((h) => h.i === a.i))}`);
+};
 
 /** Three varied hits of one variant, back to back, so the ear hears the variation. */
 const reel = (M, kind, variant, opts = {}) => {
@@ -116,14 +123,14 @@ const kit = async (outdir) => {
   writeAudio(join(dir, "demo-sfx-only.mp3"), mix.sfx[0], mix.sfx[1]);
   writeAudio(join(dir, "demo-music-only.mp3"), music[0], music[1]);
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", join(dir, "demo.mp3"), "-lavfi", "showspectrumpic=s=900x220:legend=0:scale=log", join(dir, "spectra", "demo.png")]);
-  meters.demo = { ok: mix.ok, lufs: +mix.lufs.toFixed(1), dbtp: +mix.dbtp.toFixed(2), limiterDb: +mix.limiterDb.toFixed(2), cues: mix.audibility.map((a) => ({ kind: `${a.kind}:${a.variant}`, label: a.label, atS: +a.atS.toFixed(2), marginDb: +a.marginDb.toFixed(1), peakMarginDb: +a.peakMarginDb.toFixed(1) })) };
+  meters.demo = { ok: mix.ok, lufs: +mix.lufs.toFixed(1), dbtp: +mix.dbtp.toFixed(2), limiterDb: +mix.limiterDb.toFixed(2), cues: mix.audibility.map((a) => ({ kind: `${a.kind}:${a.variant}`, label: a.label, atS: +a.atS.toFixed(2), marginDb: +a.marginDb.toFixed(1), peakMarginDb: +a.peakMarginDb.toFixed(1), harshness: mix.harshness.find((h) => h.i === a.i) })) };
   writeFileSync(join(dir, "meters.json"), JSON.stringify(meters, null, 1));
   const demo = [["demo.mp3", "demo: score + kit", `15 s, ${plan.cues.length} cues, ${mix.lufs.toFixed(1)} LUFS, ${mix.dbtp.toFixed(1)} dBTP, every cue audible: ${mix.ok}`], ["demo-sfx-only.mp3", "demo: kit only", "the same cues without the score"], ["demo-music-only.mp3", "demo: score only", "launchLofi3, first 15 s, undipped"],
     ...Object.keys(meters.baseline).map((k) => [`baseline-${k}.mp3`, `baseline: launch3 ${k}`, "the launch film's current effect, for A/B"])];
   writeFileSync(join(dir, "index.html"), page(rows, demo));
   console.log(`wrote ${dir}: ${rows.reduce((a, r) => a + r[2].length, 0)} variant reels, 3 demo files, ${Object.keys(meters.baseline).length} baselines, index.html, meters.json, spectra/`);
   console.log(`demo: ${mix.lufs.toFixed(1)} LUFS, ${mix.dbtp.toFixed(2)} dBTP, limiter ${mix.limiterDb.toFixed(2)} dB, all audible: ${mix.ok}`);
-  for (const a of mix.audibility) console.log(`  ${a.atS.toFixed(2).padStart(6)} s  ${(a.kind + ":" + a.variant).padEnd(16)} ${a.label.padEnd(22)} margin ${a.marginDb.toFixed(1).padStart(5)} dB  (peak ${a.peakMarginDb.toFixed(1)} dB)`);
+  printAudibility(mix);
 };
 
 const test = async () => {
@@ -181,6 +188,7 @@ const test = async () => {
   ok(m1.L.length === Math.round((DEMO_FRAMES / FPS) * SR), "demo mix is exactly the film length");
   ok(m1.dbtp <= -0.9, `demo true peak <= -1 dBTP (got ${m1.dbtp.toFixed(2)})`);
   ok(m1.ok && m1.audibility.every((a) => a.marginDb >= -6), `demo: every cue within 6 dB of the score (worst ${Math.min(...m1.audibility.map((a) => a.marginDb)).toFixed(1)} dB)`);
+  printAudibility(m1);
   const g = m1.placed.find((p) => p.cue.label === "Generate"); ok(g && Math.abs(g.hitS - 160 / 30) < 1e-9, `snap to beat: frame 157 -> 160 (got ${g && (g.hitS * 30).toFixed(2)})`);
   const imp = m1.placed.find((p) => p.cue.kind === "impact"); ok(imp && Math.min(...Array.from(m1.duck.subarray(imp.window[0], imp.window[1]))) < 0.55, "score ducks >= 5 dB under the impact");
   // a buried cue must FAIL

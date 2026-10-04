@@ -4,12 +4,13 @@
 // mix FAILS if a cue sits more than minDb under it (a cue nobody hears is a bug, not a choice).
 import { renderSfx, validateSfx, sfxNeeds, SFX, SFX_KINDS, type SfxKind, type SfxOpts, type SfxSound } from "./sfxKit";
 import { kWeight, winLufs, mixSeed, strSeed, secs, type SfxStereo } from "./sfxCore";
-import { db } from "./dsp";
+import { Biquad, db } from "./dsp";
 import { MODES } from "./theory";
 import type { Piece } from "./plan";
 import { loudness, truePeak } from "./meter";
 
 export type SfxSnap = "none" | "bar" | "beat" | "8th" | "16th";
+export type SfxHarshOptions = { mode?: "report" | "throw" | "tame"; maxLiftDb?: number; maxTiltDb?: number; maxPeakDb?: number };
 export type SfxCue = SfxOpts & {
   /** the whole frame the sound's sync point lands on (the hit; the pass-by of a whoosh; the END of a riser). A fractional frame throws. */
   frame: number; kind: SfxKind; label?: string;
@@ -19,6 +20,8 @@ export type SfxCue = SfxOpts & {
   duckDb?: number;
   /** audibility floor for this cue (dB vs the score); default plan.minDb ?? -6. */
   minDb?: number;
+  /** Overrides plan.harsh field by field (including mode). */
+  harsh?: SfxHarshOptions;
 };
 export type SfxPlan = {
   fps: number; frames: number; cues: SfxCue[];
@@ -35,13 +38,34 @@ export type SfxPlan = {
   minDb?: number;
   /** final true-peak ceiling in dBTP. Default -1. */
   ceilingDb?: number;
+  /** Default report: samples stay frozen. Caps are cue-minus-score band RMS, band-minus-full RMS,
+   * and absolute sample peak dBFS. Tame scales cues only, never the score or duck envelope. */
+  harsh?: SfxHarshOptions;
 };
 export type PlacedCue = { i: number; cue: SfxCue; sound: SfxSound; hitS: number; snappedFromS: number; start: number; window: [number, number] };
 export type SfxAudibility = { i: number; kind: SfxKind; variant: string; label: string; atS: number; cueLufs: number; musicLufs: number; marginDb: number; peakMarginDb: number; minDb: number; ok: boolean };
-export type SfxMix = { L: Float32Array; R: Float32Array; sfx: SfxStereo; music: SfxStereo; duck: Float32Array; placed: PlacedCue[]; audibility: SfxAudibility[]; ok: boolean; lufs: number; dbtp: number; limiterDb: number };
+export type SfxHarshness = {
+  i: number; kind: SfxKind; variant: string; label: string; atS: number;
+  cueBandDb: number; musicBandDb: number; liftDb: number | null; cueRmsDb: number; tiltDb: number;
+  peakDb: number; musicPeakDb: number; peakMarginDb: number | null; peakAtS: number; bodyDb: number; crestDb: number;
+  mode: "report" | "throw" | "tame"; maxLiftDb: number; maxTiltDb: number; maxPeakDb: number;
+  violations: { metric: "liftDb" | "tiltDb" | "peakDb"; valueDb: number; capDb: number; excessDb: number }[];
+  ok: boolean; reductionDb: number; conflict: "audibility floor" | "tilt cannot be fixed by gain" | null;
+};
+export type SfxMix = { L: Float32Array; R: Float32Array; sfx: SfxStereo; music: SfxStereo; duck: Float32Array; placed: PlacedCue[]; audibility: SfxAudibility[]; harshness: SfxHarshness[]; ok: boolean; lufs: number; dbtp: number; limiterDb: number };
+
+// test/sfxKitSurvey.ts: all 44 variants, default gain/seed 1, C/90 bpm, 48 kHz, silence and
+// a steady mid-level score. Maxima 16.49 / -0.80 / -1.00; margins 1.01 / 0.55 / 0.50 dB.
+export const SFX_HARSH_CAPS = Object.freeze({ maxLiftDb: 17.5, maxTiltDb: -0.25, maxPeakDb: -0.5 });
 
 const GRID: Record<Exclude<SfxSnap, "none">, number> = { bar: 0, beat: 1, "8th": 0.5, "16th": 0.25 };
 const name = (c: SfxCue, i: number) => `cue #${i} (${c.kind}${c.variant ? ":" + c.variant : ""}${c.label ? ` "${c.label}"` : ""} @ frame ${c.frame})`;
+const validateHarsh = (o: SfxHarshOptions | undefined, where: string) => {
+  if (o === undefined) return;
+  if (!o || typeof o !== "object" || Array.isArray(o)) throw new Error(`sfx plan: ${where}: harsh must be an options object`);
+  if (o.mode !== undefined && !["report", "throw", "tame"].includes(o.mode)) throw new Error(`sfx plan: ${where}: harsh.mode must be report|throw|tame`);
+  for (const key of ["maxLiftDb", "maxTiltDb", "maxPeakDb"] as const) if (o[key] !== undefined && !Number.isFinite(o[key])) throw new Error(`sfx plan: ${where}: harsh.${key} must be a finite number`);
+};
 
 /** A plan with key / bpm / beatsPerBar filled in from its score (explicit plan values win). */
 export const resolveSfxPlan = (p: SfxPlan): SfxPlan => {
@@ -59,6 +83,7 @@ export const validateSfxPlan = (plan: SfxPlan) => {
   if (p.seed !== undefined && (!Number.isSafeInteger(p.seed) || p.seed < 0 || p.seed > 0xffffffff)) throw new Error(`sfx plan: seed must be an integer 0..4294967295, got ${String(p.seed)}`);
   if (p.bpm !== undefined && (!Number.isFinite(p.bpm) || p.bpm < 20 || p.bpm > 300)) throw new Error(`sfx plan: bpm must be 20..300, got ${String(p.bpm)}`);
   if (p.minDb !== undefined && !Number.isFinite(p.minDb)) throw new Error("sfx plan: minDb must be a finite number");
+  validateHarsh(p.harsh, "plan");
   if (!Array.isArray(p.cues)) throw new Error("sfx plan: cues must be an array");
   p.cues.forEach((c, i) => {
     if (!c || typeof c !== "object") throw new Error(`sfx plan: cue #${i} is not an object`);
@@ -69,6 +94,7 @@ export const validateSfxPlan = (plan: SfxPlan) => {
     if (!(snap === "none" || snap in GRID)) throw new Error(`sfx plan: ${name(c, i)}: snap must be none|bar|beat|8th|16th`);
     if ((snap !== "none" || c.beats !== undefined) && p.bpm === undefined && c.bpm === undefined) throw new Error(`sfx plan: ${name(c, i)}: snap/beats need a bpm (plan.bpm)`);
     if (c.duckDb !== undefined && (!Number.isFinite(c.duckDb) || c.duckDb < 0 || c.duckDb > 18)) throw new Error(`sfx plan: ${name(c, i)}: duckDb must be 0..18`);
+    validateHarsh(c.harsh, name(c, i));
     try { validateSfx(c.kind, optsOf(p, c, 0)); } catch (e) { throw new Error(`sfx plan: ${name(c, i)}: ${(e as Error).message}`); }
     const o = optsOf(p, c, 0), need = sfxNeeds(c.kind, c.variant ?? SFX[c.kind].variants[0], o);
     if (need.key && o.key === undefined) throw new Error(`sfx plan: ${name(c, i)} is tuned: set plan.key, cue.key, or plan.score (the film's piece); there is no default key`);
@@ -142,6 +168,49 @@ export const sfxAudibility = (placed: PlacedCue[], music: SfxStereo, sr: number,
   });
 };
 
+// Measurement only: RBJ 2nd-order Butterworth HP at 2 kHz then LP at 8 kHz, zero state,
+// Float64 throughout, run from buffer start (not reset at the speaking window). No K weighting.
+const presence = (x: Float32Array, sr: number) => {
+  const hp = Biquad.make(sr, "hp", 2000, Math.SQRT1_2), lp = Biquad.make(sr, "lp", 8000, Math.SQRT1_2), out = new Float64Array(x.length);
+  for (let i = 0; i < x.length; i++) out[i] = lp.tick(hp.tick(x[i]));
+  return out;
+};
+// Stereo mean power: a duplicated mono sine has its ordinary RMS dBFS, not +3 dB.
+// A body window is always the full 150 ms; a short tail contributes zero after its end.
+const rmsDb = (L: ArrayLike<number>, R: ArrayLike<number>, a: number, b: number, pad = false) => {
+  const lo = Math.max(0, a), hi = Math.min(L.length, b); let e = 0;
+  for (let i = lo; i < hi; i++) e += L[i] * L[i] + R[i] * R[i];
+  return 10 * Math.log10(Math.max(e / (2 * Math.max(1, pad ? b - a : hi - lo)), 1e-20));
+};
+const peakOf = (L: Float32Array, R: Float32Array, a: number, b: number) => {
+  let peak = 0, at = Math.max(0, a);
+  for (let i = Math.max(0, a); i < Math.min(L.length, b); i++) { const v = Math.max(Math.abs(L[i]), Math.abs(R[i])); if (v > peak) { peak = v; at = i; } }
+  return { db: 20 * Math.log10(Math.max(peak, 1e-12)), at };
+};
+
+/** Pre-master cue harshness vs the ducked score. Score windows match sfxAudibility's 100 ms
+ * minimum. Silence-relative measurements are null below -70 dBFS; levels have a -200 dB RMS /
+ * -240 dB peak numeric floor. The body starts one sample AFTER the first largest window peak. */
+export const sfxHarshness = (placed: PlacedCue[], music: SfxStereo, sr: number, p: Pick<SfxPlan, "minDb" | "harsh">): SfxHarshness[] => {
+  if (!placed.length) return [];
+  const mL = presence(music[0], sr), mR = presence(music[1], sr), minWin = secs(sr, 0.1);
+  return placed.map((pc) => {
+    const s = pc.sound, [wa, wb] = s.window, cueBandDb = rmsDb(presence(s.L, sr), presence(s.R, sr), wa, wb), cueRmsDb = rmsDb(s.L, s.R, wa, wb);
+    let [a, b] = pc.window; if (b - a < minWin) { const c = (a + b) >> 1; a = c - (minWin >> 1); b = a + minWin; }
+    const musicBandDb = rmsDb(mL, mR, a, b), peak = peakOf(s.L, s.R, wa, wb), musicPeakDb = peakOf(music[0], music[1], a, b).db;
+    const bodyDb = rmsDb(s.L, s.R, peak.at + 1, peak.at + 1 + secs(sr, 0.15), true);
+    const o = pc.cue.harsh, mode = o?.mode ?? p.harsh?.mode ?? "report", maxLiftDb = o?.maxLiftDb ?? p.harsh?.maxLiftDb ?? SFX_HARSH_CAPS.maxLiftDb,
+      maxTiltDb = o?.maxTiltDb ?? p.harsh?.maxTiltDb ?? SFX_HARSH_CAPS.maxTiltDb, maxPeakDb = o?.maxPeakDb ?? p.harsh?.maxPeakDb ?? SFX_HARSH_CAPS.maxPeakDb;
+    const liftDb = musicBandDb < -70 ? null : cueBandDb - musicBandDb, tiltDb = cueBandDb - cueRmsDb, violations: SfxHarshness["violations"] = [];
+    for (const [metric, valueDb, capDb] of [["liftDb", liftDb, maxLiftDb], ["tiltDb", tiltDb, maxTiltDb], ["peakDb", peak.db, maxPeakDb]] as const)
+      if (valueDb !== null && valueDb > capDb) violations.push({ metric, valueDb, capDb, excessDb: valueDb - capDb });
+    return { i: pc.i, kind: pc.cue.kind, variant: s.variant, label: pc.cue.label ?? "", atS: pc.hitS,
+      cueBandDb, musicBandDb, liftDb, cueRmsDb, tiltDb,
+      peakDb: peak.db, musicPeakDb, peakMarginDb: musicPeakDb < -70 ? null : peak.db - musicPeakDb, peakAtS: (pc.start + peak.at) / sr, bodyDb, crestDb: peak.db - bodyDb,
+      mode, maxLiftDb, maxTiltDb, maxPeakDb, violations, ok: !violations.length, reductionDb: 0, conflict: null };
+  });
+};
+
 /**
  * The whole film's sound: score (any length; padded or cut to the film) ducked under the cues,
  * effects added, one true-peak ceiling. `music` null = effects only. Does not throw on an inaudible
@@ -149,17 +218,38 @@ export const sfxAudibility = (placed: PlacedCue[], music: SfxStereo, sr: number,
  */
 export const mixSfx = (music: SfxStereo | null, p: SfxPlan, sr = 48000): SfxMix => {
   const n = Math.round((p.frames / p.fps) * sr), placed = placeSfx(p, sr);
-  const fxL = new Float32Array(n), fxR = new Float32Array(n);
-  for (const pc of placed) { const { L, R } = pc.sound; for (let i = 0; i < L.length && pc.start + i < n; i++) { fxL[pc.start + i] += L[i]; fxR[pc.start + i] += R[i]; } }
   const duck = sfxDuck(placed, n, sr, p.duck), mL = new Float32Array(n), mR = new Float32Array(n);
   if (music) { const m = Math.min(n, music[0].length); for (let i = 0; i < m; i++) { mL[i] = music[0][i] * duck[i]; mR[i] = music[1][i] * duck[i]; } }
+  let harshness = sfxHarshness(placed, [mL, mR], sr, p);
+  const changes = new Map<number, { reductionDb: number; conflict: SfxHarshness["conflict"] }>();
+  if (harshness.some((h) => h.mode === "tame" && !h.ok)) {
+    const aud = sfxAudibility(placed, [mL, mR], sr, p);
+    for (let i = 0; i < placed.length; i++) {
+      const h = harshness[i]; if (h.mode !== "tame" || h.ok) continue;
+      // Gain cannot change spectral tilt. Leave this cue untouched, even if another cap broke.
+      if (h.violations.some((v) => v.metric === "tiltDb")) { changes.set(h.i, { reductionDb: 0, conflict: "tilt cannot be fixed by gain" }); continue; }
+      const a = aud[i], excess = Math.max(...h.violations.map((v) => v.excessDb)), room = a.musicLufs < -70 ? Infinity : Math.max(0, a.marginDb - a.minDb - 1e-5);
+      // Float32 scaling can move a measurement by a few ulps: stay just inside both boundaries.
+      const down = a.ok ? Math.min(excess + 1e-5, room) : 0, pc = placed[i], g = db(-down);
+      if (down > 0) {
+        for (let j = 0; j < pc.sound.L.length; j++) { pc.sound.L[j] *= g; pc.sound.R[j] *= g; }
+        pc.sound.lufs -= down; pc.cue = { ...pc.cue, gainDb: (pc.cue.gainDb ?? 0) - down };
+      }
+      changes.set(h.i, { reductionDb: down, conflict: down < excess ? "audibility floor" : null });
+    }
+    harshness = sfxHarshness(placed, [mL, mR], sr, p).map((h) => ({ ...h, ...changes.get(h.i) }));
+  }
+  const bad = harshness.filter((h) => h.mode === "throw" && !h.ok);
+  if (bad.length) throw new Error(`sfx: ${bad.length} harsh cue(s):\n` + bad.map((h) => `  #${h.i} ${h.kind}:${h.variant}${h.label ? ` "${h.label}"` : ""} @ ${h.atS.toFixed(2)} s: ` + h.violations.map((v) => `${v.metric} ${v.valueDb.toFixed(2)} dB (cap ${v.capDb} dB, excess ${v.excessDb.toFixed(2)} dB)`).join(", ")).join("\n"));
+  const fxL = new Float32Array(n), fxR = new Float32Array(n);
+  for (const pc of placed) { const { L, R } = pc.sound; for (let i = 0; i < L.length && pc.start + i < n; i++) { fxL[pc.start + i] += L[i]; fxR[pc.start + i] += R[i]; } }
   const L = new Float32Array(n), R = new Float32Array(n);
   for (let i = 0; i < n; i++) { L[i] = mL[i] + fxL[i]; R[i] = mR[i] + fxR[i]; }
   const limiterDb = ceiling(L, R, sr, db((p.ceilingDb ?? -1) - 0.3));
   const fade = Math.min(n, secs(sr, 0.015)); for (let i = 0; i < fade; i++) { const g = i / fade; L[n - 1 - i] *= g; R[n - 1 - i] *= g; }
   const audibility = sfxAudibility(placed, [mL, mR], sr, p);
   const lu = n >= secs(sr, 0.4) ? loudness([L, R], sr).integrated : NaN;
-  return { L, R, sfx: [fxL, fxR], music: [mL, mR], duck, placed, audibility, ok: audibility.every((a) => a.ok), lufs: lu, dbtp: truePeak([L, R]).dbtp, limiterDb };
+  return { L, R, sfx: [fxL, fxR], music: [mL, mR], duck, placed, audibility, harshness, ok: audibility.every((a) => a.ok), lufs: lu, dbtp: truePeak([L, R]).dbtp, limiterDb };
 };
 
 export const assertSfxAudible = (m: SfxMix) => {

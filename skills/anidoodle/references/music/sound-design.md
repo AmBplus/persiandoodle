@@ -112,8 +112,8 @@ music, and its test only checked that they existed.)
   makes it land.
 - **One signature riser, one impact per film.** They mark the big reveal. A second riser halves
   both.
-- Transitions are gentle moves, so their sound is gentle: `whoosh:soft` and `swish:soft`. Never a
-  sharp swoosh.
+- Transitions are gentle moves by default, so their sound is gentle: `whoosh:soft` and
+  `swish:soft`. A matched hard cut takes a short hit on the beat or nothing. Never a sharp swoosh.
 - Typing is one `tick` per character at the typing cadence, with `space` on spaces. Its level sits
   above the intro and under the groove.
 - Put at most two cues in any 100 ms. A thock on the kick merges into the kick, which is lovely

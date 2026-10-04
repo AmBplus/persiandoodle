@@ -50,12 +50,19 @@ pieces are examples of the craft, never material for someone else's film.
 
 ## Type
 
-- **Words NEVER sit over the art or the UI.** A word gets its own full frame: an ink bloom
+- **Words get their own space by default.** A word gets its own full frame: an ink bloom
   opens, a brush writes the word, the bloom closes on the next scene (`typeFrame`). Or, for a
   feature beat, its own COLUMN: words on the left, the live UI on the right (words above, UI
   below on a phone), each in its own area of the layout (`split`), faster than a full word page.
   Corner marks step aside when the camera brings UI under them, and sit in their own strip on a
   phone frame.
+- **Type over the picture is a judgement, and the answer is usually still no.** It earns its
+  place only when all of these hold: the picture under the word is calm there (flat or quiet,
+  and not moving through the letters); the word belongs to the scene (a label on the thing it
+  names, a callout, a kinetic line composed with the picture, not a caption dropped on top);
+  the frame would pass as a poster; and it reads with the sound off. Never over a face, a
+  product's UI, the detail the shot is about, or busy texture. Check it in a review still at
+  the smallest delivery size. In doubt, the word gets its own frame.
 - **3-7 words a frame, few frames.** Collapse word cards into one claim then proof ("JUST CODE."
   then "31 STYLES"); fewer cards leave more time for the proof.
 - **Hold each settled word 0.5 s or more**, longer for the claim.
@@ -64,8 +71,14 @@ pieces are examples of the craft, never material for someone else's film.
 
 ## Motion
 
-- **Every transition is a gentle move**: bloom, card flip, push, the card GROWS into the frame.
-  Never a hard cut, never a sharp swoosh. Ease in and out; the camera is `references/camera.md`.
+- **A gentle move is the default transition**: bloom, card flip, push, the card GROWS into the
+  frame. Ease in and out; the camera is `references/camera.md`.
+- **A hard cut is a judgement.** It works when it is matched: the same shape, position or
+  direction of travel on both sides, or a cut on a strong beat in a piece whose energy asks for
+  it. A cut with nothing carried across it, and any sharp swoosh, still reads as a slideshow.
+- **A designed seam is a judgement too.** Six ways to make the next picture come out of the
+  current one, each with when it fits and when it does not: `references/motion-grammar.md`.
+  Use one where its conditions clearly hold; otherwise the gentle move.
 - **Drawings play 3-6x faster than real time**; a loop is held long enough to see it loop.
 - **Alive means real motion**: the koi swims through a scrolling world, not an in-place GIF
   (`start-here.md`, "Alive means real motion").
