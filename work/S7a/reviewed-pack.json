@@ -51,8 +51,8 @@
     "masking": {
       "pass": true,
       "shareOfBarsClear": 1,
-      "worstMarginDb": 9.50910970081597,
-      "meanMarginDb": 13.288238518690836
+      "worstMarginDb": 9.248070672766794,
+      "meanMarginDb": 13.051437358785366
     },
     "worstBalanceDb": 0.6465117898309423,
     "preBalance": [
@@ -68,7 +68,7 @@
     "postBalance": [
       {
         "id": "arp",
-        "errorDb": -0.6163997228075715
+        "errorDb": -0.6387292646777922
       },
       {
         "id": "melody",
@@ -82,10 +82,10 @@
     "masking": {
       "pass": false,
       "shareOfBarsClear": 0.75,
-      "worstMarginDb": 1.0785578127701783,
-      "meanMarginDb": 6.3779043244863605
+      "worstMarginDb": 0.7955428684257271,
+      "meanMarginDb": 6.128447100708138
     },
-    "worstBalanceDb": 1.5687998219037134,
+    "worstBalanceDb": 1.5528339226656662,
     "preBalance": [
       {
         "id": "rh",
@@ -103,7 +103,7 @@
       },
       {
         "id": "lh",
-        "errorDb": 1.5687998219037134
+        "errorDb": 1.5528339226656662
       }
     ],
     "pass": false

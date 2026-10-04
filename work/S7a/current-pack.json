@@ -4,8 +4,8 @@
     "masking": {
       "pass": true,
       "shareOfBarsClear": 1,
-      "worstMarginDb": 4.129372485114164,
-      "meanMarginDb": 6.5977536253864235
+      "worstMarginDb": 4.1295654799792345,
+      "meanMarginDb": 6.59782054157315
     },
     "worstBalanceDb": 0.7209887447289169,
     "preBalance": [
@@ -51,8 +51,8 @@
     "masking": {
       "pass": true,
       "shareOfBarsClear": 1,
-      "worstMarginDb": 9.50910970081597,
-      "meanMarginDb": 13.288238518690836
+      "worstMarginDb": 9.248057811537294,
+      "meanMarginDb": 13.051368764299973
     },
     "worstBalanceDb": 0.6465117898309423,
     "preBalance": [
@@ -68,7 +68,7 @@
     "postBalance": [
       {
         "id": "arp",
-        "errorDb": -0.6163997228075715
+        "errorDb": -0.6387292646777922
       },
       {
         "id": "melody",
@@ -80,12 +80,12 @@
   {
     "name": "nocturne",
     "masking": {
-      "pass": false,
-      "shareOfBarsClear": 0.75,
-      "worstMarginDb": 1.0785578127701783,
-      "meanMarginDb": 6.3779043244863605
+      "pass": true,
+      "shareOfBarsClear": 0.8125,
+      "worstMarginDb": -0.1608742137214847,
+      "meanMarginDb": 6.1447760769795865
     },
-    "worstBalanceDb": 1.5687998219037134,
+    "worstBalanceDb": 1.5528339226656662,
     "preBalance": [
       {
         "id": "rh",
@@ -103,9 +103,9 @@
       },
       {
         "id": "lh",
-        "errorDb": 1.5687998219037134
+        "errorDb": 1.5528339226656662
       }
     ],
-    "pass": false
+    "pass": true
   }
 ]

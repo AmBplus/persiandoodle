@@ -1,0 +1,25 @@
+
+recorded rooms
+  FAIL  every profile room is present in the pack builder room list
+  PASS  unregistered room falls back bit for bit
+  PASS  registered room leaves dry mix and stems untouched
+  PASS  recorded wet signal changes and is deterministic
+  PASS  room sha256 pins voice and guard job keys
+  PASS  room renders are identical through cache hits
+  PASS  24 kHz recorded room renders finite and deterministically
+  PASS  predelay and 40 ms early/late split keep their timing
+  PASS  er and late independently control the recorded reflections and tail
+  PASS  replacing a room invalidates jobs and cache identity
+  PASS  invalid room PCM is rejected before registration
+  PASS  conv: missing room preserves every wet channel bit for bit
+  PASS  plate: missing room preserves every wet channel bit for bit
+  PASS  fdn: missing room preserves every wet channel bit for bit
+  FAIL  musicBoxJoy: an unavailable room-only override retains the original no-pack recipe
+  FAIL  chiptunePlayful: an unavailable room-only override retains the original no-pack recipe
+  FAIL  48000 Hz: directFrames is removed before the wet reflections
+  FAIL  24000 Hz: directFrames is removed before the wet reflections
+  FAIL  recorded early and late each use synthIR unit-per-channel energy
+  FAIL  directFrames participates in room cache identity and stale-job rejection
+  FAIL  invalid directFrames is rejected
+
+TESTS: FAIL   13 passed, 8 failed

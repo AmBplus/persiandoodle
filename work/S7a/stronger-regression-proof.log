@@ -1,0 +1,8 @@
+(node:60751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+current: 0 failures
+without-support-eq: 1 failures
+  load-measured recorded bass and accompaniment lose masking-band energy
+without-guard-context: 1 failures
+  role-isolated guard uses the complete part spectral choice, including mixed-role parts
+MIX REGRESSION PROOF PASS
