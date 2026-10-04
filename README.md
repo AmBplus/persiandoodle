@@ -99,7 +99,7 @@ The notes are written as data and the engine makes every sound: nothing loaded, 
 Install the optional sound pack and eight acoustic instruments play recordings of real ones: a Steinway grand and an upright, concert harp, marimba, vibraphone, glockenspiel, tubular bells and timpani, in three recorded rooms. Synths, lo-fi colour, electronic drums and sound effects stay in code. Without the pack every score still plays, unchanged.
 
 ```bash
-node <skill>/engine/tools/soundfetch.mjs list    # what the pack holds, and what is installed
+node <skill>/engine/tools/soundfetch.mjs list    # the install directory and what is installed
 node <skill>/engine/tools/soundfetch.mjs get all # download, verify by hash, unpack
 ```
 

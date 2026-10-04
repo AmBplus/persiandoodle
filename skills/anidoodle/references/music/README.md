@@ -129,16 +129,20 @@ acoustic parts play recordings of real instruments and three rooms are recorded 
 Without it every score still plays, on the modelled voices, unchanged.
 
 ```bash
-node tools/soundfetch.mjs list          # what the pack holds, and what is installed on this machine
-node tools/soundfetch.mjs get all       # download, verify by hash, unpack; only `get` touches the network
+node tools/soundfetch.mjs list          # the install directory and what is installed; no network
+node tools/soundfetch.mjs get all       # the one command that downloads: hash, unpack, install
 node tools/soundfetch.mjs where         # the install directory
-node tools/soundfetch.mjs verify        # re-hash everything installed
+node tools/soundfetch.mjs verify        # re-hash every installed file
 node tools/soundfetch.mjs remove <id>   # drop one instrument, or `rooms`
 ```
 
-It installs to `ANIDOODLE_SOUNDS`, or `~/.anidoodle/sounds`. `ANIDOODLE_SOUNDS_URL` points the
-fetch at a different release. The engine finds an installed pack on its own; to render from a pack
-directory without installing it, pass `--sounds <dir>` to `music.mjs`.
+`get` names the ids it wants, or `all`. It installs to `ANIDOODLE_SOUNDS`, or
+`~/.anidoodle/sounds`, and refuses any archive whose size or sha256 disagrees with the index
+before it unpacks. `ANIDOODLE_SOUNDS_URL` points the fetch at a different release; point it at a
+local directory or a `file://` URL and `list` also prints what is available there, since a local
+source is read off disk. Against the GitHub release `list` reads the installed manifest alone and
+prints that the index is fetched by `get` only. The engine finds an installed pack on its own; to
+render from a pack directory without installing it, pass `--sounds <dir>` to `music.mjs`.
 
 | Part | `variant` | Recording | Range | What it brings |
 |---|---|---|---|---|
