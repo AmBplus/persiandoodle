@@ -50,4 +50,4 @@ export const printSounds = (M, piece) => {
   }
   console.log(`voices   recordings: ${recorded.join(", ") || "none"}; modeled: ${modeled.join(", ") || "none"}`);
 };
-export const codeBuiltNotice = () => console.log('audio: using code-built instruments; download the optional anidoodle sound pack and set ANIDOODLE_SOUNDS=<pack-dir> to use recordings');
+export const codeBuiltNotice = () => console.log('audio: using code-built instruments; run node tools/soundfetch.mjs get all to install recordings, or set ANIDOODLE_SOUNDS=<pack-dir>');

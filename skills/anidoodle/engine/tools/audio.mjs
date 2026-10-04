@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { overlay } from './overlay.mjs';
 import { splitShape, requireFilm } from './names.mjs';
 import { loadBanks, soundIds, printSounds, codeBuiltNotice } from './sounds.mjs';
+import { soundsDir } from './soundfetch.mjs';
 let filmModuleId = 0;
 
 /** Film and music registry share one bundle, so its audio closure sees the loaded banks. */
@@ -16,7 +17,7 @@ export const loadFilmModule = async (title, plugins = [overlay]) => {
   if (shape && !mod.film.reshape) throw new Error(`${base} has one shape; ${shape} needs film.reshape`);
   return { film: shape ? mod.film.reshape(shape) : mod.film, music: mod.music };
 };
-export const prepareFilmSounds = (film, M, pack = process.env.ANIDOODLE_SOUNDS) => {
+export const prepareFilmSounds = (film, M, pack = process.env.ANIDOODLE_SOUNDS || soundsDir()) => {
   M.clearBanks(); M.clearRooms();
   if (!film.audio) return false;
   const scores = film.audio.scores ?? [];

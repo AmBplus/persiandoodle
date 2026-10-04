@@ -33,6 +33,7 @@ import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
 import { loadBanks, soundIds, printSounds, codeBuiltNotice } from "./sounds.mjs";
+import { soundsDir } from './soundfetch.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SR = 48000;
@@ -190,7 +191,7 @@ const main = async () => {
   const [cmd, ...args] = process.argv.slice(2);
   const soundsAt = args.indexOf("--sounds");
   if (soundsAt >= 0 && (!args[soundsAt + 1] || args[soundsAt + 1].startsWith("--"))) throw new Error("--sounds needs a pack directory");
-  SOUNDS_DIR = soundsAt >= 0 ? args.splice(soundsAt, 2)[1] : process.env.ANIDOODLE_SOUNDS;
+  SOUNDS_DIR = soundsAt >= 0 ? args.splice(soundsAt, 2)[1] : process.env.ANIDOODLE_SOUNDS || soundsDir();
   if (SOUNDS_DIR) SOUNDS_DIR = resolve(SOUNDS_DIR);
   const roomAt = args.indexOf("--room");
   if (roomAt >= 0 && (!args[roomAt + 1] || args[roomAt + 1].startsWith("--"))) throw new Error("--room needs a room id");

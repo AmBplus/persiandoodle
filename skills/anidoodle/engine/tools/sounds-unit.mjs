@@ -3,7 +3,7 @@
 //   node tools/sounds-unit.mjs <durable-test-dir>
 import { build } from "esbuild";
 import { strict as assert } from "node:assert";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
@@ -40,3 +40,25 @@ manifest.rooms = {};
 M.clearBanks(); zone.sha256 = "0".repeat(64); writeFileSync(join(root, "manifest.json"), JSON.stringify(manifest));
 assert.throws(() => loadBanks(M, root, ["piano"]), /sha256 mismatch/); assert.equal(M.bankFor("piano"), undefined);
 console.log("PASS corrupt large FLAC hash: rejected before registration");
+let failures = 0;
+const check = (label, fn) => { try { fn(); console.log(`PASS ${label}`); } catch (e) { failures++; console.error(`FAIL ${label}: ${e.message}`); } };
+zone.sha256 = originalRoom.sha256; manifest.rooms = {}; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));
+const isolatedHome = join(root, 'default-home'), install = join(isolatedHome, '.anidoodle', 'sounds'); mkdirSync(install, { recursive: true });
+writeFileSync(join(install, 'large.flac'), bytes);
+writeFileSync(join(install, 'manifest.json'), JSON.stringify({ ...manifest, rooms: {}, instruments: { piano: { ...entry, range: [21, 108] } } }));
+const preload = join(root, 'home.cjs');
+writeFileSync(preload, "require('node:os').homedir=()=>process.env.ANIDOODLE_TEST_HOME; require('node:module').syncBuiltinESMExports();");
+const env = { ...process.env, ANIDOODLE_TEST_HOME: isolatedHome }; delete env.ANIDOODLE_SOUNDS;
+check('music CLI discovers a default install with env and --sounds unset', () => {
+  const result = spawnSync(process.execPath, ['--require', preload, 'tools/music.mjs', 'check', 'nocturne', '--seconds', '1'], { env: { ...env, ANIDOODLE_THREADS: '1' }, encoding: 'utf8', maxBuffer: 1<<24 });
+  assert.notEqual(result.status, null, result.stderr); assert.match(result.stdout, /calibration piano:/);
+});
+check('film audio discovers and plays a default install with env unset', () => {
+  const script = join(root, 'default-film.mjs');
+  const audioUrl = new URL('./audio.mjs', import.meta.url).href;
+  writeFileSync(script, `import assert from 'node:assert/strict'; import {prepareFilmSounds,filmFloat32} from ${JSON.stringify(audioUrl)}; const M=await import(${JSON.stringify('data:text/javascript;base64,'+Buffer.from(js).toString('base64'))}); const film={audio:M.filmAudio(M.nocturne(),1)}; assert.equal(prepareFilmSounds(film,M),true); assert.equal(filmFloat32(film).frames,48000); console.log('DEFAULT FILM RECORDINGS PASS');`);
+  const out = execFileSync(process.execPath, ['--require', preload, script], { env, encoding: 'utf8', maxBuffer: 1<<24 });
+  assert.match(out, /DEFAULT FILM RECORDINGS PASS/);
+});
+if (failures) process.exitCode = 1;
+else console.log('SOUNDS LOADER REVIEW PASS');
