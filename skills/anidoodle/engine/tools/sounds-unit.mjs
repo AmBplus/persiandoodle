@@ -41,7 +41,7 @@ M.clearBanks(); zone.sha256 = "0".repeat(64); writeFileSync(join(root, "manifest
 assert.throws(() => loadBanks(M, root, ["piano"]), /sha256 mismatch/); assert.equal(M.bankFor("piano"), undefined);
 console.log("PASS corrupt large FLAC hash: rejected before registration");
 let failures = 0;
-const check = (label, fn) => { try { fn(); console.log(`PASS ${label}`); } catch (e) { failures++; console.error(`FAIL ${label}: ${e.message}`); } };
+const check = (label, fn) => { if (process.env.ANIDOODLE_TEST_CASE && !label.includes(process.env.ANIDOODLE_TEST_CASE)) return; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures++; console.error(`FAIL ${label}: ${e.message}`); } };
 zone.sha256 = originalRoom.sha256; manifest.rooms = {}; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));
 check('inherited constructor never becomes a sample-bank lookup', () => {
   M.clearBanks(); loadBanks(M, root, ['constructor']); assert.equal(M.bankFor('constructor'), undefined);
@@ -85,6 +85,22 @@ check('film audio discovers and plays a default install with env unset', () => {
   writeFileSync(script, `import assert from 'node:assert/strict'; import {prepareFilmSounds,filmFloat32} from ${JSON.stringify(audioUrl)}; const M=await import(${JSON.stringify('data:text/javascript;base64,'+Buffer.from(js).toString('base64'))}); const film={audio:M.filmAudio(M.nocturne(),1)}; assert.equal(prepareFilmSounds(film,M),true); assert.equal(filmFloat32(film).frames,48000); console.log('DEFAULT FILM RECORDINGS PASS');`);
   const out = execFileSync(process.execPath, ['--require', preload, script], { env, encoding: 'utf8', maxBuffer: 1<<24 });
   assert.match(out, /DEFAULT FILM RECORDINGS PASS/);
+});
+check('Windows decoder selection uses absolute PATH binaries, not implicit current-directory lookup', () => {
+  const windowsPath = join(root, 'windows-path'); mkdirSync(windowsPath, { recursive: true });
+  const marker = join(root, 'windows-decoder-marker');
+  for (const command of ['ffprobe', 'ffmpeg']) {
+    const real = execFileSync('which', [command], { encoding: 'utf8' }).trim();
+    const shim = join(windowsPath, command + '.mjs');
+    writeFileSync(shim, `import {readFileSync,writeFileSync} from 'node:fs'; import {execFileSync} from 'node:child_process'; writeFileSync(${JSON.stringify(marker)},'PATH binary'); process.stdout.write(execFileSync(${JSON.stringify(real)},process.argv.slice(2),{input:readFileSync(0),maxBuffer:1<<28}));`);
+    const quote = s => "'" + s.replaceAll("'", "'\"'\"'") + "'";
+    writeFileSync(join(windowsPath, command + '.exe'), `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(shim)} \"$@\"\n`);
+    chmodSync(join(windowsPath, command + '.exe'), 0o755);
+  }
+  const script = join(root, 'windows-loader.mjs');
+  writeFileSync(script, `import {loadBanks} from ${JSON.stringify(new URL('./sounds.mjs', import.meta.url).href)}; const M=await import(${JSON.stringify('data:text/javascript;base64,'+Buffer.from(js).toString('base64'))}); Object.defineProperty(process,'platform',{value:'win32'}); loadBanks(M,${JSON.stringify(root)},['piano']);`);
+  execFileSync(process.execPath, [script], { env: { ...process.env, PATH: windowsPath, PATHEXT: '.exe' }, maxBuffer: 1<<24 });
+  assert.equal(readFileSync(marker, 'utf8'), 'PATH binary');
 });
 if (failures) process.exitCode = 1;
 else console.log('SOUNDS LOADER REVIEW PASS');
