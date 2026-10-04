@@ -356,4 +356,16 @@ const list2 = await run(["list"]);
 assert(!list2.includes("available"), "everything installed");
 ok("get all: skips installed, installs the rest, merged manifest verifies");
 
+{ // the offer is made once: list says to ask, decline is remembered, a later get clears it
+  const home = join(dir, "decline-home"), e = { HOME: home, ANIDOODLE_SOUNDS: join(home, "pack") };
+  mkdirSync(home, { recursive: true });
+  assert((await run(["list"], e)).includes("ASK THE USER"));
+  await run(["decline"], e);
+  assert(existsSync(join(home, ".anidoodle", "sounds-declined")));
+  assert((await run(["list"], e)).includes("declined by the user"));
+  await run(["get", "harp"], e);
+  assert(!existsSync(join(home, ".anidoodle", "sounds-declined")));
+  ok("offer, decline, later yes: asked once, remembered, cleared by get");
+}
+
 console.log(`\n${pass} checks passed`);

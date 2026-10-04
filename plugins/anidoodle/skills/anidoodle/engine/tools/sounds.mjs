@@ -1,8 +1,10 @@
 // Host-side sound packs: verify the pinned FLAC bytes, decode once, then hand PCM to the engine.
-import { readFileSync, realpathSync, existsSync } from "node:fs";
-import { resolve, sep, isAbsolute } from "node:path";
+import { readFileSync, writeFileSync, realpathSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { resolve, sep, isAbsolute, join } from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { PACK_MB, soundsDeclined } from "./soundfetch.mjs";
 
 export const soundIds = (piece) => piece.legacy ? [] : [...new Set(piece.parts.filter((p) => p.notes.length && p.opts?.sampled !== false).map((p) => typeof p.opts?.variant === "string" && p.opts.variant ? `${p.inst}.${p.opts.variant}` : p.inst))];
 // Windows otherwise searches the current directory before PATH.
@@ -18,8 +20,10 @@ const decoderPath = (command) => {
   }
   throw new Error(`${command}: executable missing from absolute PATH directories`);
 };
-// A piped child can wedge at 0% CPU with its input half read (seen live on macOS, from a worker).
-// Decoding is deterministic, so kill it after a minute and try again rather than hang the render.
+// Audio never travels through a pipe: a piped child can wedge at 0% CPU with its input half read
+// (seen live on macOS, from a worker, for hours). The verified bytes go to a private temp file and
+// the PCM comes back through another. The timeout stays as a net: decoding is deterministic, so a
+// stuck child is killed and tried again rather than hanging the render.
 const runDecoder = (command, args, opts, what) => {
   for (let attempt = 1; ; attempt++) {
     try { return execFileSync(decoderPath(command), args, { timeout: Number(process.env.ANIDOODLE_DECODE_TIMEOUT_MS) || 60000, killSignal: "SIGKILL", ...opts }); }
@@ -34,10 +38,16 @@ const decodeFlac = (root, id, zone) => {
   const file = realpathSync(resolve(root, zone.file)); if (!file.startsWith(root + sep)) throw new Error(`${id}: zone escapes pack: ${zone.file}`);
   const bytes = readFileSync(file), sha = createHash("sha256").update(bytes).digest("hex");
   if (typeof zone.sha256 !== "string" || sha !== zone.sha256.toLowerCase()) throw new Error(`${id}: sha256 mismatch: ${zone.file}`);
-  // Count frames so ffprobe consumes the complete verified buffer rather than closing stdin early.
-  const info = JSON.parse(runDecoder("ffprobe", ["-v", "error", "-f", "flac", "-i", "pipe:0", "-count_frames", "-show_streams", "-of", "json"], { input: bytes, encoding: "utf8", maxBuffer: 1 << 20 }, zone.file)).streams;
-  if (info.length !== 1 || info[0].codec_name !== "flac" || Number(info[0].sample_rate) !== 48000 || Number(info[0].bits_per_raw_sample) !== 24 || info[0].channels !== zone.channels || ![1, 2].includes(zone.channels)) throw new Error(`${id}: expected 48 kHz 24-bit FLAC with ${zone.channels} channels: ${zone.file}`);
-  const pcm = runDecoder("ffmpeg", ["-v", "error", "-f", "flac", "-i", "pipe:0", "-vn", "-f", "f32le", "-acodec", "pcm_f32le", "-ar", "48000", "pipe:1"], { input: bytes, maxBuffer: 1 << 28 }, zone.file);
+  // The decoders read our private copy of the hashed bytes, never the pack path, so what was verified is what plays.
+  const dir = mkdtempSync(join(tmpdir(), "anidoodle-decode-")), src = join(dir, "in.flac"), out = join(dir, "out.f32");
+  let pcm;
+  try {
+    writeFileSync(src, bytes, { mode: 0o600 });
+    const info = JSON.parse(runDecoder("ffprobe", ["-v", "error", "-f", "flac", "-i", src, "-count_frames", "-show_streams", "-of", "json"], { encoding: "utf8", maxBuffer: 1 << 20, stdio: ["ignore", "pipe", "pipe"] }, zone.file)).streams;
+    if (info.length !== 1 || info[0].codec_name !== "flac" || Number(info[0].sample_rate) !== 48000 || Number(info[0].bits_per_raw_sample) !== 24 || info[0].channels !== zone.channels || ![1, 2].includes(zone.channels)) throw new Error(`${id}: expected 48 kHz 24-bit FLAC with ${zone.channels} channels: ${zone.file}`);
+    runDecoder("ffmpeg", ["-v", "error", "-nostdin", "-y", "-f", "flac", "-i", src, "-vn", "-f", "f32le", "-acodec", "pcm_f32le", "-ar", "48000", out], { stdio: ["ignore", "ignore", "pipe"] }, zone.file);
+    pcm = readFileSync(out);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
   if (!Number.isInteger(zone.frames) || zone.frames < 1 || pcm.length !== zone.frames * zone.channels * 4) throw new Error(`${id}: frame count mismatch: ${zone.file}`);
   const channels = Array.from({ length: zone.channels }, () => new Float32Array(zone.frames));
   for (let i = 0; i < zone.frames; i++) for (let c = 0; c < zone.channels; c++) { const v = pcm.readFloatLE((i * zone.channels + c) * 4); if (!Number.isFinite(v)) throw new Error(`${id}: non-finite PCM: ${zone.file}`); channels[c][i] = v; }
@@ -77,4 +87,13 @@ export const printSounds = (M, piece) => {
   }
   console.log(`voices   recordings: ${recorded.join(", ") || "none"}; modeled: ${modeled.join(", ") || "none"}`);
 };
-export const codeBuiltNotice = () => console.log('audio: using code-built instruments; run node tools/soundfetch.mjs get all to install recordings, or set ANIDOODLE_SOUNDS=<pack-dir>');
+/** One honest line when a piece could play recordings that are not installed: what, how big, and
+ *  that the user decides. Says nothing when the piece has no recorded instrument to offer. */
+export const soundsNotice = (M, pieces) => {
+  const missing = [...new Set(pieces.flatMap(soundIds))].filter((id) => { const [inst, ...v] = id.split("."); return Object.hasOwn(PACK_MB, id) && !M.bankFor(inst, v.join(".") || undefined); });
+  if (!missing.length) return false;
+  const get = `node tools/soundfetch.mjs get ${missing.join(" ")} rooms`;
+  console.log(soundsDeclined() ? `audio: using code-built instruments (recordings were declined; to install them later: ${get})`
+    : `audio: using code-built instruments. Recordings of the real instruments exist for ${missing.map((id) => `${id} (${PACK_MB[id]} MB)`).join(", ")}. ASK THE USER before downloading. Yes: ${get}   No: node tools/soundfetch.mjs decline`);
+  return true;
+};

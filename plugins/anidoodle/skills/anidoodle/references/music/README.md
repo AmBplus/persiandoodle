@@ -130,11 +130,20 @@ Without it every score still plays, on the modelled voices, unchanged.
 
 ```bash
 node tools/soundfetch.mjs list          # the install directory and what is installed; no network
-node tools/soundfetch.mjs get all       # the one command that downloads: hash, unpack, install
+node tools/soundfetch.mjs get harp rooms # the one command that downloads: hash, unpack, install (`all` = 373 MB)
+node tools/soundfetch.mjs decline       # the user said no: remembered, nobody is asked again
 node tools/soundfetch.mjs where         # the install directory
 node tools/soundfetch.mjs verify        # re-hash every installed file
 node tools/soundfetch.mjs remove <id>   # drop one instrument, or `rooms`
 ```
+
+**The user decides, once.** Before the first score of a session, run `list`. When nothing is
+installed and it does not say the recordings were declined, ask the user in plain words whether
+they want real recorded instruments, and name the size: the whole pack is 373 MB, the grand piano
+alone 233 MB, and one piece usually needs one instrument plus `rooms` (0.4 MB). Yes: `get` those
+ids. No: `decline`, which is remembered across sessions. Never download without that answer.
+`music.mjs` and the film tools print the same offer, with the ids and sizes the piece in hand
+needs, whenever a part falls back to a code-built voice.
 
 `get` names the ids it wants, or `all`. It installs to `ANIDOODLE_SOUNDS`, or
 `~/.anidoodle/sounds`, and refuses any archive whose size or sha256 disagrees with the index

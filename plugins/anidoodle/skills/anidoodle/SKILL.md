@@ -10,8 +10,8 @@ metadata:
 
 Pictures, films and interactive pieces drawn entirely in code. One pure function paints every
 frame; another composes the score and plays it. The same source rebuilds the same pixels and the
-same sound on any machine, at any size, at any length. Eight acoustic instruments play recordings
-of real ones when the optional sound pack is installed; every score plays without it, unchanged.
+same sound on any machine, at any size, at any length. Eight acoustic instruments can play recordings
+of real ones from an optional download. ASK the user before any score work; never download unasked.
 
 The engine is the easy half. Work gets thrown away because it had no point, because the subject
 was an icon of itself, because a style was only a palette swap, because the music had no form,
@@ -113,8 +113,8 @@ node tools/still.mjs intro --frame 0 --out out/look.png --scale 2   # a still, w
 node tools/render.mjs intro                                        # MP4; --out x.gif|x.webm|x.apng
 node tools/gate.mjs intro                                          # determinism, contract, dead air
 node tools/emit.mjs intro --out out/intro.html                     # one self-contained offline player
-node <skill>/engine/tools/soundfetch.mjs list    # the install directory and what is installed; no network
-node <skill>/engine/tools/soundfetch.mjs get all # the one command that downloads; then parts play recordings
+node <skill>/engine/tools/soundfetch.mjs list    # no network. Nothing installed and not declined: ask the user now
+node <skill>/engine/tools/soundfetch.mjs get piano rooms  # on their yes (piano 233 MB, all 373 MB). On no: soundfetch.mjs decline
 ```
 
 | Tool | What it does |

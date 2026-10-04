@@ -57,7 +57,7 @@ check('forced FLAC demuxers decode the exact hashed bytes even after the path ch
   const oldPath = process.env.PATH;
   for (const command of ['ffprobe', 'ffmpeg']) {
     const real = execFileSync('which', [command], { encoding: 'utf8' }).trim();
-    const shim = `#!/usr/bin/env node\nimport {readFileSync,writeFileSync} from 'node:fs';\nimport {execFileSync} from 'node:child_process';\nimport {createHash} from 'node:crypto';\nconst args=process.argv.slice(2), input=readFileSync(0);\nif(args[args.indexOf('-f')+1]!=='flac'||!args.includes('pipe:0'))throw Error('decoder must force FLAC on stdin');\nif(createHash('sha256').update(input).digest('hex')!==${JSON.stringify(zone.sha256)})throw Error('decoder did not receive hashed bytes');\n${command === 'ffprobe' ? `writeFileSync(${JSON.stringify(file)},'#EXTM3U\\nhttps://invalid.example/external.flac\\n');` : ''}\nprocess.stdout.write(execFileSync(${JSON.stringify(real)},args,{input,maxBuffer:1<<28}));\n`;
+    const shim = `#!/usr/bin/env node\nimport {readFileSync,writeFileSync} from 'node:fs';\nimport {execFileSync} from 'node:child_process';\nimport {createHash} from 'node:crypto';\nconst args=process.argv.slice(2), src=args[args.indexOf('-i')+1];\nif(args[args.indexOf('-f')+1]!=='flac'||args.includes('pipe:0')||src.startsWith(${JSON.stringify(root)}))throw Error('decoder must force FLAC on a private copy, never a pipe or the pack path');\nif(createHash('sha256').update(readFileSync(src)).digest('hex')!==${JSON.stringify(zone.sha256)})throw Error('decoder did not receive hashed bytes');\n${command === 'ffprobe' ? `writeFileSync(${JSON.stringify(file)},'#EXTM3U\\nhttps://invalid.example/external.flac\\n');` : ''}\nexecFileSync(${JSON.stringify(real)},args,{stdio:['ignore','inherit','inherit']});\n`;
     const path = join(wrappers, command); writeFileSync(path, shim); chmodSync(path, 0o755);
   }
   try { process.env.PATH = wrappers + ':' + oldPath; M.clearBanks(); loadBanks(M, root, ['piano']); assert.equal(M.bankFor('piano').zones[0].channels[0].length, frames); }
@@ -66,7 +66,7 @@ check('forced FLAC demuxers decode the exact hashed bytes even after the path ch
 check('a wedged decoder is killed and retried', () => {
   const wrappers = join(root, 'wedge-wrappers'), marker = join(root, 'wedged-once'); mkdirSync(wrappers, { recursive: true });
   const oldPath = process.env.PATH, real = execFileSync('which', ['ffmpeg'], { encoding: 'utf8' }).trim();
-  writeFileSync(join(wrappers, 'ffmpeg'), `#!/usr/bin/env node\nimport {readFileSync,writeFileSync,existsSync} from 'node:fs';\nimport {execFileSync} from 'node:child_process';\nconst input=readFileSync(0);\nif(!existsSync(${JSON.stringify(marker)})){writeFileSync(${JSON.stringify(marker)},'x');setInterval(()=>{},1000);}\nelse process.stdout.write(execFileSync(${JSON.stringify(real)},process.argv.slice(2),{input,maxBuffer:1<<28}));\n`); chmodSync(join(wrappers, 'ffmpeg'), 0o755);
+  writeFileSync(join(wrappers, 'ffmpeg'), `#!/usr/bin/env node\nimport {writeFileSync,existsSync} from 'node:fs';\nimport {execFileSync} from 'node:child_process';\nif(!existsSync(${JSON.stringify(marker)})){writeFileSync(${JSON.stringify(marker)},'x');setInterval(()=>{},1000);}\nelse execFileSync(${JSON.stringify(real)},process.argv.slice(2),{stdio:['ignore','inherit','inherit']});\n`); chmodSync(join(wrappers, 'ffmpeg'), 0o755);
   try { process.env.PATH = wrappers + ':' + oldPath; process.env.ANIDOODLE_DECODE_TIMEOUT_MS = '3000'; M.clearBanks(); loadBanks(M, root, ['piano']); assert.equal(M.bankFor('piano').zones[0].channels[0].length, frames); assert.ok(existsSync(marker)); }
   finally { process.env.PATH = oldPath; delete process.env.ANIDOODLE_DECODE_TIMEOUT_MS; }
 });
@@ -99,7 +99,7 @@ check('Windows decoder selection uses absolute PATH binaries, not implicit curre
   for (const command of ['ffprobe', 'ffmpeg']) {
     const real = execFileSync('which', [command], { encoding: 'utf8' }).trim();
     const shim = join(windowsPath, command + '.mjs');
-    writeFileSync(shim, `import {readFileSync,writeFileSync} from 'node:fs'; import {execFileSync} from 'node:child_process'; writeFileSync(${JSON.stringify(marker)},'PATH binary'); process.stdout.write(execFileSync(${JSON.stringify(real)},process.argv.slice(2),{input:readFileSync(0),maxBuffer:1<<28}));`);
+    writeFileSync(shim, `import {readFileSync,writeFileSync} from 'node:fs'; import {execFileSync} from 'node:child_process'; writeFileSync(${JSON.stringify(marker)},'PATH binary'); execFileSync(${JSON.stringify(real)},process.argv.slice(2),{stdio:['ignore','inherit','inherit']});`);
     const quote = s => "'" + s.replaceAll("'", "'\"'\"'") + "'";
     writeFileSync(join(windowsPath, command + '.exe'), `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(shim)} \"$@\"\n`);
     chmodSync(join(windowsPath, command + '.exe'), 0o755);
