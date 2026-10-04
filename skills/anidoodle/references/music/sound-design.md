@@ -1,7 +1,8 @@
 # Sound design: the effects kit, placed by frame, heard over the score
 
-anidoodle makes its sound effects the way it makes its music: **in code, from nothing**. No samples
-or recordings. Every effect is deterministic: the same cue and seed give identical samples.
+Every anidoodle sound effect is **built in code, from nothing**: no samples, no recordings, ever.
+(The music's acoustic instruments can play recordings from the optional sound pack; effects never
+do.) Every effect is deterministic: the same cue and seed give identical samples.
 
 Code: `engine/src/canvas-core/music/sfxKit.ts` (the kit), `sfxMix.ts` (placement), `sfxCore.ts`
 (building blocks). Tool: `engine/tools/sfx.mjs`.
