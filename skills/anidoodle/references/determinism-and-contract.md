@@ -10,7 +10,7 @@
 1. `renderFrame(frame, env)` is PURE. No state carried between frames, no module-level mutable state that touches pixels. Audio is the same: samples are a pure function of the sample rate.
 2. Randomness only from `rng(seed)`. Never `Math.random`. Never `Date`, never `performance.now` in the core; timing belongs to hosts.
 3. A restricted canvas: paths, fill, stroke, clip, transforms, alpha, composite operations, patterns, gradients, `drawImage`, image data, `fillText` with a preloaded font. **No `ctx.filter` in any form.** No DOM, no `window`, no `new OffscreenCanvas` or `new Image`; surfaces come from `env.canvas()`.
-4. **No assets.** No images, no fonts from the network, no audio samples. Lettering is pen strokes; texture is seeded noise; music is arithmetic. This is what makes the repo the whole film, with no licensing questions.
+4. **No assets.** No images, no fonts, no audio files in the repository. Lettering is pen strokes; texture is seeded noise; music is arithmetic. This is what makes the repo the whole film, with no licensing questions. The optional sound pack is the one thing fetched from outside, it is installed by hash, and a film renders without it.
 5. Caches are legal only when the value is a pure function of its key, and **the key names everything the pixels depend on**. We found two violations by machine, never by eye: an annotation layer whose key omitted the crank angle two of its leaders pointed at, and one that omitted the pose. A cached frame and a cold frame of the same number must be the same pixels.
 6. Never scale a bitmap up. Close shots are re-inked at that view; cached surfaces may only be downscaled, and only a little.
 
