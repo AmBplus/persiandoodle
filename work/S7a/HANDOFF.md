@@ -2,12 +2,59 @@
 
 Updated 2026-10-04. Branch `ship/S7a-film`. Local commits only, do not push.
 
+## Priority review fixes, live checkpoint
+
+The owner paused masking until REVIEW-engine.md findings 1-5 and the scoped
+REVIEW-security.md loader/default-install findings are fixed. ship/S7b-fetch was
+merged successfully. No push.
+
+Done and proven:
+- Engine 1, 2, 3, 5: commit 7b26ef8. MIX_PROFILES nocturne names small-room;
+  RecordedRoom carries/validates directFrames; recordedReverb skips direct frames
+  and separately normalizes early/late stereo pairs to synthIR energy; directFrames
+  pins voice/cache identity; effectiveSpace ignores unavailable room-only overrides.
+  rooms.test.ts reproduced eight failures before the fixes and now passes all 21 checks.
+- Engine 4: commit ea1fced. samplerVoice and readRel use sinc at every rate other
+  than exactly 1, with cutoff divided by max(1, rate). Four image-energy regressions
+  at -3 and -200 cents failed before and pass now. Combined rooms/sampler suite:
+  89 passed, 0 failed, exit 0. TypeScript passes after the return-type annotation.
+- The three no-pack baseline hashes were independently re-derived from release/0.6
+  revision 7970552c1a7a6d986c972cdd3d7df145c9ce634a; all MATCH. See release-baseline.log/json.
+
+- Security 2: commit 7a9434d. music.mjs main and audio.mjs prepareFilmSounds discover
+  soundsDir() when flags/environment are unset. Both default-install tests failed
+  before and passed again in review-default-commit.log (exit 0).
+
+Finished in saved code, being committed individually:
+- Loader forced FLAC + verified-buffer stdin, Object.hasOwn, directFrames metadata
+  and reload identity were implemented and passed review-loader-green.log. Their
+  deltas are saved in loader-code-in-progress.mjs and loader-tests-in-progress.mjs
+  while commits are split. These snapshots are coordination files, not shipped tools.
+- Loader symlink containment was already correct; a new test proves rejection.
+
+Half done:
+- Windows implicit-current-directory decoder lookup: sounds-unit.mjs has a new
+  simulated Windows PATH-only regression, saved in loader-tests-in-progress.mjs.
+  It fails without the resolver. sounds.mjs decoder resolution is still untouched.
+
+Masking is paused. masking-in-progress.patch and recordedMix-in-progress.ts retain
+its production/test delta. Previous current-pack.json acceptance predates the room
+and sinc fixes and is INVALID as final acceptance. Reapply the patch after review
+commits, adapting hunks to the new room code, and rerun all acceptance measurements.
+Never treat historical trial/final/current JSON as current acceptance.
+
+An initial default-install regression used music calibrate, which can regenerate
+vocabTrim.ts without a pack. It was stopped before any palette write; read-back git
+diff confirmed vocabTrim.ts unchanged. It was replaced with check nocturne --seconds 1.
+
 ## Scope and authority
 
-The owner's latest instruction limits delivery to part 1 of BRIEF-S1-film.md:
-films play the recordings. Part 2, the masking mix fix, belongs to a fresh engineer.
-Earlier uncommitted experimental mix changes were removed before the final proof.
-No spectral calibration fields, recorded-role EQ, or guard changes are delivered.
+The owner accepted part 1 and now authorizes part 2 in this same session.
+Part 1 is committed and proven below. Part 2 is in progress: restore load-time
+spectral measurements, apply role-aware EQ in the existing mix stage, and keep
+guard role renders on the complete part's EQ. No scores or per-piece tuning.
+The earlier experiment was removed before part 1 delivery; its results below
+remain historical until the new implementation passes fresh acceptance checks.
 
 Read first for continuation:
 - `/Users/alexgreenshpun/CascadeProjects/Prompts/Claude-Skills/anidoodle-research/sound-pack/BRIEF-S1-film.md`

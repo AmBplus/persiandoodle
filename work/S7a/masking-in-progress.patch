@@ -1,0 +1,156 @@
+diff --git a/skills/anidoodle/engine/src/canvas-core/music/guards.ts b/skills/anidoodle/engine/src/canvas-core/music/guards.ts
+index 667a2eb..41d9474 100644
+--- a/skills/anidoodle/engine/src/canvas-core/music/guards.ts
++++ b/skills/anidoodle/engine/src/canvas-core/music/guards.ts
+@@ -96,7 +96,7 @@ export const maskingPlan = (piece: Piece, o: { seconds?: number; tempo?: number;
+   const spans: [number, number][] = []; for (let b = 0; b < total; b += bpb) spans.push([perf.sec(b), perf.sec(b + bpb)]);
+   const melNotes = piece.parts.flatMap((p) => p.notes.filter((n) => n.role === "melody"));
+   const sounding = spans.map((_, i) => melNotes.some((n) => n.t < (i + 1) * bpb && n.t + n.d > i * bpb));
+-  return { roles, spans, sounding, opts: (r: Role): RenderOpts => ({ seconds: o.seconds, tempo: o.tempo, master: "none", cache: o.cache, perf: played(r) }) };
++  return { roles, spans, sounding, opts: (r: Role): RenderOpts => ({ seconds: o.seconds, tempo: o.tempo, master: "none", cache: o.cache, perf: played(r), mixKeys: perf.parts.map(p => p.keys) }) };
+ };
+ export type MaskingPlan = NonNullable<ReturnType<typeof maskingPlan>>;
+ export const roleBandDb = (piece: Piece, sr: number, opts: RenderOpts, spans: [number, number][]) => { const x = renderPiece(piece, sr, opts); return bandDb(x.L, x.R, sr, spans); };
+diff --git a/skills/anidoodle/engine/src/canvas-core/music/mixProfiles.ts b/skills/anidoodle/engine/src/canvas-core/music/mixProfiles.ts
+index c1bebda..342e3a7 100644
+--- a/skills/anidoodle/engine/src/canvas-core/music/mixProfiles.ts
++++ b/skills/anidoodle/engine/src/canvas-core/music/mixProfiles.ts
+@@ -133,6 +133,14 @@ export const partEq = (prof: MixProfile, inst: InstId, role: Role): StemEq => {
+   if (role === "melody" && c !== "bass") e.bells = [...(e.bells ?? []), [2800, 1.1, 0.8 * k]];
+   return e;
+ };
++/** Leave the lead band open on recorded support parts, without changing faders or the voice. */
++export const recordedEq = (e: StemEq, role: Role, excessDb: number, fractionDb: number): StemEq => {
++  if (role !== "bass" && role !== "accomp") return e;
++  // A reference can itself be bright. Also limit absolute band occupancy toward 6% (-12 dB).
++  // One broad bell spans the guard's 500 Hz-4 kHz band; the existing makeup stage holds level.
++  const depth = Math.min(role === "bass" ? 12 : 6, Math.max(0, excessDb, fractionDb + 12) * (role === "bass" ? 0.8 : 0.6));
++  return depth > 0 ? { ...e, bells: [...(e.bells ?? []), [1400, 0.45, -depth]] } : e;
++};
+ /** A one-line summary for tools/music.mjs vocab. */
+ export const describeMix = (style: StyleId) => {
+   const p = MIX_PROFILES[style], s = p.space;
+diff --git a/skills/anidoodle/engine/src/canvas-core/music/render.ts b/skills/anidoodle/engine/src/canvas-core/music/render.ts
+index 7df5a87..f922008 100644
+--- a/skills/anidoodle/engine/src/canvas-core/music/render.ts
++++ b/skills/anidoodle/engine/src/canvas-core/music/render.ts
+@@ -6,7 +6,7 @@ import { type Piece, type Part, resequence, beatsPerBar } from "./plan";
+ import { perform, type Performance, type Played } from "./perform";
+ import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
+ import { keysVoice, renderPianoV2 } from "./keys";
+-import { bankFor, samplerVoice, registerBank, type SampleBank, type SampleTrim } from "./sampler";
++import { bankFor, samplerVoice, sampleZones, registerBank, type SampleBank, type SampleTrim } from "./sampler";
+ import * as I from "./instruments";
+ import * as O from "./orchestra";
+ import { chokeTimes, type KitCtx } from "./drums";
+@@ -18,10 +18,11 @@ import { STYLES } from "./tables";
+ import { rng as mkRng } from "../core";
+ import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter, ampSim, transientGain } from "./mixDsp";
+ import { reverb, roomFor, type Space } from "./mixReverb";
+-import { mixProfile, partEq, ROLE_SEND, isStruck, TRANSIENT_DEFAULT, type MixProfile } from "./mixProfiles";
++import { mixProfile, partEq, recordedEq, ROLE_SEND, isStruck, TRANSIENT_DEFAULT, type MixProfile } from "./mixProfiles";
+ 
+ export type RenderOpts = { /** sound v2, gentle styles only: a <= 1 dB 2:1 glue on the mix bus (spec 08 forbids a compressor on gentle masters; Alex decides) */ gentleGlue?: boolean; expressive?: boolean; piano?: PianoOpts; flatVelocity?: number; seconds?: number; tempo?: number; master?: "auto" | "gentle" | "dense" | "none"; stems?: boolean; only?: (p: Part) => boolean;
+   /** play this performance instead of performing the piece (the guards render one role of the SAME performance the mix plays) */ perf?: Performance;
++  /** Complete part strikes keep recorded EQ fixed when a guard isolates one note role. */ mixKeys?: Played[][];
+   /** reuse synthesized voices by their exact inputs (tools/music.mjs check: each part is synthesized once for the mix, the guards and the stems); output is bit-identical */ cache?: VoiceCache };
+ 
+ /**
+@@ -142,16 +143,26 @@ export const calibrateBank = (id: string) => {
+   // Gated RMS would match the average tail instead of energy per strike, changing a fast
+   // arpeggio's balance when recorded and modeled decays differ. Use one fixed 12 s window.
+   const level = (r: VoiceOut) => { const mid = Float32Array.from(r.L, (x, i) => (x + r.R[i]) * 0.5); Biquad.make(sr, "hp", 30, 0.7071).run(mid); let energy = 0; for (const x of mid) energy += x * x; return 10 * Math.log10(energy / n); };
+-  const references = new Map<string, number>();
++  const bandFraction = (r: VoiceOut) => {
++    const mid = Float32Array.from(r.L, (x, i) => (x + r.R[i]) * 0.5);
++    Biquad.make(sr, "hp", 40, Math.SQRT1_2).run(mid);
++    let total = 0; for (const x of mid) total += x * x;
++    Biquad.make(sr, "hp", 500, Math.SQRT1_2).run(mid); Biquad.make(sr, "lp", 4000, Math.SQRT1_2).run(mid);
++    let band = 0; for (const x of mid) band += x * x;
++    return 10 * Math.log10(Math.max(1e-15, band) / Math.max(1e-15, total));
++  };
++  const references = new Map<string, { level: number; band: number }>();
+   const trim: SampleTrim[] = bank.zones.filter(({ zone }) => zone.art !== "rel").map((z) => {
+     const p = z.zone.midi, v = bank.entry.layerVelocity?.[z.zone.layer - 1] ?? (z.zone.layer - 0.5) / bank.entry.layers;
+     const keys: Played[] = [{ p, v, tone: v, t: 0, off: 1, role: "melody", w: v }], one: SampleBank = { entry: { ...bare.entry, zones: [{ ...z.zone, art: undefined }] }, zones: [{ ...z, zone: { ...z.zone, art: undefined } }] }, recorded = samplerVoice(one, keys, [], sr, n, opts, 1);
+-    const ref = `${p}:${v}`; let modeledDb = references.get(ref);
+-    if (modeledDb === undefined) { const modeled = inst === "piano" ? renderPianoV2(keys, [], sr, n, opts, 1) : voice({ id: "ref", inst: inst as Part["inst"], role: "melody", notes: [], opts }, keys, sr, n, 1); modeledDb = level(modeled); references.set(ref, modeledDb); }
++    const ref = `${p}:${v}`; let modeled = references.get(ref);
++    if (modeled === undefined) { const r = inst === "piano" ? renderPianoV2(keys, [], sr, n, opts, 1) : voice({ id: "ref", inst: inst as Part["inst"], role: "melody", notes: [], opts }, keys, sr, n, 1); modeled = { level: level(r), band: bandFraction(r) }; references.set(ref, modeled); }
++    const modeledDb = modeled.level;
+     const measuredDb = level(recorded);
+     const correctionDb = modeledDb - measuredDb;
+     if (!Number.isFinite(correctionDb)) throw new Error(`${id}: silent calibration at MIDI ${p}`);
+-    return { file: z.zone.file, midi: p, layer: z.zone.layer, measuredDb, modeledDb, correctionDb };
++    const bandFractionDb = bandFraction(recorded);
++    return { file: z.zone.file, midi: p, layer: z.zone.layer, measuredDb, modeledDb, correctionDb, bandFractionDb, bandExcessDb: bandFractionDb - modeled.band };
+   });
+   const sorted = trim.map((t) => t.correctionDb).sort((a, b) => a - b), middle = Math.floor(sorted.length / 2), medianDb = sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+   return registerBank(id, { ...bare, trim: trim.map((t) => ({ ...t, requestedDb: t.correctionDb, medianDb, correctionDb: medianDb + Math.max(-9, Math.min(9, t.correctionDb - medianDb)), boostLimited: t.correctionDb > medianDb + 9 })) });
+@@ -245,7 +256,16 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
+     // corrective EQ, then match the stem's RMS back (+-3 dB cap): EQ shapes the tone, the fader keeps the calibrated balance
+     // the stem meter reads the part as the fader set it (pre-EQ, after its pan): the EQ is energy-neutral in the audible band
+     const pre = o.stems ? [Float32Array.from(sL), Float32Array.from(sR)] as [Float32Array, Float32Array] : null;
+-    const before = audible(sL, sR, sr), e = partEq(prof, pt.inst, pt.role); runEq(sL, eqChain(sr, e)); runEq(sR, eqChain(sr, e));
++    const before = audible(sL, sR, sr);
++    let e = partEq(prof, pt.inst, pt.role);
++    if (job.kind === "sampled" && (pt.role === "bass" || pt.role === "accomp")) {
++      const bank = bankFor(pt.inst, typeof pt.opts?.variant === "string" ? pt.opts.variant : undefined)!;
++      const selected = sampleZones(bank, (o.mixKeys?.[pi] ?? keys).slice().sort((a, b) => a.t - b.t || a.p - b.p), job.seed, pt.opts?.pedal === false ? [] : perf.pedal);
++      const spectra = selected.map(z => bank.trim?.find(t => t.file === z.zone.file));
++      const median = (xs: number[], fallback: number) => xs.length ? xs.sort((a, b) => a - b)[Math.floor(xs.length / 2)] : fallback;
++      e = recordedEq(e, pt.role, median(spectra.map(t => t?.bandExcessDb ?? 0), 0), median(spectra.map(t => t?.bandFractionDb ?? -Infinity), -Infinity));
++    }
++    runEq(sL, eqChain(sr, e)); runEq(sR, eqChain(sr, e));
+     const after = audible(sL, sR, sr), mk = after > 0 && before > 0 ? Math.min(db(3), Math.max(db(-3), Math.sqrt(before / after))) : 1;
+     const g = db(pt.gainDb ?? 0) * mk;
+     for (let i = 0; i < n; i++) { sL[i] *= g; sR[i] *= g; }
+diff --git a/skills/anidoodle/engine/src/canvas-core/music/sampler.ts b/skills/anidoodle/engine/src/canvas-core/music/sampler.ts
+index a4c4570..3b97f52 100644
+--- a/skills/anidoodle/engine/src/canvas-core/music/sampler.ts
++++ b/skills/anidoodle/engine/src/canvas-core/music/sampler.ts
+@@ -9,7 +9,9 @@ import { pianoVelocity } from "./keysPiano";
+ 
+ export type SampleZone = { file: string; midi: number; layer: number; rr: number; frames: number; channels: number; peakDb: number; rmsDb: number; sha256: string; art?: "sus" | "rel"; unpitched?: boolean; measuredHz?: number; loop?: [number, number] };
+ export type SampleEntry = { title: string; source: string; license: string; kind: "struck" | "sustained"; range: [number, number]; layers: number; layerVelocity?: number[]; sparse?: boolean; maxShift?: number; damped: boolean; normalized?: boolean; zones: SampleZone[] };
+-export type SampleTrim = { file: string; midi: number; layer: number; measuredDb: number; modeledDb: number; correctionDb: number; requestedDb?: number; medianDb?: number; boostLimited?: boolean };
++export type SampleTrim = { file: string; midi: number; layer: number; measuredDb: number; modeledDb: number; correctionDb: number; requestedDb?: number; medianDb?: number; boostLimited?: boolean;
++  /** 500 Hz-4 kHz energy as a fraction of audible energy, and its excess over the modeled reference. */
++  bandFractionDb?: number; bandExcessDb?: number };
+ export type SampleBank = { entry: SampleEntry; zones: { zone: SampleZone; channels: Float32Array[] }[]; /** fixed modeled references at each recording's pitch and layer centre */ trim?: SampleTrim[] };
+ export type RegisteredBank = SampleBank & { id: string; hash: string };
+ const banks = new Map<string, RegisteredBank>();
+@@ -46,7 +48,7 @@ export const registerBank = (id: string, bank: SampleBank): RegisteredBank => {
+     if (JSON.stringify(z) !== JSON.stringify(e.zones[i]) || !Number.isInteger(z.midi) || z.midi < e.range[0] || z.midi > e.range[1] || !Number.isInteger(z.layer) || z.layer < 1 || z.layer > e.layers || !Number.isInteger(z.rr) || z.rr < 1 || !Number.isInteger(z.frames) || z.frames < 1 || ![1, 2].includes(z.channels) || !/^[a-f0-9]{64}$/i.test(z.sha256) || channels.length !== z.channels || channels.some((c) => !(c instanceof Float32Array) || c.length !== z.frames)) throw new Error(`${id}: invalid zone or PCM ${z.file}`);
+   });
+   if (!e.zones.some((z) => !z.art)) throw new Error(`${id}: no ordinary sample zones`);
+-  if (bank.trim && (new Set(bank.trim.map((t) => t.file)).size !== bank.trim.length || bank.trim.some((t) => !e.zones.some((z) => z.file === t.file && z.midi === t.midi && z.layer === t.layer) || ![t.measuredDb, t.modeledDb, t.correctionDb, t.requestedDb ?? 0, t.medianDb ?? 0].every(Number.isFinite) || (t.medianDb !== undefined && Math.abs(t.correctionDb - t.medianDb) > 9.000001) || (t.boostLimited !== undefined && typeof t.boostLimited !== "boolean")))) throw new Error(`${id}: invalid sampled calibration`);
++  if (bank.trim && (new Set(bank.trim.map((t) => t.file)).size !== bank.trim.length || bank.trim.some((t) => !e.zones.some((z) => z.file === t.file && z.midi === t.midi && z.layer === t.layer) || ![t.measuredDb, t.modeledDb, t.correctionDb, t.requestedDb ?? 0, t.medianDb ?? 0, t.bandFractionDb ?? 0, t.bandExcessDb ?? 0].every(Number.isFinite) || (t.medianDb !== undefined && Math.abs(t.correctionDb - t.medianDb) > 9.000001) || (t.boostLimited !== undefined && typeof t.boostLimited !== "boolean")))) throw new Error(`${id}: invalid sampled calibration`);
+   const identity = bankIdentity(e), b = { ...bank, id, hash: bank.trim ? hash(JSON.stringify([identity, bank.trim])) : identity }; banks.set(id, b); return b;
+ };
+ 
+diff --git a/skills/anidoodle/engine/test/sampler.test.ts b/skills/anidoodle/engine/test/sampler.test.ts
+index 93eeb13..3323e18 100644
+--- a/skills/anidoodle/engine/test/sampler.test.ts
++++ b/skills/anidoodle/engine/test/sampler.test.ts
+@@ -114,6 +114,7 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
+     const original = calibration.zones.map((z) => Float32Array.from(z.channels[0])); registerBank("piano", calibration);
+     const calibrated = calibrateBank("piano"), redo = calibrateBank("piano");
+     ok(calibrated.hash === redo.hash && JSON.stringify(calibrated.trim) === JSON.stringify(redo.trim), "pitch/layer calibration is deterministic from PCM and fixed modeled references");
++    ok(calibrated.trim!.every(t => Number.isFinite(t.bandFractionDb) && Number.isFinite(t.bandExcessDb)), "load calibration measures every zone's masking-band fraction and excess over its modeled reference");
+     ok(calibrated.zones.every((z, i) => same(z.channels[0], original[i])), "calibration never changes recording PCM or tone");
+     const measured = (x: Float32Array, y: Float32Array) => { const mid = Float32Array.from(x, (v, i) => (v + y[i]) * 0.5); Biquad.make(SR, "hp", 30, 0.7071).run(mid); let energy = 0; for (const v of mid) energy += v * v; return 10 * Math.log10(energy / (SR * 12)); };
+     const levels = [1, 2, 3].map((layer) => { const v = (layer - 0.5) / 3, r = render(calibrated, [{ ...key(60, v, 0, 1), tone: v }], SR, [], { pedal: false }); return measured(r.L, r.R); });
+diff --git a/skills/anidoodle/engine/tools/sounds.mjs b/skills/anidoodle/engine/tools/sounds.mjs
+index 8b50676..1b7686d 100644
+--- a/skills/anidoodle/engine/tools/sounds.mjs
++++ b/skills/anidoodle/engine/tools/sounds.mjs
+@@ -32,6 +32,8 @@ export const loadBanks = (M, dir, ids) => {
+     const zones = entry.zones.map((zone) => ({ zone, channels: decodeFlac(root, id, zone) }));
+     M.registerBank(id, { entry, zones });
+     const calibrated = M.calibrateBank(id);
++    console.log(`spectrum ${id}: zone | 500 Hz-4 kHz fraction dB | excess over modeled dB`);
++    for (const t of calibrated.trim) console.log(`  ${t.file} | ${t.bandFractionDb.toFixed(2)} | ${t.bandExcessDb.toFixed(2)}`);
+     console.log(`calibration ${id}: median trim ${calibrated.trim[0].medianDb.toFixed(2)} dB; zone | layer | measured dB | modeled dB | requested dB | applied dB | deviation dB`);
+     for (const t of calibrated.trim) console.log(`  ${t.file} | ${t.layer} | ${t.measuredDb.toFixed(2)} | ${t.modeledDb.toFixed(2)} | ${t.requestedDb.toFixed(2)} | ${t.correctionDb.toFixed(2)} | ${(t.correctionDb - t.medianDb).toFixed(2)}${Math.abs(t.correctionDb) > 9 ? " | FLAG applied >9 dB (includes instrument trim)" : ""}${Math.abs(t.requestedDb - t.medianDb) > 9 ? " | FLAG >9 dB deviation: capped, inspect zone/reference" : ""}${t.boostLimited ? " | prefer louder layer" : ""}`);
+   }
