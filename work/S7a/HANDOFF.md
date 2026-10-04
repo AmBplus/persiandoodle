@@ -55,7 +55,10 @@ Half done or untouched:
   marimbaCurious passes 100% bars, worst margin 4.129 dB and balance 0.721 dB.
   harpTender passed 100% bars, balance 0.647 dB. Nocturne failed at 75% with balance
   1.553 dB in reviewed-pack.json. Commit 83319b6 strengthens the general accompaniment
-  response, and final-mix-acceptance.log is rerunning all three on that code. Earlier current-pack.json
+  response. final-pack.json still fails nocturne at 75%, worst 1.079 dB;
+  balance passes at 1.569 dB. A new capped general accompaniment response is now
+  committed and being tested in stronger-mix-acceptance.log. Its focused 4 checks
+  and mutation proof pass (exit 0); full three-piece acceptance is pending. Earlier current-pack.json
   and trial results are INVALID final evidence.
 - Full suite passed again after 83319b6: 332 tests, exit 0. The revised cap-sensitive
   fixture passes 4 checks; mutation proof fails once for each removed behavior.
