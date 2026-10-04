@@ -10,10 +10,10 @@ const decodeFlac = (root, id, zone) => {
   const file = realpathSync(resolve(root, zone.file)); if (!file.startsWith(root + sep)) throw new Error(`${id}: zone escapes pack: ${zone.file}`);
   const bytes = readFileSync(file), sha = createHash("sha256").update(bytes).digest("hex");
   if (typeof zone.sha256 !== "string" || sha !== zone.sha256.toLowerCase()) throw new Error(`${id}: sha256 mismatch: ${zone.file}`);
-  // ffprobe stops after the headers; feeding a whole FLAC on stdin can hit EPIPE on its early exit.
-  const info = JSON.parse(execFileSync("ffprobe", ["-v", "error", "-show_streams", "-of", "json", file], { encoding: "utf8", maxBuffer: 1 << 20 })).streams;
+  // Count frames so ffprobe consumes the complete verified buffer rather than closing stdin early.
+  const info = JSON.parse(execFileSync("ffprobe", ["-v", "error", "-f", "flac", "-i", "pipe:0", "-count_frames", "-show_streams", "-of", "json"], { input: bytes, encoding: "utf8", maxBuffer: 1 << 20 })).streams;
   if (info.length !== 1 || info[0].codec_name !== "flac" || Number(info[0].sample_rate) !== 48000 || Number(info[0].bits_per_raw_sample) !== 24 || info[0].channels !== zone.channels || ![1, 2].includes(zone.channels)) throw new Error(`${id}: expected 48 kHz 24-bit FLAC with ${zone.channels} channels: ${zone.file}`);
-  const pcm = execFileSync("ffmpeg", ["-v", "error", "-i", file, "-vn", "-f", "f32le", "-acodec", "pcm_f32le", "-ar", "48000", "pipe:1"], { maxBuffer: 1 << 28 });
+  const pcm = execFileSync("ffmpeg", ["-v", "error", "-f", "flac", "-i", "pipe:0", "-vn", "-f", "f32le", "-acodec", "pcm_f32le", "-ar", "48000", "pipe:1"], { input: bytes, maxBuffer: 1 << 28 });
   if (!Number.isInteger(zone.frames) || zone.frames < 1 || pcm.length !== zone.frames * zone.channels * 4) throw new Error(`${id}: frame count mismatch: ${zone.file}`);
   const channels = Array.from({ length: zone.channels }, () => new Float32Array(zone.frames));
   for (let i = 0; i < zone.frames; i++) for (let c = 0; c < zone.channels; c++) { const v = pcm.readFloatLE((i * zone.channels + c) * 4); if (!Number.isFinite(v)) throw new Error(`${id}: non-finite PCM: ${zone.file}`); channels[c][i] = v; }

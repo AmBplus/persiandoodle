@@ -5,7 +5,7 @@ import { build } from "esbuild";
 import { strict as assert } from "node:assert";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, symlinkSync, chmodSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { loadBanks } from "./sounds.mjs";
 
@@ -45,6 +45,23 @@ const check = (label, fn) => { try { fn(); console.log(`PASS ${label}`); } catch
 zone.sha256 = originalRoom.sha256; manifest.rooms = {}; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));
 check('inherited constructor never becomes a sample-bank lookup', () => {
   M.clearBanks(); loadBanks(M, root, ['constructor']); assert.equal(M.bankFor('constructor'), undefined);
+});
+check('symlink outside the pack is rejected before decode', () => {
+  const outside = join(root, '..', 'outside-loader.flac'); writeFileSync(outside, bytes);
+  const linked = join(root, 'escaped.flac'); symlinkSync(outside, linked);
+  zone.file = 'escaped.flac'; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));
+  try { assert.throws(() => loadBanks(M, root, ['piano']), /zone escapes pack/); } finally { zone.file = 'large.flac'; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest)); }
+});
+check('forced FLAC demuxers decode the exact hashed bytes even after the path changes', () => {
+  const wrappers = join(root, 'decoder-wrappers'); mkdirSync(wrappers, { recursive: true });
+  const oldPath = process.env.PATH;
+  for (const command of ['ffprobe', 'ffmpeg']) {
+    const real = execFileSync('which', [command], { encoding: 'utf8' }).trim();
+    const shim = `#!/usr/bin/env node\nimport {readFileSync,writeFileSync} from 'node:fs';\nimport {execFileSync} from 'node:child_process';\nimport {createHash} from 'node:crypto';\nconst args=process.argv.slice(2), input=readFileSync(0);\nif(args[args.indexOf('-f')+1]!=='flac'||!args.includes('pipe:0'))throw Error('decoder must force FLAC on stdin');\nif(createHash('sha256').update(input).digest('hex')!==${JSON.stringify(zone.sha256)})throw Error('decoder did not receive hashed bytes');\n${command === 'ffprobe' ? `writeFileSync(${JSON.stringify(file)},'#EXTM3U\\nhttps://invalid.example/external.flac\\n');` : ''}\nprocess.stdout.write(execFileSync(${JSON.stringify(real)},args,{input,maxBuffer:1<<28}));\n`;
+    const path = join(wrappers, command); writeFileSync(path, shim); chmodSync(path, 0o755);
+  }
+  try { process.env.PATH = wrappers + ':' + oldPath; M.clearBanks(); loadBanks(M, root, ['piano']); assert.equal(M.bankFor('piano').zones[0].channels[0].length, frames); }
+  finally { process.env.PATH = oldPath; writeFileSync(file, bytes); }
 });
 const isolatedHome = join(root, 'default-home'), install = join(isolatedHome, '.anidoodle', 'sounds'); mkdirSync(install, { recursive: true });
 writeFileSync(join(install, 'large.flac'), bytes);
