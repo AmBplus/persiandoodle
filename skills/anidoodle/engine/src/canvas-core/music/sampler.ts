@@ -87,15 +87,9 @@ export const sampleZones = (bank: SampleBank, keys: Played[], seed: number, peda
   });
 };
 
-// No interpolation at unity rate: an in-tune recording keeps its original frames.
-const hermite = (a: Float32Array, x: number) => {
-  const i = Math.floor(x), f = x - i, at = (j: number) => a[Math.max(0, Math.min(a.length - 1, j))];
-  const y0 = at(i - 1), y1 = at(i), y2 = at(i + 1), y3 = at(i + 2);
-  return ((0.5 * (y3 - y0) + 1.5 * (y1 - y2)) * f + y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3) * f * f + 0.5 * (y2 - y0) * f + y1;
-};
 /** Blackman-windowed sinc, narrowed before any downsampling (pitch up OR a 24 kHz stem). */
 const sincTable = (rate: number) => {
-  const taps = 48, phases = 256, cut = 0.94 / rate, table = new Float64Array(taps * (phases + 1));
+  const taps = 48, phases = 256, cut = 0.94 / Math.max(1, rate), table = new Float64Array(taps * (phases + 1));
   for (let p = 0; p <= phases; p++) {
     let sum = 0; for (let t = 0; t < taps; t++) { const d = t - taps / 2 + 1 - p / phases, x = Math.PI * d * cut, win = 0.42 + 0.5 * Math.cos(Math.PI * d / (taps / 2)) + 0.08 * Math.cos(2 * Math.PI * d / (taps / 2)), v = Math.abs(d) >= taps / 2 ? 0 : (Math.abs(x) < 1e-12 ? cut : cut * Math.sin(x) / x) * win; table[p * taps + t] = v; sum += v; }
     for (let t = 0; t < taps; t++) table[p * taps + t] /= sum;
@@ -120,7 +114,7 @@ export const samplerVoice = (bank: SampleBank, keys: Played[], pedal: PedalSpan[
   sorted.forEach((k, idx) => {
     const { zone: z, channels } = zones[idx], i0 = Math.round(k.t * sr); if (i0 >= n) return;
     const rate = (48000 / sr) * (z.unpitched ? 1 : Math.pow(2, (k.p - z.midi) / 12 + (k.vary?.cents ?? 0) / 1200));
-    const table = rate > 1 ? sincTable(rate) : null, v = clamp(k.v, 0, 1);
+    const table = rate !== 1 ? sincTable(rate) : null, v = clamp(k.v, 0, 1);
     // Keep the source's layer levels intact. A normalized source gets all its dynamics from this law.
     const gain = sampleGain(e, z, v) * db((k.vary?.db ?? 0) + (bank.trim?.find((t) => t.file === z.file)?.correctionDb ?? 0));
     const fc = sampleCutoff(e, z, k, sr, typeof opts.sampleFilter === "string" ? opts.sampleFilter : undefined), alpha = 1 - Math.exp(-2 * Math.PI * fc / sr);
@@ -130,7 +124,7 @@ export const samplerVoice = (bank: SampleBank, keys: Played[], pedal: PedalSpan[
     if (e.damped) for (let j = idx + 1; j < sorted.length; j++) if (sorted[j].p === k.p && sorted[j].t > k.t) { damp = Math.min(damp, sorted[j].t + 0.004); break; }
     const tDamp = 0.08 + 0.45 * clamp((60 - k.p) / 36, 0, 1), dampI = Math.round((damp - k.t) * sr), dec = Math.exp(-6.91 / (tDamp * sr));
     const len = Math.min(n - i0, Math.ceil(z.frames / rate), damp === Infinity ? Infinity : dampI + Math.round(tDamp * 1.6 * sr) + 1), inPedal = e.damped && (pedalAt(k.t) || pedalAt(k.t + 0.25));
-    const read = (a: Float32Array, i: number) => rate === 1 ? a[i] : table ? sincRead(a, i * rate, table) : hermite(a, i * rate);
+    const read = (a: Float32Array, i: number) => table ? sincRead(a, i * rate, table) : a[i];
     const rel = releases?.[idx], window = Math.max(1, Math.round(0.02 * sr)); let remaining = 0, count = 0;
     let l = 0, r = 0, env = 1;
     for (let i = 0; i < len; i++) {
@@ -144,8 +138,8 @@ export const samplerVoice = (bank: SampleBank, keys: Played[], pedal: PedalSpan[
     // Match the release noise to the string's last 20 ms, 15 dB below it. Never extend a dead string.
     const allowance = k.p === e.range[0] || k.p === e.range[1] ? 3 : 2;
     if (rel && Number.isFinite(releaseAt) && dampI > 0 && (releaseAt - k.t) * sr < z.frames / rate && count && (rel.zone.unpitched || Math.abs(k.p - rel.zone.midi + (k.vary?.cents ?? 0) / 100) <= allowance)) {
-      const rz = rel.zone, rr = 48000 / sr * (rz.unpitched ? 1 : Math.pow(2, (k.p - rz.midi) / 12 + (k.vary?.cents ?? 0) / 1200)), rt = rr > 1 ? sincTable(rr) : null;
-      const readRel = (a: Float32Array, i: number) => rr === 1 ? a[i] : rt ? sincRead(a, i * rr, rt) : hermite(a, i * rr);
+      const rz = rel.zone, rr = 48000 / sr * (rz.unpitched ? 1 : Math.pow(2, (k.p - rz.midi) / 12 + (k.vary?.cents ?? 0) / 1200)), rt = rr !== 1 ? sincTable(rr) : null;
+      const readRel = (a: Float32Array, i: number) => rt ? sincRead(a, i * rr, rt) : a[i];
       const size = Math.ceil(rz.frames / rr), ref = Math.min(size, Math.round(0.5 * sr)); let power = 0;
       for (let i = 0; i < ref; i++) { const a = readRel(rel.channels[0], i), b = readRel(rel.channels[rz.channels - 1], i); power += (a * a + b * b) * 0.5; }
       const g = power > 0 ? Math.sqrt(remaining / count / (power / ref)) * db(-15) * Math.pow(dec, Math.round((releaseAt - damp) * sr)) : 0, start = Math.round(releaseAt * sr);

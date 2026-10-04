@@ -144,6 +144,24 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
     const high = bank(); for (let i = 0; i < high.zones[0].channels[0].length; i++) high.zones[0].channels[0][i] = 0.3 * Math.sin(2 * Math.PI * 23000 * i / SR);
     const upHigh = render(high, [key(62)]), downHigh = render(high, [key()], 24000), center = (x: Float32Array, sr: number) => rms(x.subarray(sr * 0.1, sr * 0.6));
     ok(center(upHigh.L, SR) < 0.001 && center(downHigh.L, 24000) < 0.001, "sinc removes above-Nyquist energy before pitch-up and 24 kHz downsampling");
+    const imagesDb = (x: Float32Array, f: number) => {
+      let cc = 0, ss = 0, cs = 0, xc = 0, xs = 0;
+      for (let i = 0; i < x.length; i++) { const c = Math.cos(2 * Math.PI * f * i / SR), s = Math.sin(2 * Math.PI * f * i / SR); cc += c*c; ss += s*s; cs += c*s; xc += x[i]*c; xs += x[i]*s; }
+      const d = cc*ss-cs*cs, a = (xc*ss-xs*cs)/d, b = (xs*cc-xc*cs)/d;
+      let residual = 0, signal = 0;
+      for (let i = 0; i < x.length; i++) { const fit = a*Math.cos(2*Math.PI*f*i/SR)+b*Math.sin(2*Math.PI*f*i/SR); residual += (x[i]-fit)**2; signal += fit*fit; }
+      return 10*Math.log10(residual/signal);
+    };
+    const tone = bank([60]); tone.zones[0].channels[0] = Float32Array.from({ length: SR*3 }, (_, i) => 0.3*Math.sin(2*Math.PI*15000*i/SR));
+    for (const shift of [-3, -200]) {
+      const k = { ...key(), vary: { cents: shift, db: 0, bright: 1, decay: 1, phase: 0, seed: 4 } }, f = 15000*2**(shift/1200);
+      const played = render(tone, [k]);
+      ok(imagesDb(played.L.slice(SR*0.1, SR*0.3), f) < -65, `${shift} cents: downward humanisation has no audible interpolation images`);
+      const relZone = { ...tone.zones[0].zone, art: 'rel' as const, file: 'release.flac' }, withRel = { ...tone, entry: { ...tone.entry, damped: true, zones: [...tone.entry.zones, relZone] }, zones: [...tone.zones, { zone: relZone, channels: tone.zones[0].channels }] };
+      const release = render(withRel, [k]), without = render({ ...tone, entry: { ...tone.entry, damped: true } }, [k]);
+      const isolated = Float32Array.from(release.L.slice(SR*0.22, SR*0.32), (v, i) => v - without.L[SR*0.22+i]);
+      ok(imagesDb(isolated, f) < -65, `${shift} cents: pitch-down release noise uses the same clean sinc path`);
+    }
     const canonical = JSON.stringify([b.entry.kind, b.entry.range, b.entry.layers, null, b.entry.damped, true, b.entry.zones.map((z) => [z.sha256, z.midi, z.layer, z.rr, z.frames, z.channels, false, null])]);
     ok(bankIdentity(b.entry) === createHash("sha256").update(canonical).digest("hex"), "browser-safe bank identity agrees with SHA-256");
     const wideGaps = bank([60, 72]); wideGaps.entry.sparse = true; wideGaps.entry.maxShift = 6; wideGaps.zones[0].zone.measuredHz = 260;
