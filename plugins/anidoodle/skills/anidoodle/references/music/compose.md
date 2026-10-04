@@ -14,7 +14,8 @@ It never gives you notes. **You write every note**:
 - the form.
 
 The engine refuses to fill gaps. Missing harmony, melody, grooves or form is an error that tells you
-what to compose. The engine then performs, synthesizes, mixes and masters, deterministically, in code.
+what to compose. The engine then performs, mixes and masters, deterministically, in code, and it
+plays recordings of real instruments where you ask for one.
 
 > **Never reuse shipped material.** The demos (`node tools/music.mjs list`) and our own film scores
 > are listening references and the novelty corpus. They are never a film's score or a template. Don't
@@ -204,6 +205,43 @@ what to compose. The engine then performs, synthesizes, mixes and masters, deter
      Only an ear says right. For a **loop**, deliver a `.wav`: mp3 adds encoder padding, so it clicks
      or gaps at the loop point.
 
+## Recorded instruments
+
+Eight acoustic parts play recordings of the real thing when the sound pack is installed: `piano`
+(and `piano` with `variant: "upright"`), `harp`, `marimba`, `vibes`, `glockenspiel`, `bell` with
+`variant: "tubular"`, and `timpani`. Strings, guitar, bass, brass, woodwinds, choir, celesta, music
+box, the electric pianos and the acoustic drum kit stay modeled either way, and every score plays
+without the pack.
+
+Four things decide what you write:
+
+- **Stay inside the range, or the render throws.** The grand reaches A0; the timpani stops at B3;
+  the vibraphone starts at F3 and the glockenspiel at G5. The full table is in
+  [README.md](README.md#recorded-instruments-the-optional-sound-pack).
+- **A recorded note decays the way that instrument decays.** A low grand note rings for tens of
+  seconds. Do not write a dense texture under it and expect the tail to get out of the way.
+- **The piano has a real pedal.** `sus` zones sound while the dampers are lifted, so the pedal
+  changes `perform.ts` already writes just after each harmony change are audible, and a chord left
+  ringing under the next one is what a real player does. `opts: { pedal: false }` holds the pedal.
+- **A real marimba's low notes are rich.** D2 to C4 carries as much as its top. Keep a bass line out
+  of the melody's register instead of reaching down for a note that will not sit under a tune.
+
+Two options go in a part's `opts`:
+
+| Option | What it does |
+|---|---|
+| `variant: "upright"` / `variant: "tubular"` | picks the second recording of that instrument |
+| `sampled: false` | keeps the modeled voice for that part, whatever is installed |
+
+`node tools/music.mjs check` prints the split, so read it before you believe the instrument table:
+
+```
+voices   recordings: lead (piano), accomp (piano.upright); modeled: bass (bass), drums (kick)
+```
+
+A part you expected to be recorded and find modeled is either out of range or opted out. Both are
+yours to fix; neither is a silent fallback.
+
 ## The material format
 
 Write the score in the film's own file, next to the film module: `src/canvas-core/<film>Score.ts`
@@ -244,7 +282,8 @@ form to the exact length. `score.ts` is an empty skeleton to copy.
   play in. So leave your voice's `gainDb` out (0 = at the target) and set it, like `levels`, only
   as an offset: `gainDb: 2` is two dB over. Then read `check`'s stems and adjust by the dB it
   prints. Options (`attack`, `bright`, `drive`) move the level a little; a piano far up its range
-  is quiet by nature.
+  is quiet by nature. `variant` and `sampled` are the two options that change which sound you get,
+  and they are in [Recorded instruments](#recorded-instruments) above.
 - **Loops:** `loop: true`, and the form length is the loop. `render` makes it seamless.
 - **Split bars:** `harmony: ["<chord> <chord>"]` splits a bar where the meter divides, not at its
   arithmetic middle. Give that section a `bass` override for it.

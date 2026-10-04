@@ -9,8 +9,9 @@ metadata:
 # anidoodle
 
 Pictures, films and interactive pieces drawn entirely in code. One pure function paints every
-frame; another composes and synthesizes every audio sample. The same source rebuilds the same
-pixels and the same sound on any machine, at any size, at any length.
+frame; another composes the score and plays it. The same source rebuilds the same pixels and the
+same sound on any machine, at any size, at any length. Eight acoustic instruments play recordings
+of real ones when the optional sound pack is installed; every score plays without it, unchanged.
 
 The engine is the easy half. Work gets thrown away because it had no point, because the subject
 was an icon of itself, because a style was only a palette swap, because the music had no form,
@@ -57,8 +58,8 @@ say why in one line. Write the answers into a short brief before drawing.
 4. **Prove the look on ONE still, then build end to end.** After that, gates cost more than they
    save. → `references/working-method.md`
 5. **The contract is absolute.** Pure in `(frame, env)` (and the input log, for interactive
-   pieces), `rng(seed)` only, no clock, no `ctx.filter`. Nothing generated or downloaded; images
-   the person brings may be embedded, pinned by hash. → `references/determinism-and-contract.md`
+   pieces), `rng(seed)` only, no clock, no `ctx.filter`. Nothing generated; images they bring may be
+   embedded by hash, and the sound pack is a separate, hash-pinned download. → `references/determinism-and-contract.md`
 6. **Music gets a plan, never an adjective.** A style, a mood per section, the notes as data, then
    measurements. You cannot hear it, so one human listens before it ships. → `references/music/`
 7. **One directs, one builds, both write everything down.** When a session degrades, reset; the
@@ -112,6 +113,8 @@ node tools/still.mjs intro --frame 0 --out out/look.png --scale 2   # a still, w
 node tools/render.mjs intro                                        # MP4; --out x.gif|x.webm|x.apng
 node tools/gate.mjs intro                                          # determinism, contract, dead air
 node tools/emit.mjs intro --out out/intro.html                     # one self-contained offline player
+node <skill>/engine/tools/soundfetch.mjs list    # the install directory and what is installed; no network
+node <skill>/engine/tools/soundfetch.mjs get all # the one command that downloads; then parts play recordings
 ```
 
 | Tool | What it does |
@@ -124,7 +127,8 @@ node tools/emit.mjs intro --out out/intro.html                     # one self-co
 | `verify-export.mjs` | QA on the rendered file: frames, duration, score, A/V sync, true peak after the encode; opt-in first frame, loop seam, `--delivery` |
 | `launch.mjs` | a launch film: `new <name>` scaffolds the spec; `ship <name> --shapes 16x9,9x16` renders, posters, captions, verifies and framechecks each (`framecheck.mjs`: no text cut by the frame's edge) |
 | `test.mjs` (`npm test`) | unit suites in `engine/test/`, no browser |
-| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score (key, master, guards, stems, novelty); `render`, `meter` |
+| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score (key, master, guards, stems, novelty, and which parts played recordings); `render`, `meter` |
+| `soundfetch.mjs` | the sound pack: `list`, `get <id...\|all>`, `where`, `verify`, `remove <id>` |
 | `sfx.mjs` | the sound-effects kit: `list`, `one`, `kit <dir>`, `test` |
 
 Four backends, one art core: `playwright`, `html-player`, `remotion`, `hyperframes`.

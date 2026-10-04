@@ -6,7 +6,7 @@
   "interface": {
     "displayName": "anidoodle",
     "shortDescription": "Hand-drawn art, written as code.",
-    "longDescription": "Illustrations, drawing timelapses, films of any length, explainers, infographics and interactive web animations in 31 hand-made styles, with original scores composed and synthesized in code. Match a style from your image, recreate a photo in any style, keep a character consistent, or learn how a drawing is built. Every render is deterministic, with no generated assets.",
+    "longDescription": "Illustrations, drawing timelapses, films of any length, explainers, infographics and interactive web animations in 31 hand-made styles, with original scores composed as data and played by an engine written in code. Match a style from your image, recreate a photo in any style, keep a character consistent, or learn how a drawing is built. Every render is deterministic, with no generated assets.",
     "developerName": "Alex Greenshpun",
     "category": "Creativity",
     "capabilities": [

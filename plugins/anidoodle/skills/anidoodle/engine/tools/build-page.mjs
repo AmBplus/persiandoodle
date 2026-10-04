@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { extname, join, relative, resolve } from "node:path";
 import { overlay, resolveOverlay } from "./overlay.mjs";
 import { requireFilm, splitShape } from "./names.mjs";
+import { loadFilmModule, prepareFilmSounds, filmFloat32 } from './audio.mjs';
 
 // BAKE KEYS (see Env.bake and hosts/page.ts). Every module that exports `const X: Film` is tagged
 // in the bundle with its own path, and each tagged module gets a hash of its WHOLE import closure
@@ -48,20 +49,20 @@ export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   if (shape) { entry = entry.replace(`page-${title}.ts`, `page-${base}.ts`); title = base; }
   if (!existsSync(entry)) entry = resolveOverlay("./" + entry, process.cwd()) ?? entry; // e.g. the example's own host page
   if (!existsSync(entry) && title) requireFilm(title, "build", "a film name: src/hosts/page-<film>.ts"); // a clear exit with the known films, not an esbuild trace
-  const main = await build({ entryPoints: [entry], bundle: true, format: "iife", target: "es2020", minify: true, write: false, legalComments: "none", metafile: true, plugins: [...plugins, tagFilms] });
+  const main = await build({ absWorkingDir: process.cwd(), entryPoints: [resolve(entry)], bundle: true, format: "iife", target: "es2020", minify: true, write: false, legalComments: "none", metafile: true, plugins: [...plugins, tagFilms] });
   const js = main.outputFiles[0].text;
   // read the manifest out of the film module itself, so the page and the film can never disagree
-  const probe = (await build({ stdin: { contents: `export { ${title} as film } from "./src/canvas-core/${title}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins })).outputFiles[0].text;
-  const { film } = await import("data:text/javascript;base64," + Buffer.from(probe).toString("base64"));
+  const { film, music } = await loadFilmModule(shape ? `${title}-${shape}` : title, plugins);
+  const recorded = prepareFilmSounds(film, music), audio = recorded ? filmFloat32(film) : null;
   const assets = Object.fromEntries(Object.entries(film.assets.images).map(([name, file]) => { const mime = MIME[extname(file).toLowerCase()]; if (!mime) throw new Error(`asset '${name}': unsupported type ${file}`); return [name, `data:${mime};base64,${readFileSync(join(process.cwd(), file)).toString("base64")}`]; }));
   // the renderer that draws every plate frame, and the assets any plate may read, salt every key
   const salt = [BAKE_FORMAT, ...["src/canvas-core/film.ts", "src/canvas-core/core.ts"].map((f) => readFileSync(resolve(f), "utf8")), JSON.stringify(assets)].join("\0");
   const bakeSrc = bakeHashes(main.metafile, salt);
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${film.meta.title}</title>
 <style>html,body{margin:0;height:100%;background:#1b1a1a;display:grid;place-items:center}canvas{max-width:100vw;max-height:100vh;aspect-ratio:${film.meta.W}/${film.meta.H};cursor:pointer;background:#fff}</style></head>
-<body><canvas id="film"></canvas><script>window.__ASSETS__=${JSON.stringify(assets)};window.__BAKE_SRC__=${JSON.stringify(bakeSrc)};${shape ? `window.__SHAPE__=${JSON.stringify(shape)};` : ""}</script><script>${js.replace(/<\/script/g, "<\\/script")}</script></body></html>`;
+<body><canvas id="film"></canvas><script>window.__ASSETS__=${JSON.stringify(assets)};window.__BAKE_SRC__=${JSON.stringify(bakeSrc)};${audio ? `window.__AUDIO__=${JSON.stringify(audio)};` : ''}${shape ? `window.__SHAPE__=${JSON.stringify(shape)};` : ""}</script><script>${js.replace(/<\/script/g, "<\\/script")}</script></body></html>`;
   mkdirSync(join(out, ".."), { recursive: true }); writeFileSync(out, html);
-  const meta = shape ? (film.reshape ? film.reshape(shape).meta : (() => { throw new Error(`${base} has one shape (it has no reshape); ${shape} is for launch template films`); })()) : film.meta;
+  const meta = film.meta;
   return { out, bytes: html.length, meta, assets: Object.keys(film.assets.images) };
 };
 if (import.meta.url === `file://${process.argv[1]}`) { const title = requireFilm(process.argv[2], "build-page", "node tools/build-page.mjs <film>"); const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }

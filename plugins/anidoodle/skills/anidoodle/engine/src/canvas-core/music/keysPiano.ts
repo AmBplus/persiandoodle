@@ -88,6 +88,7 @@ const VOICINGS: Record<PianoVariant, Voicing> = {
 
 const stretchCents = (m: number) => (m > 60 ? 0.012 * Math.pow(m - 60, 1.9) : -0.02 * Math.pow(60 - m, 1.6));
 const nStrings = (m: number) => (m < 29 ? 1 : m < 41 ? 2 : 3);
+export const pianoVelocity = (v: number) => v < 0.6 ? Math.pow(v, 1.55) : Math.pow(0.6, 1.55) * Math.pow(v / 0.6, 0.9);
 /** Register trim (dB): matches the legacy piano's listened register balance (tools/keys-demo.mjs + a C1-C8 probe at mf, first second RMS), smoothed. */
 const REG_TRIM = [[21, -0.9], [28, -1.1], [36, -1.6], [44, 2.1], [52, 4.8], [60, 4.7], [68, 6.9], [76, 7.8], [84, 7.0], [92, 6.9], [100, 5.0], [108, 4.0]];
 const regTrim = (m: number) => { if (m <= 21) return REG_TRIM[0][1]; for (let i = 1; i < REG_TRIM.length; i++) if (m <= REG_TRIM[i][0]) return lerp(REG_TRIM[i - 1][1], REG_TRIM[i][1], (m - REG_TRIM[i - 1][0]) / (REG_TRIM[i][0] - REG_TRIM[i - 1][0])); return REG_TRIM[REG_TRIM.length - 1][1]; };
@@ -149,7 +150,7 @@ export const renderPianoV2 = (keys: KeyPress[], pedal: PedalSpan[], sr: number, 
     buf.fill(0, 0, len);
     const nb = buf.subarray(0, len);
     // loudness law (felt hardening above mf: a faster hammer buys brightness more than level)
-    const loud = v < 0.6 ? Math.pow(v, 1.55) : Math.pow(0.6, 1.55) * Math.pow(v / 0.6, 0.9);
+    const loud = pianoVelocity(v);
     // tension modulation: a big swing stretches the string, so the loud prompt sound sits a hair sharp (strike to strike it differs)
     const tension = Math.pow(2, ((0.5 + 0.35 * seq) * v * v * 1.4 * clamp(Math.pow(262 / f0, 0.3), 0.6, 1.6)) / 1200);
     const amps: number[] = [], freqs: number[] = [];

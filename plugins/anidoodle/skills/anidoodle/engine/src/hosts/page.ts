@@ -3,8 +3,9 @@
 // Audio) lives HERE; the art core never sees it.
 import type { Ctx, Env, Layer, ProbeRec } from "../canvas-core/core";
 import { Film, renderFrame, validate } from "../canvas-core/film";
+import { embeddedAudio, type AudioPayload } from './audio';
 
-declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string>; __SHAPE__?: string } }
+declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string>; __SHAPE__?: string; __AUDIO__?: AudioPayload } }
 
 // THE BAKE STORE (Env.bake). A finished plate frame, keyed by the hash of the source that draws it
 // (build-page.mjs hashes each film module's whole import closure, plus the engine's own renderer),
@@ -34,6 +35,7 @@ const bakeStore = (surface: (w: number, h: number) => Layer) => {
 export const mountFilm = (film: Film) => {
   // <film>-<shape> (build-page.mjs sets __SHAPE__): the same film, re-composed for that frame
   if (window.__SHAPE__) { if (!film.reshape) throw new Error(`${film.meta.title} has one shape; ${window.__SHAPE__} is for launch template films (film.reshape)`); film = film.reshape(window.__SHAPE__); }
+  const filmSound = window.__AUDIO__ ? embeddedAudio(window.__AUDIO__) : film.audio;
   const canvas = document.getElementById("film") as HTMLCanvasElement, images = new Map<string, CanvasImageSource>();
   let env: Env, ctx: Ctx, current = 0;
   // Safari before 16.4 has no 2D OffscreenCanvas: fall back to a detached <canvas>. The core cannot tell the difference.
@@ -150,7 +152,7 @@ export const mountFilm = (film: Film) => {
     } finally { protos.forEach((p, i) => (p.fillText = orig[i] as never)); delete g.__ANIDOODLE_PROBE__; }
     return out;
   };
-  const audio = (sr: number) => { if (!film.audio) return null; const [L, R] = film.audio(sr); if (L.length !== R.length) throw new Error("audio channels have different lengths"); const pcm = new Float32Array(L.length * 2); for (let i = 0; i < L.length; i++) { pcm[i * 2] = L[i]; pcm[i * 2 + 1] = R[i]; } return { sampleRate: sr, frames: L.length, float32: b64(new Uint8Array(pcm.buffer)) }; };
+  const audio = (sr: number) => { if (!filmSound) return null; const [L, R] = filmSound(sr); if (L.length !== R.length) throw new Error("audio channels have different lengths"); const pcm = new Float32Array(L.length * 2); for (let i = 0; i < L.length; i++) { pcm[i * 2] = L[i]; pcm[i * 2 + 1] = R[i]; } return { sampleRate: sr, frames: L.length, float32: b64(new Uint8Array(pcm.buffer)) }; };
   const warm = () => film.shots.forEach((s) => { seek(s.start); seek(s.start + ((s.end - s.start) >> 1)); }); // first + middle frame of every shot: builds tiles, pre-allocates the layer pool
   // POSTER. Platforms show frame 0 as the thumbnail, so a delivery may open on a chosen frame (the
   // wall of styles, the logo) and dissolve into the film's real opening over `fade` frames. The
@@ -181,7 +183,7 @@ export const mountFilm = (film: Film) => {
     const stop = () => { playing = false; node?.stop(); node = null; };
     const play = () => {
       ac ??= new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)(); playing = true; f0 = current >= film.meta.durationFrames - 1 ? 0 : current; t0 = ac.currentTime;
-      if (film.audio) { const [L, R] = film.audio(ac.sampleRate), buf = ac.createBuffer(2, L.length, ac.sampleRate); buf.getChannelData(0).set(L); buf.getChannelData(1).set(R); node = ac.createBufferSource(); node.buffer = buf; node.connect(ac.destination); node.start(0, f0 / film.meta.fps); }
+      if (filmSound) { const sr = window.__AUDIO__?.sampleRate ?? ac.sampleRate, [L, R] = filmSound(sr), buf = ac.createBuffer(2, L.length, sr); buf.getChannelData(0).set(L); buf.getChannelData(1).set(R); node = ac.createBufferSource(); node.buffer = buf; node.connect(ac.destination); node.start(0, f0 / film.meta.fps); }
       const tick = () => { if (!playing) return; const f = f0 + Math.floor((ac!.currentTime - t0) * film.meta.fps); if (f >= film.meta.durationFrames) { seek(film.meta.durationFrames - 1); stop(); return; } if (f !== current) seek(f); requestAnimationFrame(tick); }; tick();
     };
     const toggle = () => (playing ? stop() : play());

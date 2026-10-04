@@ -6,6 +6,7 @@ import { type Piece, type Part, resequence, beatsPerBar } from "./plan";
 import { perform, type Performance, type Played } from "./perform";
 import { renderPiano, PIANO_REAL, type PianoOpts } from "./piano";
 import { keysVoice, renderPianoV2 } from "./keys";
+import { bankFor, samplerVoice, sampleZones, registerBank, type SampleBank, type SampleTrim } from "./sampler";
 import * as I from "./instruments";
 import * as O from "./orchestra";
 import { chokeTimes, type KitCtx } from "./drums";
@@ -16,11 +17,12 @@ import { loudness, truePeak, stemBalance } from "./meter";
 import { STYLES } from "./tables";
 import { rng as mkRng } from "../core";
 import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter, ampSim, transientGain } from "./mixDsp";
-import { reverb, type Space } from "./mixReverb";
-import { mixProfile, partEq, ROLE_SEND, isStruck, TRANSIENT_DEFAULT, type MixProfile } from "./mixProfiles";
+import { reverb, roomFor, effectiveSpace, type Space } from "./mixReverb";
+import { mixProfile, partEq, recordedEq, ROLE_SEND, isStruck, TRANSIENT_DEFAULT, type MixProfile } from "./mixProfiles";
 
 export type RenderOpts = { /** sound v2, gentle styles only: a <= 1 dB 2:1 glue on the mix bus (spec 08 forbids a compressor on gentle masters; Alex decides) */ gentleGlue?: boolean; expressive?: boolean; piano?: PianoOpts; flatVelocity?: number; seconds?: number; tempo?: number; master?: "auto" | "gentle" | "dense" | "none"; stems?: boolean; only?: (p: Part) => boolean;
   /** play this performance instead of performing the piece (the guards render one role of the SAME performance the mix plays) */ perf?: Performance;
+  /** Complete part strikes keep recorded EQ fixed when a guard isolates one note role. */ mixKeys?: Played[][];
   /** reuse synthesized voices by their exact inputs (tools/music.mjs check: each part is synthesized once for the mix, the guards and the stems); output is bit-identical */ cache?: VoiceCache };
 
 /**
@@ -31,13 +33,20 @@ export type RenderOpts = { /** sound v2, gentle styles only: a <= 1 dB 2:1 glue 
 export type VoiceOut = { L: Float32Array; R: Float32Array; halo?: Float32Array; /** the transient gain's reduction (dB), when the job ran it */ transientGr?: number };
 /** Per-stem processing that depends on nothing but the stem (sound v2): the lo-fi stem colour, the amp, the gentle master's transient gain. */
 type StemPost = { lofi?: LofiFx; id: string; seed: number; period?: number; amp?: number; transient?: { maxDb: number; thrDb: number; ratio: number } };
-export type VoiceJob =
+export type VoiceJob = (
+  | { kind: "sampled"; bank: string; bankHash: string; inst: Part["inst"]; opts?: Part["opts"]; keys: Played[]; pedal: Performance["pedal"]; sr: number; n: number; seed: number; post?: StemPost }
   | { kind: "voice"; inst: Part["inst"]; opts?: Part["opts"]; keys: Played[]; sr: number; n: number; seed: number; ctx: KitCtx; post?: StemPost }
-  | { kind: "piano"; keys: Played[]; pedal: Performance["pedal"]; sr: number; n: number; seed: number; opts?: Part["opts"]; v1?: PianoOpts; post?: StemPost };
+  | { kind: "piano"; keys: Played[]; pedal: Performance["pedal"]; sr: number; n: number; seed: number; opts?: Part["opts"]; v1?: PianoOpts; post?: StemPost }) & { roomHashes?: [string, string, number, number][] };
 export type VoiceCache = Map<string, VoiceOut>;
 export const runVoiceJob = (j: VoiceJob): VoiceOut => {
+  for (const [id, sha, rt60, directFrames] of j.roomHashes ?? []) { const r = roomFor(id); if (!r || r.sha256 !== sha || r.rt60 !== rt60 || (r.directFrames ?? 0) !== directFrames) throw new Error(`recorded room missing or changed: ${id} (${sha})`); }
   let out: VoiceOut;
-  if (j.kind === "piano") { const r = j.v1 ? renderPiano(j.keys, j.pedal, j.sr, j.n, j.v1, j.seed) : renderPianoV2(j.keys, j.pedal, j.sr, j.n, j.opts ?? {}, j.seed); out = { L: r.L, R: r.R, halo: r.halo }; }
+  if (j.kind === "sampled") {
+    const b = bankFor(j.inst, typeof j.opts?.variant === "string" ? j.opts.variant : undefined);
+    if (!b || b.id !== j.bank || b.hash !== j.bankHash) throw new Error(`sample bank missing or changed: ${j.bank} (${j.bankHash})`);
+    out = samplerVoice(b, j.keys, j.pedal, j.sr, j.n, j.opts ?? {}, j.seed);
+  }
+  else if (j.kind === "piano") { const r = j.v1 ? renderPiano(j.keys, j.pedal, j.sr, j.n, j.v1, j.seed) : renderPianoV2(j.keys, j.pedal, j.sr, j.n, j.opts ?? {}, j.seed); out = { L: r.L, R: r.R, halo: r.halo }; }
   else out = voice({ id: "", role: "accomp", notes: [], inst: j.inst, ...(j.opts ? { opts: j.opts } : {}) }, j.keys, j.sr, j.n, j.seed, j.ctx);
   const q = j.post; if (!q) return out;
   if (q.lofi) lofiStem(q.lofi, q.id, out.L, out.R, j.sr, j.keys.map((k) => k.t), q.seed, q.period);
@@ -55,9 +64,13 @@ const v2Job = (piece: Piece, pt: Part, pi: number, keys: Played[], perf: Perform
   const tg = prof.transient === undefined ? TRANSIENT_DEFAULT : prof.transient, amp = typeof pt.opts?.amp === "number" ? (pt.opts.amp as number) : undefined;
   const transient = style.master === "gentle" && tg && isStruck(pt.inst, pt.opts) ? tg : undefined;
   const post: StemPost | undefined = lofi || amp !== undefined || transient ? { id: pt.id, seed: piece.seed, ...(lofi ? { lofi, period } : {}), ...(amp !== undefined ? { amp } : {}), ...(transient ? { transient } : {}) } : undefined;
-  const base = pt.inst === "piano" ? (o.piano ? { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, v1: o.piano } : { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, opts: pt.opts ?? {} })
+  const bank = pt.opts?.sampled === false ? undefined : bankFor(pt.inst, typeof pt.opts?.variant === "string" ? pt.opts.variant : undefined);
+  const base = bank ? { kind: "sampled" as const, bank: bank.id, bankHash: bank.hash, inst: pt.inst, keys, pedal: perf.pedal, sr, n, seed: pt.inst === "piano" ? piece.seed + pi : piece.seed * 101 + pi, opts: pt.opts }
+    : pt.inst === "piano" ? (o.piano ? { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, v1: o.piano } : { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, opts: pt.opts ?? {} })
     : { kind: "voice" as const, inst: pt.inst, opts: pt.opts, keys, sr, n, seed: piece.seed * 101 + pi, ctx };
-  return post ? { ...base, post } : base;
+  const roomHashes: [string, string, number, number][] = [effectiveSpace(piece.plan.space)?.room ?? prof.space?.room, prof.drumRoom?.room].flatMap((id) => { const r = roomFor(id); return r && id ? [[id, r.sha256, r.rt60, r.directFrames ?? 0] as [string, string, number, number]] : []; });
+  const job = post ? { ...base, post } : base;
+  return roomHashes.length ? { ...job, roomHashes } : job;
 };
 /** Synthesize (or reuse) one voice. The caller owns the returned arrays (it mutates them in place). */
 const synth = (j: VoiceJob, cache?: VoiceCache): VoiceOut => {
@@ -122,6 +135,39 @@ const voice = (pt: Part, keys: Played[], sr: number, n: number, seed: number, ct
   }
 };
 
+/** Fixed single-note energy references at each zone's pitch and layer centre.
+ * Keep the instrument median trim; cap zone deviation so a near-silent recording never gets a huge lift. */
+export const calibrateBank = (id: string) => {
+  const [inst, ...variant] = id.split("."), bank = bankFor(inst, variant.join(".") || undefined); if (!bank) throw new Error(`sample bank missing: ${id}`);
+  const sr = 24000, n = sr * 12, opts = { ...(variant.length ? { variant: variant.join(".") } : {}), pedal: false }, bare: SampleBank = { entry: bank.entry, zones: bank.zones };
+  // Gated RMS would match the average tail instead of energy per strike, changing a fast
+  // arpeggio's balance when recorded and modeled decays differ. Use one fixed 12 s window.
+  const level = (r: VoiceOut) => { const mid = Float32Array.from(r.L, (x, i) => (x + r.R[i]) * 0.5); Biquad.make(sr, "hp", 30, 0.7071).run(mid); let energy = 0; for (const x of mid) energy += x * x; return 10 * Math.log10(energy / n); };
+  const bandFraction = (r: VoiceOut) => {
+    const mid = Float32Array.from(r.L, (x, i) => (x + r.R[i]) * 0.5);
+    Biquad.make(sr, "hp", 40, Math.SQRT1_2).run(mid);
+    let total = 0; for (const x of mid) total += x * x;
+    Biquad.make(sr, "hp", 500, Math.SQRT1_2).run(mid); Biquad.make(sr, "lp", 4000, Math.SQRT1_2).run(mid);
+    let band = 0; for (const x of mid) band += x * x;
+    return 10 * Math.log10(Math.max(1e-15, band) / Math.max(1e-15, total));
+  };
+  const references = new Map<string, { level: number; band: number }>();
+  const trim: SampleTrim[] = bank.zones.filter(({ zone }) => zone.art !== "rel").map((z) => {
+    const p = z.zone.midi, v = bank.entry.layerVelocity?.[z.zone.layer - 1] ?? (z.zone.layer - 0.5) / bank.entry.layers;
+    const keys: Played[] = [{ p, v, tone: v, t: 0, off: 1, role: "melody", w: v }], one: SampleBank = { entry: { ...bare.entry, zones: [{ ...z.zone, art: undefined }] }, zones: [{ ...z, zone: { ...z.zone, art: undefined } }] }, recorded = samplerVoice(one, keys, [], sr, n, opts, 1);
+    const ref = `${p}:${v}`; let modeled = references.get(ref);
+    if (modeled === undefined) { const r = inst === "piano" ? renderPianoV2(keys, [], sr, n, opts, 1) : voice({ id: "ref", inst: inst as Part["inst"], role: "melody", notes: [], opts }, keys, sr, n, 1); modeled = { level: level(r), band: bandFraction(r) }; references.set(ref, modeled); }
+    const modeledDb = modeled.level;
+    const measuredDb = level(recorded);
+    const correctionDb = modeledDb - measuredDb;
+    if (!Number.isFinite(correctionDb)) throw new Error(`${id}: silent calibration at MIDI ${p}`);
+    const bandFractionDb = bandFraction(recorded);
+    return { file: z.zone.file, midi: p, layer: z.zone.layer, measuredDb, modeledDb, correctionDb, bandFractionDb, bandExcessDb: bandFractionDb - modeled.band };
+  });
+  const sorted = trim.map((t) => t.correctionDb).sort((a, b) => a - b), middle = Math.floor(sorted.length / 2), medianDb = sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+  return registerBank(id, { ...bare, trim: trim.map((t) => ({ ...t, requestedDb: t.correctionDb, medianDb, correctionDb: medianDb + Math.max(-9, Math.min(9, t.correctionDb - medianDb)), boostLimited: t.correctionDb > medianDb + 9 })) });
+};
+
 export const renderPiece = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => (piece.legacy ? renderLegacy(piece, sr, o) : renderV2(piece, sr, o));
 
 /** The pre-v2 render, frozen: the shipped launch score renders through this bit for bit. */
@@ -150,7 +196,7 @@ const renderLegacy = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered =>
   // ---- space
   const rng = mkRng(piece.seed * 7 + 5), dry: [Float32Array, Float32Array] = [Float32Array.from(L), Float32Array.from(R)];
   let wet: [Float32Array, Float32Array] = [new Float32Array(n), new Float32Array(n)];
-  const sp = piece.plan.space;
+  const sp = effectiveSpace(piece.plan.space);
   if (style.id === "musicBox" && !sp) { // the recipe: ONE early reflection, 30 ms late, 14 dB down, no tail
     const d = Math.round(0.03 * sr), g = db(-14); for (let i = d; i < n; i++) { wet[0][i] = dry[0][i - d] * g; wet[1][i] = dry[1][i - d] * g * 0.9; L[i] += wet[0][i]; R[i] += wet[1][i]; }
   } else if (style.reverb !== "none" || sp) {
@@ -203,14 +249,23 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
     let sL: Float32Array, sR: Float32Array;
     // piano v2 (keysPiano.ts) unless the caller asks for the v1 model by passing RenderOpts.piano
     // the voice, then its stem processing (lo-fi colour, amp, transient gain): one job (v2Job), cached as a whole
-    const r = synth(v2Job(piece, pt, pi, keys, perf, sr, n, o, kitCtx), o.cache); sL = r.L; sR = r.R;
-    if (pt.inst === "piano" && (o.piano ? o.piano.pedal : pt.opts?.pedal !== false)) for (let i = 0; i < n; i++) haloL[i] += r.halo![i] * db(pt.gainDb ?? 0);
+    const job = v2Job(piece, pt, pi, keys, perf, sr, n, o, kitCtx), r = synth(job, o.cache); sL = r.L; sR = r.R;
+    if (r.halo && (job.kind === "sampled" || (pt.inst === "piano" && (o.piano ? o.piano.pedal : pt.opts?.pedal !== false)))) for (let i = 0; i < n; i++) haloL[i] += r.halo[i] * db(pt.gainDb ?? 0);
     if (r.transientGr !== undefined) report.transientGr = Math.max(report.transientGr ?? 0, r.transientGr);
     if (pump && dk!.parts.includes(pt.id)) for (let i = 0; i < n; i++) { sL[i] *= pump[i]; sR[i] *= pump[i]; }
     // corrective EQ, then match the stem's RMS back (+-3 dB cap): EQ shapes the tone, the fader keeps the calibrated balance
     // the stem meter reads the part as the fader set it (pre-EQ, after its pan): the EQ is energy-neutral in the audible band
     const pre = o.stems ? [Float32Array.from(sL), Float32Array.from(sR)] as [Float32Array, Float32Array] : null;
-    const before = audible(sL, sR, sr), e = partEq(prof, pt.inst, pt.role); runEq(sL, eqChain(sr, e)); runEq(sR, eqChain(sr, e));
+    const before = audible(sL, sR, sr);
+    let e = partEq(prof, pt.inst, pt.role);
+    if (job.kind === "sampled" && (pt.role === "bass" || pt.role === "accomp")) {
+      const bank = bankFor(pt.inst, typeof pt.opts?.variant === "string" ? pt.opts.variant : undefined)!;
+      const selected = sampleZones(bank, (o.mixKeys?.[pi] ?? keys).slice().sort((a, b) => a.t - b.t || a.p - b.p), job.seed, pt.opts?.pedal === false ? [] : perf.pedal);
+      const spectra = selected.map(z => bank.trim?.find(t => t.file === z.zone.file));
+      const median = (xs: number[], fallback: number) => xs.length ? xs.sort((a, b) => a - b)[Math.floor(xs.length / 2)] : fallback;
+      e = recordedEq(e, pt.role, median(spectra.map(t => t?.bandExcessDb ?? 0), 0), median(spectra.map(t => t?.bandFractionDb ?? -Infinity), -Infinity));
+    }
+    runEq(sL, eqChain(sr, e)); runEq(sR, eqChain(sr, e));
     const after = audible(sL, sR, sr), mk = after > 0 && before > 0 ? Math.min(db(3), Math.max(db(-3), Math.sqrt(before / after))) : 1;
     const g = db(pt.gainDb ?? 0) * mk;
     for (let i = 0; i < n; i++) { sL[i] *= g; sR[i] *= g; }
@@ -232,7 +287,7 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
   // ---- space
   const rng = mkRng(piece.seed * 7 + 5), dry: [Float32Array, Float32Array] = [Float32Array.from(L), Float32Array.from(R)];
   let wet: [Float32Array, Float32Array] = [new Float32Array(n), new Float32Array(n)];
-  const sp = piece.plan.space;
+  const sp = effectiveSpace(piece.plan.space);
   if (style.id === "musicBox" && !sp && !piece.mix?.space) { // the recipe: ONE early reflection, 30 ms late, 14 dB down, no tail
     const d = Math.round(0.03 * sr), g = db(-14); for (let i = d; i < n; i++) { wet[0][i] = dry[0][i - d] * g; wet[1][i] = dry[1][i - d] * g * 0.9; L[i] += wet[0][i]; R[i] += wet[1][i]; }
   } else {
@@ -242,7 +297,8 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
       if (!prof.drumRoom) for (let i = 0; i < n; i++) { mS[0][i] += rS[0][i]; mS[1][i] += rS[1][i]; }
       const [wL, wR, tL, tR] = reverb(mS[0], mS[1], sr, main, rng);
       for (let i = 0; i < n; i++) { L[i] += wL[i]; R[i] += wR[i]; }
-      wet = [tL, tR]; report.space = `${main.kind} ${main.rt60}s`;
+      const recorded = roomFor(main.room);
+      wet = [tL, tR]; report.space = recorded ? `${main.room} ${recorded.rt60}s (${recorded.sha256})` : `${main.kind} ${main.rt60}s`;
     }
     if (prof.drumRoom && anyRoom) {
       const [wL, wR, tL, tR] = reverb(rS[0], rS[1], sr, prof.drumRoom, mkRng(piece.seed * 11 + 3));
@@ -372,7 +428,7 @@ export const fitToDuration = (piece: Piece, seconds: number): { piece: Piece; te
 };
 
 /** What a Film's `audio(sampleRate)` returns: [L, R] at exactly the film's length. */
-export const filmAudio = (piece: Piece, seconds: number) => (sr: number): [Float32Array, Float32Array] => {
+export const filmAudio = (piece: Piece, seconds: number) => Object.assign((sr: number): [Float32Array, Float32Array] => {
   const fit = fitScore(piece, seconds), r = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo });
   return [r.L, r.R];
-};
+}, { scores: [fitScore(piece, seconds).piece] });
