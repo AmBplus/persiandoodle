@@ -17,7 +17,7 @@ import { loudness, truePeak, stemBalance } from "./meter";
 import { STYLES } from "./tables";
 import { rng as mkRng } from "../core";
 import { eqChain, runEq, stereoPan, compress, saturate, bandWidth, smoothLimiter, ampSim, transientGain } from "./mixDsp";
-import { reverb, roomFor, type Space } from "./mixReverb";
+import { reverb, roomFor, effectiveSpace, type Space } from "./mixReverb";
 import { mixProfile, partEq, ROLE_SEND, isStruck, TRANSIENT_DEFAULT, type MixProfile } from "./mixProfiles";
 
 export type RenderOpts = { /** sound v2, gentle styles only: a <= 1 dB 2:1 glue on the mix bus (spec 08 forbids a compressor on gentle masters; Alex decides) */ gentleGlue?: boolean; expressive?: boolean; piano?: PianoOpts; flatVelocity?: number; seconds?: number; tempo?: number; master?: "auto" | "gentle" | "dense" | "none"; stems?: boolean; only?: (p: Part) => boolean;
@@ -35,10 +35,10 @@ type StemPost = { lofi?: LofiFx; id: string; seed: number; period?: number; amp?
 export type VoiceJob = (
   | { kind: "sampled"; bank: string; bankHash: string; inst: Part["inst"]; opts?: Part["opts"]; keys: Played[]; pedal: Performance["pedal"]; sr: number; n: number; seed: number; post?: StemPost }
   | { kind: "voice"; inst: Part["inst"]; opts?: Part["opts"]; keys: Played[]; sr: number; n: number; seed: number; ctx: KitCtx; post?: StemPost }
-  | { kind: "piano"; keys: Played[]; pedal: Performance["pedal"]; sr: number; n: number; seed: number; opts?: Part["opts"]; v1?: PianoOpts; post?: StemPost }) & { roomHashes?: [string, string, number][] };
+  | { kind: "piano"; keys: Played[]; pedal: Performance["pedal"]; sr: number; n: number; seed: number; opts?: Part["opts"]; v1?: PianoOpts; post?: StemPost }) & { roomHashes?: [string, string, number, number][] };
 export type VoiceCache = Map<string, VoiceOut>;
 export const runVoiceJob = (j: VoiceJob): VoiceOut => {
-  for (const [id, sha, rt60] of j.roomHashes ?? []) { const r = roomFor(id); if (!r || r.sha256 !== sha || r.rt60 !== rt60) throw new Error(`recorded room missing or changed: ${id} (${sha})`); }
+  for (const [id, sha, rt60, directFrames] of j.roomHashes ?? []) { const r = roomFor(id); if (!r || r.sha256 !== sha || r.rt60 !== rt60 || (r.directFrames ?? 0) !== directFrames) throw new Error(`recorded room missing or changed: ${id} (${sha})`); }
   let out: VoiceOut;
   if (j.kind === "sampled") {
     const b = bankFor(j.inst, typeof j.opts?.variant === "string" ? j.opts.variant : undefined);
@@ -67,7 +67,7 @@ const v2Job = (piece: Piece, pt: Part, pi: number, keys: Played[], perf: Perform
   const base = bank ? { kind: "sampled" as const, bank: bank.id, bankHash: bank.hash, inst: pt.inst, keys, pedal: perf.pedal, sr, n, seed: pt.inst === "piano" ? piece.seed + pi : piece.seed * 101 + pi, opts: pt.opts }
     : pt.inst === "piano" ? (o.piano ? { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, v1: o.piano } : { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, opts: pt.opts ?? {} })
     : { kind: "voice" as const, inst: pt.inst, opts: pt.opts, keys, sr, n, seed: piece.seed * 101 + pi, ctx };
-  const roomHashes: [string, string, number][] = [piece.plan.space?.room ?? prof.space?.room, prof.drumRoom?.room].flatMap((id) => { const r = roomFor(id); return r && id ? [[id, r.sha256, r.rt60] as [string, string, number]] : []; });
+  const roomHashes: [string, string, number, number][] = [effectiveSpace(piece.plan.space)?.room ?? prof.space?.room, prof.drumRoom?.room].flatMap((id) => { const r = roomFor(id); return r && id ? [[id, r.sha256, r.rt60, r.directFrames ?? 0] as [string, string, number, number]] : []; });
   const job = post ? { ...base, post } : base;
   return roomHashes.length ? { ...job, roomHashes } : job;
 };
@@ -185,7 +185,7 @@ const renderLegacy = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered =>
   // ---- space
   const rng = mkRng(piece.seed * 7 + 5), dry: [Float32Array, Float32Array] = [Float32Array.from(L), Float32Array.from(R)];
   let wet: [Float32Array, Float32Array] = [new Float32Array(n), new Float32Array(n)];
-  const sp = piece.plan.space;
+  const sp = effectiveSpace(piece.plan.space);
   if (style.id === "musicBox" && !sp) { // the recipe: ONE early reflection, 30 ms late, 14 dB down, no tail
     const d = Math.round(0.03 * sr), g = db(-14); for (let i = d; i < n; i++) { wet[0][i] = dry[0][i - d] * g; wet[1][i] = dry[1][i - d] * g * 0.9; L[i] += wet[0][i]; R[i] += wet[1][i]; }
   } else if (style.reverb !== "none" || sp) {
@@ -267,7 +267,7 @@ const renderV2 = (piece: Piece, sr: number, o: RenderOpts = {}): Rendered => {
   // ---- space
   const rng = mkRng(piece.seed * 7 + 5), dry: [Float32Array, Float32Array] = [Float32Array.from(L), Float32Array.from(R)];
   let wet: [Float32Array, Float32Array] = [new Float32Array(n), new Float32Array(n)];
-  const sp = piece.plan.space;
+  const sp = effectiveSpace(piece.plan.space);
   if (style.id === "musicBox" && !sp && !piece.mix?.space) { // the recipe: ONE early reflection, 30 ms late, 14 dB down, no tail
     const d = Math.round(0.03 * sr), g = db(-14); for (let i = d; i < n; i++) { wet[0][i] = dry[0][i - d] * g; wet[1][i] = dry[1][i - d] * g * 0.9; L[i] += wet[0][i]; R[i] += wet[1][i]; }
   } else {
