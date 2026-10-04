@@ -25,17 +25,25 @@ Done and proven:
   soundsDir() when flags/environment are unset. Both default-install tests failed
   before and passed again in review-default-commit.log (exit 0).
 
-Finished in saved code, being committed individually:
-- Loader forced FLAC + verified-buffer stdin, Object.hasOwn, directFrames metadata
-  and reload identity were implemented and passed review-loader-green.log. Their
-  deltas are saved in loader-code-in-progress.mjs and loader-tests-in-progress.mjs
-  while commits are split. These snapshots are coordination files, not shipped tools.
-- Loader symlink containment was already correct; a new test proves rejection.
+Done and proven, loader commits:
+- 131be2d: Object.hasOwn prevents inherited instrument lookup. Regression failed
+  before and passes in review-own-commit2.log; full run exited 0.
+- fe88af3: ffprobe/ffmpeg force FLAC and decode the exact hashed stdin bytes.
+  The regression replaces the path after hashing and checks both decoder inputs.
+  Symlink-containment rejection is also tested. review-bytes-commit.log records PASS.
+- 0a74d41: loadBanks forwards directFrames and compares it for room reload identity.
+  Both metadata checks pass in review-direct-commit.log.
+- Windows: absolute PATH resolver in sounds.mjs decoderPath; simulated Windows test
+  passed in review-windows-commit2.log (exit 0) and failed with ENOENT when the resolver
+  was removed in review-windows-red2.log (exit 1). Native Windows was not run.
 
-Half done:
-- Windows implicit-current-directory decoder lookup: sounds-unit.mjs has a new
-  simulated Windows PATH-only regression, saved in loader-tests-in-progress.mjs.
-  It fails without the resolver. sounds.mjs decoder resolution is still untouched.
+Half done or untouched:
+- No scoped review production fix remains untouched. Final full-suite verification
+  after restoring masking is pending.
+- Masking production delta remains saved, not applied. render.ts calibrateBank/renderV2,
+  mixProfiles.ts recordedEq, sampler.ts SampleTrim, guards.ts maskingPlan and loader
+  measurement logging need restoration from masking-in-progress.patch. Its behavioral
+  tests are saved in recordedMix-in-progress.ts. New acceptance is untouched.
 
 Masking is paused. masking-in-progress.patch and recordedMix-in-progress.ts retain
 its production/test delta. Previous current-pack.json acceptance predates the room
