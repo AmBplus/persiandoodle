@@ -138,7 +138,7 @@ export const recordedEq = (e: StemEq, role: Role, excessDb: number, fractionDb: 
   if (role !== "bass" && role !== "accomp") return e;
   // A reference can itself be bright. Also limit absolute band occupancy toward 6% (-12 dB).
   // One broad bell spans the guard's 500 Hz-4 kHz band; the existing makeup stage holds level.
-  const depth = Math.min(role === "bass" ? 12 : 6, Math.max(0, excessDb, fractionDb + 12) * (role === "bass" ? 0.8 : 0.6));
+  const depth = Math.min(role === "bass" ? 12 : 6, Math.max(0, excessDb, fractionDb + 12) * 0.8);
   return depth > 0 ? { ...e, bells: [...(e.bells ?? []), [1400, 0.45, -depth]] } : e;
 };
 /** A one-line summary for tools/music.mjs vocab. */

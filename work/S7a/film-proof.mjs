@@ -14,7 +14,7 @@ const fixture = { name: 'S7a-proof-fixture', setup(b) { b.onResolve({ filter: /\
 const plugins = [fixture, overlay], md5 = b => createHash('md5').update(b).digest('hex');
 const prefix = 'skills/anidoodle/engine/';
 const baselineRevision = 'b0be4f708b2dc7f59dc8704f515c16885ae4e5fb';
-const original = new Map(execFileSync('git', ['diff', baselineRevision, '--name-only'], { encoding: 'utf8' }).trim().split('\n').filter(p => p.startsWith(prefix + 'src/') && p.endsWith('.ts')).map(p => [root + p.slice(prefix.length), execFileSync('git', ['show', `${baselineRevision}:${p}`], { encoding: 'utf8' })]));
+const original = new Map(execFileSync('git', ['diff', baselineRevision, '--name-only', '--diff-filter=M'], { encoding: 'utf8' }).trim().split('\n').filter(p => p.startsWith(prefix + 'src/') && p.endsWith('.ts')).map(p => [root + p.slice(prefix.length), execFileSync('git', ['show', `${baselineRevision}:${p}`], { encoding: 'utf8' })]));
 const beforeSources = { name: 'S7a-original-sources', setup(b) { b.onLoad({ filter: /\.ts$/ }, a => original.has(a.path) ? { contents: original.get(a.path), loader: 'ts' } : undefined); } };
 const env = detect();
 assert(env.chosen, 'offline browser must be available');

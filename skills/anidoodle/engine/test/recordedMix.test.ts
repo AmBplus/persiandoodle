@@ -42,6 +42,9 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
     ok(lead.every((v, i) => v === unchanged[i]), 'recorded melody keeps every sample when support EQ measurements change');
     ok(fraction(bass) < fraction(bassBefore) - 2 && fraction(accomp) < fraction(accompBefore) - 1, 'load-measured recorded bass and accompaniment lose masking-band energy');
     ok(Math.abs(20 * Math.log10(rms(bass) / rms(bassBefore))) < 2.5 && Math.abs(20 * Math.log10(rms(accomp) / rms(accompBefore))) < 2.5, 'support EQ retains broadband balance through the existing makeup stage');
+    // Keep this fixture below the EQ cap so a wrong role-only selection is audible.
+    registerBank('marimba', { ...calibrated, trim: calibrated.trim!.map(t => ({ ...t,
+      bandExcessDb: 0, bandFractionDb: t.midi === 48 ? -10 : -6 })) });
     const p = piece('accomp', true);
     // Include one melody note so the guard has a melody role; keep the complete accompaniment context.
     p.parts[0].notes[2].role = 'melody';
