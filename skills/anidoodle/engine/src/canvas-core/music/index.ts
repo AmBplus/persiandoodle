@@ -1,4 +1,6 @@
-// anidoodle music: 100 % procedural, notes as data, synthesized in code. No samples, ever.
+// anidoodle music: notes as data, modeled voices and optional banks of real recordings.
+export * from "./sampler";
+export { registerRoom, roomFor, clearRooms } from "./mixReverb";
 export * from "./theory";
 export * from "./tables";
 export * from "./plan";

@@ -98,7 +98,7 @@ const cinematicP: MixProfile = { eq: 0.9, drumBus: { ratio: 3, targetGrDb: 2.5, 
 const P = (base: MixProfile, o: Partial<MixProfile>): MixProfile => ({ ...base, ...o });
 
 export const MIX_PROFILES: Record<StyleId, MixProfile> = {
-  nocturne: P(intimate, { sends: { melody: 0.5, accomp: 0.35, inner: 0.35, bass: 0.3, color: 0.5 }, space: conv(1.7, 24, { size: 0.6, late: 0.17, er: 0.4, hp: 300, lp: 6500 }), /* hp 300: the left hand's low-mids stay out of the room (masking guard 75 -> 81 %) */ width: W(1.0, 1.1, 150), classEq: { piano: { hp: 28 } } }),
+  nocturne: P(intimate, { sends: { melody: 0.5, accomp: 0.35, inner: 0.35, bass: 0.3, color: 0.5 }, space: conv(1.7, 24, { room: "rymer", size: 0.6, late: 0.17, er: 0.4, hp: 300, lp: 6500 }), /* optional treated-room recording; hp 300 keeps the left hand's low-mids out of the send */ width: W(1.0, 1.1, 150), classEq: { piano: { hp: 28 } } }),
   lullaby: P(intimate, { space: conv(1.5, 18, { size: 0.5 }), tilt: -0.8 }),
   musicBox: P(intimate, { space: null /* the recipe: one reflection, handled in render */, width: W(1.0, 1.05) }),
   folk: P(intimate, { space: conv(1.2, 12, { size: 0.4, late: 0.28 }), width: W(1.05, 1.15), feel: "natural" }),

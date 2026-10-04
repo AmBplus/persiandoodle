@@ -26,7 +26,7 @@ export type Section = {
 export type MusicPlan = { style: StyleId; tempo: number; meter: Meter; sections: Section[]; pickupBeats?: number; swing?: number; phraseBars?: number; sync?: string[];
   /** tempo-arch depth per phrase (1 = +-2.5 %); final ritard end-tempo ratio (1 = none) */ rubato?: number; ritard?: number;
   /** a seamless loop (renderLoop): the end must not relax into a cadence */ loop?: boolean;
-  /** room override (the guards' bad fixture uses it; films normally take the style's room) */ space?: { er?: number; late?: number; rt60?: number; hp?: number } };
+  /** room override (the guards' bad fixture uses it; films normally take the style's room) */ space?: Partial<import("./mixReverb").Space> };
 export type Chord = { t: number; name: string };
 /** Bus moves (lofiKit): `duck` pumps the named parts on every onset of the `by` part; `tape` wobbles and saturates the master. */
 export type PieceFx = { clean?: boolean /* skip the lo-fi colour (sampler, vinyl, tilt: lofiFx.ts) */; duck?: { by: string; parts: string[]; depth?: number; release?: number }; tape?: TapeFx; /** the lo-fi production chain (lofiFx.ts); a lofi-style piece without one gets LOFI_DUSTY */ lofi?: LofiFx };

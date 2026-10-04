@@ -23,6 +23,8 @@
 //   node tools/music.mjs probe                      # piano realism probes
 //   node tools/music.mjs calibrate [--voices]       # palette trims (vocabTrim.ts); --voices: alternates' trims and your own voices' levels (vocabVoices.ts)
 //   (check/render run voices on all but one core; ANIDOODLE_THREADS=1 renders serially, ANIDOODLE_TIMING=1 prints check's stage times)
+//   ANIDOODLE_SOUNDS=<pack-dir> or --sounds <pack-dir> plays optional, hash-verified FLAC banks.
+//   --room <id> selects a recorded room; an unregistered id keeps the synthesized space.
 import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
 import { writeFileSync, readFileSync, existsSync, mkdirSync, unlinkSync } from "node:fs";
@@ -30,10 +32,15 @@ import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
+import { loadBanks, soundIds, printSounds } from "./sounds.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SR = 48000;
 let ENGINE_URL = "";
+let SOUNDS_DIR;
+let ROOM_ID;
+const SOUNDS_URL = new URL("./sounds.mjs", import.meta.url).href;
+const loadSounds = (M, piece) => loadBanks(M, SOUNDS_DIR, soundIds(piece));
 const load = async () => {
   const r = await build({ entryPoints: [join(here, "../src/canvas-core/music/index.ts")], bundle: true, write: false, format: "esm", platform: "neutral", target: "es2022", logLevel: "error" });
   ENGINE_URL = "data:text/javascript;base64," + Buffer.from(r.outputFiles[0].text).toString("base64");
@@ -47,7 +54,8 @@ const load = async () => {
 // the same code on the same inputs, so the audio is bit-identical to a serial render
 // (tools/music-unit.mjs checks it). ANIDOODLE_THREADS=1 renders serially.
 const WORKER = `const { parentPort, workerData } = require("node:worker_threads");
-import(workerData).then((M) => {
+Promise.all([import(workerData.engine), import(workerData.loader)]).then(([M, S]) => {
+  S.loadBanks(M, workerData.sounds, workerData.ids);
   parentPort.on("message", ({ id, job, task }) => {
     if (job) { const o = M.runVoiceJob(job); parentPort.postMessage({ id, o }, [...new Set([o.L.buffer, o.R.buffer, o.halo && o.halo.buffer].filter(Boolean))]); return; }
     const opts = { ...task.opts, cache: new Map(task.voices) };
@@ -57,10 +65,10 @@ import(workerData).then((M) => {
 });`;
 const THREADS = () => Number(process.env.ANIDOODLE_THREADS) || Math.max(1, availableParallelism() - 1);
 /** Run messages on a pool of `threads` workers; resolves to their replies by id, in the order given. */
-const pool = (msgs, threads) => { const queue = msgs.slice(), out = new Map(); return Promise.all(Array.from({ length: Math.min(threads, msgs.length) }, () => new Promise((ok, fail) => {
-  const w = new Worker(WORKER, { eval: true, workerData: ENGINE_URL });
+const pool = (msgs, threads) => { const queue = msgs.slice(), out = new Map(), ids = [...new Set(msgs.flatMap((m) => m.job ? (m.job.kind === "sampled" ? [m.job.bank] : []) : soundIds(m.task.piece)))]; return Promise.all(Array.from({ length: Math.min(threads, msgs.length) }, () => new Promise((ok, fail) => {
+  const w = new Worker(WORKER, { eval: true, workerData: { engine: ENGINE_URL, loader: SOUNDS_URL, sounds: SOUNDS_DIR, ids } });
   const next = () => { const x = queue.shift(); if (!x) { w.terminate(); ok(); return; } w.postMessage(x); };
-  w.on("message", (m) => { if (!m.ready) out.set(m.id, m); next(); }); w.on("error", fail);
+  w.on("message", (m) => { if (!m.ready) out.set(m.id, m); next(); }); w.on("error", (e) => { queue.length = 0; w.terminate(); fail(e); });
 }))).then(() => out); };
 export const prewarm = async (M, cache, jobs) => {
   const todo = new Map(); for (const j of jobs) { const k = M.voiceJobKey(j); if (!cache.has(k) && !todo.has(k)) todo.set(k, j); }
@@ -108,7 +116,7 @@ const getPiece = async (M, ref) => {
     const mod = await import("data:text/javascript;base64," + Buffer.from(r.outputFiles[0].text).toString("base64"));
     v = mod[exp]; if (v === undefined) throw new Error(`${file} has no export "${exp}" (exports: ${Object.keys(mod).join(", ")})`);
   }
-  const make = () => { const x = typeof v === "function" ? v() : v; return x && x.sections && x.chords ? M.composePiece(x) : x; };
+  const make = () => { const x = typeof v === "function" ? v() : v, p = x && x.sections && x.chords ? M.composePiece(x) : x; return ROOM_ID ? { ...p, plan: { ...p.plan, space: { ...p.plan.space, room: ROOM_ID } } } : p; };
   return { make, name: ref, demo: Boolean(fromDemo) };
 };
 
@@ -151,6 +159,7 @@ const renderOne = async (M, spec) => {
   let tempo = spec.tempo ?? piece.plan.tempo;
   let form;
   if (spec.fit) { const f = M.fitScore(piece, spec.seconds); piece = f.piece; tempo = f.tempo; form = `${f.form}: ${f.piece.plan.sections.map((x) => x.id).join(", ")}`; }
+  loadSounds(M, piece);
   const opts = { seconds: spec.seconds, tempo };
   if (spec.flat) Object.assign(opts, { expressive: false, piano: M.PIANO_FLAT, flatVelocity: 0.6 });
   const loop = spec.loop || piece.plan.loop, go = (cache) => (loop ? M.renderLoop(piece, SR, { cache, stems: true }) : M.renderPiece(piece, SR, { ...opts, cache, stems: true }));
@@ -178,11 +187,21 @@ const noteVoicing = (r, piece) => {
 };
 const main = async () => {
   const [cmd, ...args] = process.argv.slice(2);
+  const soundsAt = args.indexOf("--sounds");
+  if (soundsAt >= 0 && (!args[soundsAt + 1] || args[soundsAt + 1].startsWith("--"))) throw new Error("--sounds needs a pack directory");
+  SOUNDS_DIR = soundsAt >= 0 ? args.splice(soundsAt, 2)[1] : process.env.ANIDOODLE_SOUNDS;
+  if (SOUNDS_DIR) SOUNDS_DIR = resolve(SOUNDS_DIR);
+  const roomAt = args.indexOf("--room");
+  if (roomAt >= 0 && (!args[roomAt + 1] || args[roomAt + 1].startsWith("--"))) throw new Error("--room needs a room id");
+  ROOM_ID = roomAt >= 0 ? args.splice(roomAt, 2)[1] : undefined;
   const M = await load();
   const flag = (k) => args.includes(k), val = (k, d) => { const i = args.indexOf(k); return i >= 0 ? Number(args[i + 1]) : d; };
   if (cmd === "list") { console.log("demos (listening references and the novelty corpus, never a film's score):\n  " + Object.keys(M.DEMOS).join("\n  ") + "\nfixtures (tests):\n  " + Object.keys(M.FIXTURES).join("\n  ")); return; }
   if (cmd === "vocab") { if (args[0] === "--md") vocabMarkdown(M); else printVocab(M, args[0]); return; }
-  if (cmd === "calibrate") { if (flag("--voices")) calibrateVoices(M); else calibrate(M); return; }
+  if (cmd === "calibrate") {
+    if (SOUNDS_DIR) { const manifest = JSON.parse(readFileSync(join(SOUNDS_DIR, "manifest.json"), "utf8")); loadBanks(M, SOUNDS_DIR, Object.keys(manifest.instruments)); console.log(JSON.stringify(Object.fromEntries(Object.keys(manifest.instruments).map((id) => [id, { hash: M.bankFor(id).hash, trim: M.bankFor(id).trim }])), null, 1)); }
+    else if (flag("--voices")) calibrateVoices(M); else calibrate(M); return;
+  }
   if (cmd === "novelty") {
     const refs = args.filter((a) => !a.startsWith("--") && !/^[\d.]+$/.test(a)), pcs = [];
     for (const ref of refs) pcs.push(await getPiece(M, ref));
@@ -204,6 +223,7 @@ const main = async () => {
   if (cmd === "check") {
     const pc = await getPiece(M, args[0]); let piece = pc.make(), tempo = piece.plan.tempo, seconds = val("--seconds", undefined);
     if (flag("--fit")) { const f = M.fitScore(piece, seconds); piece = f.piece; tempo = f.tempo; }
+    loadSounds(M, piece); printSounds(M, piece);
     const T = process.env.ANIDOODLE_TIMING ? (l) => console.error(`[timing] ${l} ${((Date.now() - T0) / 1000).toFixed(1)} s`) : () => {}, T0 = Date.now();
     const cache = new Map(); await prewarm(M, cache, checkJobs(M, piece, tempo, seconds)); T("voices"); // every voice once, in parallel
     const pending = startGuards(M, cache, piece, tempo, seconds).then((x) => { T("guard renders + stems"); return x; }); // the guards' role renders and the stems, on workers meanwhile
@@ -217,6 +237,7 @@ const main = async () => {
   if (cmd === "render") {
     const [name, out] = args, pc = await getPiece(M, name), cache = new Map();
     const { r, tempo, ms, deterministic, piece, guards } = await renderOne(M, { make: pc.make, seconds: val("--seconds", undefined), tempo: val("--tempo", undefined), flat: flag("--flat"), fit: flag("--fit"), loop: flag("--loop"), cache, verify: flag("--verify"), stems: flag("--stems") });
+    printSounds(M, piece);
     // an mp3 is encoded from a private intermediate next to it (never x.wav: rendering x.mp3 must not touch an x.wav you already have)
     const mp3 = out.endsWith(".mp3"), wav = mp3 ? join(dirname(resolve(out)), `.${basename(out)}.${process.pid}.tmp.wav`) : out;
     if (mp3 && (piece.plan.loop || flag("--loop"))) console.log("NOTE: mp3 is not gapless (encoder padding clicks at the loop point). Ship loops as .wav (or ogg/m4a with gapless metadata).");
@@ -232,6 +253,7 @@ const main = async () => {
   if (cmd === "stems") {
     const [name] = args; let piece = (await getPiece(M, name)).make(), tempo = piece.plan.tempo, seconds = val("--seconds", undefined);
     if (flag("--fit")) { const f = M.fitScore(piece, seconds); piece = f.piece; tempo = f.tempo; }
+    loadSounds(M, piece);
     const cache = new Map(); await prewarm(M, cache, M.voiceJobs(piece, STEM_SR, { tempo, seconds }));
     printStems(M, piece, tempo, seconds, cache); return;
   }
@@ -403,6 +425,7 @@ const vocabMarkdown = (M) => {
 
 /** Key/mode problems, composer warnings, the master (did the peak cap stop it short?), and the guards. Returns pass. */
 const report = (M, r, piece, cache, bands) => {
+  if (ROOM_ID) console.log(`space    ${r.mixReport?.space ?? "legacy space"}`);
   let ok = true; const probs = M.planProblems(piece), warn = piece.warnings ?? [];
   for (const p of probs) console.log(`PROBLEM  ${p}`); ok = ok && !probs.length;
   for (const w of warn) console.log(`WARNING  ${w}`);
