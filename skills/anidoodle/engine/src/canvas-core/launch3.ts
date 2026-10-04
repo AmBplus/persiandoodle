@@ -103,6 +103,6 @@ export const launch3: Film = {
   meta: { title: "anidoodle · launch, cut 3", W, H, fps: FPS, bpm: 90, durationFrames: N3, raster: "cpu", kind: "launch", holds: [...HOLDS3, ...ACCEPTED3] },
   assets: { images: { almond: "assets/refs/vangogh-almond-blossom.jpg" } }, // public domain; provenance in engine/assets/refs/PROVENANCE.json
   shots: [{ id: "cut", start: 0, end: N3, draw: (ctx, F, env) => { const { s, local } = at(F); if (s.kind === "pic") content2(ctx, env, contentOf(s, local)); else drawType(ctx, env, s, local, F); } }],
-  audio: audio3,
+  audio: Object.assign(audio3, { scores: [launchLofi3()] }),
 };
 export const SEGS3 = () => SEGS.map((s, i) => [s.kind, STARTS[i], s.len, s.kind === "type" ? s.lines.map((l) => l.text).join(" / ") : `${s.from}-${s.to}`]);

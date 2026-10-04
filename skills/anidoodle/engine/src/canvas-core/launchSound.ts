@@ -11,6 +11,7 @@
 import { placeSfx, sfxDuck, sfxAudibility, type SfxCue, type SfxPlan, type SfxAudibility, type PlacedCue } from "./music/sfx";
 import { limiter } from "./music/render";
 import { loudness, truePeak } from "./music/meter";
+import type { FilmAudio } from "./film";
 
 /** A cue as the template emits it: a kit cue, plus where on screen it happens (px) and what made it. */
 export type LaunchCue = SfxCue & { x?: number; role: "key" | "press" | "drop" | "bloom" | "land" | "arrive" | "riser" | "impact" };
@@ -51,8 +52,8 @@ export const mixLaunch = (music: [Float32Array, Float32Array] | null, plan: Laun
   return { L, R, placed, audibility: aud, raised: [...raised].map(([i, db]) => ({ i, role: cues[i].role, db })), lufs: lu, dbtp: truePeak([L, R]).dbtp, ok: aud.every((a) => a.ok) };
 };
 /** What a Film's audio(sampleRate) returns; throws when a cue is still buried after raising it. */
-export const launchAudio = (music: ((sr: number) => [Float32Array, Float32Array]) | null, plan: LaunchPlan) => (sr: number): [Float32Array, Float32Array] => {
+export const launchAudio = (music: FilmAudio | null, plan: LaunchPlan) => Object.assign((sr: number): [Float32Array, Float32Array] => {
   const m = mixLaunch(music ? music(sr) : null, plan, sr);
   if (!m.ok) throw new Error(`launch sound: ${m.audibility.filter((a) => !a.ok).map((a) => `cue #${a.i} ${a.kind} @ ${a.atS.toFixed(2)} s is ${a.marginDb.toFixed(1)} dB under the score even raised +8 dB`).join("; ")}: thin the score there or move the cue`);
   return [m.L, m.R];
-};
+}, { scores: music?.scores ?? [] });

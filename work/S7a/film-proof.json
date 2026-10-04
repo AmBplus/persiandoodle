@@ -1,0 +1,42 @@
+[
+  {
+    "label": "launchExample-modeled",
+    "md5": "f9c4185f6c42c64ac0610196b5233e89",
+    "browserPcmMd5": "56d04c3103a90ee60f58ca5ea7aaa508",
+    "frames": 768000,
+    "recorded": false,
+    "proof": "original/current browser byte identity",
+    "outsideRequests": 0,
+    "clickSampleRate": 44100
+  },
+  {
+    "label": "launchExample-pack",
+    "md5": "f9c4185f6c42c64ac0610196b5233e89",
+    "browserPcmMd5": "56d04c3103a90ee60f58ca5ea7aaa508",
+    "frames": 768000,
+    "recorded": false,
+    "proof": "original/current browser byte identity",
+    "outsideRequests": 0,
+    "clickSampleRate": 44100
+  },
+  {
+    "label": "scoredFilm-modeled",
+    "md5": "344a1e1d68c265ccca57165c7896ef9b",
+    "browserPcmMd5": "36454a4d5b1ff257c9ccc96dcb5f2079",
+    "frames": 672000,
+    "recorded": false,
+    "proof": "original/current browser byte identity",
+    "outsideRequests": 0,
+    "clickSampleRate": 44100
+  },
+  {
+    "label": "scoredFilm-pack",
+    "md5": "797816b302690bc935ba97e1a420287b",
+    "browserPcmMd5": "a6327c60021639800f6bc0c2b5c3c905",
+    "frames": 672000,
+    "recorded": true,
+    "proof": "Node/browser sample identity",
+    "outsideRequests": 0,
+    "clickSampleRate": 48000
+  }
+]

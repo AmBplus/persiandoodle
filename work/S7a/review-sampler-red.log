@@ -1,0 +1,72 @@
+
+sampler
+  PASS  two-semitone repitch is within 3 cents
+  PASS  24 kHz stems render finite and in tune
+  PASS  in-tune 48 kHz mono keeps original attack frames above the layer centre
+  PASS  normalized dynamics stay expressive and soft notes retain their attack spectrum
+  PASS  unnormalized layers retain the source's level relationship
+  PASS  middle-register damper is silent 1 s after lift; pedal holds; undamped rings
+  PASS  the pedal feeds a room halo and pedal:false disables it
+  PASS  pedal spans use the piano's inclusive down, exclusive up boundary
+  PASS  bass dampers close slowly; top grand keys have no dampers
+  PASS  vibes and upright top keys still have dampers
+  PASS  out-of-range note throws with note name and playable range
+  PASS  per-note cents and dB are applied
+  PASS  unpitched zones never transpose, including cents variation
+  PASS  deterministic output; changing seed cannot change a single recording
+  PASS  nearest pitch is chosen before the nearest velocity layer
+  PASS  round robins never repeat back to back, even with identical note seeds
+  PASS  each note's own seed owns its round robin
+  PASS  a changed fallback seed changes round robins only
+  PASS  repeated-note renders are bit-identical
+  PASS  a missing layer never pulls a note to a farther pitch
+  PASS  default centres split layers at 1/3 and 2/3, boundaries choose the harder layer
+  PASS  manifest centres override defaults; played velocity owns the layer, tone only shapes the filter
+  PASS  sus only for strikes under the pedal, including both boundaries
+  PASS  missing sus at the ordinary pitch/layer falls back to ordinary
+  PASS  pedal:false never selects a sus recording
+  PASS  rel fires once at key-up for its exact recorded duration
+  PASS  a caught note fires rel at pedal-up, once
+  PASS  restruck notes release at each actual key-up, never at the artificial string choke
+  PASS  rel is 15 dB below the remaining string level, later releases are quieter
+  PASS  undamped instruments never add rel
+  PASS  undamped grand treble never adds rel
+  PASS  sus and rel round robins render deterministically
+  PASS  rel outside the two-semitone allowance is skipped
+  PASS  articulations belong in the bank identity
+  PASS  relative filter uses the chosen centre, bypassing at and above it
+  PASS  filter-off plays unity-rate PCM with only its dynamic gain
+  PASS  non-normalized gain is unity at the layer centre, gently relative below and above, silent at zero
+  PASS  normalized banks use exactly the modeled piano velocity law, including its soft-register level compensation
+  PASS  pitch/layer calibration is deterministic from PCM and fixed modeled references
+  PASS  calibration never changes recording PCM or tone
+  PASS  healthy calibrated layers meet fixed references and preserve at least the modeled dynamic range
+  PASS  calibrated non-normalized notes add only a bounded relative adjustment
+  PASS  zone corrections stay within 9 dB of the instrument median, while the whole-instrument trim is unlimited
+  PASS  only zones needing excessive upward correction trigger louder-layer fallback
+  PASS  excessive downward corrections are capped too, without promoting an already-loud zone
+  PASS  quiet zones use the next louder layer at the same pitch, with deterministic non-repeating round robin
+  PASS  louder-layer fallback is brought down only by the gentle bounded relative gain
+  PASS  a quiet zone without a louder layer keeps its capped correction, never changes pitch or disappears
+  PASS  protection skips still-quiet and missing layers, staying at the selected pitch
+  PASS  louder-layer protection keeps sus tied to pedal-at-strike and ordinary playback otherwise
+  PASS  invalid layerVelocity is rejected
+  PASS  stereo channel phase and level survive playback
+  PASS  sinc removes above-Nyquist energy before pitch-up and 24 kHz downsampling
+  FAIL  -3 cents: downward humanisation has no audible interpolation images
+  FAIL  -3 cents: pitch-down release noise uses the same clean sinc path
+  FAIL  -200 cents: downward humanisation has no audible interpolation images
+  FAIL  -200 cents: pitch-down release noise uses the same clean sinc path
+  PASS  browser-safe bank identity agrees with SHA-256
+  PASS  sparse banks allow wide shifts; measuredHz does not retune the recording
+  PASS  nocturne: no-bank audio matches the pre-change md5
+  PASS  marimbaCurious: no-bank audio matches the pre-change md5
+  PASS  sampled jobs carry the bank hash and cannot hit modeled cache entries
+  PASS  sampled stems run the existing lo-fi, amp and transient chain in order
+  PASS  sampled:false retains exact modeled audio
+  PASS  legacy pieces never use a registered bank
+  PASS  variants are exact bank ids, with no bare-id fallback
+  PASS  replaced banks invalidate jobs instead of silently serving another voice
+  PASS  sustained zones without loops are rejected
+
+TESTS: FAIL   64 passed, 4 failed

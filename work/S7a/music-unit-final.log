@@ -1,0 +1,41 @@
+(node:90355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  launchLofi3 md5 d20789f2344e6fff0d2a380c7c7825d2 (48 kHz), -14.00 LUFS, -1.91 dBTP
+  ok  mood controls: 0.5 on all five = identical audio; warmth/space moved = different audio
+  ok  missing harmony, melody, voicing, groove, form, mood: each throws; the score scaffold is empty and refuses to play
+  ok  notation: a short final bar throws with the rest to write (C2:3 -> C2:3 r:1); compose refuses it
+  ok  15 groove families x 8 meters: 1685 bars parse, deterministic, seed-varied
+  ok  21 style vocabularies compose, render (true peak <= -1 dBTP), master; uncalibrated palettes meet their stem targets on the test signal
+  ok  lofiElectronic (calibrated on the listened launch score): stems within +-3 dB, worst counter -1.1 dB
+  ok  hot sub: mix -14.0 LUFS (passes), stem meter flags bass +9.0 dB
+  ok  loop: seam step 0.0044 <= p99.9 0.2361, deterministic
+  ok  fit 70 s: 25 bars at 86.6 bpm, last onset 66.80 s on Cmaj9
+  ok  fit 90 s: 33 bars at 88.7 bpm, last onset 86.80 s on Cmaj9
+  ok  fit 110 s: 41 bars at 90.0 bpm, last onset 106.92 s on Cmaj9
+  ok  filmAudio: exactly the film's length
+  ok  fit: a score composed to 17 s keeps 123 bpm (natural end 17.49 s: the tail takes the difference); 21.4 s is refitted
+  ok  lines: a short line warns; loopLines repeats it to fill the section
+  ok  levels: a dB offset on top of the calibrated gain
+  ok  section energy scales the dynamics of every part
+  ok  written grooves cycle from each section's first bar
+  ok  timpani in a drum lane is tuned to the key
+  ok  per-section key: the key check reads each key region
+  ok  Db lydian leaning on Ab is accepted (scale fits, tonic heard); a wrong key is still flagged
+  ok  stems: the lead may sit +3 dB over tolerance (guards win), not more
+  ok  stem meter: a part panned hard left reads as hard right (-29.0 dB both; v1 read the left channel only), a -40 dB tail does not dilute it (-23.01 vs -23.01)
+  ok  guards run on a 7/8 score (1 windows)
+  ok  harmony "~": the chord holds over the bar line (3 notes of 8 beats, not 6 restrikes), the bass keeps its line unless its bar is "~"; "~ F" holds into the bar, then changes
+  ok  comp: x strikes the chord sounding at that point, r rests, @VEL accents, ~ ties a push over the bar line; a comp bar that does not add up throws
+  ok  voicing "r": the chord part rests for that chord, the harmony still names it and its bass plays
+  ok  split bars: 3/4 changes on beat 3 (2+1), 6/8 3+3 eighths, 5/4 3+2 or its grouping (2+3), 7/8 4+3 eighths, explicit beats "C:1 F:2"; a wrong sum throws
+  ok  alternates: all 66 in every style sit within 0.05 dB of their target (cinematic piano lead -0.0, house synth lead 0.0; the blind composer needed +14 and +16.5)
+  ok  your own voice (gainDb left out) sits at the slot's target within 3 dB: cinematic lead piano -0.0, cinematic counter strings +0.1, house lead leadSynth -0.0, world arp guitar +1.9, folk chords strings -0.2, jazz bass bass +0.5, orchestral lead woodwind +0.0, lofiElectronic chords ePiano -1.4, suspense lead bowedSolo +0.3, playful arp marimba +1.5; its target is the corrected one (cinematic counter -16.4); gainDb: 2 = 2.00 dB over
+  ok  novelty: Daylight vs launchLofi3 = 0.699 (threshold 0.5): FAIL, as Alex heard it
+  ok  novelty: every demo vs every other demo passes (closest: chiptunePlayful vs driveElectronic 0.406)
+  ok  novelty: a transposed 6-note quote of a shipped line fails (5 reused fragments)
+  ok  novelty: launchLofi3's melody re-barred into 5/4 and transposed FAILS (similarity only 0.401, 6-note fragments 0, 8-note shapes quoted 10)
+  ok  novelty: nocturne's melody re-barred into 5/4 and transposed FAILS (similarity only 0.369, 6-note fragments 0, 8-note shapes quoted 38)
+  ok  voice cache: a hit renders bit-identically (md5 e67f3831), masking from cached role renders equals the serial guard; quickselect = sort
+  ok  peak report: bar 3 beat 2, lead A5 B5, hat
+  ok  render x.mp3 leaves an existing x.wav alone (no temp left behind); the parallel cached render equals a serial one (--verify)
+music unit: 38 checks PASS in 211 s

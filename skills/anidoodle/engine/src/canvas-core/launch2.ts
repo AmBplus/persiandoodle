@@ -324,7 +324,7 @@ export const launch2: Film = {
     shot("open", sceneOpen), shot("ask", sceneAsk), shot("code", sceneCode), shot("swim", sceneSwim), shot("wall", sceneWall), shot("brick", sceneBrick),
     shot("hand", sceneHand), shot("loop", sceneLoop), shot("web", sceneWeb), shot("film", sceneFilm), shot("words", sceneWords), shot("end", sceneEnd),
   ],
-  audio: audio2,
+  audio: Object.assign(audio2, { scores: [launchLofi2()] }),
 };
 export const KEYS2 = () => ({ SW, HD, KOI_DONE, SWIM_OUT, PUNCHES, LAYOUT: LAYOUT.map((l) => [l.it.kind, l.y, l.h]) });
 

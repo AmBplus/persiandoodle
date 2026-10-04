@@ -1,0 +1,111 @@
+{
+  "marimbaCurious": {
+    "md5": "d787a58c5704cf940a4404281e33d07a",
+    "stems": [
+      {
+        "id": "ostinato",
+        "rmsDb": -23.145446146319294,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      },
+      {
+        "id": "hook",
+        "rmsDb": -18.673024815453626,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      },
+      {
+        "id": "low",
+        "rmsDb": -17.891278143265666,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      },
+      {
+        "id": "halo",
+        "rmsDb": -37.80708163916755,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      }
+    ],
+    "postEq": [
+      {
+        "id": "ostinato",
+        "rmsDb": -23.14750443574816
+      },
+      {
+        "id": "hook",
+        "rmsDb": -18.725292381209105
+      },
+      {
+        "id": "low",
+        "rmsDb": -17.8908460732183
+      },
+      {
+        "id": "halo",
+        "rmsDb": -37.80656224853108
+      }
+    ]
+  },
+  "harpTender": {
+    "md5": "f71a7e20d442d77462ef0b94e4ca8824",
+    "stems": [
+      {
+        "id": "arp",
+        "rmsDb": -38.36609987386093,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      },
+      {
+        "id": "melody",
+        "rmsDb": -30.008344938987218,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      }
+    ],
+    "postEq": [
+      {
+        "id": "arp",
+        "rmsDb": -38.36436303501646
+      },
+      {
+        "id": "melody",
+        "rmsDb": -30.015140271861465
+      }
+    ]
+  },
+  "nocturne": {
+    "md5": "acd240c8adffd25d00ee5279f2c72d3e",
+    "stems": [
+      {
+        "id": "rh",
+        "rmsDb": -29.602938561492227,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      },
+      {
+        "id": "lh",
+        "rmsDb": -32.33027982042252,
+        "targetDb": null,
+        "offDb": null,
+        "ok": true
+      }
+    ],
+    "postEq": [
+      {
+        "id": "rh",
+        "rmsDb": -29.628372581108742
+      },
+      {
+        "id": "lh",
+        "rmsDb": -32.33236276040425
+      }
+    ]
+  }
+}

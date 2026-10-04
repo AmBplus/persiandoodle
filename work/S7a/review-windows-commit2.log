@@ -1,0 +1,12 @@
+(node:11674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+calibration piano: median trim -9.49 dB; zone | layer | measured dB | modeled dB | requested dB | applied dB | deviation dB
+  large.flac | 1 | -33.43 | -42.92 | -9.49 | -9.49 | 0.00 | FLAG applied >9 dB (includes instrument trim)
+PASS large FLAC: 3232702 bytes, 576000 stereo frames loaded without EPIPE
+PASS rooms load as stereo float even when no sampled instrument is requested
+PASS corrupt room hash, frame count, channels and absolute path rejected before registration
+PASS corrupt large FLAC hash: rejected before registration
+(node:12227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS Windows decoder selection uses absolute PATH binaries, not implicit current-directory lookup
+SOUNDS LOADER REVIEW PASS

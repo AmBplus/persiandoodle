@@ -16,13 +16,21 @@ import { fft } from "./meter";
 export type SpaceKind = "fdn" | "plate" | "conv";
 export type Space = { kind: SpaceKind; room?: string; rt60: number; predelayMs: number; /** send filter */ hp: number; lp: number; /** early reflections level (0..1) and the late tail level (0..1) */ er: number; late: number; /** room size 0..1 (fdn/conv delay spread) */ size?: number; /** HF / LF decay multipliers */ highMult?: number; lowMult?: number; /** tank modulation depth 0..1 */ mod?: number };
 type Wet = readonly [Float32Array, Float32Array, Float32Array, Float32Array];
-export type RecordedRoom = { L: Float32Array; R: Float32Array; rt60: number; sha256: string };
+export type RecordedRoom = { L: Float32Array; R: Float32Array; rt60: number; sha256: string; directFrames?: number };
 const rooms = new Map<string, RecordedRoom>();
 export const roomFor = (id?: string) => id ? rooms.get(id) : undefined;
 export const clearRooms = () => rooms.clear();
 export const registerRoom = (id: string, room: RecordedRoom) => {
   if (!id || !(room.L instanceof Float32Array) || !(room.R instanceof Float32Array) || !room.L.length || room.L.length !== room.R.length || !room.L.every(Number.isFinite) || !room.R.every(Number.isFinite) || !(room.rt60 > 0) || !Number.isFinite(room.rt60) || !/^[a-f0-9]{64}$/i.test(room.sha256)) throw new Error(`${id}: invalid recorded room`);
-  const r = { ...room, sha256: room.sha256.toLowerCase() }; rooms.set(id, r); return r;
+  const directFrames = room.directFrames ?? 0;
+  if (!Number.isInteger(directFrames) || directFrames < 0 || directFrames > room.L.length) throw new Error(`${id}: invalid directFrames`);
+  const r = { ...room, directFrames, sha256: room.sha256.toLowerCase() }; rooms.set(id, r); return r;
+};
+/** A missing room-only override must not create a space on styles that have none. */
+export const effectiveSpace = (s?: Partial<Space>): Partial<Space> | undefined => {
+  if (!s?.room || roomFor(s.room)) return s;
+  const { room: _room, ...rest } = s;
+  return Object.keys(rest).length ? rest : undefined;
 };
 
 const sendFilter = (L: Float32Array, R: Float32Array, sr: number, s: Space) => {
@@ -169,13 +177,20 @@ export const convReverb = (L: Float32Array, R: Float32Array, sr: number, s: Spac
 const recordedReverb = (L: Float32Array, R: Float32Array, sr: number, s: Space, room: RecordedRoom): Wet => {
   const n = L.length, [a, b] = sendFilter(L, R, sr, s), pd = Math.round(s.predelayMs * sr / 1000), xL = new Float32Array(n), xR = new Float32Array(n);
   for (let i = pd; i < n; i++) { xL[i] = a[i - pd]; xR[i] = b[i - pd]; }
-  const rate = 48000 / sr, len = Math.ceil(room.L.length / rate), split = Math.round(0.04 * sr);
+  const rate = 48000 / sr, len = Math.ceil(room.L.length / rate), split = Math.round(0.04 * sr), direct = Math.round((room.directFrames ?? 0) / rate);
   const responses = [room.L, room.R].map((src) => {
     const pcm = Float32Array.from(src); if (rate > 1) for (let j = 0; j < 2; j++) Biquad.make(48000, "lp", sr * 0.45, 0.7071).run(pcm);
     const early = new Float32Array(len), late = new Float32Array(len);
-    for (let i = 0; i < len; i++) { const x = i * rate, j = Math.floor(x), f = x - j; (i < split ? early : late)[i] = (pcm[j] + f * ((pcm[j + 1] ?? 0) - pcm[j])) * rate; }
+    for (let i = direct; i < len; i++) { const x = i * rate, j = Math.floor(x), f = x - j; (i < split ? early : late)[i] = (pcm[j] + f * ((pcm[j + 1] ?? 0) - pcm[j])) * rate; }
     return { early, late };
   });
+  // synthIR normalizes each stereo component to total energy 2, preserving channel balance.
+  for (const key of ['early', 'late'] as const) {
+    const a = responses[0][key], b = responses[1][key]; let e = 0;
+    for (let i = 0; i < len; i++) e += a[i] * a[i] + b[i] * b[i];
+    const g = e > 0 ? Math.sqrt(2 / e) : 0;
+    for (let i = 0; i < len; i++) { a[i] *= g; b[i] *= g; }
+  }
   const wL = new Float32Array(n), wR = new Float32Array(n), tL = new Float32Array(n), tR = new Float32Array(n);
   convolve(xL, responses[0].late, tL, s.late * 0.36); convolve(xR, responses[1].late, tR, s.late * 0.36);
   convolve(xR, responses[0].late, tL, s.late * 0.18); convolve(xL, responses[1].late, tR, s.late * 0.18);

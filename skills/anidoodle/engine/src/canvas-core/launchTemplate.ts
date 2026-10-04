@@ -619,7 +619,9 @@ export const gridScore = (score: () => Piece | Material, bpm: number, fps: numbe
 // peak ceiling first (render prints how far short); `limit: true` lets a look-ahead limiter take
 // those few peaks instead so the bed reaches the target. Compose the piece for this film at the
 // film's bpm, so the cuts sit on its downbeats. `piece` may return a Piece or a fitScore result.
-export const musicBed = (piece: () => Piece | Fit, frames: number, fps = 30, lufs = -14, o: { limit?: boolean; tempo?: number } = {}) => (sr: number): [Float32Array, Float32Array] => {
+export const musicBed = (piece: () => Piece | Fit, frames: number, fps = 30, lufs = -14, o: { limit?: boolean; tempo?: number } = {}) => {
+  const source = piece(), score = "order" in source ? source.piece : o.tempo ? source : fitScore(source, frames / fps).piece;
+  return Object.assign((sr: number): [Float32Array, Float32Array] => {
   const seconds = frames / fps, x = piece(), fit = "order" in x ? x : o.tempo ? { piece: x, tempo: o.tempo } : fitScore(x, seconds);
   const m = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo }), n = Math.round(seconds * sr);
   const L = new Float32Array(n), R = new Float32Array(n); L.set(m.L.subarray(0, n)); R.set(m.R.subarray(0, n));
@@ -630,5 +632,5 @@ export const musicBed = (piece: () => Piece | Fit, frames: number, fps = 30, luf
   const again = lufs - loudness([L, R], sr).integrated; if (again > 0) { gain(Math.min(again, 1)); limiter(L, R, sr, Math.pow(10, -1.3 / 20)); }
   const tp = truePeak([L, R]).dbtp; if (tp > -1) gain(-1.05 - tp);                                    // an inter-sample overshoot: a last static trim
   return [L, R];
+  }, { scores: [score] });
 };
-

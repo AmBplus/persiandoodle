@@ -96,7 +96,7 @@ export const maskingPlan = (piece: Piece, o: { seconds?: number; tempo?: number;
   const spans: [number, number][] = []; for (let b = 0; b < total; b += bpb) spans.push([perf.sec(b), perf.sec(b + bpb)]);
   const melNotes = piece.parts.flatMap((p) => p.notes.filter((n) => n.role === "melody"));
   const sounding = spans.map((_, i) => melNotes.some((n) => n.t < (i + 1) * bpb && n.t + n.d > i * bpb));
-  return { roles, spans, sounding, opts: (r: Role): RenderOpts => ({ seconds: o.seconds, tempo: o.tempo, master: "none", cache: o.cache, perf: played(r) }) };
+  return { roles, spans, sounding, opts: (r: Role): RenderOpts => ({ seconds: o.seconds, tempo: o.tempo, master: "none", cache: o.cache, perf: played(r), mixKeys: perf.parts.map(p => p.keys) }) };
 };
 export type MaskingPlan = NonNullable<ReturnType<typeof maskingPlan>>;
 export const roleBandDb = (piece: Piece, sr: number, opts: RenderOpts, spans: [number, number][]) => { const x = renderPiece(piece, sr, opts); return bandDb(x.L, x.R, sr, spans); };

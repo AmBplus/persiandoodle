@@ -33,6 +33,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildPage } from "../build-page.mjs";
+import { loadFilmModule, prepareFilmSounds, filmFloat32 } from '../audio.mjs';
 
 const require = createRequire(import.meta.url);
 const version = (id) => { try { return require(`${id}/package.json`).version; } catch { return null; } };
@@ -87,6 +88,8 @@ export const open = async (film, opts = {}) => {
   mkdirSync(dir, { recursive: true });
   const out = join(dir, `${film}.html`);
   const built = await buildPage({ entry: `src/hosts/page-${film}.ts`, out, title: film });
+  const source = await loadFilmModule(film);
+  prepareFilmSounds(source.film, source.music);
   const { writeFileSync } = await import("node:fs");
   writeFileSync(out, readFileSync(out, "utf8").replace("</body>", `<script>${FRAME_ADAPTER(film)}</script></body>`));
 
@@ -112,7 +115,7 @@ export const open = async (film, opts = {}) => {
     info: () => built.meta,
     frame: async (n, w = 0) => { const r = await grab(n, w); return { png: r.png, shot: null, drawMs: r.drawMs }; },
     hash: async (n, w = 0) => createHash("sha256").update((await grab(n, w)).png).digest("hex").slice(0, 16),
-    audio: async (sr) => { const s = pick(0); return s && engine.captureAudio ? engine.captureAudio(s, sr) : null; }, /* the engine mixes audio from <audio> elements; this film synthesizes its score in the page, so there is none to mix */
+    audio: async (sr) => filmFloat32(source.film, sr),
     artifact: () => null,
     close: async () => { for (const s of sessions) await engine.closeCaptureSession(s); for (const l of leases) await l.release(); },
   };

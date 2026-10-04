@@ -32,7 +32,8 @@ import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
-import { loadBanks, soundIds, printSounds } from "./sounds.mjs";
+import { loadBanks, soundIds, printSounds, codeBuiltNotice } from "./sounds.mjs";
+import { soundsDir } from './soundfetch.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SR = 48000;
@@ -40,7 +41,8 @@ let ENGINE_URL = "";
 let SOUNDS_DIR;
 let ROOM_ID;
 const SOUNDS_URL = new URL("./sounds.mjs", import.meta.url).href;
-const loadSounds = (M, piece) => loadBanks(M, SOUNDS_DIR, soundIds(piece));
+let noticed = false;
+const loadSounds = (M, piece) => { loadBanks(M, SOUNDS_DIR, soundIds(piece)); if (!SOUNDS_DIR && !noticed) { codeBuiltNotice(); noticed = true; } };
 const load = async () => {
   const r = await build({ entryPoints: [join(here, "../src/canvas-core/music/index.ts")], bundle: true, write: false, format: "esm", platform: "neutral", target: "es2022", logLevel: "error" });
   ENGINE_URL = "data:text/javascript;base64," + Buffer.from(r.outputFiles[0].text).toString("base64");
@@ -189,7 +191,7 @@ const main = async () => {
   const [cmd, ...args] = process.argv.slice(2);
   const soundsAt = args.indexOf("--sounds");
   if (soundsAt >= 0 && (!args[soundsAt + 1] || args[soundsAt + 1].startsWith("--"))) throw new Error("--sounds needs a pack directory");
-  SOUNDS_DIR = soundsAt >= 0 ? args.splice(soundsAt, 2)[1] : process.env.ANIDOODLE_SOUNDS;
+  SOUNDS_DIR = soundsAt >= 0 ? args.splice(soundsAt, 2)[1] : process.env.ANIDOODLE_SOUNDS || soundsDir();
   if (SOUNDS_DIR) SOUNDS_DIR = resolve(SOUNDS_DIR);
   const roomAt = args.indexOf("--room");
   if (roomAt >= 0 && (!args[roomAt + 1] || args[roomAt + 1].startsWith("--"))) throw new Error("--room needs a room id");
