@@ -24,6 +24,7 @@ export const loadBanks = (M, dir, ids) => {
   const root = realpathSync(dir), manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
   if (manifest.pack !== "anidoodle-sounds" || manifest.version !== 1 || manifest.sampleRate !== 48000 || !manifest.instruments || typeof manifest.instruments !== "object" || Array.isArray(manifest.instruments)) throw new Error(`invalid sound pack manifest: ${dir}`);
   for (const id of ids) {
+    if (!Object.hasOwn(manifest.instruments, id)) continue;
     const entry = manifest.instruments[id]; if (!entry) continue;
     const [inst, ...variant] = id.split("."); if (M.bankFor(inst, variant.join(".") || undefined)) continue;
     if (!Array.isArray(entry.zones) || !entry.zones.length) throw new Error(`${id}: empty sample bank`);

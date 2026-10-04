@@ -43,6 +43,9 @@ console.log("PASS corrupt large FLAC hash: rejected before registration");
 let failures = 0;
 const check = (label, fn) => { try { fn(); console.log(`PASS ${label}`); } catch (e) { failures++; console.error(`FAIL ${label}: ${e.message}`); } };
 zone.sha256 = originalRoom.sha256; manifest.rooms = {}; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));
+check('inherited constructor never becomes a sample-bank lookup', () => {
+  M.clearBanks(); loadBanks(M, root, ['constructor']); assert.equal(M.bankFor('constructor'), undefined);
+});
 const isolatedHome = join(root, 'default-home'), install = join(isolatedHome, '.anidoodle', 'sounds'); mkdirSync(install, { recursive: true });
 writeFileSync(join(install, 'large.flac'), bytes);
 writeFileSync(join(install, 'manifest.json'), JSON.stringify({ ...manifest, rooms: {}, instruments: { piano: { ...entry, range: [21, 108] } } }));
