@@ -133,6 +133,14 @@ export const partEq = (prof: MixProfile, inst: InstId, role: Role): StemEq => {
   if (role === "melody" && c !== "bass") e.bells = [...(e.bells ?? []), [2800, 1.1, 0.8 * k]];
   return e;
 };
+/** Leave the lead band open on recorded support parts, without changing faders or the voice. */
+export const recordedEq = (e: StemEq, role: Role, excessDb: number, fractionDb: number): StemEq => {
+  if (role !== "bass" && role !== "accomp") return e;
+  // A reference can itself be bright. Also limit absolute band occupancy toward 6% (-12 dB).
+  // One broad bell spans the guard's 500 Hz-4 kHz band; the existing makeup stage holds level.
+  const depth = Math.min(role === "bass" ? 12 : 6, Math.max(0, excessDb, fractionDb + 12) * (role === "bass" ? 0.8 : 0.6));
+  return depth > 0 ? { ...e, bells: [...(e.bells ?? []), [1400, 0.45, -depth]] } : e;
+};
 /** A one-line summary for tools/music.mjs vocab. */
 export const describeMix = (style: StyleId) => {
   const p = MIX_PROFILES[style], s = p.space;
