@@ -7,6 +7,7 @@
 //   node tools/soundpack.mjs build  <source-dir> <pack-dir> [--only ...]  # write the pack: FLAC zones + manifest.json + LICENSES.md
 //   node tools/soundpack.mjs verify <pack-dir>                            # every rule of the contract, exit 1 on any failure
 //   node tools/soundpack.mjs report <pack-dir>                            # per instrument: zones, layers, widest pitch gap, MB
+//   node tools/soundpack.mjs dist   <pack-dir> <dist-dir>                 # the release artifacts: one tar per instrument + rooms + anidoodle-sounds-v1.json
 //
 // Determinism: fixed ffmpeg flags with -bitexact, no metadata, manifest keys in a fixed order;
 // building twice from the same sources gives the same manifest and the same sha256 per file.
@@ -14,8 +15,9 @@
 // the instrument says so ("normalized": true) and the engine supplies the dynamics.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync, statSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, statSync, mkdirSync, openSync, closeSync, writeSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const SR = 48000;
 const VCSL_RAW = "https://raw.githubusercontent.com/sgossner/VCSL/master/";
@@ -824,6 +826,91 @@ const reportText = (packDir) => {
   }
 };
 
+// ---------------------------------------------------------------- dist
+// Ship track: a built pack -> the release artifacts tools/soundfetch.mjs installs. ONE
+// uncompressed tar per instrument plus one for the rooms (FLAC is already compressed), each
+// carrying its files under their pack-relative paths plus a manifest.json fragment and
+// LICENSES.md, so an unpacked archive is a valid partial pack on its own. Beside them sits
+// anidoodle-sounds-v1.json: per archive the file name, bytes, sha256, the instrument ids (and
+// room ids) it holds and the manifest fragment for those ids, plus the LICENSES.md text.
+// Reproducible: ustar, entries sorted by name, uid/gid 0, no names, mode 0644, mtime 0 -
+// running dist twice on the same pack gives byte-identical archives.
+const TAR_ZERO = Buffer.alloc(1024);
+const tarName = (h, at, len, s) => h.write(s, at, Math.min(Buffer.byteLength(s), len - 1), "utf8");
+export const tarHeader = (name, size) => {
+  // POSIX ustar: 100-byte name, 155-byte prefix for longer paths (prefix/name <= 255 total)
+  let prefix = "", nm = name;
+  if (Buffer.byteLength(nm) > 100) {
+    const parts = nm.split("/");
+    while (parts.length > 1 && Buffer.byteLength(nm) > 100) { prefix = prefix ? `${prefix}/${parts.shift()}` : parts.shift(); nm = parts.join("/"); }
+    if (Buffer.byteLength(nm) > 100 || Buffer.byteLength(prefix) > 155) throw new Error(`tar: path too long for ustar: ${name}`);
+  }
+  const h = Buffer.alloc(512);
+  tarName(h, 0, 100, nm);
+  h.write("0000644\0", 100); // mode
+  h.write("0000000\0", 108); // uid
+  h.write("0000000\0", 116); // gid
+  h.write(size.toString(8).padStart(11, "0") + "\0", 124); // size
+  h.write("00000000000\0", 136); // mtime 0
+  h.write("        ", 148); // checksum computed over spaces
+  h.write("0", 156); // regular file
+  h.write("ustar\0", 257); h.write("00", 263); // magic + version
+  tarName(h, 345, 155, prefix);
+  let sum = 0;
+  for (const b of h) sum += b;
+  h.write(sum.toString(8).padStart(6, "0") + "\0 ", 148);
+  return h;
+};
+export const writeTar = (out, entries) => {
+  const fd = openSync(out, "w");
+  try {
+    for (const e of entries) {
+      const data = e.data ?? readFileSync(e.path);
+      writeSync(fd, tarHeader(e.name, data.length));
+      writeSync(fd, data);
+      const pad = (512 - (data.length % 512)) % 512;
+      if (pad) writeSync(fd, TAR_ZERO, 0, pad);
+    }
+    writeSync(fd, TAR_ZERO);
+  } finally {
+    closeSync(fd);
+  }
+};
+const RELEASE = "anidoodle-sounds-v1";
+const distPack = (packDir, distDir) => {
+  const m = JSON.parse(readFileSync(join(packDir, "manifest.json"), "utf8"));
+  if (m.pack !== "anidoodle-sounds" || m.version !== 1 || !m.instruments || typeof m.instruments !== "object") {
+    console.error("dist: not a version 1 anidoodle pack (run verify first)"); process.exit(1);
+  }
+  const licenses = readFileSync(join(packDir, "LICENSES.md"), "utf8");
+  mkdirSync(distDir, { recursive: true });
+  const top = { pack: m.pack, version: m.version, sampleRate: m.sampleRate };
+  const archives = [];
+  const emit = (id, files, fragment) => {
+    const entries = [
+      ...files.map((rel) => ({ name: rel, path: join(packDir, ...rel.split("/")) })),
+      { name: "manifest.json", data: Buffer.from(JSON.stringify(fragment, null, 2) + "\n") },
+      { name: "LICENSES.md", data: Buffer.from(licenses) },
+    ].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    for (const e of entries) if (e.path && !existsSync(e.path)) { console.error(`dist: manifest names ${e.name}, the file is missing`); process.exit(1); }
+    const file = `${RELEASE}-${id}.tar`, out = join(distDir, file);
+    writeTar(out, entries);
+    const bytes = statSync(out).size;
+    archives.push({ file, bytes, sha256: createHash("sha256").update(readFileSync(out)).digest("hex"),
+      instruments: Object.keys(fragment.instruments ?? {}), rooms: Object.keys(fragment.rooms ?? {}), manifest: fragment });
+    const a = archives.at(-1);
+    console.log(`${file.padEnd(44)} ${(bytes / 1e6).toFixed(1).padStart(8)} MB  ${a.instruments.concat(a.rooms.map((r) => `room ${r}`)).join(", ")}`);
+  };
+  for (const id of Object.keys(m.instruments).sort())
+    emit(id, m.instruments[id].zones.map((z) => z.file), { ...top, instruments: { [id]: m.instruments[id] } });
+  if (Object.keys(m.rooms ?? {}).length)
+    emit("rooms", Object.values(m.rooms).map((r) => r.file), { ...top, rooms: m.rooms });
+  const index = { release: RELEASE, ...top, licenses, archives };
+  writeFileSync(join(distDir, `${RELEASE}.json`), JSON.stringify(index, null, 2) + "\n");
+  const total = archives.reduce((s, a) => s + a.bytes, 0);
+  console.log(`${`${RELEASE}.json`.padEnd(44)} ${"".padStart(8)}     ${archives.length} archives, ${(total / 1e6).toFixed(1)} MB total`);
+};
+
 // ---------------------------------------------------------------- main
 const [cmd, ...args] = process.argv.slice(2);
 const onlyFlag = args.indexOf("--only");
@@ -831,10 +918,11 @@ const only = onlyFlag >= 0 ? args.splice(onlyFlag, 2)[1].split(",") : null;
 const recipes = only ? RECIPES.filter((r) => only.includes(r.id)) : RECIPES;
 if (only && recipes.length !== only.length) { console.error(`unknown instrument in --only: ${only.filter((o) => !RECIPES.some((r) => r.id === o))}`); process.exit(2); }
 
-(async () => {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) (async () => {
   if (cmd === "fetch" && args.length === 1) await fetchFiles(needed(recipes, tree()), args[0]);
   else if (cmd === "build" && args.length === 2) await buildPack(args[0], args[1], recipes);
   else if (cmd === "verify" && args.length === 1) verifyPack(args[0]);
   else if (cmd === "report" && args.length === 1) reportText(args[0]);
-  else { console.error("usage: node tools/soundpack.mjs fetch <source-dir> [--only ...] | build <source-dir> <pack-dir> [--only ...] | verify <pack-dir> | report <pack-dir>"); process.exit(2); }
+  else if (cmd === "dist" && args.length === 2) distPack(args[0], args[1]);
+  else { console.error("usage: node tools/soundpack.mjs fetch <source-dir> [--only ...] | build <source-dir> <pack-dir> [--only ...] | verify <pack-dir> | report <pack-dir> | dist <pack-dir> <dist-dir>"); process.exit(2); }
 })().catch((e) => { console.error(e); process.exit(1); });
