@@ -63,6 +63,12 @@ check('forced FLAC demuxers decode the exact hashed bytes even after the path ch
   try { process.env.PATH = wrappers + ':' + oldPath; M.clearBanks(); loadBanks(M, root, ['piano']); assert.equal(M.bankFor('piano').zones[0].channels[0].length, frames); }
   finally { process.env.PATH = oldPath; writeFileSync(file, bytes); }
 });
+check('room directFrames is loaded and participates in reload identity', () => {
+  manifest.rooms = { test: { ...originalRoom, directFrames: 120 } }; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));
+  M.clearRooms(); loadBanks(M, root, []); assert.equal(M.roomFor('test').directFrames, 120);
+  manifest.rooms.test.directFrames = 121; writeFileSync(join(root, 'manifest.json'), JSON.stringify(manifest));
+  loadBanks(M, root, []); assert.equal(M.roomFor('test').directFrames, 121);
+});
 const isolatedHome = join(root, 'default-home'), install = join(isolatedHome, '.anidoodle', 'sounds'); mkdirSync(install, { recursive: true });
 writeFileSync(join(install, 'large.flac'), bytes);
 writeFileSync(join(install, 'manifest.json'), JSON.stringify({ ...manifest, rooms: {}, instruments: { piano: { ...entry, range: [21, 108] } } }));

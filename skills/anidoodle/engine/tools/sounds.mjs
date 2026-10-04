@@ -38,9 +38,9 @@ export const loadBanks = (M, dir, ids) => {
   }
   if (manifest.rooms !== undefined && (!manifest.rooms || typeof manifest.rooms !== "object" || Array.isArray(manifest.rooms))) throw new Error("invalid sound pack rooms");
   for (const [id, entry] of Object.entries(manifest.rooms ?? {})) {
-    if (M.roomFor(id)?.sha256 === entry.sha256?.toLowerCase() && M.roomFor(id)?.rt60 === entry.rt60 && M.roomFor(id)?.L.length === entry.frames) continue;
+    if (M.roomFor(id)?.sha256 === entry.sha256?.toLowerCase() && M.roomFor(id)?.rt60 === entry.rt60 && M.roomFor(id)?.L.length === entry.frames && (M.roomFor(id)?.directFrames ?? 0) === (entry.directFrames ?? 0)) continue;
     const channels = decodeFlac(root, `room ${id}`, entry);
-    M.registerRoom(id, { L: channels[0], R: channels[entry.channels - 1], rt60: entry.rt60, sha256: entry.sha256 });
+    M.registerRoom(id, { L: channels[0], R: channels[entry.channels - 1], rt60: entry.rt60, sha256: entry.sha256, directFrames: entry.directFrames });
   }
 };
 export const printSounds = (M, piece) => {
