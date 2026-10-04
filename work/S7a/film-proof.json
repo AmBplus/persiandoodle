@@ -31,8 +31,8 @@
   },
   {
     "label": "scoredFilm-pack",
-    "md5": "5658bd32a3d2d8276c957d9ccf7c4991",
-    "browserPcmMd5": "a7b950001e3595135bd1473e40253a99",
+    "md5": "99c1cdfe77dc3d04fe687216524800e4",
+    "browserPcmMd5": "67155d33629726b944ff6a5ebe488e71",
     "frames": 672000,
     "recorded": true,
     "proof": "Node/browser sample identity",

@@ -48,14 +48,21 @@ Masking restored and committed:
   0 fail, exit 0. TypeScript exit 0. mix-regression-proof.mjs passes; disabling the
   support EQ or full guard context each causes its own behavioral regression.
 - review-bytes-commit.log and review-direct-commit.log completed with LOADER REVIEW PASS,
-  both exit 0. The final combined loader and music-unit suites are still running.
+  both exit 0. The final combined loader suite passed (exit 0). music-unit passed 38 checks in 229 s (exit 0).
 
 Half done or untouched:
 - New acceptance with the corrected room/sinc is running (reviewed-mix-acceptance.log).
   marimbaCurious passes 100% bars, worst margin 4.129 dB and balance 0.721 dB.
-  harpTender/nocturne results and final JSON are pending. Earlier current-pack.json
+  harpTender passed 100% bars, balance 0.647 dB. Nocturne failed at 75% with balance
+  1.553 dB in reviewed-pack.json. Commit 83319b6 strengthens the general accompaniment
+  response, and final-mix-acceptance.log is rerunning all three on that code. Earlier current-pack.json
   and trial results are INVALID final evidence.
-- Final combined loader/music suite, final film proof and final review are pending.
+- Full suite passed again after 83319b6: 332 tests, exit 0. The revised cap-sensitive
+  fixture passes 4 checks; mutation proof fails once for each removed behavior.
+- Final film proof passes (exit 0), with scoredFilm-pack WAV MD5
+  99c1cdfe77dc3d04fe687216524800e4, Node/browser identity, offline playback and
+  44.1 kHz device playback of the 48 kHz recorded buffer. No-pack hashes match.
+- Final acceptance and final code review are pending.
 - No scoped review fix remains untouched. No score or per-piece numbers changed.
 
 An initial default-install regression used music calibrate, which can regenerate
