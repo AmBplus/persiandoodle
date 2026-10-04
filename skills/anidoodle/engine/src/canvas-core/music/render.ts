@@ -408,7 +408,7 @@ export const fitToDuration = (piece: Piece, seconds: number): { piece: Piece; te
 };
 
 /** What a Film's `audio(sampleRate)` returns: [L, R] at exactly the film's length. */
-export const filmAudio = (piece: Piece, seconds: number) => (sr: number): [Float32Array, Float32Array] => {
+export const filmAudio = (piece: Piece, seconds: number) => Object.assign((sr: number): [Float32Array, Float32Array] => {
   const fit = fitScore(piece, seconds), r = renderPiece(fit.piece, sr, { seconds, tempo: fit.tempo });
   return [r.L, r.R];
-};
+}, { scores: [fitScore(piece, seconds).piece] });

@@ -20,6 +20,7 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
   });
   let film: Film | null = null; try { film = makeLaunchFilm({ ...base, score: mine }); } catch (e) { ok(false, `a composed Material is accepted: ${(e as Error).message}`); }
   ok(!!film && typeof film.audio === "function", "a composed Material is accepted as the score");
+  ok(film?.audio?.scores?.length === 1, "film audio exposes its fitted score so hosts load only its recorded instruments");
   ok(refused(launchLofi3), "refuses our launch score by identity");
   ok(refused(launchLofi3Material), "refuses our launch score's material by identity");
   ok(refused(chiptunePlayful), "refuses a demo");

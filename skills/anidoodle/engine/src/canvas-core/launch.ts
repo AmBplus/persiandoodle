@@ -428,7 +428,7 @@ export const launch: Film = {
     shot("run", withRail(sceneRun)), shot("brick", withRail(sceneBrick)), shot("ref", withRail(sceneRef)), shot("emb", withRail(sceneEmb)),
     shot("web", withRail(sceneWeb)), shot("film", withRail(sceneFilm)), shot("reveal", sceneReveal), shot("end", sceneEnd),
   ],
-  audio: launchAudio,
+  audio: Object.assign(launchAudio, { scores: [launchLofi()] }),
 };
 
 // THE MOTION TEST: the Generate press, the drop and the bloom, on their own.

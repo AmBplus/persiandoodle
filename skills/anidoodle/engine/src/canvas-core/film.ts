@@ -1,6 +1,10 @@
 // FILM RUNTIME. A film is data: meta, an asset manifest, and shots that tile [0, duration).
 // renderFrame(film, ctx, frame, env) is the whole contract between the art and any backend.
 import type { Ctx, Env } from "./core";
+import type { Piece } from "./music/plan";
+
+/** Hosts preload these scores' verified banks before calling the complete audio mix. */
+export type FilmAudio = ((sampleRate: number) => [Float32Array, Float32Array]) & { scores?: Piece[] };
 
 export type Shot = { id: string; start: number; end: number; draw: (ctx: Ctx, local: number, env: Env) => void }; // frames, end exclusive
 export type Assets = { images: Record<string, string>; fonts?: Record<string, string> }; // name -> url (the page build inlines them)
@@ -28,7 +32,7 @@ export type Film = { meta: {
   captions?: { from: number; to: number; text: string }[];
   // a legible frame for the poster image and the thumbnail (render --poster-frame, launch.mjs ship)
   poster?: number;
-}; assets: Assets; shots: Shot[]; audio?: (sampleRate: number) => [Float32Array, Float32Array];
+}; assets: Assets; shots: Shot[]; audio?: FilmAudio;
   // the same film composed for another frame shape (launch template films); hosts/page.ts calls it for <film>-<shape>
   reshape?: (shape: string) => Film };
 
