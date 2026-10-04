@@ -37,19 +37,26 @@ Done and proven, loader commits:
   passed in review-windows-commit2.log (exit 0) and failed with ENOENT when the resolver
   was removed in review-windows-red2.log (exit 1). Native Windows was not run.
 
-Half done or untouched:
-- No scoped review production fix remains untouched. Final full-suite verification
-  after restoring masking is pending.
-- Masking production delta remains saved, not applied. render.ts calibrateBank/renderV2,
-  mixProfiles.ts recordedEq, sampler.ts SampleTrim, guards.ts maskingPlan and loader
-  measurement logging need restoration from masking-in-progress.patch. Its behavioral
-  tests are saved in recordedMix-in-progress.ts. New acceptance is untouched.
+Masking restored and committed:
+- c4a92ba: calibrateBank measures zone bandFractionDb and bandExcessDb at load;
+  trim metadata is finite-validated, deterministic and included in bank identity.
+- eddaf94: role-aware recordedEq in the existing stem EQ stage; existing RMS
+  makeup preserves balance. Bass/accompaniment use the median measurement of selected
+  zones. Melody and code-built paths keep their previous EQ. Guards carry complete
+  part strikes so isolating a role does not select a different EQ.
+- Focused engine checks: 94 pass, 0 fail, exit 0. Full tools/test.mjs: 332 pass,
+  0 fail, exit 0. TypeScript exit 0. mix-regression-proof.mjs passes; disabling the
+  support EQ or full guard context each causes its own behavioral regression.
+- review-bytes-commit.log and review-direct-commit.log completed with LOADER REVIEW PASS,
+  both exit 0. The final combined loader and music-unit suites are still running.
 
-Masking is paused. masking-in-progress.patch and recordedMix-in-progress.ts retain
-its production/test delta. Previous current-pack.json acceptance predates the room
-and sinc fixes and is INVALID as final acceptance. Reapply the patch after review
-commits, adapting hunks to the new room code, and rerun all acceptance measurements.
-Never treat historical trial/final/current JSON as current acceptance.
+Half done or untouched:
+- New acceptance with the corrected room/sinc is running (reviewed-mix-acceptance.log).
+  marimbaCurious passes 100% bars, worst margin 4.129 dB and balance 0.721 dB.
+  harpTender/nocturne results and final JSON are pending. Earlier current-pack.json
+  and trial results are INVALID final evidence.
+- Final combined loader/music suite, final film proof and final review are pending.
+- No scoped review fix remains untouched. No score or per-piece numbers changed.
 
 An initial default-install regression used music calibrate, which can regenerate
 vocabTrim.ts without a pack. It was stopped before any palette write; read-back git
