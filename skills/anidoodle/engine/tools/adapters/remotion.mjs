@@ -13,7 +13,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
-import { overlay } from "../overlay.mjs";
+import { loadFilmModule, prepareFilmSounds, filmFloat32 } from '../audio.mjs';
 
 const require = createRequire(import.meta.url);
 const tryRequire = (id) => { try { return require(id); } catch { return null; } };
@@ -35,17 +35,9 @@ export const probe = () => {
 // The film module is the source of truth for meta and for the score. It is read the way
 // build-page.mjs reads it: bundled on its own, with no host attached, so nothing can disagree.
 const loadFilm = async (film) => {
-  const { build } = await import("esbuild");
-  const out = (await build({ stdin: { contents: `export { ${film} as film } from "./src/canvas-core/${film}";`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, format: "esm", write: false, platform: "neutral", plugins: [overlay] })).outputFiles[0].text;
-  return (await import("data:text/javascript;base64," + Buffer.from(out).toString("base64"))).film;
-};
-
-const float32 = (film, sr) => {
-  if (!film.audio) return null;
-  const [L, R] = film.audio(sr), pcm = new Float32Array(L.length * 2);
-  if (L.length !== R.length) throw new Error("audio channels have different lengths");
-  for (let i = 0; i < L.length; i++) { pcm[i * 2] = L[i]; pcm[i * 2 + 1] = R[i]; }
-  return { sampleRate: sr, frames: L.length, float32: Buffer.from(pcm.buffer).toString("base64") };
+  const data = await loadFilmModule(film);
+  prepareFilmSounds(data.film, data.music);
+  return data.film;
 };
 
 // Bundling is per FILM, not per session: the gate opens an adapter many times in one process and
@@ -111,7 +103,7 @@ export const open = async (film, opts = {}) => {
     // Hashed through the PNG the renderer wrote: that file IS what this backend produces, so
     // hashing anything else would be grading something the backend does not actually deliver.
     hash: async (n, w = 0) => createHash("sha256").update((await still(n, w)).png).digest("hex").slice(0, 16),
-    audio: async (sr) => float32(data, sr),
+    audio: async (sr) => filmFloat32(data, sr),
     artifact: () => null, /* like playwright: a means to an MP4, not a deliverable of its own */
     close: async () => { for (const b of browsers) await b.close({ silent: true }); },
   };

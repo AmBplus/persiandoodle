@@ -95,7 +95,8 @@ console.log(`film: "${meta.title}" ${meta.W}x${meta.H} @ ${meta.fps} fps, ${N} f
 if (BLURRED) console.log(`motion blur: ${BLUR === "auto" ? `adaptive (subframes <= ${BPX} px apart, max ${BMAX})` : `${BLUR} subframes per frame`}, ${SHUTTER}-degree shutter, linear light`);
 if (ranged) console.log(`range render: frames [${FROM}, ${TO}) of ${N}, silent by design`);
 
-// audio: pure JS in the page -> WAV here (skipped for a range render: the score would not line up)
+// audio: the page returns its embedded recorded track or its code-built mix -> WAV here
+// (skipped for a range render: the score would not line up).
 mkdirSync(resolve(".tmp"), { recursive: true }); const wav = resolve(`.tmp/${film}.wav`), a = ranged ? null : await session.audio(48000);
 if (a) writeFileSync(wav, float32Wav(a));
 if (a) { // the audio report: loudness and true peak, and the score's fit against the picture's grid
