@@ -1,0 +1,111 @@
+[
+  {
+    "name": "marimbaCurious",
+    "masking": {
+      "pass": false,
+      "shareOfBarsClear": 0,
+      "worstMarginDb": -1.6348842987280356,
+      "meanMarginDb": 1.1286779481161888
+    },
+    "worstBalanceDb": 0.7209887447289169,
+    "preBalance": [
+      {
+        "id": "ostinato",
+        "errorDb": 0.33419108584844537
+      },
+      {
+        "id": "hook",
+        "errorDb": 0
+      },
+      {
+        "id": "low",
+        "errorDb": -0.23452811189271117
+      },
+      {
+        "id": "halo",
+        "errorDb": 0.7209887447289169
+      }
+    ],
+    "postBalance": [
+      {
+        "id": "ostinato",
+        "errorDb": 0.3208200259808045
+      },
+      {
+        "id": "hook",
+        "errorDb": 0
+      },
+      {
+        "id": "low",
+        "errorDb": -0.2244717758924466
+      },
+      {
+        "id": "halo",
+        "errorDb": 0.7172395233452171
+      }
+    ],
+    "pass": false
+  },
+  {
+    "name": "harpTender",
+    "masking": {
+      "pass": true,
+      "shareOfBarsClear": 1,
+      "worstMarginDb": 8.419034628515575,
+      "meanMarginDb": 12.291123900188087
+    },
+    "worstBalanceDb": 0.7169529288734182,
+    "preBalance": [
+      {
+        "id": "arp",
+        "errorDb": -0.6465117898309423
+      },
+      {
+        "id": "melody",
+        "errorDb": 0
+      }
+    ],
+    "postBalance": [
+      {
+        "id": "arp",
+        "errorDb": -0.7169529288734182
+      },
+      {
+        "id": "melody",
+        "errorDb": 0
+      }
+    ],
+    "pass": true
+  },
+  {
+    "name": "nocturne",
+    "masking": {
+      "pass": false,
+      "shareOfBarsClear": 0.6875,
+      "worstMarginDb": -1.0577330193406311,
+      "meanMarginDb": 5.257590766113437
+    },
+    "worstBalanceDb": 1.4980131507331116,
+    "preBalance": [
+      {
+        "id": "rh",
+        "errorDb": 0
+      },
+      {
+        "id": "lh",
+        "errorDb": 1.4589767519197459
+      }
+    ],
+    "postBalance": [
+      {
+        "id": "rh",
+        "errorDb": 0
+      },
+      {
+        "id": "lh",
+        "errorDb": 1.4980131507331116
+      }
+    ],
+    "pass": false
+  }
+]

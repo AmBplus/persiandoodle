@@ -1,0 +1,4 @@
+launchExample: 16s md5 f9c4185f6c42c64ac0610196b5233e89
+(node:22431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+scoredFilm: 14s md5 344a1e1d68c265ccca57165c7896ef9b
