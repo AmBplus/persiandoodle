@@ -427,7 +427,7 @@ const vocabMarkdown = (M) => {
 
 /** Key/mode problems, composer warnings, the master (did the peak cap stop it short?), and the guards. Returns pass. */
 const report = (M, r, piece, cache, bands) => {
-  if (ROOM_ID) console.log(`space    ${r.mixReport?.space ?? "legacy space"}`);
+  if (ROOM_ID || (SOUNDS_DIR && r.mixReport?.space)) console.log(`space    ${r.mixReport?.space ?? "legacy space"}`);
   let ok = true; const probs = M.planProblems(piece), warn = piece.warnings ?? [];
   for (const p of probs) console.log(`PROBLEM  ${p}`); ok = ok && !probs.length;
   for (const w of warn) console.log(`WARNING  ${w}`);
