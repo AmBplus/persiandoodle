@@ -33,6 +33,8 @@ pushes, or edits to soundpack.mjs, soundfetch.mjs, references, SKILL.md, or READ
   recorded room apply, then embeds it in the self-contained HTML. The browser does
   no pack fetch or FLAC decoding. Manifest hashes, FLAC validation and calibration
   remain the shared loader's responsibility. This route was announced before building.
+  It avoids maintaining another FLAC/hash loader in the browser and preserves the
+  complete Node mix, including its cues, without browser decoder differences.
 - Browser synthesis previously happened in `hosts/page.ts`, in `audio(sr)` and
   click-to-play `play()`. Both now use the embedded complete track when present.
   Click playback creates its AudioBuffer at the track's 48 kHz rate; Web Audio
