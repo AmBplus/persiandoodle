@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
 
 <p align="center">
   Illustrations, drawing timelapses, films, explainers and interactive web art in 31 styles.<br>
-  Every mark is a function and every note is arithmetic, so the same source<br>
+  Every mark is a function and every score is written, so the same source<br>
   redraws the same picture on every machine, at every size, for good.
 </p>
 
@@ -94,7 +94,14 @@ Every style ships the finished picture and, from the same source, a film of it b
 
 ## Music, composed in code
 
-No samples and no recordings. The notes are written as data and every sound is synthesized in code. A music style is a vocabulary the model composes from, never a preset: 21 of them, from lo-fi electronic, house and synthwave to orchestral, jazz, folk and solo piano. Each gives the sound, the grooves and the harmony language; the chords, the motif and the form are written new, so every film gets its own score.
+The notes are written as data and the engine makes the sound. Nothing in this repository is a recording. A music style is a vocabulary the model composes from, never a preset: 21 of them, from lo-fi electronic, house and synthwave to orchestral, jazz, folk and solo piano. Each gives the sound, the grooves and the harmony language; the chords, the motif and the form are written new, so every film gets its own score.
+
+Install the optional sound pack and eight acoustic instruments play recordings of real ones: a Steinway grand and an upright, concert harp, marimba, vibraphone, glockenspiel, tubular bells and timpani, in three recorded rooms. Synths, lo-fi colour, electronic drums and sound effects stay in code. Without the pack every score still plays, unchanged.
+
+```bash
+node <skill>/engine/tools/soundfetch.mjs list    # the install directory and what is installed
+node <skill>/engine/tools/soundfetch.mjs get all # download, verify by hash, unpack
+```
 
 - **Keys:** a piano modelled on a real Steinway grand, Rhodes and Wurlitzer electric pianos, tonewheel and pipe organs, mallets and bells.
 - **Ensemble:** string sections of separate players, brass, flute and clarinet, a choir that sings its vowels, nylon, steel and electric guitars, harp and four kinds of bass.
@@ -175,7 +182,7 @@ The engine is the easy half. The craft is the part anidoodle carries for you, si
 - **Story** gives every piece a point. One idea and one focal subject for a still; one transformation, one payoff and one returning token for a film. → [`storytelling.md`](skills/anidoodle/references/storytelling.md)
 - **Realism** comes from naming it. The anatomy, the view and the reference you opened, so a butterfly reads as a creature with a body and veins. → [`realism-and-craft.md`](skills/anidoodle/references/realism-and-craft.md)
 - **Style** lives in the mark. Thirty-one full recipes, a guide for picking one per job, and the steps for inventing your own. → [`styles.md`](skills/anidoodle/references/styles.md)
-- **Music** is composed for each piece from a genre's vocabulary and synthesized in code: 21 genres, a full band and orchestra, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
+- **Music** is composed for each piece from a genre's vocabulary and played by modelled and recorded instruments: 21 genres, a full band and orchestra, every major and minor mode, moods per section, and a theme that fits any length. → [`music/README.md`](skills/anidoodle/references/music/README.md)
 - **Determinism** is the guarantee. Pure functions and a seeded random, so anyone with the source rebuilds the exact same piece. → [`determinism-and-contract.md`](skills/anidoodle/references/determinism-and-contract.md)
 - **Method** keeps you fast. Prove the look on one still, build straight through, and spend approval where being wrong is expensive. → [`working-method.md`](skills/anidoodle/references/working-method.md)
 

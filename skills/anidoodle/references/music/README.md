@@ -1,11 +1,16 @@
-# Music: composed as data, synthesized in code, measured, then heard once
+# Music: composed as data, performed, measured, then heard once
 
-Every score in anidoodle is **100 % procedural**: you write the notes as data, the engine performs
-and synthesizes them in code. No samples, no recordings, no licensed audio, ever. You cannot hear
-what you make, so every choice is a number, every number is measured, and a human hears 8 seconds
-before anything ships.
+Every score in anidoodle is written as data and every voice is the engine's own: you write the
+notes, the engine performs them. You cannot hear what you make, so every choice is a number, every
+number is measured, and a human hears 8 seconds before anything ships.
 
-Code: `engine/src/canvas-core/music/`. Tool: `engine/tools/music.mjs`.
+Eight acoustic instruments also play **recordings of the real thing**, from an optional sound pack
+you install separately: grand and upright piano, concert harp, marimba, vibraphone, glockenspiel,
+tubular bells and timpani, plus three recorded rooms. Everything else, and every score on a machine
+without the pack, is synthesized in code exactly as before. See
+[Recorded instruments](#recorded-instruments-the-optional-sound-pack) below.
+
+Code: `engine/src/canvas-core/music/`. Tools: `engine/tools/music.mjs`, `engine/tools/soundfetch.mjs`.
 
 **Start here: [`compose.md`](compose.md).** It takes you from a brief to an original score. A style
 is a vocabulary: sound, grooves, harmony language, melody rules, arrangement grammar. It is never
@@ -22,6 +27,8 @@ Pages:
   depth, and the stem balance meter.
 - [`styles/music-box.md`](styles/music-box.md): the original music-box recipe's sound numbers and
   the scar story behind the guards.
+- [`sounds-licenses.md`](sounds-licenses.md): where the recordings come from, and the attribution
+  CC BY asks for. Required reading before you redistribute a pack.
 
 **Demos are not scores.** The pieces in `pieces/` (samplers, families, nocturne, our launch scores)
 were written to prove the synth and the meters, and one of them is our own film's score. They are
@@ -63,7 +70,7 @@ MusicPlan + notes (you write)  ->  perform  ->  instruments (one stem per part) 
    - humanize from `rng(seed)`, smoothed so it correlates across a phrase.
 
    Parts with `opts.grid` (music box, chiptune, drive) stay mechanical on purpose.
-3. **Synthesize.** Each part is an instrument:
+3. **Perform the instruments.** Each part is an instrument:
 
    | Instrument | How it's made |
    |---|---|
@@ -85,14 +92,21 @@ MusicPlan + notes (you write)  ->  perform  ->  instruments (one stem per part) 
    | `leadSynth` | Mono saw + square, portamento, a filter envelope, blooming vibrato |
    | `bowedSolo` | A bowed waveguide string (violin, or `cello: true`): touching notes are one bow with a finger slide, delayed vibrato, measured body |
 
-   The acoustic voices are procedural approximations: cinematic and stylized, never "realistic". Every note varies
-   (seeded), so repeats never clone. A human listens before one carries a film. A shipped score sets
-   `legacy: true` on its piece to keep the sound it shipped with.
+   Eight of these play recordings of real instruments when the sound pack is installed. The table
+   below is what the engine builds; [Recorded instruments](#recorded-instruments-the-optional-sound-pack)
+   is what it plays instead.
+
+   The modelled voices are approximations: cinematic and stylized, never "realistic". Every note
+   varies (seeded), so repeats never clone. A human listens before one carries a film. A shipped
+   score sets `legacy: true` on its piece to keep the sound it shipped with, and never reaches the
+   sampler at all.
 4. **Room.** The style chooses it:
    - music box: one reflection, no tail;
    - nocturne and lullaby: a small room;
    - cinematic and drive: a hall;
    - chiptune: nothing.
+   With the pack installed, a style may name a recorded room instead and the engine convolves with
+   the recording.
 5. **Master.**
    - **Gentle styles:** one static gain to **-16 LUFS**, true peak <= -1 dBTP, never a compressor on the master.
      Struck stems (plucks, plucked basses, piano, mallets and bells, timpani) first go through a transient-aware
@@ -107,6 +121,98 @@ the film's length. It fits the score first (`fitScore`, below), so the music end
 the last frame and is never chopped. Any film mix that renders a score (sound effects included) must
 fit it the same way. `engine/src/canvas-core/score.ts` is an empty skeleton: `filmScore(material,
 fps, frames)` composes your material and fits it.
+
+## Recorded instruments: the optional sound pack
+
+The pack is a separate download (about 390 MB), not part of the skill. Once it is installed, eight
+acoustic parts play recordings of real instruments and three rooms are recorded impulse responses.
+Without it every score still plays, on the modelled voices, unchanged.
+
+```bash
+node tools/soundfetch.mjs list          # the install directory and what is installed; no network
+node tools/soundfetch.mjs get all       # the one command that downloads: hash, unpack, install
+node tools/soundfetch.mjs where         # the install directory
+node tools/soundfetch.mjs verify        # re-hash every installed file
+node tools/soundfetch.mjs remove <id>   # drop one instrument, or `rooms`
+```
+
+`get` names the ids it wants, or `all`. It installs to `ANIDOODLE_SOUNDS`, or
+`~/.anidoodle/sounds`, and refuses any archive whose size or sha256 disagrees with the index
+before it unpacks. `ANIDOODLE_SOUNDS_URL` points the fetch at a different release; point it at a
+local directory or a `file://` URL and `list` also prints what is available there, since a local
+source is read off disk. Against the GitHub release `list` reads the installed manifest alone and
+prints that the index is fetched by `get` only. The engine finds an installed pack on its own; to
+render from a pack directory without installing it, pass `--sounds <dir>` to `music.mjs`.
+
+| Part | `variant` | Recording | Range | What it brings |
+|---|---|---|---|---|
+| `piano` | | Grand Piano, Steinway B | A0 to G#7 | 3 velocity layers, pedal-down resonance (`sus`) and key-release (`rel`) |
+| `piano` | `"upright"` | Upright Piano, Knight | A0 to C8 | 2 layers, key-release only, no pedal resonance |
+| `harp` | | Concert Harp | D1 to G7 | rings out, nothing damps it |
+| `marimba` | | Marimba | D2 to C7 | 3 layers, rings out. Sparse: some notes are a recording shifted up to 3 semitones |
+| `vibes` | | Vibraphone | F3 to F6 | 3 layers, damped, so the pedal holds it |
+| `glockenspiel` | | Glockenspiel | G5 to C8 | 3 layers, rings out. Sparse: up to 3 semitones |
+| `bell` | `"tubular"` | Tubular Bells 1 | C4 to F#5 | 2 layers, rings out |
+| `timpani` | | Timpani | C#2 to B3 | 3 layers, rings out |
+
+The recordings are from VCSL, CC0. Ranges and the layer counts above are read from the installed
+pack's own `manifest.json`; `check` names a sparse bank when it meets one. `bell` without
+`"tubular"`, and every other instrument in the table above, are still modeled.
+
+Not recorded, and still synthesized in code: strings, guitar, bass, brass, woodwinds, choir,
+celesta, music box, the electric pianos and the acoustic drum kit. Synths, lo-fi colour, electronic
+drums and every sound effect are code and stay code.
+
+### What changes when you write for a recording
+
+- **Write inside the range.** A note outside the bank's range throws and the render stops. The grand
+  reaches A0; the timpani stops at B3, so anything above B3 in a timpani part needs another
+  instrument. Inside the range every note plays: the engine takes the nearest recorded pitch.
+- **The decay is the instrument's own.** A low grand note rings for tens of seconds and nothing
+  trims it to fit the tail. Let the low notes ring and give them room.
+- **The pedal is a pedal.** A `sus` zone is the strings ringing with the dampers lifted, played
+  instead of the ordinary zone for any note struck while the pedal is down; a `rel` zone is the
+  damper coming back, added quietly at key-up. `perform.ts` moves the pedal just after each harmony
+  change, so write pedal changes where the harmony changes. `opts: { pedal: false }` holds it up.
+- **Soft playing keeps a real attack.** The Steinway bank has three velocity layers and its source
+  was normalized, so soft notes come from the soft recording with the modeled piano's velocity law
+  rather than a quiet copy of a loud one. Do not add an attack that isn't there.
+- **A real marimba's low notes are rich.** D2 to C4 carries as much as the top of the instrument.
+  Keep bass lines out of the melody's register rather than reaching down for the modeled marimba's
+  thin bass.
+- **Sparse banks name themselves.** Marimba and glockenspiel are flagged `sparse`, so a note in a
+  gap is a shifted recording. `check` says so on the `voices` line rather than hiding it.
+
+### Picking a room
+
+| Room | rt60 | Where the recording is from |
+|---|---|---|
+| `live-room` | 0.2 s | Genesis 6 Studio live room, University of York |
+| `small-room` | 0.4 s | Arthur Sykes Rymer Auditorium, University of York |
+| `recital-hall` | 1.8 s | Jack Lyons Concert Hall, University of York |
+
+A style's `space.room` names one; `node tools/music.mjs --room <id> ...` overrides it for one run.
+An id that is not installed keeps the synthesized space, so the same command is safe with no pack.
+Pick the room for the size of the room, not the length of the piece: `live-room` for a take that
+should feel close and dry, `small-room` for a nocturne or a lullaby, `recital-hall` when seats are
+in the room. The reverb guard still runs: a recorded hall that pushes the late tail within 10 dB of
+the dry mix fails `check` like any other space.
+
+### Checking what actually played
+
+`check` and `render` print one line naming every part and which side of the split it took:
+
+```
+voices   recordings: lead (piano), accomp (piano.upright); modeled: bass (bass), drums (kick)
+```
+
+Anything that should have played a recording and did not is a part whose notes fall outside the
+bank's range, or a part that opted out.
+
+A part opts out with `opts: { sampled: false }`, which is how you hear a modeled voice beside a
+recorded one on purpose, and how a pitch or a register the recording cannot cover stays safe. An
+opted-out part renders bit-identical audio to the same part with no pack installed, so the opt-out
+is never a guess.
 
 ## Any length, never hard-coded
 

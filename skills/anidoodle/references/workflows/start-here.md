@@ -26,7 +26,7 @@ pick", pick, say what you picked and why in one line, and carry on.
    (`long-film.md`).
 5. **Sound?** Silent, or a score: name a music style and a mood per section
    (`references/music/`). Their own voice-over or track is theirs to bring; anidoodle composes
-   and synthesizes everything else.
+   and plays everything else.
 6. **Characters?** A new one (build it once, `character-consistency.md`), one they already have
    in a module, or one from their image (reference, embedded only if they ask).
 
