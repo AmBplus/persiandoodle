@@ -36,14 +36,32 @@ mkdir -p "${STAGE}/assets"
 cp "${REPO_ROOT}/assets/icon.png" "${STAGE}/assets/icon.png"
 cd "${REPO_ROOT}"
 # The installed plugin leaves out what only the repository needs: anidoodle's own launch films
-# (launch, launch2, launch3, launchClip and their helpers and pages), the public-domain reference
-# image they show, and the gallery sheet and the tool that rebuilds it (the docs link to it online).
-EXCLUDE='/canvas-core/(launch|launch2|launch3|launchClip|launchCode|typeOptions|typeStyles)\.ts$|/hosts/page-(launch|launch2|launch3|launchClip|typeOptions|typeStyles)\.ts$|/engine/assets/refs/|/engine/tools/gallery\.mjs$|^skills/anidoodle/assets/styles\.jpg$|/engine/package-lock\.json$|/music/blind/'
+# (launch, launch2, launch3, launchClip and their helpers and pages) and its showcase films (the
+# cheetah films, their scores, pages and rig test), the public-domain reference image they show,
+# and the gallery sheet and the tool that rebuilds it (the docs link to it online).
+# A test that needs a left-out file is left out with it (craft.test.ts reads the blind pieces).
+EXCLUDE='/canvas-core/(launch|launch2|launch3|launchClip|launchCode|typeOptions|typeStyles)\.ts$|/hosts/page-(launch|launch2|launch3|launchClip|typeOptions|typeStyles)\.ts$|/engine/assets/refs/|/engine/tools/gallery\.mjs$|^skills/anidoodle/assets/styles\.jpg$|/engine/package-lock\.json$|/music/blind/|/canvas-core/cheetah[A-Za-z]*\.ts$|/music/pieces/cheetah[A-Za-z]*\.ts$|/hosts/page-cheetah[A-Za-z]*\.ts$|/test/cheetahRig\.test\.ts$|/test/craft\.test\.ts$'
 count=0
 while IFS= read -r f; do
   mkdir -p "${STAGE}/$(dirname "$f")"; cp -p "$f" "${STAGE}/$f"; count=$((count + 1))
 done < <(git ls-files skills/ | grep -v -E "${EXCLUDE}")
 
+# a showcase or launch film in the installed plugin is a leak of the repository's own promotion: refuse to publish one
+leaked="$(cd "${STAGE}" && find . -type f \( -iname 'cheetah*' -o -iname 'page-cheetah*' -o -name 'launch[0-9]*.ts' -o -name 'launchClip.ts' \) | head -5)"
+[ -z "${leaked}" ] || { echo "ERROR: repository-only films reached the plugin folder:" >&2; echo "${leaked}" >&2; exit 5; }
+# what is left must stand on its own: every relative import in the staged engine's sources and tests resolves
+# to a staged file (the tools are skipped: they hold import lines inside the code they generate)
+if command -v node >/dev/null 2>&1; then
+  node -e '
+    const fs = require("fs"), path = require("path"), root = process.argv[1], bad = [];
+    const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+    for (const f of [path.join(root, "src"), path.join(root, "test")].flatMap(walk).filter((f) => /\.ts$/.test(f))) for (const m of fs.readFileSync(f, "utf8").matchAll(/^\s*(?:import|export)\b[^"\x27;]*?from\s+["\x27](\.{1,2}\/[^"\x27]+)["\x27]/gm)) {
+      const t = path.resolve(path.dirname(f), m[1]);
+      if (![t, t + ".ts", t + ".mjs", t + ".json", path.join(t, "index.ts")].some((c) => fs.existsSync(c) && fs.statSync(c).isFile())) bad.push(path.relative(root, f) + " -> " + m[1]);
+    }
+    if (bad.length) { console.error("ERROR: the plugin folder imports files it leaves out:\n  " + bad.slice(0, 10).join("\n  ")); process.exit(6); }
+  ' "${STAGE}/skills/anidoodle/engine" || exit 6
+fi
 [ -f "${STAGE}/skills/anidoodle/SKILL.md" ] || { echo "ERROR: SKILL.md missing after copy (is it committed?)" >&2; exit 4; }
 [ "${count}" -ge 50 ] || { echo "ERROR: only ${count} files copied; expected the whole skill" >&2; exit 4; }
 
