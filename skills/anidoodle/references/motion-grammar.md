@@ -130,6 +130,51 @@ with the incoming scene already complete underneath. `transitionsDemo.ts` shows 
   default, never repeated quickly: declare a film's flashes to `checkFlashes`, which throws on
   any two within half a second.
 
+## Cuts that carry motion
+
+A hard cut between two shots that are both moving can be the smoothest seam there is, or the
+roughest. The difference is arithmetic, and `engine/src/canvas-core/seams.ts` does it.
+
+- **Both sides at rest, or both at one speed.** A cut from a moving shot to a still one (or the
+  other way) reads as a jerk. So does a cut where the travel turns, halves or doubles.
+- **Accelerate out, cut on the fastest frame, arrive and settle.** The outgoing shot speeds up
+  over about 0.2 to 0.4 s; the incoming shot opens at that same speed, in that same screen
+  direction, and comes to rest over 0.8 to 1.4 s. The exit is the short side.
+  `matchedMove({ dir, exitDist, exitF, entryF })` gives both halves, to add to each scene's
+  camera look; the entry distance is worked out from the exit speed, so the two always agree.
+- **Through the cut, in depth.** `matchedZoom({ push, exitF, entryF })` does the same for a
+  camera that flies into one shot and out in the next. A zoom is a ratio, so both sides run in
+  log space and grow at the same rate per frame across the cut. The incoming shot opens at
+  about two thirds of its size, so its scene must be painted wider than the frame.
+- **There is a top speed.** Past about two and a half frame widths a second
+  (`speedCeiling(W, fps)`), blur stops reading as motion and shows as a streak with stepped
+  copies. A move that needs more than that wants a shorter travel with the rest hidden behind
+  the cut, or a plain cut on the beat. Render fast seams with `--blur auto`.
+- **Match everything, once.** Whatever crosses the cut keeps its position, size, colour and
+  edge; a property that flips on the cut frame pops. And the resting pose is shown once: if one
+  shot settles onto a pose and the next opens on it, the first shot's last frame is the move's
+  last in-between, never the pose itself, or the film stops, holds and goes.
+- **Never dissolve two copies of one thing.** At the halfway point both are half there and the
+  eye sees a ghost. Move one object; change what it is at the middle of its trip.
+
+`checkSeam(velocity before, velocity after, { W, fps })` returns what is wrong with a cut, or
+nothing. `checkSeamPlan` reads the film's list of seams and flags a designed seam used a third
+time; plain and matched cuts are exempt, and the film's one signature move gets three (the open,
+the middle, the close). Use this when both scenes have room to travel the same way. When they do
+not, bring both to rest and cut on a beat.
+
+## Dealing a hand
+
+Left to choose, every film reaches for the same three moves. `node tools/deck.mjs deal --kind
+story --energy high --seconds 27` deals a hand from `references/motion-deck.json`: an opening, a
+close and a spread of seams, camera moves, reveals and acting notes, each with its numbers, its
+engine call and when not to use it. The deal is weighted toward what fits the film and is
+repeatable from its printed seed; `--avoid` keeps the next film off the last one's cards.
+
+A card is a prompt, never an order. Keep it, adapt it to this film's subject and medium, or drop
+it, and say which in the brief. The default at the top of this page still holds: a card whose
+"not when" applies is dropped, and the gentle move takes its place.
+
 ## Callouts and the label handoff
 
 `engine/src/canvas-core/callout.ts` names one thing in the picture: a dot lands on it, a leader

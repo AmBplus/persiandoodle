@@ -18,6 +18,7 @@ export * from "./vocabVoices";
 export * from "./compose";
 export * from "./novelty";
 export * from "./craft";
+export * from "./arc";
 export * from "./craftTables";
 export * from "./calibration";
 export * as instruments from "./instruments";
