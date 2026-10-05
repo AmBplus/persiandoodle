@@ -16,8 +16,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
 import { basename, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import { greyFrames } from "./motion.mjs";
+import { isMain } from "./is-main.mjs";
 
 // The detector: pure, frames in -> findings out, no I/O. `frames` is any (sync or async)
 // iterable of width*height greyscale bytes. Findings: { frame, box [x0,y0,x1,y1] as frame
@@ -67,7 +67,7 @@ export const scanPops = async (frames, { width: W, height: H, grid = 12, min = 0
   return findings;
 };
 
-const MAIN = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+const MAIN = isMain(import.meta.url);
 if (MAIN) {
   const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
   const die = (m) => { console.error(`popscan: ${m}`); process.exit(2); };
