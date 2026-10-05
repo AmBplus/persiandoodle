@@ -54,6 +54,29 @@ Working film composers structure a cue around **hit points**: the frames where s
   - a fade only for loops;
   - an open hold only for suspense.
 
+### The shape of the whole, measured
+
+A score can have a good tune, good harmony and a clean mix and still feel like it wanders, because
+nothing in it is the high point and nothing in it is the rest. `music.mjs check` prints an **ARC** line
+from the finished sound (`arc.ts`): the usual level, the loudest moment and how far through it falls,
+how far the opening sits under the body, and how far the ending sits under the peak. It is advisory,
+like `craft`: answer each finding, or say why the piece is that way on purpose.
+
+- **A soft way in.** The first two or three seconds carry fewer parts and no low drum, 5 to 12 LU under
+  the body. Frame 0 still has one sound with a reason: a drone, the first chord. Silence that swells
+  in over a bar reads as nothing happening yet.
+- **One loudest moment, on the picture's payoff.** At least 2 LU over the usual level, usually a third
+  to two thirds of the way through. Pass the payoff's second (`--payoff 13.5`) and the check says if
+  the fullest bar is somewhere else. Hold something back until then: the low drum, the top octave, a
+  doubling.
+- **Contrast is the arc.** A piece of 20 s or more wants a loudness range of 5 to 8 LU. One texture
+  from start to finish measures about 2 and feels dense and flat however good each bar is.
+- **The ending takes away.** The close is the most resolved moment, never the loudest: stop on a bar
+  line, a breath, one soft element, 8 to 20 dB under the peak. A loudest moment in the last fifth is
+  flagged.
+- **A loop has no beginning or end.** Only its contrast and its seam are read: the last second and the
+  first must sit within 3 LU, or the join is heard every time it comes round.
+
 ## 4. Orchestration: registers and frequency slots
 
 Every instrument owns a register. Two parts in the same register fight (masking, see

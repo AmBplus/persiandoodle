@@ -7,7 +7,7 @@
 // returning either); or the name of a shipped demo (listening references, never a film's score).
 //
 //   node tools/music.mjs vocab [style]              # the style vocabularies: palette, grooves, harmony, melody, arrangement
-//   node tools/music.mjs check <piece> [--fit --seconds N]  # everything: key/mode, warnings, master, ghost/reverb/masking guards, stems, craft, novelty
+//   node tools/music.mjs check <piece> [--fit --seconds N] [--payoff S]  # everything: key/mode, warnings, master, ghost/reverb/masking guards, stems, craft, arc (the shape; S = the second the picture pays off), novelty
 //   node tools/music.mjs craft <piece> [more ...] [--json]  # how it is WRITTEN: melody, harmony, rhythm, tension, mood fit (no render, advisory; errors fail)
 //   node tools/music.mjs novelty <piece> [more ...]  # vs every shipped piece (and pairwise when several); FAILS above the threshold or on a reused fragment
 //   node tools/music.mjs list                       # shipped demos and fixtures
@@ -232,6 +232,7 @@ const main = async () => {
     const r = piece.plan.loop ? M.renderLoop(piece, SR, { cache, stems: true }) : M.renderPiece(piece, SR, { seconds, tempo, cache, stems: true }); T("mix"); const g = await pending; // stems: the peak note names the parts that pile up
     const ok = [report(M, r, piece, cache, g.bands), printStems(M, piece, tempo, seconds, cache, g.stems)?.ok !== false];
     T("report + stems"); { const cr = M.craftReport(piece, { centroidHz: M.centroid([r.L, r.R], SR).mean }); console.log(M.craftText(cr)); ok.push(!cr.findings.some((f) => f.level === "error")); } T("craft");
+    { const pay = val("--payoff", undefined); console.log(M.arcText(M.arcReport([r.L, r.R], SR, { loop: !!piece.plan.loop, payoffS: pay }))); } // the shape of the finished sound: advisory, never fails the check
     if (!pc.demo) { const fam = [args[0]]; ok.push(printNovelty(M, args[0], M.novelty(piece, M.DEMOS, fam), "shipped pieces")); }
     console.log(ok.every(Boolean) ? "CHECK PASS: now a human listens (an mp3 or wav on a page)" : "CHECK FAIL: fix the items above, then run check again");
     if (!ok.every(Boolean)) process.exitCode = 1; return;
