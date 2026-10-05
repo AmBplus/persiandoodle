@@ -10,6 +10,7 @@ import { dirname, resolve } from "node:path";
 import { overlay } from "./overlay.mjs";
 import { requireFilm, splitShape } from "./names.mjs";
 import { toSrt, toVtt } from "./avsync.mjs";
+import { isMain } from "./is-main.mjs";
 
 export const filmMeta = async (name) => {
   const { base, shape } = splitShape(name);
@@ -25,7 +26,7 @@ export const writeCaptions = async (name, out = `out/${name}`) => {
   writeFileSync(srt, toSrt(caps, meta.fps)); writeFileSync(vtt, toVtt(caps, meta.fps));
   return { count: caps.length, files: [srt, vtt] };
 };
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const name = requireFilm(process.argv[2], "captions", "node tools/captions.mjs <film>[-<shape>] [--out out/<film>]");
   const i = process.argv.indexOf("--out"), r = await writeCaptions(name, i > 0 ? process.argv[i + 1] : undefined);
   if (!r.count) { console.error(`captions: ${name} has no meta.captions (a launch template film writes them; add your own to meta.captions)`); process.exit(1); }

@@ -10,9 +10,12 @@
 //   node tools/deck.mjs test                                       # the deck and the dealer hold their own rules
 // Weights: role (workhorse 3, accent 2, signature 1) x energy fit (same 1, "any" 0.7, other 0.25).
 // A deal has one opening, one close, at most one signature card, and no card twice.
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isMain } from "./is-main.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", ".."), DECK = JSON.parse(readFileSync(join(ROOT, "references", "motion-deck.json"), "utf8"));
 const CATS = ["open", "seam", "camera", "reveal", "type", "acting", "emphasis", "close"], MIDDLE = CATS.filter((c) => c !== "open" && c !== "close");
@@ -64,10 +67,19 @@ const selfTest = () => {
   const tally = (energy) => { let hi = 0, n = 0; for (let s = 1; s <= 400; s++) for (const m of deal({ kind: "story", energy, seconds: 30, seed: s })) { n++; if (m.energy === "high") hi++; } return hi / n; };
   say(tally("high") > tally("calm") * 1.5, `a high-energy film is dealt more high-energy cards than a calm one (${(tally("high") * 100).toFixed(0)}% against ${(tally("calm") * 100).toFixed(0)}%)`);
   say(deal({ cat: "seam", n: 3, kind: "launch", seed: 3 }).every((m) => m.cat === "seam") && deal({ cat: "seam", n: 3, seed: 3 }).length === 3, "--cat deals from one category only");
+  // run through a link, as an installed skill is: the tool must still know it is the one being run
+  { const dir = mkdtempSync(join(tmpdir(), "deck-")), link = join(dir, "engine"); let out = "";
+    const quiet = [];
+    try { symlinkSync(join(ROOT, "engine"), link, "dir"); out = execFileSync(process.execPath, [join(link, "tools", "deck.mjs"), "deal", "--seed", "3", "--kind", "story"], { encoding: "utf8" });
+      // every tool that can also be imported by another must still answer when it is the one being run
+      for (const t of ["registry", "popscan", "captions", "audio", "build-page", "soundpack"]) { const r = spawnSync(process.execPath, [join(link, "tools", `${t}.mjs`)], { encoding: "utf8", cwd: link }); if (!`${r.stdout}${r.stderr}`.trim()) quiet.push(t); }
+    } catch (e) { out = `failed: ${e.message}`; } finally { rmSync(dir, { recursive: true, force: true }); }
+    say(out.startsWith("DECK   seed 3") && out.includes("build:"), "run through a symlinked folder, it still deals");
+    say(!quiet.length, `six other tools answer through the link too${quiet.length ? `   silent: ${quiet.join(", ")}` : ""}`); }
   console.log(`\nDECK: ${fails ? "FAIL" : "PASS"}`); process.exit(fails ? 1 : 0);
 };
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isMain(import.meta.url)) {
   const die = (m) => { console.error(`deck: ${m}`); process.exit(2); };
   const [cmd, ...args] = process.argv.slice(2), val = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : undefined; };
   const num = (k, least, whole) => { if (!args.includes(k)) return undefined; const x = Number(val(k)); if (val(k) === undefined || !Number.isFinite(x) || x < least || (whole && !Number.isInteger(x))) die(`${k} takes ${whole ? "a whole number" : "a number"} of ${least} or more (got ${val(k)})`); return x; };

@@ -7,6 +7,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isMain } from "./is-main.mjs";
 
 export const ENGINE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const ROOT = resolve(ENGINE, "..");
@@ -72,7 +73,7 @@ const writeOutputs = (styles) => {
   ].join("\n"));
 };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const styles = loadRegistry();
   writeOutputs(styles);
   for (const s of styles) console.log(`  ${s.id.padEnd(14)} ${s.name.padEnd(32)} ${s.drawFilm ? "film " + s.drawFilm : "no film   "}${s.source === "scanned" ? "" : "  (legacy)"}`);

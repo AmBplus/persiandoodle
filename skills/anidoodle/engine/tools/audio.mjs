@@ -1,12 +1,11 @@
 // Interleaved stereo Float32 transport stays unclipped until the final AAC encoder.
 import { build } from 'esbuild';
 import { writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { overlay } from './overlay.mjs';
 import { splitShape, requireFilm } from './names.mjs';
 import { loadBanks, soundIds, printSounds, soundsNotice } from './sounds.mjs';
 import { soundsDir } from './soundfetch.mjs';
+import { isMain } from "./is-main.mjs";
 let filmModuleId = 0;
 
 /** Film and music registry share one bundle, so its audio closure sees the loaded banks. */
@@ -47,7 +46,7 @@ export const float32Wav = ({ sampleRate, frames, float32 }) => {
   h.write("data", 36); h.writeUInt32LE(pcm.length, 40);
   return Buffer.concat([h, pcm]);
 };
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+if (isMain(import.meta.url)) {
   const title = requireFilm(process.argv[2], 'audio', 'node tools/audio.mjs <film> <out.wav>');
   if (!process.argv[3]) throw new Error('audio needs an output WAV path');
   const { film, music } = await loadFilmModule(title);

@@ -7,6 +7,7 @@ import { extname, join, relative, resolve } from "node:path";
 import { overlay, resolveOverlay } from "./overlay.mjs";
 import { requireFilm, splitShape } from "./names.mjs";
 import { loadFilmModule, prepareFilmSounds, filmFloat32 } from './audio.mjs';
+import { isMain } from "./is-main.mjs";
 
 // BAKE KEYS (see Env.bake and hosts/page.ts). Every module that exports `const X: Film` is tagged
 // in the bundle with its own path, and each tagged module gets a hash of its WHOLE import closure
@@ -65,4 +66,4 @@ export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   const meta = film.meta;
   return { out, bytes: html.length, meta, assets: Object.keys(film.assets.images) };
 };
-if (import.meta.url === `file://${process.argv[1]}`) { const title = requireFilm(process.argv[2], "build-page", "node tools/build-page.mjs <film>"); const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }
+if (isMain(import.meta.url)) { const title = requireFilm(process.argv[2], "build-page", "node tools/build-page.mjs <film>"); const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }

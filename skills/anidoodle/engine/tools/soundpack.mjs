@@ -17,7 +17,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync, statSync, mkdirSync, openSync, closeSync, writeSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
-import { pathToFileURL } from "node:url";
+import { isMain } from "./is-main.mjs";
 
 const SR = 48000;
 const VCSL_RAW = "https://raw.githubusercontent.com/sgossner/VCSL/master/";
@@ -918,7 +918,7 @@ const only = onlyFlag >= 0 ? args.splice(onlyFlag, 2)[1].split(",") : null;
 const recipes = only ? RECIPES.filter((r) => only.includes(r.id)) : RECIPES;
 if (only && recipes.length !== only.length) { console.error(`unknown instrument in --only: ${only.filter((o) => !RECIPES.some((r) => r.id === o))}`); process.exit(2); }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) (async () => {
+if (isMain(import.meta.url)) (async () => {
   if (cmd === "fetch" && args.length === 1) await fetchFiles(needed(recipes, tree()), args[0]);
   else if (cmd === "build" && args.length === 2) await buildPack(args[0], args[1], recipes);
   else if (cmd === "verify" && args.length === 1) verifyPack(args[0]);
