@@ -83,7 +83,7 @@ a beat is 60 x fps / bpm frames, the bpm from the brief's score; one cue table h
 runs at load. (3) **Real reference** for anything that exists. (4) **ONE look still**, the hardest
 frame, critiqued in writing. ✋ **Approval.** (5) **ONE 8-second music sample.** ✋ **Approval.**
 (6) **Build the whole film**; mechanical checks run continuously. (7) **Review once** from the
-rendered file: a contact sheet per beat, each cut as a pair, the dead-air numbers. One ranked fix
+rendered file, as four readings with a scorecard (`references/workflows/review.md`). One ranked fix
 list, one rebuild. (8) ✋ **Final approval.** Say what you verified and what you cannot.
 
 Three approval gates at most. Approval is a budget; spend it where being wrong is expensive.
@@ -103,7 +103,7 @@ draws itself declares `kind: "drawing"` and is judged on a finer floor; a freeze
 `engine/` is the portable art core plus the tooling. `engine/src/canvas-core` knows nothing
 about the DOM or any backend. `W`, `H`, `fps` and `durationFrames` come from the film's `meta`.
 Camera moves (pans, zooms, parallax, shake): `engine/src/canvas-core/camera.ts`, `references/camera.md`.
-Seams between scenes: `references/motion-grammar.md`. `render.mjs --blur auto` renders with motion blur (subframes per frame
+Seams between scenes: `references/motion-grammar.md` (cuts that carry motion: `seams.ts`; `tools/deck.mjs deal` deals each film different moves). `render.mjs --blur auto` renders with motion blur (subframes per frame
 from its measured on-screen speed, averaged in linear light, `--shutter 180`); the default path is untouched.
 
 ```bash
@@ -127,7 +127,7 @@ node <skill>/engine/tools/soundfetch.mjs get piano rooms  # on their yes (piano 
 | `verify-export.mjs` | QA on the rendered file: frames, duration, score, A/V sync, true peak after the encode; opt-in first frame, loop seam, `--delivery` |
 | `launch.mjs` | a launch film: `new <name>` scaffolds the spec; `ship <name> --shapes 16x9,9x16` renders, posters, captions, verifies and framechecks each (`framecheck.mjs`: no text cut by the frame's edge) |
 | `test.mjs` (`npm test`) | unit suites in `engine/test/`, no browser |
-| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score (key, master, guards, stems, novelty, and which parts played recordings); `render`, `meter` |
+| `music.mjs` | `vocab` prints a style's vocabulary; `check` gates your composed score (key, master, guards, stems, novelty, which parts played recordings) and prints its shape (ARC); `render`, `meter` |
 | `soundfetch.mjs` | the sound pack: `list`, `get <id...\|all>`, `where`, `verify`, `remove <id>` |
 | `sfx.mjs` | the sound-effects kit: `list`, `one`, `kit <dir>`, `test` |
 

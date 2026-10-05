@@ -53,7 +53,7 @@ export const loudness = (chans: Float32Array[], sr: number) => {
   const stG = stAbs.map(lufs).filter((l) => l > stRel).sort((a, b) => a - b);
   const pct = (p: number) => (stG.length ? stG[Math.min(stG.length - 1, Math.max(0, Math.round((p / 100) * (stG.length - 1))))] : NaN);
   const shortTerm = st.map(lufs);
-  return { integrated, lra: pct(95) - pct(10), shortMax: Math.max(...shortTerm), momentaryMax: Math.max(...blocks.map(lufs)), shortTerm, hopS: 0.1 };
+  return { integrated, lra: pct(95) - pct(10), shortMax: Math.max(...shortTerm), momentaryMax: Math.max(...blocks.map(lufs)), shortTerm, momentary: blocks.map(lufs), hopS: 0.1 }; // momentary: one 400 ms block every hop, block i centred at i * hopS + 0.2 s
 };
 
 export const truePeak = (chans: Float32Array[]) => {

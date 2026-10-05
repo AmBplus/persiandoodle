@@ -61,6 +61,8 @@ export const sampleCutoff = (e: SampleEntry, z: SampleZone, k: Played, sr: numbe
   return Math.min(sr * 0.45, 350 + 17650 * t * t);
 };
 export const sampleGain = (e: SampleEntry, z: SampleZone, v: number) => e.normalized ? pianoVelocity(v) * db(-8 * Math.max(0, 0.6 - v)) : v <= 0 ? 0 : db(clamp(16 * (v - layerV(e, z.layer)), -6, 6));
+/** A drum tuned to one note (a timpani in a drum lane) plays that note whatever the lane wrote, moved by octaves into what was recorded. */
+export const pinnedPitch = (pitch: number, range: readonly [number, number] | readonly number[]) => { if (!Number.isFinite(pitch)) throw new Error(`a pinned pitch must be a note number, got ${pitch}`); let p = Math.round(pitch); while (p < range[0]) p += 12; while (p > range[1]) p -= 12; return p < range[0] ? range[0] : p; };
 /** Nearest pitch, then nearest layer, then this note's seeded recording. State stays local to a render. */
 export const sampleZones = (bank: SampleBank, keys: Played[], seed: number, pedal: PedalSpan[] = [], art?: "rel") => {
   const previous = new Map<string, SampleBank["zones"][number]>(), e = bank.entry, pool = bank.zones.filter(({ zone }) => zone.art === art);

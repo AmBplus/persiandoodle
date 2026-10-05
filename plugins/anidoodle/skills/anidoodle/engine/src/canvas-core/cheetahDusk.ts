@@ -101,6 +101,7 @@ const tear = (c: Ctx, side: number, prog: number) => {
   for (let i = 0; i <= m; i++) { const t = i / n, a = bz(t), b = bz(Math.min(1, t + 0.01)), d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, nx = -(b[1] - a[1]) / d, ny = (b[0] - a[0]) / d, w = (7 + 15 * Math.sin(Math.PI * Math.pow(t, 0.6)) * (1 - t * 0.35)) * (i === m && prog < 1 ? 0.3 : 1); L.push([a[0] + nx * w, a[1] + ny * w]); R.push([a[0] - nx * w, a[1] - ny * w]); }
   c.fillStyle = DARK; c.beginPath(); [...L, ...R.reverse()].forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath(); c.fill();
 };
+export const duskGrass = PARTS.grass, FACE: P = F;
 const grass = (c: Ctx, f: number, grow: number) => { for (const g of PARTS.grass) tuft(c, [g.x, H + 20], -Math.PI / 2 + g.a + Math.sin(f * (Math.PI / 45) + g.ph) * 0.07, 0, g.h * grow, g.w, g.col, 0); };
 
 // the night's stars: they are out while it is night, at the start and again at the end, never still
@@ -108,7 +109,7 @@ const STARS = (() => { const r = rng(19); return Array.from({ length: 46 }, () =
 const stars = (c: Ctx, f: number, k: number) => { if (k <= 0) return; for (const st of STARS) { c.globalAlpha = k * (0.35 + 0.65 * (0.5 + 0.5 * Math.sin((f / N) * Math.PI * 2 * st.cyc + st.ph))); c.fillStyle = PALE; c.beginPath(); c.arc(st.x, st.y, st.s, 0, Math.PI * 2); c.fill(); } c.globalAlpha = 1; };
 
 // ---------------------------------------------------------------- the camera
-const camAt = (f: number) => {
+export const camAt = (f: number) => {
   const a = inOut(ramp(f, 180, 290)), b = ramp(f, 290, 338), z = Math.pow(2, lerp(0, Math.log2(1.14), a) + inOut(b) * (Math.log2(52) - Math.log2(1.14))), lk = out3(b * 1.5);
   return { z, look: [lerp(lerp(540, 506, a), EYE_L[0], lk), lerp(lerp(540, 532, a), EYE_L[1] - 2, lk)] as P };
 };
@@ -122,18 +123,13 @@ const grainLayer = (env: Env): Layer => { // the paper's tooth and the dusk sett
   return L;
 };
 
-const draw = (ctx: Ctx, f: number, env: Env) => {
-  const c = ctx, s = env.scale, cam = camAt(f), pupilCol = mix(PUPIL, NIGHT, ramp(f, 312, 336));
-  c.setTransform(s, 0, 0, s, 0, 0); c.fillStyle = NIGHT; c.fillRect(0, 0, W, H);
-  if (f < 60) stars(c, f, 1 - ramp(f, 14, 52));
-  c.setTransform(s * cam.z, 0, 0, s * cam.z, s * (540 - cam.look[0] * cam.z), s * (540 - cam.look[1] * cam.z));
-  // the moon, setting; the sun, rising behind the grass with its rays opening
-  const set = ramp(f, 4, 52); if (set < 1) crescent(c, MOON[0] - set * set * 160, MOON[1] + set * set * 1000, MOON_R, PALE);
-  const rise = out3(ramp(f, 8, 74)), sy = lerp(1700, 430, rise), rays = back(ramp(f, 40, 86));
-  for (let j = 0; j < 96; j++) tuft(c, [540, sy], (j / 96) * Math.PI * 2 + f * 0.0016, 440, 440 + (80 + (j % 2) * 26) * rays, 12, j % 2 ? RUST : "#8f3a26", 0);
-  const sg = c.createRadialGradient(540, sy, 80, 540, sy, 470); sg.addColorStop(0, "#ff8a4a"); sg.addColorStop(1, CORAL); c.fillStyle = sg; c.beginPath(); c.arc(540, sy, 470, 0, Math.PI * 2); c.fill();
+// The face on its own, for a caller that has set the transform: all of it, or one part. cheetahRun
+// turns this head in space, so it takes the parts as layers: the neck, the head with no features (its back), the whole head.
+export const duskFace = (c: Ctx, f: number, part: "all" | "neck" | "coat" | "head" = "all") => {
+  const pupilCol = mix(PUPIL, NIGHT, ramp(f, 312, 336));
   // neck and shoulders rise
-  for (const n of PARTS.neck) { const g = back(ramp(f, n.t0, n.t0 + 16)); tuft(c, [n.x, n.y - 70 + (1 - g) * 60], Math.PI / 2, 0, 150 * g, 52 * g, n.col, 0.3); }
+  if (part === "all" || part === "neck") for (const n of PARTS.neck) { const g = back(ramp(f, n.t0, n.t0 + 16)); tuft(c, [n.x, n.y - 70 + (1 - g) * 60], Math.PI / 2, 0, 150 * g, 52 * g, n.col, 0.3); }
+  if (part === "neck") return;
   ear(c, [262, 300], -1, f); ear(c, [818, 300], 1, f);
   // the head's own mass, then the coat over it: rings of tufts from the nose outward, breathing once it is whole
   const mass = ramp(f, 70, 132); // it spreads just under the coat as the rings open, never a bare disc
@@ -143,6 +139,7 @@ const draw = (ctx: Ctx, f: number, env: Env) => {
   for (const t of PARTS.coat) { const g = back(ramp(f, t.t0, t.t0 + 15)); if (g <= 0) continue; const br = 1 + 0.045 * alive * Math.sin(f * (Math.PI / 45) + t.ring * 0.9); tuft(c, F, t.a, t.r0, t.r0 + (t.r1 - t.r0) * g * br, t.w * Math.min(1, g), t.col); }
   c.restore();
   for (const p of PARTS.spots) { const g = back(ramp(f, p.t0, p.t0 + 9)); if (g <= 0) continue; c.fillStyle = DARK; c.beginPath(); c.ellipse(p.x, p.y, p.s * 1.12 * g, p.s * 0.94 * g, p.a, 0, Math.PI * 2); c.fill(); }
+  if (part === "coat") return;
   // the bridge of the nose: a pale fan falling from between the eyes
   for (let i = -4; i <= 4; i++) { const g = back(ramp(f, 108 + Math.abs(i) * 2, 126 + Math.abs(i) * 2)); tuft(c, [540, 452], Math.PI / 2 + i * 0.075, 20, 20 + (194 - Math.abs(i) * 12) * g, 13 * g, i % 2 ? "#f4cd7e" : "#f8dca0", 0.18); }
   tear(c, 1, inOut(ramp(f, 134, 162))); tear(c, -1, inOut(ramp(f, 134, 162)));
@@ -160,15 +157,41 @@ const draw = (ctx: Ctx, f: number, env: Env) => {
   const mo = ramp(f, 152, 166); if (mo > 0) { c.strokeStyle = "#1a0f0c"; c.lineWidth = 5; c.lineCap = "round"; c.beginPath(); c.moveTo(540, 732); c.lineTo(540, 732 + 36 * mo); if (mo >= 1) { const q = ramp(f, 166, 176); c.moveTo(540, 768); c.quadraticCurveTo(540 - 28 * q, 768 + 32 * q, 540 - 70 * q, 768 + 18 * q); c.moveTo(540, 768); c.quadraticCurveTo(540 + 28 * q, 768 + 32 * q, 540 + 70 * q, 768 + 18 * q); } c.stroke(); }
   const wh = out3(ramp(f, 160, 184)); if (wh > 0) for (const sd of [-1, 1]) for (let k = 0; k < 5; k++) { const sway = Math.sin(f * (Math.PI / 60) + k) * 6 * alive, a: P = [540 + sd * 96, 742 + k * 9], m: P = [540 + sd * 250, 720 + k * 22 + sway * 0.5], e: P = [540 + sd * (400 + k * 14), 690 + k * 46 + sway]; c.strokeStyle = PALE; c.globalAlpha = 0.85; c.lineWidth = 2; c.beginPath(); c.moveTo(a[0], a[1]); for (let i = 1; i <= 16; i++) { const t = (i / 16) * wh, u = 1 - t; c.lineTo(u * u * a[0] + 2 * u * t * m[0] + t * t * e[0], u * u * a[1] + 2 * u * t * m[1] + t * t * e[1]); } c.stroke(); }
   c.globalAlpha = 1;
-  grass(c, f, 1);
+};
+// Another film may borrow this one's world (cheetahRun does): its own camera, a clock for the sun's
+// rays and the grass that runs on while the face's own time is held, the face moved aside or left
+// out, the grass and the grain left for the borrower to lay. With no options it is this film, exactly.
+export type DuskOpts = { cam?: { z: number; look: P }; world?: number; face?: false; grass?: false; grain?: false };
+export const drawDusk = (ctx: Ctx, f: number, env: Env, o: DuskOpts = {}) => {
+  const c = ctx, s = env.scale, cam = o.cam ?? camAt(f), wf = o.world ?? f;
+  c.setTransform(s, 0, 0, s, 0, 0); c.fillStyle = NIGHT; c.fillRect(0, 0, W, H);
+  if (f < 60) stars(c, f, 1 - ramp(f, 14, 52));
+  c.setTransform(s * cam.z, 0, 0, s * cam.z, s * (540 - cam.look[0] * cam.z), s * (540 - cam.look[1] * cam.z));
+  // the moon, setting; the sun, rising behind the grass with its rays opening
+  const set = ramp(f, 4, 52); if (set < 1) crescent(c, MOON[0] - set * set * 160, MOON[1] + set * set * 1000, MOON_R, PALE);
+  const rise = out3(ramp(f, 8, 74)), sy = lerp(1700, 430, rise), rays = back(ramp(f, 40, 86));
+  for (let j = 0; j < 96; j++) tuft(c, [540, sy], (j / 96) * Math.PI * 2 + wf * 0.0016, 440, 440 + (80 + (j % 2) * 26) * rays, 12, j % 2 ? RUST : "#8f3a26", 0);
+  const sg = c.createRadialGradient(540, sy, 80, 540, sy, 470); sg.addColorStop(0, "#ff8a4a"); sg.addColorStop(1, CORAL); c.fillStyle = sg; c.beginPath(); c.arc(540, sy, 470, 0, Math.PI * 2); c.fill();
+  if (o.face !== false) duskFace(c, f);
+  if (o.grass !== false) grass(c, wf, 1);
   // screen space: the crescent carried out of the pupil to its place in the sky, and the grass coming back
   c.setTransform(s, 0, 0, s, 0, 0);
   if (f >= 290) { const u = ramp(f, 290, 338), e = inOut(u), from: P = [540 + (EYE_L[0] - 10 - cam.look[0]) * Math.min(cam.z, 1.6), 540 + (EYE_L[1] - 12 - cam.look[1]) * Math.min(cam.z, 1.6)]; crescent(c, lerp(from[0], MOON[0], e), lerp(from[1], MOON[1], e) - Math.sin(Math.PI * u) * 40, 9.5 * Math.pow(MOON_R / 9.5, e), PALE); }
   if (f >= 322) { stars(c, f, ramp(f, 326, 352)); grass(c, f, inOut(ramp(f, 322, 359))); }
-  c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.drawImage(grainLayer(env).canvas, 0, 0);
+  c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; if (o.grain !== false) c.drawImage(grainLayer(env).canvas, 0, 0);
 };
+const draw = (ctx: Ctx, f: number, env: Env) => drawDusk(ctx, f, env);
 
 // the score: four bars at 80 bpm are the film's 12 s exactly, so the loop is the music's own
+/** The night the film ends on, held: the stars, the crescent in its place, the grass. At t = 359 it is the film's last frame, and it runs on from there. */
+export const duskNight = (ctx: Ctx, t: number, env: Env) => {
+  const c = ctx, s = env.scale;
+  c.setTransform(s, 0, 0, s, 0, 0); c.fillStyle = NIGHT; c.fillRect(0, 0, W, H);
+  crescent(c, MOON[0], MOON[1], MOON_R, PALE); stars(c, t, 1); grass(c, t, 1);
+  c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.drawImage(grainLayer(env).canvas, 0, 0);
+};
+export const DUSK_PALE = PALE;
+
 const audio = (sr: number): [Float32Array, Float32Array] => {
   const n = Math.round((N / 30) * sr), L = new Float32Array(n), R = new Float32Array(n), m = renderLoop(cheetahDuskScore(), sr); // its tail folded back onto its start: no cut at the seam
   for (let i = 0; i < n && i < m.L.length; i++) { L[i] = m.L[i]; R[i] = m.R[i]; }
