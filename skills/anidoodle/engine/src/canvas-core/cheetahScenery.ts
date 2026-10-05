@@ -63,7 +63,7 @@ export const drawFar = (c: Ctx, w: Country, X: number, F: number, horizon: numbe
   for (const t of w.trees) { const x = 540 + (t.g - X) * 0.22; if (x < -260 || x > 1340) continue; if (t.kind === "dead") deadTree(c, x, horizon, t.h, t.seed, tree); else acacia(c, x, horizon, t.h, t.seed, tree, treeLit); }
   for (const m of w.mid) { const x = 540 + (m.g - X) * 0.5; if (x < -200 || x > 1280) continue; if (m.kind === "mound") mound(c, x, horizon, m.h, mix(RUST, NIGHT, 0.72)); else if (m.kind === "kopje") kopje(c, x, horizon, m.h, m.seed, near, mix(RUST, NIGHT, 0.6)); else if (m.kind === "reeds") reeds(c, x, horizon, m.h, m.seed, nearLit, F, lean); else bush(c, x, horizon, m.h, m.seed, near, nearLit); }
 };
-/** The pan: shallow water lying on the ground she runs over, with the sun laid down in it. Returns how much of it is under her (0-1). */
+/** The pan: shallow water lying on the ground she runs over, with the sun laid down in it. */
 export const drawPan = (c: Ctx, w: Country, X: number, F: number, horizon: number, v: number) => {
   const a = 540 + (w.pan[0] - X), b = 540 + (w.pan[1] - X); if (b < -40 || a > 1120) return;
   const x0 = Math.max(-20, a), x1 = Math.min(1100, b), y0 = horizon + 8, y1 = horizon + 86;
@@ -106,4 +106,3 @@ export const drawBurst = (c: Ctx, b: Burst) => {
     else leaf(c, b.x - d * 70 * k * b.big, b.y - 4 - d * 56 * k * b.big, a, (24 + d * 58) * b.big * Math.min(1, k * 3), (7 + q() * 8) * b.big, mix(mix(OCHRE, PALE, 0.4), NIGHT, 0.12 + q() * 0.25), (0.62 - d * 0.15) * (1 - k));
   }
 };
-export const at = (p: P, dx: number, dy: number): P => [p[0] + dx, p[1] + dy];

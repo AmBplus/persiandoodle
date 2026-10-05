@@ -13,12 +13,12 @@ Freeze a copy of the file and note its hash first. Every reading is of that copy
 
 ## The four readings
 
-| Reading | Looks at | Its question | Scores |
+| Reading | Looks at | What it settles | Scores |
 |---|---|---|---|
-| **Director** | the contact sheet at one tile per beat, sound off; then each seam as a before/after pair | Would someone who has never seen the brief say what this film is about, and feel the payoff? | point, first second, pacing, seams |
-| **Illustrator** | full-size stills of the hardest frames; crops of faces, hands, feet and joins at `--scale 2` | Would a proud illustrator sign this, or is it shapes assembled (`craft-bar.md`)? | drawing, style |
-| **Motion and finish** | `popscan.mjs`, `gate.mjs`, strips of consecutive frames across every seam and every fast move | Does anything pop, stall, jump or smear that was not meant to? | motion, finish |
-| **Sound and sync** | `music.mjs check` (with its ARC line), `verify-export.mjs`, the cue table against the picture | Is the sound one piece with a shape, and does it land on the picture? | sound |
+| **Director** | the contact sheet at one tile per beat, sound off; then each seam as a before/after pair | Whether someone who has never seen the brief could say what the film is about, and feel the payoff. | point, first second, pacing, seams |
+| **Illustrator** | full-size stills of the hardest frames; crops of faces, hands, feet and joins at `--scale 2` | Whether a proud illustrator would sign it, or it is shapes assembled (`craft-bar.md`). | drawing, style |
+| **Motion and finish** | `popscan.mjs`, `gate.mjs`, strips of consecutive frames across every seam and every fast move | Whether anything pops, stalls, jumps or smears that was not meant to. | motion, finish |
+| **Sound and sync** | `music.mjs check` (with its ARC line), `verify-export.mjs`, the cue table against the picture | Whether the sound is one piece with a shape, and lands on the picture. | sound |
 
 Rules that make a reading worth having:
 
@@ -43,8 +43,8 @@ Rules that make a reading worth having:
 ## The check before fixing
 
 Before anything is changed, every P0 and P1 is looked at once more, at full size, by someone
-trying to prove it wrong: is it on the frame named, is it what the finding says, would a viewer
-see it. Some first-pass findings do not survive this, and each one that is "fixed" anyway
+trying to prove it wrong: it must be on the frame named, be what the finding says, and be
+something a viewer would see. Some first-pass findings do not survive this, and each one that is "fixed" anyway
 costs a rebuild and risks something that worked. What survives goes on the list, ranked by how
 much the film gains for the time the fix takes.
 

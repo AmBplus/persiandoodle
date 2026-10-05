@@ -1,6 +1,5 @@
 // Tiny synthetic recordings: pitch, dynamics, dampers, bank routing and cache identity, no files.
-import { registerBank, bankFor, clearBanks, samplerVoice, sampleZones, sampleCutoff, sampleGain, bankIdentity, type SampleBank, type SampleZone } from "../src/canvas-core/music/sampler";
-import { pinnedPitch } from "../src/canvas-core/music/sampler";
+import { registerBank, bankFor, clearBanks, samplerVoice, sampleZones, sampleCutoff, sampleGain, bankIdentity, type SampleBank, type SampleZone, pinnedPitch } from "../src/canvas-core/music/sampler";
 import { renderPiece, voiceJobs, runVoiceJob, voiceJobKey, calibrateBank } from "../src/canvas-core/music/render";
 import { nocturne } from "../src/canvas-core/music/pieces/nocturne";
 import { marimbaCurious } from "../src/canvas-core/music/pieces/families";
@@ -196,4 +195,5 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
   // a drum pinned to a note lands inside what was recorded, on the same note name
   ok(pinnedPitch(31, [37, 59]) === 43 && pinnedPitch(60, [37, 59]) === 48 && pinnedPitch(43, [37, 59]) === 43, "a pinned pitch moves by octaves into the recorded range (G1 to G2, C4 to C3) and stays put when it is inside");
   ok([24, 31, 38, 60, 72, 90].every((p) => { const q = pinnedPitch(p, [37, 59]); return q >= 37 && q <= 59 && (q - p) % 12 === 0; }), "every pinned pitch stays in range and keeps its note name");
+  { let threw = 0; for (const bad of [NaN, Infinity, -Infinity]) try { pinnedPitch(bad, [37, 59]); } catch { threw++; } ok(threw === 3, "a pinned pitch that is not a number is refused, never looped on"); }
 };

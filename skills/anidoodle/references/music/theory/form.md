@@ -74,8 +74,9 @@ like `craft`: answer each finding, or say why the piece is that way on purpose.
 - **The ending takes away.** The close is the most resolved moment, never the loudest: stop on a bar
   line, a breath, one soft element, 8 to 20 dB under the peak. A loudest moment in the last fifth is
   flagged.
-- **A loop has no beginning or end.** Only its contrast and its seam are read: the last second and the
-  first must sit within 3 LU, or the join is heard every time it comes round.
+- **A loop has no beginning or end.** Only its contrast and its seam are read. The join is flagged when
+  the last second and the first differ by more than 3 LU and by more than any two neighbouring seconds
+  inside the piece: a phrase that ends into a quiet bar is the music, a step found nowhere else is a seam.
 
 ## 4. Orchestration: registers and frequency slots
 

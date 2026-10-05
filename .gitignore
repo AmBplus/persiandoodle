@@ -1,5 +1,6 @@
 # build + render output
 skills/anidoodle/engine/node_modules/
+skills/anidoodle/engine/node_modules
 skills/anidoodle/engine/out/
 skills/anidoodle/engine/dist/
 skills/anidoodle/engine/.tmp/

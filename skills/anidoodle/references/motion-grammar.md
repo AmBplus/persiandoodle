@@ -137,15 +137,18 @@ roughest. The difference is arithmetic, and `engine/src/canvas-core/seams.ts` do
 
 - **Both sides at rest, or both at one speed.** A cut from a moving shot to a still one (or the
   other way) reads as a jerk. So does a cut where the travel turns, halves or doubles.
-- **Accelerate out, cut on the fastest frame, arrive and settle.** The outgoing shot speeds up
+- **Accelerate out, cut after the fastest frame, arrive and settle.** The outgoing shot speeds up
   over about 0.2 to 0.4 s; the incoming shot opens at that same speed, in that same screen
   direction, and comes to rest over 0.8 to 1.4 s. The exit is the short side.
   `matchedMove({ dir, exitDist, exitF, entryF })` gives both halves, to add to each scene's
   camera look; the entry distance is worked out from the exit speed, so the two always agree.
+  The incoming shot owns the cut frame: the outgoing shot's last frame on screen is the one
+  before it, and that is its fastest.
 - **Through the cut, in depth.** `matchedZoom({ push, exitF, entryF })` does the same for a
   camera that flies into one shot and out in the next. A zoom is a ratio, so both sides run in
-  log space and grow at the same rate per frame across the cut. The incoming shot opens at
-  about two thirds of its size, so its scene must be painted wider than the frame.
+  log space and grow at the same rate per frame across the cut. With the default push the
+  incoming shot opens at about two thirds of its size, so its scene must be painted that much
+  wider than the frame; a zoom that would open it under 0.4 is refused.
 - **There is a top speed.** Past about two and a half frame widths a second
   (`speedCeiling(W, fps)`), blur stops reading as motion and shows as a streak with stepped
   copies. A move that needs more than that wants a shorter travel with the rest hidden behind
@@ -158,7 +161,7 @@ roughest. The difference is arithmetic, and `engine/src/canvas-core/seams.ts` do
   eye sees a ghost. Move one object; change what it is at the middle of its trip.
 
 `checkSeam(velocity before, velocity after, { W, fps })` returns what is wrong with a cut, or
-nothing. `checkSeamPlan` reads the film's list of seams and flags a designed seam used a third
+nothing: one side at rest, a turn of more than 30 degrees, a speed that drops or jumps. `checkSeamPlan` reads the film's list of seams and flags a designed seam used a third
 time; plain and matched cuts are exempt, and the film's one signature move gets three (the open,
 the middle, the close). Use this when both scenes have room to travel the same way. When they do
 not, bring both to rest and cut on a beat.

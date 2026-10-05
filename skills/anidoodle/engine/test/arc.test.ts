@@ -30,8 +30,13 @@ export const run = (ok: (cond: boolean, label: string) => void) => {
   const loop = arcReport(tone(12, (t) => (t < 6 ? -24 : -18)), SR, { loop: true });
   ok(has(loop, "where the loop comes round") && !has(loop, "out-shouts") && !has(loop, "build to"), `a loop that ends 6 LU over where it starts is flagged at the seam only (${loop.seamJump.toFixed(1)} LU)`);
   ok(arcReport(tone(12, (t) => (t < 4 ? -24 : t < 8 ? -18 : -24)), SR, { loop: true }).findings.length === 0, "a loop that swells in the middle and returns has nothing to answer");
+  // a phrase that ends into a quiet bar: the join is no bigger a step than the piece makes inside itself
+  const breath = arcReport(tone(12, (t) => (t < 3 ? -30 : t < 6 ? -18 : t < 9 ? -30 : -21)), SR, { loop: true }); ok(breath.seamJump > 3 && breath.insideJump >= breath.seamJump && !has(breath, "comes round"), `a loop whose join steps ${breath.seamJump.toFixed(1)} LU is left alone when it steps ${breath.insideJump.toFixed(1)} LU inside too`);
 
   // 4. short pieces and silence do not crash or nag
   ok(arcReport(tone(3, () => -20), SR).findings.length === 0, "a three-second sting is not asked for an arc");
-  const quiet = arcReport([new Float32Array(SR * 2), new Float32Array(SR * 2)], SR); ok(Number.isFinite(quiet.peakS) && quiet.findings.length === 0, "silence gives finite numbers and no findings");
+  const quiet = arcReport([new Float32Array(SR * 2), new Float32Array(SR * 2)], SR); ok(Number.isFinite(quiet.peakS) && quiet.findings.length === 0 && !arcText(quiet).includes("NaN"), "two seconds of silence give finite numbers and no findings");
+  const long = arcReport([new Float32Array(SR * 24), new Float32Array(SR * 24)], SR), longLoop = arcReport([new Float32Array(SR * 24)], SR, { loop: true }); ok(long.findings.length === 0 && longLoop.findings.length === 0 && !arcText(long).includes("NaN"), "24 seconds of silence are not told they lack a high point");
+  let threw = false; try { arcReport([], SR); } catch { threw = true; } ok(threw, "no channels at all is refused with a message");
+  ok(!arcText(arcReport(tone(2, () => -20), SR)).includes("NaN"), "a two-second piece prints no NaN");
 };

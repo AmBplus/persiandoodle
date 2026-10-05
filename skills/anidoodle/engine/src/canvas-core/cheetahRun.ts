@@ -64,7 +64,6 @@ const held = (F: number): Rig => {            // every pose she holds, and the m
   if (F < CUE.hold) { const d = Math.sin(ramp(F, CUE.bow, CUE.hold) * Math.PI), q = Math.sin(F * 1.9) * d; return { ...S.bow.rig, lumb: S.bow.rig.lumb - 7 * d, headH: S.bow.rig.headH + 14 * d, head: S.bow.rig.head - 6 * d, tail: S.bow.rig.tail.map((a, i) => a + q * i * 1.6 + d * i * 3) }; }
   if (F < CUE.up) return mixRig(S.bow.rig, S.stand.rig, back(ramp(F, CUE.hold, CUE.up)));
   if (F < CUE.go) return mixRig(S.stand.rig, S.crouch.rig, inOut(ramp(F, CUE.up, CUE.go)));
-  if (F < CUE.slid) { const d = Math.sin(ramp(F, CUE.brake + 6, CUE.slid + 10) * Math.PI); return { ...S.skid.rig, lumb: S.skid.rig.lumb + 9 * d, headH: S.skid.rig.headH - 20 * d, head: S.skid.rig.head + 5 * d, tail: S.skid.rig.tail.map((a, i) => a + d * i * 5 + Math.sin(F * 0.9) * i * 1.5 * d) }; }
   return mixRig(S.skid.rig, S.stand.rig, back(ramp(F, CUE.slid, CUE.stood)));
 };
 const standing = (F: number) => { const s = settle(idle(held(F), F)), q = fk(s.rig, 0, s.y, 0); return { rig: s.rig, y: s.y, x: HIND_X - q.hindN[4][0] }; };

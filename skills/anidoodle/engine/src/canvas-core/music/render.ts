@@ -65,8 +65,8 @@ const v2Job = (piece: Piece, pt: Part, pi: number, keys: Played[], perf: Perform
   const transient = style.master === "gentle" && tg && isStruck(pt.inst, pt.opts) ? tg : undefined;
   const post: StemPost | undefined = lofi || amp !== undefined || transient ? { id: pt.id, seed: piece.seed, ...(lofi ? { lofi, period } : {}), ...(amp !== undefined ? { amp } : {}), ...(transient ? { transient } : {}) } : undefined;
   const bank = pt.opts?.sampled === false ? undefined : bankFor(pt.inst, typeof pt.opts?.variant === "string" ? pt.opts.variant : undefined);
-  // a recorded drum pinned to a note plays it, as the modelled one does: a drum lane's written pitch is a placeholder
-  const pin = bank && typeof pt.opts?.pitch === "number" ? pinnedPitch(pt.opts.pitch as number, bank.entry.range) : undefined, played = pin === undefined ? keys : keys.map((k) => ({ ...k, p: pin }));
+  // a recorded timpani pinned to a note plays it, as the modelled one does: a drum lane's written pitch is a placeholder
+  const pin = bank && pt.inst === "timpani" && typeof pt.opts?.pitch === "number" ? pinnedPitch(pt.opts.pitch as number, bank.entry.range) : undefined, played = pin === undefined ? keys : keys.map((k) => ({ ...k, p: pin }));
   const base = bank ? { kind: "sampled" as const, bank: bank.id, bankHash: bank.hash, inst: pt.inst, keys: played, pedal: perf.pedal, sr, n, seed: pt.inst === "piano" ? piece.seed + pi : piece.seed * 101 + pi, opts: pt.opts }
     : pt.inst === "piano" ? (o.piano ? { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, v1: o.piano } : { kind: "piano" as const, keys, pedal: perf.pedal, sr, n, seed: piece.seed + pi, opts: pt.opts ?? {} })
     : { kind: "voice" as const, inst: pt.inst, opts: pt.opts, keys, sr, n, seed: piece.seed * 101 + pi, ctx };

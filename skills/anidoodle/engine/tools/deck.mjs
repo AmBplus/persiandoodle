@@ -22,7 +22,7 @@ const rand = (seed) => { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5)
 
 export const fits = (m, kind) => !kind || m.kinds.includes("any") || m.kinds.includes(kind);
 export const weight = (m, energy) => ROLE_W[m.role] * (!energy || m.energy === energy ? 1 : m.energy === "any" ? 0.7 : 0.25);
-export const count = (seconds) => Math.max(4, Math.min(12, Math.round(seconds / 4)));
+export const count = (seconds) => Math.max(4, Math.min(12, Math.round(seconds / 4))); // a short film still gets an opening, a close and two more to choose from
 /** A deal: one opening, one close, the rest spread over the middle categories in a shuffled order. */
 export const deal = ({ kind, energy, seconds = 20, seed = 1, n, cat, avoid = [] } = {}) => {
   const r = rand(seed), skip = new Set(avoid), picked = [];
@@ -49,18 +49,18 @@ const selfTest = () => {
   walk(join(ROOT, "references")); walk(join(ROOT, "engine", "src")); walk(join(ROOT, "engine", "tools"));
   const cited = [...new Set(M.flatMap((m) => `${m.build} ${m.not} ${m.move}`.match(/[A-Za-z0-9-]+\.(?:ts|mjs|md)\b/g) ?? []))], missing = cited.filter((f) => !have.has(f));
   say(!missing.length, `all ${cited.length} files the cards cite exist${missing.length ? `   missing: ${missing.join(", ")}` : ""}`);
-  say(!/[—]/.test(JSON.stringify(DECK)), "no em dashes in the deck");
+  say(!/\u2014/.test(JSON.stringify(DECK)), "no em dashes in the deck");
   const key = (d) => d.map((m) => m.id).join(",");
   say(key(deal({ kind: "story", energy: "high", seconds: 27, seed: 7 })) === key(deal({ kind: "story", energy: "high", seconds: 27, seed: 7 })), "the same seed deals the same hand");
   say(new Set(Array.from({ length: 40 }, (_, s) => key(deal({ kind: "story", energy: "high", seconds: 27, seed: s + 1 })))).size >= 30, "forty seeds deal at least thirty different hands");
   let rules = true, kinds = true, avoided = true, sizes = true;
   for (let s = 1; s <= 300; s++) for (const kind of KINDS) {
     const energy = ENERGY[s % 3], seconds = 6 + (s % 9) * 7, d = deal({ kind, energy, seconds, seed: s, avoid: ["cam-slow-push"] });
-    if (d.filter((m) => m.cat === "open").length > 1 || d.filter((m) => m.cat === "close").length > 1 || d.filter((m) => m.role === "signature").length > 1 || new Set(d).size !== d.length) rules = false;
-    if (!d.every((m) => fits(m, kind))) kinds = false; if (d.some((m) => m.id === "cam-slow-push")) avoided = false; if (d.length > count(seconds) || d.length < 3) sizes = false;
+    if (d.filter((m) => m.cat === "open").length !== 1 || d.filter((m) => m.cat === "close").length !== 1 || d.filter((m) => m.role === "signature").length > 1 || new Set(d).size !== d.length) rules = false;
+    if (!d.every((m) => fits(m, kind))) kinds = false; if (d.some((m) => m.id === "cam-slow-push")) avoided = false; if (d.length > 12 || d.length > count(seconds) || d.length < 3) sizes = false;
   }
-  say(rules, "2100 deals: one opening, one close, at most one signature card, no card twice");
-  say(kinds, "no deal holds a card its kind of film cannot use"); say(avoided, "an avoided card is never dealt"); say(sizes, "a deal is never larger than a card every four seconds, never under three");
+  say(rules, "2100 deals: exactly one opening, exactly one close, at most one signature card, no card twice");
+  say(kinds, "no deal holds a card its kind of film cannot use"); say(avoided, "an avoided card is never dealt"); say(sizes, "a deal is a card every four seconds, never fewer than three and never more than twelve");
   const tally = (energy) => { let hi = 0, n = 0; for (let s = 1; s <= 400; s++) for (const m of deal({ kind: "story", energy, seconds: 30, seed: s })) { n++; if (m.energy === "high") hi++; } return hi / n; };
   say(tally("high") > tally("calm") * 1.5, `a high-energy film is dealt more high-energy cards than a calm one (${(tally("high") * 100).toFixed(0)}% against ${(tally("calm") * 100).toFixed(0)}%)`);
   say(deal({ cat: "seam", n: 3, kind: "launch", seed: 3 }).every((m) => m.cat === "seam") && deal({ cat: "seam", n: 3, seed: 3 }).length === 3, "--cat deals from one category only");
@@ -68,14 +68,15 @@ const selfTest = () => {
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const [cmd, ...args] = process.argv.slice(2), val = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : undefined; }, num = (k) => (val(k) === undefined ? undefined : Number(val(k)));
   const die = (m) => { console.error(`deck: ${m}`); process.exit(2); };
+  const [cmd, ...args] = process.argv.slice(2), val = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : undefined; };
+  const num = (k, least, whole) => { if (!args.includes(k)) return undefined; const x = Number(val(k)); if (val(k) === undefined || !Number.isFinite(x) || x < least || (whole && !Number.isInteger(x))) die(`${k} takes ${whole ? "a whole number" : "a number"} of ${least} or more (got ${val(k)})`); return x; };
   if (cmd === "test") selfTest();
-  else if (cmd === "list") { const c = val("--cat"); for (const m of DECK.moves.filter((m) => !c || m.cat === c)) console.log(`${m.id.padEnd(30)} ${m.cat.padEnd(9)} ${m.role.padEnd(10)} ${m.energy.padEnd(7)} ${m.kinds.join(",")}`); }
+  else if (cmd === "list") { const c = val("--cat"); if (c && !CATS.includes(c)) die(`--cat is one of ${CATS.join(", ")}`); for (const m of DECK.moves.filter((m) => !c || m.cat === c)) console.log(`${m.id.padEnd(30)} ${m.cat.padEnd(9)} ${m.role.padEnd(10)} ${m.energy.padEnd(7)} ${m.kinds.join(",")}`); }
   else if (cmd === "deal") {
     const kind = val("--kind"), energy = val("--energy"), c = val("--cat");
     if (kind && !KINDS.includes(kind)) die(`--kind is one of ${KINDS.join(", ")}`); if (energy && !ENERGY.includes(energy)) die(`--energy is one of ${ENERGY.join(", ")}`); if (c && !CATS.includes(c)) die(`--cat is one of ${CATS.join(", ")}`);
-    const seed = num("--seed") ?? (Date.now() % 100000), o = { kind, energy, seconds: num("--seconds") ?? 20, seed, n: num("--n"), cat: c, avoid: (val("--avoid") ?? "").split(",").filter(Boolean) }, d = deal(o);
+    const seed = num("--seed", 0, true) ?? (Date.now() % 100000), o = { kind, energy, seconds: num("--seconds", 1) ?? 20, seed, n: num("--n", c ? 1 : 3, true), cat: c, avoid: (val("--avoid") ?? "").split(",").filter(Boolean) }, d = deal(o);
     if (args.includes("--json")) console.log(JSON.stringify({ ...o, cards: d }, null, 1));
     else { console.log(`DECK   seed ${seed}${kind ? ` · ${kind}` : ""}${energy ? ` · ${energy}` : ""}${c ? ` · ${c} only` : ` · ${o.seconds} s`} · ${d.length} cards\n`); console.log(d.map(card).join("\n\n")); console.log(`\nKeep, adapt or drop each card, and say why in the brief. To repeat this deal: --seed ${seed}. To deal the next film a different hand: --avoid ${d.map((m) => m.id).join(",")}`); }
   } else die("usage: deck.mjs deal|list|test (see the header of this file)");

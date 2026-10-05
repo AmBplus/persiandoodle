@@ -31,16 +31,6 @@ export type Pose = {
 const SPINE_UP = [14, 38, 40, 44, 54, 66, 66, 50, 38, 34], SPINE_DN = [22, 52, 44, 42, 68, 90, 76, 48, 36, 32];
 const TAIL_W = [15, 13, 12, 12, 13, 11], FORE_W = [20, 30, 19, 12, 8], HIND_W = [44, 30, 13, 12, 8];
 
-// the extended flight phase: every foot off the ground, the spine opened out, the forelegs reaching
-export const EXTENDED: Pose = {
-  spine: [[322, 500], [365, 505], [440, 512], [505, 516], [570, 522], [640, 524], [700, 518], [752, 503], [800, 492], [838, 486]],
-  tail: [[326, 486], [262, 474], [196, 476], [132, 458], [84, 424], [56, 392]],
-  foreN: [[690, 494], [708, 545], [798, 584], [898, 610], [956, 626]],
-  foreF: [[698, 498], [716, 548], [812, 566], [916, 574], [974, 582]],
-  hindN: [[372, 520], [292, 584], [188, 572], [112, 594], [80, 606]],
-  hindF: [[380, 522], [310, 604], [212, 612], [140, 642], [110, 656]],
-  head: 0.1,
-};
 
 // a tuft: a tapered leaf from radius r0 to r1 along angle a, darker at its root (the mark cheetahDusk is made of)
 const tuft = (c: Ctx, o: P, a: number, r0: number, r1: number, w: number, col: string, vein = 0.22, root = 0.6) => {

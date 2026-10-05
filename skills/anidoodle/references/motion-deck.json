@@ -12,7 +12,7 @@
       "not": "Centred on nothing. Or when the close also irises and a seam in the middle does: the third one is a preset." },
     { "id": "open-detail-first", "cat": "open", "role": "accent", "energy": "calm", "kinds": ["story", "loop", "drawing"],
       "move": "Open so close on one detail (an eye, a hand, a nib) that the subject is not yet readable, then pull back over 1.5 to 3 s until it is.",
-      "build": "Camera keys from zoom 4 to 6 down to 1 with monoZoom: true; divide stroke widths by weight(cam) so the close-up reads close, not enlarged (camera.md).",
+      "build": "Camera keys from zoom 4 to 6 down to 1 with monoZoom: true; divide stroke widths by cam.weight(cam.at(f)) so the close-up reads close, not enlarged (camera.md).",
       "not": "A detail that was not drawn to be seen at that size. Check the first frame at --scale 2." },
     { "id": "open-cold-action", "cat": "open", "role": "accent", "energy": "high", "kinds": ["story", "launch"],
       "move": "No establishing shot: the first frame is the middle of the action, and the wide shot comes second, as the answer to where we are.",
@@ -20,7 +20,7 @@
       "not": "A calm piece, or a subject the viewer cannot name from the close shot within a second." },
 
     { "id": "seam-matched-cut", "cat": "seam", "role": "workhorse", "energy": "high", "kinds": ["any"],
-      "move": "A hard cut hidden in travel. The outgoing shot accelerates over 0.2 to 0.4 s, the cut lands on its fastest frame, the incoming shot opens at the same speed in the same direction and comes to rest over 0.8 to 1.4 s.",
+      "move": "A hard cut hidden in travel. The outgoing shot accelerates over 0.2 to 0.4 s, its last frame is its fastest, the incoming shot opens at the same speed in the same direction and comes to rest over 0.8 to 1.4 s.",
       "build": "matchedMove({ dir, exitDist, exitF, entryF }) in seams.ts, added to each scene's camera look; hold it with checkSeam. Render with --blur auto.",
       "not": "Either shot has no room to travel, or the two travel different ways. Then both sides come to rest and it is a plain cut on a beat." },
     { "id": "seam-flight-through", "cat": "seam", "role": "accent", "energy": "high", "kinds": ["story", "launch", "explainer"],
@@ -112,7 +112,7 @@
 
     { "id": "type-written", "cat": "type", "role": "workhorse", "energy": "any", "kinds": ["launch", "explainer", "infographic"],
       "move": "A line is written by its tool, one stroke after another, at the speed of a hand, and holds long enough to be read twice.",
-      "build": "writeOn or sentence in kinetic.ts; on its own frame, or over a calm area that passes the poster test (workflows/launch-video.md, Type).",
+      "build": "writeOn or sentence in kinetic.ts; on its own frame, or over a calm area where the frame would pass as a poster (workflows/launch-video.md, Type).",
       "not": "Over a face, the focal detail or busy texture. In doubt the line gets its own frame." },
     { "id": "type-one-line-at-a-time", "cat": "type", "role": "workhorse", "energy": "medium", "kinds": ["launch", "explainer"],
       "move": "One line hands over to the next word by word, so there is never more than one full line on screen: the old line's words leave at twice the pace they came.",
