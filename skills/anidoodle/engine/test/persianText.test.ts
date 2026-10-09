@@ -33,5 +33,5 @@ export const run = (ok: (v: boolean, label: string) => void) => {
   drawPersianText(ctx, { text: "كتاب ١٢", family: "Gulzar", size: 42, x: 600, y: 100, normalize: false, digits: "preserve" });
   ok(calls.find(v => v.method === "fillText")?.args[0] === "كتاب ١٢", "Urdu and Arabic are not implicitly rewritten when normalization is disabled");
   ok(validate(persianGallery).length === 0, "gallery's timeline satisfies native Film validator");
-  ok(Object.keys(persianGallery.assets.fonts ?? {}).length === 14, "all 14 licensed font families declared in manifest");
+  ok(Object.keys(persianGallery.assets.fonts ?? {}).length === 25, "all 25 licensed font families declared in manifest");
 };
