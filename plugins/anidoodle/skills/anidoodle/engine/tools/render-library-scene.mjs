@@ -38,7 +38,7 @@ const run=(args)=>{const r=spawnSync(process.execPath,args,{stdio:"inherit"});if
 writeFileSync(generated,src);
 try{
  run(["tools/still.mjs","composedSelection","--frames","25,65,105,160",
-  "--sheet",still,"--out",resolve("out/composed-selection-stills/")]);
+  "--sheet",still,"--out",resolve("out/composed-selection-stills")+"/"]);
  run(["tools/render.mjs","composedSelection","--out",out,"--workers","2"]);
  console.log("Native Persian film:",out,"\nContact sheet:",still);
  if(references.length)console.warn("CONCEPTUAL ONLY: external references need dedicated implementations:",references);
