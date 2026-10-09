@@ -21,8 +21,9 @@ const background=(c:Ctx,p:number,scene:number)=>{
   c.fillStyle=C.ink;c.fillRect(W-18,0,18,H);
   c.fillStyle=C.gold;c.fillRect(53,57,64,4);
   c.fillStyle=C.blue;c.fillRect(53,69,32,4);
-  c.fillStyle=C.dim;c.font='500 18px "Vazirmatn"';c.direction="ltr";c.textAlign="left";
-  c.fillText(`PERSIAN DOODLE  /  0${scene+1}`,53,107);
+  c.fillStyle=C.dim;
+  txt(c,{text:`پرشین دودل  /  ۰${scene+1}`,family:"Vazirmatn",
+    size:20,x:340,y:107,color:C.dim});
   c.fillStyle=C.blue2;c.fillRect(53,H-44,(W-110)*p,4);
 };
 const scene=(ctx:Ctx,l:number,env:Env,index:number)=>{
