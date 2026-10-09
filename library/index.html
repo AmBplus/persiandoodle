@@ -10,26 +10,26 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="../README.md" aria-label="پروژه PersianDoodle"><span class="brand-mark">پ</span><span><strong>PersianDoodle</strong><small>استودیوی طراحیِ فارسی</small></span></a>
-    <nav aria-label="ناوبری"><a class="is-active" href="./index.html">کتابخانه</a><a href="../docs/MOTION-LIBRARY-ARCHITECTURE.md">معماری</a><a href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener">GitHub ↗</a></nav>
+    <a class="brand" href="https://github.com/AmBplus/persiandoodle#readme" aria-label="پروژه PersianDoodle"><span class="brand-mark">پ</span><span><strong>PersianDoodle</strong><small>استودیوی طراحیِ فارسی</small></span></a>
+    <nav aria-label="ناوبری"><a class="is-active" href="./index.html">کتابخانه</a><a href="https://github.com/AmBplus/persiandoodle/blob/main/docs/MOTION-LIBRARY-ARCHITECTURE.md">معماری</a><a href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener">GitHub ↗</a></nav>
   </header>
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <span class="eyebrow">PERSIAN MOTION DESIGN SYSTEM • نسخهٔ یکپارچه</span>
+        <span class="eyebrow">خانهٔ طراحی موشن فارسی • نسخهٔ یکپارچه</span>
         <h1>از یک ایده، <em>هزار حرکت.</em></h1>
         <p>شات‌های سینمایی، سبک‌های موشن، فونت‌های فارسی، پرامپت‌های دقیق، موسیقی و صدای قلم؛ همه در یک کتابخانهٔ جست‌وجوپذیر، با هستهٔ اصلی دست‌نخورده.</p>
-        <div class="hero-actions"><a href="#library" class="primary">کاوش در کتابخانه <span>↙</span></a><a href="#studio" class="secondary">نمونه‌های فارسی</a></div>
+        <div class="hero-actions"><a href="#library" class="primary">کاوش در کتابخانه <span>↙</span></a><a href="#studio" class="secondary">نمونه‌های فارسی</a><a href="#composer" class="secondary">ترکیب صحنه</a></div>
         <div class="stats"><div><strong id="stat-all">—</strong><small>مورد ثبت‌شده</small></div><div><strong id="stat-rtl">—</strong><small>نمونهٔ فارسی</small></div><div><strong>۶</strong><small>منبع تخصصی</small></div></div>
       </div>
       <div class="hero-art" aria-label="پیش‌نمایش طراحی با قلم">
-        <span class="art-chip">حرکتِ قلم • RTL</span>
+        <span class="art-chip">حرکت قلم • فارسی</span>
         <video autoplay muted playsinline loop preload="metadata" poster="../assets/persian/hero.png"><source src="../assets/persian/handwriting-demo.mp4" type="video/mp4"></video>
-        <div class="art-footer"><span>قلم → مسیر → فریم</span><span>۳۰ FPS</span></div>
+        <div class="art-footer"><span>قلم → مسیر → فریم</span><span>۳۰ فریم</span></div>
       </div>
     </section>
     <section class="studio" id="studio">
-      <div class="section-head"><div><span class="eyebrow">LIVE DESIGN PREVIEW</span><h2>آزمایشگاه خط و صدا</h2></div><p>قلم و پس‌زمینه را تغییر بده؛ صدا با حرکتِ نوشتن هماهنگ می‌شود.</p></div>
+      <div class="section-head"><div><span class="eyebrow">پیش‌نمایش زندهٔ طراحی</span><h2>آزمایشگاه خط و صدا</h2></div><p>قلم و پس‌زمینه را تغییر بده؛ صدا با حرکتِ نوشتن هماهنگ می‌شود.</p></div>
       <div class="lab">
         <div class="lab-controls">
           <label for="writingText">متن فارسی</label><input id="writingText" maxlength="75" value="ایده‌ها با قلم جان می‌گیرند">
@@ -45,15 +45,29 @@
         </div>
       </div>
     </section>
-    <section class="catalog-section" id="library">
-      <div class="section-head"><div><span class="eyebrow">CURATED & TRACEABLE</span><h2>کتابخانهٔ یکپارچه</h2></div><p>اصل و نسخهٔ فارسی، پیش‌نمایش و مجوز هر مورد جدا مشخص شده است.</p></div>
+    <section id="composer" class="composer-section">
+  <div class="section-head"><div><span class="eyebrow">طراحی ترکیبی صحنه</span><h2>صحنهٔ خودت را بساز</h2></div><p>روی «افزودن به صحنه» در کارت‌ها کلیک کن، تایپوگرافی، پس‌زمینه، نحوهٔ ورود، حرکت، قلم و صدا را ترکیب کن؛ نتیجه یک دستور اجرایی قابل‌ارائه به Agent خواهد بود.</p></div>
+  <div class="composer-grid">
+    <div class="composer-panel"><div class="composer-tools"><strong>اجزای انتخاب‌شده</strong><button type="button" id="resetScene">پاک‌سازی</button></div>
+      <div id="sceneSlots" class="scene-slots"></div>
+      <div class="composer-actions"><button type="button" class="primary" id="downloadScene">دریافت مشخصات JSON</button><button type="button" class="secondary" id="copyScene">کپی دستور ساخت فارسی</button></div>
+      <p class="helper" id="sceneStatus" role="status"></p>
+    </div>
+    <div class="composer-output"><div class="preview-head"><strong>مشخصات قابل‌اجرا</strong><span>انتخاب‌های شما، با شناسه و وضعیت واقعی</span></div>
+      <textarea dir="ltr" id="sceneOutput" readonly spellcheck="false" aria-label="پیکربندی صحنه"></textarea>
+      <p class="helper">برای اجرای نهایی در موتور، این فایل را به Agent پروژه بده یا از ابزار خط فرمان رندر صحنه استفاده کن. مواردی که صرفاً «مرجع» هستند، ابتدا باید به‌صورت مستقل و فارسی پیاده‌سازی شوند.</p>
+    </div>
+  </div>
+</section>
+<section class="catalog-section" id="library">
+      <div class="section-head"><div><span class="eyebrow">نمونه‌های منتخب و قابل‌ردیابی</span><h2>کتابخانهٔ یکپارچه</h2></div><p>اصل و نسخهٔ فارسی، پیش‌نمایش و مجوز هر مورد جدا مشخص شده است.</p></div>
       <div class="catalog-toolbar">
         <label class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="جست‌وجوی حرکت، فونت، صدا، سبک، پرامپت…" autocomplete="off" aria-label="جستجو"></label>
         <select id="sourceFilter" aria-label="فیلتر منبع"><option value="">تمام منابع</option></select>
         <select id="typeFilter" aria-label="فیلتر نوع"><option value="">تمام دسته‌ها</option></select>
         <select id="statusFilter" aria-label="فیلتر فارسی‌سازی"><option value="">همه وضعیت‌ها</option><option value="rendered-persian">رندر فارسی</option><option value="available-native">موجود در موتور</option><option value="source-prompt-ready">پرامپت آماده</option><option value="original-reference">مرجع اصلی</option><option value="reference-only">فقط مرجع</option><option value="license-review">نیازمند بررسی مجوز</option></select>
       </div>
-      <div class="results-head"><span id="resultCount">دریافت فهرست…</span><span>برای جزئیات و لینک منبع روی هر مورد کلیک کنید.</span></div>
+      <div class="results-head"><span id="resultCount">دریافت فهرست…</span><span>هر کارت پیش‌نمایش و قابلیت افزودن به صحنه دارد.</span></div>
       <div class="cards" id="cards"></div>
       <div class="paging"><button id="more" type="button">نمایش موارد بیشتر ↓</button></div>
       <div id="empty" class="empty" hidden>موردی با این مشخصات پیدا نشد؛ فیلترها را تغییر بده.</div>
