@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "mg/09-bauhaus",
+  "variantIndex": 0,
+  "variantKey": "mg/09-bauhaus",
+  "source": "mg",
+  "originalName": "09-bauhaus",
+  "originalDescription": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/09-bauhaus.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/09-bauhaus.md",
+  "originalPreviewUrl": "../assets/library/style-thumbs/09-bauhaus.png",
+  "license": "MIT",
+  "locale": "fa-IR",
+  "upstreamVersion": null,
+  "promptFile": "library/vendor/mg-styles-15/prompts/09-bauhaus.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

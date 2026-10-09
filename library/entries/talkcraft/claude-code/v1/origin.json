@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "talkcraft/claude-code",
+  "variantIndex": 0,
+  "variantKey": "talkcraft/claude-code",
+  "source": "talkcraft",
+  "originalName": "claude-code",
+  "originalDescription": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/claude-code.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/claude-code.md",
+  "originalPreviewUrl": null,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "locale": "zh-original",
+  "upstreamVersion": null,
+  "promptFile": null,
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

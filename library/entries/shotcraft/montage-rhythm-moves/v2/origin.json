@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/montage-rhythm-moves",
+  "variantIndex": 1,
+  "variantKey": "wright-triple-cut",
+  "source": "shotcraft",
+  "originalName": "wright-triple-cut 三连特写",
+  "originalDescription": "三个 10f 超近特写硬切连打（各\"静4-动3-静3\"），第三声甩回全景亮结果",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/montage-rhythm-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/rhythm/montage-rhythm-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/wright-triple-cut.mp4?v=1784437314638",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/montage-rhythm-moves/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

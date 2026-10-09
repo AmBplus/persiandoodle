@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/chart-live-moves",
+  "variantIndex": 1,
+  "variantKey": "unit-dot-swarm-regroup",
+  "source": "shotcraft",
+  "originalName": "unit-dot-swarm-regroup",
+  "originalDescription": "三幕 spring 错峰迁徙（stiffness 150、错峰 8f），终幕点阵拼数字",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/chart-live-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/data/chart-live-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/unit-dot-swarm-regroup.mp4?v=1785050513841",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/chart-live-moves/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

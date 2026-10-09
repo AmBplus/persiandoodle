@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/particle-celebrate-hits",
+  "variantIndex": 1,
+  "variantKey": "counter-tick-sparks",
+  "source": "shotcraft",
+  "originalName": "counter-tick-sparks",
+  "originalDescription": "tick 帧由计数器同一 interpolate 派生；每 tick 6-10 颗 2px 火星（初速向上 4-6px/f、重力 12-18f 坠灭），终值跳翻倍 20 颗+数字弹 1.1x",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/particle-celebrate-hits.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/data/particle-celebrate-hits.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/counter-tick-sparks.mp4?v=1784437314697",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/particle-celebrate-hits/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

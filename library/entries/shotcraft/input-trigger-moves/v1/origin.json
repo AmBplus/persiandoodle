@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/input-trigger-moves",
+  "variantIndex": 0,
+  "variantKey": "cursor-performance",
+  "source": "shotcraft",
+  "originalName": "cursor-performance",
+  "originalDescription": "光标三次贝塞尔弧线滑入+末端甩腕过冲，悬停提亮，点击帧按钮下陷+涟漪+推近 1.4x 停两拍缓退",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/input-trigger-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/interaction/input-trigger-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/cursor-performance.mp4?v=1784437314610",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/input-trigger-moves/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

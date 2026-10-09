@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/beat-cut-moves",
+  "variantIndex": 1,
+  "variantKey": "paparazzi-flash",
+  "source": "shotcraft",
+  "originalName": "paparazzi-flash 连闪定格",
+  "originalDescription": "三次白闪各硬切同素材不同裁切（全景→卡片特写→数字特写），快门余韵沉降，第三闪停在数字收束",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/beat-cut-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/rhythm/beat-cut-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/paparazzi-flash.mp4?v=1784437314488",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/beat-cut-moves/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/trailer-grammar-moves",
+  "variantIndex": 2,
+  "variantKey": "smash-cut",
+  "source": "shotcraft",
+  "originalName": "smash-cut",
+  "originalDescription": "轰鸣段全 Easing.in(quad)：背景推近 1→1.55 + rotate 1.8°、5 张飞卡错峰加速冲脸 + 速度门控模糊；42f 一帧硬切无动画属性的静止全景",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/trailer-grammar-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/rhythm/trailer-grammar-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/smash-cut.mp4?v=1784437314831",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/trailer-grammar-moves/v3/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

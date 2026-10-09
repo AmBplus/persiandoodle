@@ -38,6 +38,8 @@ for (const item of catalog.entries) {
     kind: item.kind,
     titleFa: item.titleFa ?? item.name ?? item.id,
     status: priorModel?.status ?? "identified",
+    sourceUrl: priorModel?.sourceUrl ?? upstream?.sourceUrl ?? item.sourceUrl ?? null,
+    originalPromptUrl: priorModel?.originalPromptUrl ?? upstream?.promptUrl ?? item.sourceUrl ?? null,
     variants: sourceVariants.map((variant, index) => {
       const prior = priorModel?.variants?.find((candidate) => candidate.key === variant.key);
       return {
@@ -52,6 +54,10 @@ for (const item of catalog.entries) {
         prompt: prior?.prompt ?? null,
         metadata: prior?.metadata ?? null,
         scene: prior?.scene ?? null,
+        originalPromptPath: prior?.originalPromptPath ?? null,
+        originalPromptUrl: prior?.originalPromptUrl ?? null,
+        originMetadata: prior?.originMetadata ?? null,
+        localization: prior?.localization ?? null,
       };
     }),
   };
@@ -83,6 +89,9 @@ const output = {
   },
   renders,
   audio: existing.audio ?? {},
+  lastReview: existing.lastReview ?? null,
+  reviewResult: existing.reviewResult ?? null,
+  qualityGate: existing.qualityGate ?? null,
 };
 
 await writeFile(out, `${JSON.stringify(output, null, 2)}\n`, "utf8");

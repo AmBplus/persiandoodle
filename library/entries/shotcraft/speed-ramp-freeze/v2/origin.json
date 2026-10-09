@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/speed-ramp-freeze",
+  "variantIndex": 1,
+  "variantKey": "freeze-annotate",
+  "source": "shotcraft",
+  "originalName": "freeze-annotate",
+  "originalDescription": "卡片流中途全画面定格，圈注标记弹出点名重点，随后解冻继续流动",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/speed-ramp-freeze.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/rhythm/speed-ramp-freeze.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/freeze-annotate.mp4?v=1784437314772",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/speed-ramp-freeze/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

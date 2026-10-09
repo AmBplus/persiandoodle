@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "explainer/examples-rag-shots_src-G5-SC23.tsx",
+  "variantIndex": 0,
+  "variantKey": "explainer/examples-rag-shots_src-G5-SC23.tsx",
+  "source": "explainer",
+  "originalName": "SC23",
+  "originalDescription": "فقط نمایهٔ مرجع آموزشی؛ کد دارای محدودیت استفادهٔ تجاری وارد پروژه نشده است.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/anything2explainer/blob/main/examples/rag/shots_src/G5/SC23.tsx",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/anything2explainer/blob/main/examples/rag/shots_src/G5/SC23.tsx",
+  "originalPreviewUrl": null,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "locale": "zh-original",
+  "upstreamVersion": null,
+  "promptFile": null,
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "onetake/morphRect",
+  "variantIndex": 0,
+  "variantKey": "onetake/morphRect",
+  "source": "onetake",
+  "originalName": "morphRect",
+  "originalDescription": "الگوی تداوم حرکت؛ صرفاً ارجاع، بدون انتقال پیاده‌سازی محدودشده.",
+  "originalDocumentUrl": "https://github.com/feitangyuan/onetake/blob/main/gallery/sheets/morphRect.png",
+  "originalPromptUrl": "https://github.com/feitangyuan/onetake/blob/main/gallery/sheets/morphRect.png",
+  "originalPreviewUrl": null,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "locale": "en-original",
+  "upstreamVersion": null,
+  "promptFile": null,
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

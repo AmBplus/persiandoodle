@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/type-rhythm-sync",
+  "variantIndex": 1,
+  "variantKey": "karaoke-fill-sync",
+  "source": "shotcraft",
+  "originalName": "karaoke-fill-sync 填色随读",
+  "originalDescription": "每词深色从左到右填亮，进度跟语速，读完保持；活跃词下带读指下划线",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/type-rhythm-sync.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/typography/type-rhythm-sync.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/karaoke-fill-sync.mp4?v=1784437314860",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/type-rhythm-sync/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

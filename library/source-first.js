@@ -134,9 +134,10 @@ function localPath(path){
 }
 function ownedVariant(x,variant=0){
  const entry=S.renderManifest?.renders?.[x.id]?.variants?.[variant];
- return ["rendered-persian","verified","published"].includes(entry?.status) ? entry : null;
+ return entry?.status==="published" && entry?.sourceFidelity?.approved===true ? entry : null;
 }
 function localMedia(x,variant=0){return localPath(ownedVariant(x,variant)?.video)}
+function audioPublished(x){return Boolean(localPath(S.renderManifest?.audio?.[x.id]?.preview))}
 function originalMedia(x,variant=0){
  if(x.kind==="music"||x.kind==="sfx")return localPath(S.renderManifest?.audio?.[x.id]?.preview);
  return localMedia(x,variant);
@@ -157,10 +158,10 @@ function renderGallery(){
  $("#resultSubtitle").textContent=S.source?sourceName(S.source):groups[S.section];
  $("#empty").hidden=arr.length>0;
  for(const x of arr.slice(0,S.visible)){
-  const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":"");
+  const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":(x.source!=="native"&&!localMedia(x,0)&&!poster(x,0)?" reference-only":""));
   const orig=x.source!=="native";
-  el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(x.available?"پخش از منبع اصلی":"مجوز نیازمند بررسی"):orig?(localMedia(x,0)?"رندر فارسی":"در انتظار رندر فارسی"):"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
-  '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p><div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
+  el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(audioPublished(x)?"صدای داخلی تأییدشده":"صدای مرجع، فاقد رندر داخلی"):orig?(localMedia(x,0)?"رندر فارسی":"در انتظار رندر فارسی"):"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
+  '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p>'+((x.source!=="native"&&!localMedia(x,0)&&!poster(x,0)&&x.kind!=="music"&&x.kind!=="sfx")?'<div class="reference-summary">'+escapeHtml(String(x.variants[0]?.description||x.description||"مدل مرجع").slice(0,160))+'</div><div class="reference-label">مرجع اصلی · بدون رندر فارسی تأییدشده</div>':'')+'<div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
   el.querySelector("button").addEventListener("click",()=>detail(x));
   const cover=el.querySelector(".model-cover"),motion=cover.querySelector("video[data-preview]");
   if(motion){
@@ -171,8 +172,8 @@ function renderGallery(){
   }
   cover.addEventListener("click",()=>detail(x));
   gallery.append(el);
-  // Fill each visible card with a true frame from the upstream motion, not a synthetic design.
-  // Media is loaded lazily near the viewport to avoid fetching 214 videos at once.
+  // Display only locally verified renders, never synthetic placeholders.
+  // External sources stay as references, never imported as gallery video.
   if(motion){
    const io=new IntersectionObserver(entries=>{
     if(!entries[0].isIntersecting)return;
@@ -188,31 +189,32 @@ function renderGallery(){
  const more=$("#showMore");more.hidden=arr.length<=S.visible;
  more.textContent="نمایش "+prs(Math.min(36,arr.length-S.visible))+" مدل دیگر ↓";
 }
-function markPrompt(x){
- const rights=["onetake","talkcraft","explainer"].includes(x.source);
- const details=(x.description&&/[\u0600-\u06ff]/.test(x.description))?x.description:concepts[x.category]||catFa[x.facet]||"بازآفرینی ترکیب بصری";
- const group=S.section==="designs"?"طرح آماده":"کامپوننت";
- const variant=x.variants[S.variant]?.name||x.name;
- return`نقش: طراح موشن‌گرافیک فارسی و کارگردان هنری.
-ماموریت: بازسازی مدل «${x.titleFaDisplay}» از کتابخانهٔ ${sourceName(x.source)}.
-نوع: ${group} | دسته: ${catFa[x.facet]||x.facet}
-مدل انتخاب‌شده: ${variant}
-توضیح تکنیک: ${details}
-زمان و انرژی: ${x.duration||"بر اساس خواستهٔ صحنه"}؛ ${x.energy||"توجه به تداوم و خوانایی"}
-هدف اصلی: بازتولید ویژگی‌های مشخص همین حرکت، نه استفاده از یک انیمیشن عمومی شبیه بقیه.
-متن روی تصویر: فارسی ایرانی، راست‌به‌چپ، حروف پیوسته، ی و ک صحیح، نیم‌فاصله درست.
-صحنه: ترکیب‌بندی، رنگ‌بندی و حرکت باید با شخصیت تکنیک سازگار باشد؛ منبع اصلی صرفاً مرجع است.
-صدا: موسیقی و افکت را از بخش «کامپوننت‌های صوتی» با مجوز مشخص انتخاب کن و با فریم‌ها هماهنگ کن.
-تحویل: ویدیوی واقعی مستقلِ فارسی، MP4 دارای صدا، ۶ تا ۱۲ فریم کنترل کیفیت و JSON تنظیمات.
-${rights?"محدودیت استفاده: مرجع دارای مجوز غیرتجاری است؛ کد و دارایی‌های آن را کپی نکن. بازسازی مستقل انجام بده.":"برای جزئیات دقیق گرافیکی و دستور اصلی، منبع دارای مجوز را بررسی کن."}
-شناسه: ${x.id}
-منبع اصلی: ${x.sourceUrl||"ثبت‌شده در کاتالوگ"}
-`;
+function originalPromptPath(x){
+ return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.originalPromptPath||null;
+}
+function localizationPath(x){
+ return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.localization||null;
+}
+function sourceDocumentUrl(x){
+ return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.originalPromptUrl||x.sourceUrl||"";
+}
+function originalRawUrl(x,index){
+ const url=S.renderManifest?.renders?.[x.id]?.variants?.[index]?.originalPromptUrl||x.sourceUrl||"";
+ if(!url.startsWith("https://github.com/")||![".md",".tsx",".ts",".json"].some(ext=>url.endsWith(ext)))return null;
+ return url.replace("https://github.com/","https://raw.githubusercontent.com/").replace("/blob/main/","/main/");
+}
+async function loadExactOriginal(x,index){
+ const path=S.renderManifest?.renders?.[x.id]?.variants?.[index]?.originalPromptPath;
+ const url=path?"./"+path:originalRawUrl(x,index);
+ if(!url)return null;
+ const response=await fetch(url);
+ if(!response.ok)throw Error("Original source unavailable: "+response.status);
+ return response.text();
 }
 function variants(x){
  const holder=$("#variants");holder.replaceChildren();$("#variantCount").textContent=prs(x.variants.length)+" مدل";
  for(const [i,v] of x.variants.entries()){const b=document.createElement("button");b.type="button";b.className=i===S.variant?"active":"";
-  b.textContent=(v.name||x.name).replaceAll("-"," ");b.addEventListener("click",()=>{S.variant=i;updatePreview();variants(x)});
+  b.textContent=(v.name||x.name).replaceAll("-"," ");b.addEventListener("click",()=>{S.variant=i;updatePreview();variants(x);$("#promptBox").hidden=true});
   holder.append(b);
  }
 }
@@ -246,11 +248,13 @@ function updatePreview(){
  separate.hidden=!playable;
  if(playable){player.src=media;player.load();$("#sampleSoundStatus").textContent="در این بخش فقط صدای فایل ویدیوی انتخاب‌شده پخش می‌شود؛ اگر نمونه فاقد ترک صوتی باشد، پلیر آن را نشان می‌دهد.";}
 
+ const originalLink=$("#originalPreviewLink"),originUrl=x.variants[v]?.url||x.remoteVideo||"";
+ originalLink.hidden=!/^https:\/\//.test(originUrl);if(!originalLink.hidden)originalLink.href=originUrl;
  const still=poster(x,v);
  video.hidden=!playable;img.hidden=!!playable||!still;empty.hidden=!!playable||!!still;
  if(!playable&&still)img.src=still;
  if(playable){video.src=media;video.poster=still||"";video.load();}
-  $("#previewStatus").textContent=playable?"رندر فارسی داخلی":still?"پوستر فارسی داخلی":"رندر فارسی هنوز آماده نیست";
+  $("#previewStatus").textContent=playable?"رندر فارسیِ تاییدشده":still?"پوستر فارسی داخلی":"رندر فارسی هنوز آماده نیست";
   $("#detailCaveat").textContent=playable?"نسخهٔ فارسی در خود پروژه میزبانی شده است.":"این مدل هنوز رندر فارسیِ منتشرشده ندارد؛ مرجع خارجی در سایت پخش نمی‌شود.";
 }
 function detail(x){
@@ -266,26 +270,29 @@ function detail(x){
 }
 async function prompt(){
  const x=S.current;if(!x)return;
- $("#promptBox").hidden=false;const txt=$("#promptText");txt.value=markPrompt(x);$("#sourceLink").href=x.sourceUrl||"https://github.com/AmBplus/persiandoodle";
- const canLoad=["shotcraft","mg"].includes(x.source);
- if(!canLoad)return;
- // Full upstream Apache/MIT prompt is optional reference, never required for Persian brief.
- let url=null;
- if(x.source==="mg")url="./vendor/mg-styles-15/prompts/"+x.name+".md";
- if(x.source==="shotcraft"&&x.sourceUrl?.includes("/blob/main/"))url=x.sourceUrl.replace("https://github.com/","https://raw.githubusercontent.com/").replace("/blob/main/","/main/");
- if(!url)return;
- try{
-  let data=await fetch(url).then(r=>r.ok?r.text():null);
-  if(S.current!==x||!data)return;
-  txt.value+="\n\n──────────\nدستور اصلی دارای مجوز "+(x.source==="mg"?"MIT":"Apache-2.0")+" (نسخهٔ مرجع)\n──────────\n"+data;
- }catch{}
+ const index=S.variant;
+ $("#promptBox").hidden=false;
+ const output=$("#promptText"),localization=$("#localizationText");
+ const loc=localizationPath(x);
+ output.value="در حال بارگذاری متن اصلی، بدون بازنویسی…";
+ localization.value="در حال بارگذاری نگاشت متن داخل تصویر…";
+ $("#sourceLink").href=sourceDocumentUrl(x)||"https://github.com/AmBplus/persiandoodle";
+ $("#sourceLink").textContent="مشاهدهٔ سند اصلی (بدون تغییر) ↗";
+ if(loc){try{const response=await fetch("./"+loc);if(!response.ok)throw Error(String(response.status));const data=await response.json();if(S.current===x&&S.variant===index)localization.value=JSON.stringify(data,null,2)}catch{if(S.current===x&&S.variant===index)localization.value="نگاشت فارسی هنوز در دسترس نیست."}}
+ try{const original=await loadExactOriginal(x,index);if(S.current===x&&S.variant===index)output.value=original??"در منبع اصلی این مدل، سند متنیِ مستقل ثبت نشده است. از پیوند منبع برای بررسی رسانهٔ اصلی استفاده کنید."}
+ catch{if(S.current===x&&S.variant===index)output.value="متن اصلی از سرور مرجع قابل بارگیری نبود؛ دستور حدسی تولید نشده است. از پیوند منبع اصلی استفاده کنید."}
 }
 function selectedRecord(x){
- return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",prompt:markPrompt(x),audio:x.playUrl||null};
+ return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",originalPromptPath:originalPromptPath(x),originalPromptUrl:sourceDocumentUrl(x),localizationPath:localizationPath(x),audio:x.playUrl||null};
 }
-function saveSelection(){
- if(!S.current)return;const next=selectedRecord(S.current);
- if(!S.selection.some(x=>x.id===next.id&&x.variant===next.variant))S.selection.push(next);
+async function saveSelection(){
+ if(!S.current)return;
+ const x=S.current,index=S.variant,next=selectedRecord(x);
+ if(S.selection.some(item=>item.id===next.id&&item.variant===next.variant)){openDrawer();return}
+ try{next.originalPrompt=await loadExactOriginal(x,index)}catch{next.originalPrompt=null}
+ const loc=localizationPath(x);
+ if(loc)try{const response=await fetch("./"+loc);if(response.ok)next.onScreenLocalization=await response.json()}catch{}
+ S.selection.push(next);
  $("#selectionCount").textContent=prs(S.selection.length);openDrawer();renderSelection();
 }
 function outputScene(){

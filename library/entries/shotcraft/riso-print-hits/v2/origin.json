@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/riso-print-hits",
+  "variantIndex": 1,
+  "variantKey": "beat-pump",
+  "source": "shotcraft",
+  "originalName": "beat-pump 节拍泵",
+  "originalDescription": "每 24f 一拍：整画面瞬跳 1.08 指数回落 + 标题错版逐拍 8/14/22/32px 加码套准",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/riso-print-hits.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/effects/riso-print-hits.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/beat-pump.mp4?v=1784437314712",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/riso-print-hits/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "persiandoodle/on-screen-localization/v1",
+  "modelId": "shotcraft/word-relay-geometry",
+  "variantKey": "word-relay-geometry",
+  "replaceOnScreenTextOnly": true,
+  "preserveOriginalPromptVerbatim": true,
+  "sourceLanguage": "zh-original",
+  "targetLanguage": "fa-IR",
+  "direction": "rtl",
+  "replacements": [],
+  "extractionStatus": "not-yet-source-verified",
+  "note": "Only literal strings visible in the rendered frames may be localized. Keep the entire source prompt, instructions, Chinese/English sections, timing, composition, motion and other content unchanged."
+}

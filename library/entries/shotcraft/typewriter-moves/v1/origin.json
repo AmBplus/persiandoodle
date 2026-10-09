@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/typewriter-moves",
+  "variantIndex": 0,
+  "variantKey": "terminal-typewriter",
+  "source": "shotcraft",
+  "originalName": "terminal-typewriter",
+  "originalDescription": "2f/字符敲出命令，光标 f%12<6 方波闪；回车帧整场景 6f 急推 scale 1→3.2（origin 锁命令行中心）+ 末 2f blur 10px，硬切 dashboard 1.06→1 回稳",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/typewriter-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/typography/typewriter-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/terminal-typewriter.mp4?v=1784437314862",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/typewriter-moves/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

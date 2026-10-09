@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - "library/**"
+      - "scripts/**"
       - "skills/anidoodle/engine/tools/source-first-library-qa.mjs"
       - ".github/workflows/source-first-library-qa.yml"
   workflow_dispatch:
@@ -26,6 +27,13 @@ jobs:
         run: |
           npm ci --no-fund --no-audit
           npx playwright-core install --with-deps chromium
+      - name: Verify byte-identical original prompts, 406 variant records, and release gate
+        working-directory: .
+        run: |
+          mkdir -p work
+          node scripts/verify-source-fidelity.mjs .
+          node scripts/test-persian-manifest.mjs
+          node scripts/release-check.mjs --site .
       - name: Verify source-index completeness, 154 original audios, UX and RTL
         run: node tools/source-first-library-qa.mjs
       - name: Capture real desktop/mobile evidence
