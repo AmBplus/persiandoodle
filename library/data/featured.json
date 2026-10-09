@@ -18,11 +18,13 @@
               "name": "brand-ink-open",
               "source": "shotcraft",
               "label": "شروع با مرکب",
-              "video": null,
+              "video": "../assets/library/shot-videos/brand-ink-open.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/brand-ink-open.mp4?v=1784437314501",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/brand-ink-open.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/brand-ink-open.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/brand-frame-snap",
@@ -120,11 +122,13 @@
               "name": "marker-underline-title",
               "source": "shotcraft",
               "label": "زیرخط با ماژیک",
-              "video": null,
+              "video": "../assets/library/shot-videos/marker-underline-title.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/marker-underline-title.mp4?v=1784437314635",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/marker-underline-title.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/marker-underline-title.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             }
           ]
         },
@@ -137,11 +141,13 @@
               "name": "document-typewriter-reveal",
               "source": "shotcraft",
               "label": "نوشتن سند",
-              "video": null,
+              "video": "../assets/library/shot-videos/document-typewriter-reveal.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/document-typewriter-reveal.mp4?v=1784437314877",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/document-typewriter-reveal.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/document-typewriter-reveal.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/split-flap-title",
@@ -229,11 +235,13 @@
               "name": "deck-deal-flyin",
               "source": "shotcraft",
               "label": "deck-deal-flyin",
-              "video": null,
+              "video": "../assets/library/shot-videos/deck-deal-flyin.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/deck-deal-flyin.mp4?v=1784437314552",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/deck-deal-flyin.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/deck-deal-flyin.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/list-stack-press",
@@ -321,11 +329,13 @@
               "name": "crash-zoom-punch",
               "source": "shotcraft",
               "label": "crash-zoom-punch",
-              "video": null,
+              "video": "../assets/library/shot-videos/crash-zoom-punch.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/crash-zoom-punch.mp4?v=1784437314543",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/crash-zoom-punch.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/crash-zoom-punch.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/depth-layer-moves",
@@ -413,11 +423,13 @@
               "name": "odometer-digit-roll",
               "source": "shotcraft",
               "label": "odometer-digit-roll",
-              "video": null,
+              "video": "../assets/library/shot-videos/odometer-digit-roll.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/odometer-digit-roll.mp4?v=1784437314659",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/odometer-digit-roll.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/odometer-digit-roll.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/gauge-readout-moves",
@@ -505,11 +517,13 @@
               "name": "command-palette-summon",
               "source": "shotcraft",
               "label": "command-palette-summon",
-              "video": null,
+              "video": "../assets/library/shot-videos/command-palette-summon.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/command-palette-summon.mp4?v=1784437314539",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/command-palette-summon.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/command-palette-summon.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/ai-stream-response",
@@ -597,11 +611,13 @@
               "name": "line-carry-transition",
               "source": "shotcraft",
               "label": "انتقال خط پیوسته",
-              "video": null,
+              "video": "../assets/library/shot-videos/line-carry-transition.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/line-carry-transition.mp4?v=1784437314628",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/line-carry-transition.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/line-carry-transition.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/print-texture-transitions",
@@ -689,11 +705,13 @@
               "name": "beat-cut-moves",
               "source": "shotcraft",
               "label": "beat-cut-moves",
-              "video": null,
+              "video": "../assets/library/shot-videos/beat-cut-moves.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/beat-cut-accelerando.mp4?v=1784437314486",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/beat-cut-moves.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/beat-cut-moves.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/montage-rhythm-moves",
@@ -753,11 +771,13 @@
               "name": "light-play-moves",
               "source": "shotcraft",
               "label": "light-play-moves",
-              "video": null,
+              "video": "../assets/library/shot-videos/light-play-moves.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/spotlight-sweep.mp4?v=1784437314621",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/light-play-moves.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/light-play-moves.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/glow-flyline-moves",
@@ -845,11 +865,13 @@
               "name": "outro-group-photo-launch",
               "source": "shotcraft",
               "label": "outro-group-photo-launch",
-              "video": null,
+              "video": "../assets/library/shot-videos/outro-group-photo-launch.mp4",
               "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/outro-group-photo-launch.mp4?v=1784437314661",
-              "status": "original-reference",
+              "status": "rendered-persian",
               "prompt": null,
-              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/outro/outro-group-photo-launch.md"
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/outro/outro-group-photo-launch.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
             },
             {
               "id": "shotcraft/neon-triple-marquee",
