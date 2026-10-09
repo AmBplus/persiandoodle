@@ -43,4 +43,9 @@ jobs:
           path: |
             skills/anidoodle/engine/out/persian-qa/*.png
             skills/anidoodle/engine/out/persian-gallery-contact.jpg
+            skills/anidoodle/engine/out/persian-showcase/*.png
+            skills/anidoodle/engine/out/persian-showcase-contact.jpg
+            skills/anidoodle/engine/out/persian-showcase.mp4
+            skills/anidoodle/engine/out/persian-launch/*.png
+            skills/anidoodle/engine/out/persian-launch-contact.jpg
           if-no-files-found: warn
