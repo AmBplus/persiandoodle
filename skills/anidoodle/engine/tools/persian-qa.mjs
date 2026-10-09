@@ -11,7 +11,7 @@ const run = (cmd, args) => {
 run(process.execPath, ["tools/test.mjs", "persianText"]);
 run(process.execPath, [
   "tools/still.mjs", "persianGallery",
-  "--frames", "0,15,30,45,65,79,80,95,110,130,145,159,160,180,205,235",
+  "--frames", "0,20,40,60,79,80,100,120,140,159,160,180,200,220,239,240,260,280,300,319,320,340,360,380,399",
   "--out", "out/persian-qa/",
   "--sheet", "out/persian-gallery-contact.jpg",
   "--sheet-scale", "0.45",
