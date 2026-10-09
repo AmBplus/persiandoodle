@@ -159,7 +159,7 @@ function renderGallery(){
  for(const x of arr.slice(0,S.visible)){
   const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":"");
   const orig=x.source!=="native";
-  el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(x.available?"پخش از منبع اصلی":"مجوز نیازمند بررسی"):orig?"مرجع اصلی":"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
+  el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(x.available?"پخش از منبع اصلی":"مجوز نیازمند بررسی"):orig?(localMedia(x,0)?"رندر فارسی":"در انتظار رندر فارسی"):"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
   '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p><div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
   el.querySelector("button").addEventListener("click",()=>detail(x));
   const cover=el.querySelector(".model-cover"),motion=cover.querySelector("video[data-preview]");
@@ -246,7 +246,7 @@ function updatePreview(){
  separate.hidden=!playable;
  if(playable){player.src=media;player.load();$("#sampleSoundStatus").textContent="در این بخش فقط صدای فایل ویدیوی انتخاب‌شده پخش می‌شود؛ اگر نمونه فاقد ترک صوتی باشد، پلیر آن را نشان می‌دهد.";}
 
- const still=poster(x);
+ const still=poster(x,v);
  video.hidden=!playable;img.hidden=!!playable||!still;empty.hidden=!!playable||!!still;
  if(!playable&&still)img.src=still;
  if(playable){video.src=media;video.poster=still||"";video.load();}
