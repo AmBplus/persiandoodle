@@ -71,8 +71,9 @@ const scene = (ctx: Ctx, local: number, env: Env, page: number) => {
   ctx.fillStyle = C.blue; ctx.fillRect(1110, 49, 99, 5);
   drawPersianText(ctx, { text: page === 4 ? "آزمایشِ خوشنویسی نستعلیق" : "کتابخانهٔ فونت‌های آزاد فارسی",
     x: 1208, y: 98, size: 39, family: "Vazirmatn", weight: 700 });
-  ctx.textAlign = "left"; ctx.direction = "ltr"; ctx.font = '17px "Vazirmatn"'; ctx.fillStyle = C.muted;
-  ctx.fillText(page === 4 ? "URDU NASTALIQ · PERSIAN AUDIT" : `FONT GALLERY · PAGE ${page + 1}/5`, 57, 114);
+  drawPersianText(ctx, { text: page === 4 ? "آزمونِ نستعلیقِ اردو" :
+    `گالری فونت‌ها — صفحهٔ ${page + 1} از ۵`,
+    family: "Vazirmatn", size: 18, x: 320, y: 114, color: C.muted });
   const progress = Math.max(0, Math.min(1, local / 65));
   if (page < 4) {
     groups[page].forEach(([family, sample], i) => {
