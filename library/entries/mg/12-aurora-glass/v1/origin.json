@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "mg/12-aurora-glass",
+  "variantIndex": 0,
+  "variantKey": "mg/12-aurora-glass",
+  "source": "mg",
+  "originalName": "12-aurora-glass",
+  "originalDescription": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/12-aurora-glass.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/12-aurora-glass.md",
+  "originalPreviewUrl": "../assets/library/style-thumbs/12-aurora-glass.png",
+  "license": "MIT",
+  "locale": "fa-IR",
+  "upstreamVersion": null,
+  "promptFile": "library/vendor/mg-styles-15/prompts/12-aurora-glass.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

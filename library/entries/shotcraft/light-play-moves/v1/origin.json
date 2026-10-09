@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/light-play-moves",
+  "variantIndex": 0,
+  "variantKey": "spotlight-sweep",
+  "source": "shotcraft",
+  "originalName": "spotlight-sweep",
+  "originalDescription": "双层同文本：暗版 0.07 常驻，亮版 radial mask 随光斑走，锥形光摆两个来回后全亮定格",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/light-play-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/effects/light-play-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/spotlight-sweep.mp4?v=1784437314621",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/light-play-moves/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/color-block-step-wipe",
+  "variantIndex": 0,
+  "variantKey": "color-block-step-wipe",
+  "source": "shotcraft",
+  "originalName": "color-block-step-wipe",
+  "originalDescription": "离散阶跃色块吞屏两式——A 中央小条按 3–5 步硬跳阶跃扩成全屏（接管后徽章两跳弹出），B 色块从角落斜向 3 步吃屏并携带一张页面卡逐跳前进",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/color-block-step-wipe.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/transition/color-block-step-wipe.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/color-block-step-wipe.mp4?v=1784437314536",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/color-block-step-wipe/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/type-entrance-moves",
+  "variantIndex": 0,
+  "variantKey": "scramble-decode",
+  "source": "shotcraft",
+  "originalName": "scramble-decode 乱码解码",
+  "originalDescription": "全员字符高速跳乱码 hold，随后从左到右逐个锁定真字符，锁定瞬间反色闪 2f，底部进度条同步推进",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/type-entrance-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/typography/type-entrance-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/scramble-decode.mp4?v=1784437314853",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/type-entrance-moves/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/speed-ramp-freeze",
+  "variantIndex": 0,
+  "variantKey": "speed-ramp",
+  "source": "shotcraft",
+  "originalName": "speed-ramp",
+  "originalDescription": "帧号非线性 remap 变速——高速掠过突降 0.2x 凝视重点，再加速离开",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/speed-ramp-freeze.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/rhythm/speed-ramp-freeze.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/speed-ramp.mp4?v=1784437314770",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/speed-ramp-freeze/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

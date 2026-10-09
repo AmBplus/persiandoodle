@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/glass-pill-dictation-typing",
+  "variantIndex": 0,
+  "variantKey": "glass-pill-dictation-typing",
+  "source": "shotcraft",
+  "originalName": "glass-pill-dictation-typing",
+  "originalDescription": "纯黑底上一条定宽玻璃胶囊以约 1.25 倍略大弹出后缓落到位，内部自左暗到右亮铺一层强调色光；光标先行、随后打字出现占位句，光随打字进度渐渐熄灭，收尾成中性深色玻璃条",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/glass-pill-dictation-typing.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/interaction/glass-pill-dictation-typing.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/glass-pill-dictation-typing.mp4?v=1785600000000",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/glass-pill-dictation-typing/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

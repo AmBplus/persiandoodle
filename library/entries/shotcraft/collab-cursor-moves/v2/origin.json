@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/collab-cursor-moves",
+  "variantIndex": 1,
+  "variantKey": "cast-ensemble",
+  "source": "shotcraft",
+  "originalName": "cast-ensemble",
+  "originalDescription": "5 枚具名彩色光标错峰 spring 飞入灰阶画布→双频正弦漂移驻场→一枚在便签上打字机补全一行→结尾全员 easeInOut 聚拢围观",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/collab-cursor-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/interaction/collab-cursor-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/cast-ensemble.mp4?v=1784437314534",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/collab-cursor-moves/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

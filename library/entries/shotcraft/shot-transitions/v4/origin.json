@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/shot-transitions",
+  "variantIndex": 3,
+  "variantKey": "shot-transitions-6",
+  "source": "shotcraft",
+  "originalName": "黑场字卡",
+  "originalDescription": "前镜收尾淡入黑场，字卡打字机/压印出现，再交棒后镜",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/shot-transitions.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/transition/shot-transitions.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/shot-transitions-6.mp4?v=1784437314739",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/shot-transitions/v4/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

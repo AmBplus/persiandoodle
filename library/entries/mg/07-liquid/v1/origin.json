@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "mg/07-liquid",
+  "variantIndex": 0,
+  "variantKey": "mg/07-liquid",
+  "source": "mg",
+  "originalName": "07-liquid",
+  "originalDescription": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/07-liquid.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/07-liquid.md",
+  "originalPreviewUrl": "../assets/library/style-thumbs/07-liquid.png",
+  "license": "MIT",
+  "locale": "fa-IR",
+  "upstreamVersion": null,
+  "promptFile": "library/vendor/mg-styles-15/prompts/07-liquid.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

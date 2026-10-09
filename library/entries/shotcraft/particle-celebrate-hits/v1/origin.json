@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/particle-celebrate-hits",
+  "variantIndex": 0,
+  "variantKey": "confetti-crossfire",
+  "source": "shotcraft",
+  "originalName": "confetti-crossfire",
+  "originalDescription": "双炮各 50 颗矩形彩屑：初速 90-150px/f（decay 0.9 下总程 ~900-1500px 才能交叉过中线）、spread 55°、每帧翻转 8-15°；~90f 全部落出画外后条件卸载",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/particle-celebrate-hits.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/data/particle-celebrate-hits.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/confetti-crossfire.mp4?v=1784437314696",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/particle-celebrate-hits/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

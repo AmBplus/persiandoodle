@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "talkcraft/chat-message-flow",
+  "variantIndex": 0,
+  "variantKey": "talkcraft/chat-message-flow",
+  "source": "talkcraft",
+  "originalName": "chat-message-flow",
+  "originalDescription": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/chat-message-flow.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/chat-message-flow.md",
+  "originalPreviewUrl": null,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "locale": "zh-original",
+  "upstreamVersion": null,
+  "promptFile": null,
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

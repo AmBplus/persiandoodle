@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/wall-reveal-moves",
+  "variantIndex": 1,
+  "variantKey": "grid-wave-flip",
+  "source": "shotcraft",
+  "originalName": "grid-wave-flip 波浪翻面",
+  "originalDescription": "3×3 灰背卡墙沿对角线波前依次 rotateX 原位翻转 180°，翻出正面内容，尾张过冲回弹",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/wall-reveal-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/ui-entrance/wall-reveal-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/grid-wave-flip.mp4?v=1784437314873",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/wall-reveal-moves/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

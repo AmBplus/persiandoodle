@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/tension-camera-moves",
+  "variantIndex": 1,
+  "variantKey": "dutch-roll-to-level",
+  "source": "shotcraft",
+  "originalName": "dutch-roll-to-level 斜角滚正",
+  "originalDescription": "痛点段整帧 -10° 斜角悬着（叠微漂移），解决方案一拍带单次过冲滚回水平",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/tension-camera-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/camera/tension-camera-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/dutch-roll-to-level.mp4?v=1784437314796",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/tension-camera-moves/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

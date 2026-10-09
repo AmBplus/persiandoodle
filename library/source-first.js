@@ -137,7 +137,7 @@ function ownedVariant(x,variant=0){
  return ["rendered-persian","verified","published"].includes(entry?.status) ? entry : null;
 }
 function localMedia(x,variant=0){return localPath(ownedVariant(x,variant)?.video)}
-function originalMedia(x,variant=0){
+function audioPublished(x){return Boolean(localPath(S.renderManifest?.audio?.[x.id]?.preview))}\nfunction originalMedia(x,variant=0){
  if(x.kind==="music"||x.kind==="sfx")return localPath(S.renderManifest?.audio?.[x.id]?.preview);
  return localMedia(x,variant);
 }
@@ -159,7 +159,7 @@ function renderGallery(){
  for(const x of arr.slice(0,S.visible)){
   const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":"");
   const orig=x.source!=="native";
-  el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(x.available?"پخش از منبع اصلی":"مجوز نیازمند بررسی"):orig?(localMedia(x,0)?"رندر فارسی":"در انتظار رندر فارسی"):"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
+  el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(audioPublished(x)?"صدای داخلی تأییدشده":"صدای مرجع، فاقد رندر داخلی"):orig?(localMedia(x,0)?"رندر فارسی":"در انتظار رندر فارسی"):"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
   '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p><div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
   el.querySelector("button").addEventListener("click",()=>detail(x));
   const cover=el.querySelector(".model-cover"),motion=cover.querySelector("video[data-preview]");
@@ -188,31 +188,19 @@ function renderGallery(){
  const more=$("#showMore");more.hidden=arr.length<=S.visible;
  more.textContent="نمایش "+prs(Math.min(36,arr.length-S.visible))+" مدل دیگر ↓";
 }
-function markPrompt(x){
- const rights=["onetake","talkcraft","explainer"].includes(x.source);
- const details=(x.description&&/[\u0600-\u06ff]/.test(x.description))?x.description:concepts[x.category]||catFa[x.facet]||"بازآفرینی ترکیب بصری";
- const group=S.section==="designs"?"طرح آماده":"کامپوننت";
- const variant=x.variants[S.variant]?.name||x.name;
- return`نقش: طراح موشن‌گرافیک فارسی و کارگردان هنری.
-ماموریت: بازسازی مدل «${x.titleFaDisplay}» از کتابخانهٔ ${sourceName(x.source)}.
-نوع: ${group} | دسته: ${catFa[x.facet]||x.facet}
-مدل انتخاب‌شده: ${variant}
-توضیح تکنیک: ${details}
-زمان و انرژی: ${x.duration||"بر اساس خواستهٔ صحنه"}؛ ${x.energy||"توجه به تداوم و خوانایی"}
-هدف اصلی: بازتولید ویژگی‌های مشخص همین حرکت، نه استفاده از یک انیمیشن عمومی شبیه بقیه.
-متن روی تصویر: فارسی ایرانی، راست‌به‌چپ، حروف پیوسته، ی و ک صحیح، نیم‌فاصله درست.
-صحنه: ترکیب‌بندی، رنگ‌بندی و حرکت باید با شخصیت تکنیک سازگار باشد؛ منبع اصلی صرفاً مرجع است.
-صدا: موسیقی و افکت را از بخش «کامپوننت‌های صوتی» با مجوز مشخص انتخاب کن و با فریم‌ها هماهنگ کن.
-تحویل: ویدیوی واقعی مستقلِ فارسی، MP4 دارای صدا، ۶ تا ۱۲ فریم کنترل کیفیت و JSON تنظیمات.
-${rights?"محدودیت استفاده: مرجع دارای مجوز غیرتجاری است؛ کد و دارایی‌های آن را کپی نکن. بازسازی مستقل انجام بده.":"برای جزئیات دقیق گرافیکی و دستور اصلی، منبع دارای مجوز را بررسی کن."}
-شناسه: ${x.id}
-منبع اصلی: ${x.sourceUrl||"ثبت‌شده در کاتالوگ"}
-`;
+function originalPromptPath(x){
+ return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.originalPromptPath||null;
+}
+function localizationPath(x){
+ return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.localization||null;
+}
+function sourceDocumentUrl(x){
+ return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.originalPromptUrl||x.sourceUrl||"";
 }
 function variants(x){
  const holder=$("#variants");holder.replaceChildren();$("#variantCount").textContent=prs(x.variants.length)+" مدل";
  for(const [i,v] of x.variants.entries()){const b=document.createElement("button");b.type="button";b.className=i===S.variant?"active":"";
-  b.textContent=(v.name||x.name).replaceAll("-"," ");b.addEventListener("click",()=>{S.variant=i;updatePreview();variants(x)});
+  b.textContent=(v.name||x.name).replaceAll("-"," ");b.addEventListener("click",()=>{S.variant=i;updatePreview();variants(x);$("#promptBox").hidden=true});
   holder.append(b);
  }
 }
@@ -250,7 +238,7 @@ function updatePreview(){
  video.hidden=!playable;img.hidden=!!playable||!still;empty.hidden=!!playable||!!still;
  if(!playable&&still)img.src=still;
  if(playable){video.src=media;video.poster=still||"";video.load();}
-  $("#previewStatus").textContent=playable?"رندر فارسی داخلی":still?"پوستر فارسی داخلی":"رندر فارسی هنوز آماده نیست";
+  $("#previewStatus").textContent=playable?"رندر فارسیِ تاییدشده":still?"پوستر فارسی داخلی":"رندر فارسی هنوز آماده نیست";
   $("#detailCaveat").textContent=playable?"نسخهٔ فارسی در خود پروژه میزبانی شده است.":"این مدل هنوز رندر فارسیِ منتشرشده ندارد؛ مرجع خارجی در سایت پخش نمی‌شود.";
 }
 function detail(x){
@@ -266,22 +254,23 @@ function detail(x){
 }
 async function prompt(){
  const x=S.current;if(!x)return;
- $("#promptBox").hidden=false;const txt=$("#promptText");txt.value=markPrompt(x);$("#sourceLink").href=x.sourceUrl||"https://github.com/AmBplus/persiandoodle";
- const canLoad=["shotcraft","mg"].includes(x.source);
- if(!canLoad)return;
- // Full upstream Apache/MIT prompt is optional reference, never required for Persian brief.
- let url=null;
- if(x.source==="mg")url="./vendor/mg-styles-15/prompts/"+x.name+".md";
- if(x.source==="shotcraft"&&x.sourceUrl?.includes("/blob/main/"))url=x.sourceUrl.replace("https://github.com/","https://raw.githubusercontent.com/").replace("/blob/main/","/main/");
- if(!url)return;
- try{
-  let data=await fetch(url).then(r=>r.ok?r.text():null);
-  if(S.current!==x||!data)return;
-  txt.value+="\n\n──────────\nدستور اصلی دارای مجوز "+(x.source==="mg"?"MIT":"Apache-2.0")+" (نسخهٔ مرجع)\n──────────\n"+data;
- }catch{}
+ const index=S.variant;
+ $("#promptBox").hidden=false;
+ const output=$("#promptText");
+ const localization=$("#localizationText");
+ const path=originalPromptPath(x);
+ const loc=localizationPath(x);
+ output.value="در حال خواندن دستور اصلی بدون دست‌کاری…";
+ localization.value="در حال خواندن نگاشت متن روی تصویر…";
+ $("#sourceLink").href=sourceDocumentUrl(x)||"https://github.com/AmBplus/persiandoodle";
+ $("#sourceLink").textContent="منبع اصلی (بدون تغییر) ↗";
+ if(loc){try{const r=await fetch("./"+loc);if(!r.ok)throw Error(String(r.status));const obj=await r.json();if(S.current===x&&S.variant===index)localization.value=JSON.stringify(obj,null,2)}catch{localization.value="پروندهٔ جایگزینی متن هنوز در دسترس نیست."}}
+ if(!path){output.value="در این منبع، پرامپت مستقل و قابل‌تأیید ثبت نشده است. به‌جای ساختن پرامپت جعلی، فایل و دستور اصلی را از پیوند بالایی بررسی کنید.";return}
+ try{const r=await fetch("./"+path);if(!r.ok)throw Error(String(r.status));const raw=await r.text();if(S.current===x&&S.variant===index)output.value=raw}
+ catch{if(S.current===x&&S.variant===index)output.value="فایل اصلی هنوز بازیابی نشده؛ هیچ پرامپتِ بازنویسی‌شده‌ای جایگزین آن نشده است."}
 }
 function selectedRecord(x){
- return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",prompt:markPrompt(x),audio:x.playUrl||null};
+ return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",originalPromptPath:originalPromptPath(x),originalPromptUrl:sourceDocumentUrl(x),localizationPath:localizationPath(x),audio:x.playUrl||null};
 }
 function saveSelection(){
  if(!S.current)return;const next=selectedRecord(S.current);

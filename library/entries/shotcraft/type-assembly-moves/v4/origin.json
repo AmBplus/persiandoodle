@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/type-assembly-moves",
+  "variantIndex": 3,
+  "variantKey": "text-on-path",
+  "source": "shotcraft",
+  "originalName": "text-on-path 沿线流入",
+  "originalDescription": "字符沿贝塞尔曲线鱼贯滑入（切线角旋转），到达后 12f 摆正水平",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/type-assembly-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/typography/type-assembly-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/text-on-path.mp4?v=1784437314851",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/type-assembly-moves/v4/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

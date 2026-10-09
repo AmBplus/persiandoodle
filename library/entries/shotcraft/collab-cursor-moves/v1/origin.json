@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/collab-cursor-moves",
+  "variantIndex": 0,
+  "variantKey": "dialogue-duet",
+  "source": "shotcraft",
+  "originalName": "dialogue-duet",
+  "originalDescription": "蓝/绿两枚具名光标：贝塞尔入场→相互靠近对话（脉冲呼吸）→上下弧线绕位交换→名牌一亮一暗灯光交接→绿光标 easeIn 放大数十倍成巨箭头当转场遮挡",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/collab-cursor-moves.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/interaction/collab-cursor-moves.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/dialogue-duet.mp4?v=1784437314531",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/collab-cursor-moves/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/ui-to-brand-morph",
+  "variantIndex": 1,
+  "variantKey": "input-morph-assemble",
+  "source": "shotcraft",
+  "originalName": "input-morph-assemble",
+  "originalDescription": "光标点发送→文字飞走→输入框 x/y/w/h/r 五量 spring 插值成圆角胶囊→三粒图元错峰从画外落下拼成抽象单瓣→整组呼吸",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/outro/ui-to-brand-morph.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/outro/ui-to-brand-morph.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/input-morph-assemble.mp4?v=1785045002395",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/ui-to-brand-morph/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

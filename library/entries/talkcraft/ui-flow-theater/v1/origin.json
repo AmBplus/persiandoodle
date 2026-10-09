@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "talkcraft/ui-flow-theater",
+  "variantIndex": 0,
+  "variantKey": "talkcraft/ui-flow-theater",
+  "source": "talkcraft",
+  "originalName": "ui-flow-theater",
+  "originalDescription": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/ui-flow-theater.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/ui-flow-theater.md",
+  "originalPreviewUrl": null,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "locale": "zh-original",
+  "upstreamVersion": null,
+  "promptFile": null,
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

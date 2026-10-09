@@ -48,8 +48,8 @@
    <div id="mediaAudio" class="audio-area" hidden><p>صدای داخلی پروژه</p><audio id="audioPlayer" controls preload="none"></audio><div class="rights-note" id="rightsNote"></div></div>
    <div id="sampleSound" class="audio-area" hidden><p>شنیدن مستقل صدای همراه همین نمونه</p><audio id="sampleSoundPlayer" controls preload="none" aria-label="صدای همراه نمونه"></audio><div class="rights-note" id="sampleSoundStatus">صدا مستقیماً از فایل ویدیوی مرجع پخش می‌شود.</div></div>
    <div id="fontTester" class="font-tester" hidden><label for="fontText">متن آزمایشی فارسی</label><input id="fontText" value="طراحی زیبا با خط فارسی"><div id="fontDisplay"></div></div>
-   <div class="detail-buttons"><button type="button" id="addToScene" class="button-main">+ افزودن به صحنه</button><button type="button" id="showPrompt" class="button-secondary">پرامپت و جزئیات</button></div>
-   <div class="prompt-box" id="promptBox" hidden><div class="prompt-head"><b>دستور ساخت و منبع</b><button type="button" id="copyPrompt">کپی پرامپت فارسی</button></div><textarea id="promptText" readonly></textarea><a id="sourceLink" target="_blank" rel="noopener">مشاهدهٔ دستور و منبع اصلی ↗</a></div>
+   <div class="detail-buttons"><button type="button" id="addToScene" class="button-main">+ افزودن به صحنه</button><button type="button" id="showPrompt" class="button-secondary">پرامپت اورجینال و متن فارسی صحنه</button></div>
+   <div class="prompt-box" id="promptBox" hidden><div class="prompt-head"><b>دستور ساخت و منبع</b><button type="button" id="copyPrompt">کپی متن اصلی</button></div><label for="promptText">پرامپت اصلی (بدون ترجمه یا بازنویسی)</label><textarea id="promptText" readonly dir="auto"></textarea><label for="localizationText">فقط نگاشت نوشته‌های داخل ویدیو به فارسی</label><textarea id="localizationText" readonly dir="ltr"></textarea><a id="sourceLink" target="_blank" rel="noopener">مشاهدهٔ دستور و منبع اصلی ↗</a></div>
    <div class="detail-caveat" id="detailCaveat"></div>
   </aside>
 </div>

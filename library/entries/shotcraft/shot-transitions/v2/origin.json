@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/shot-transitions",
+  "variantIndex": 1,
+  "variantKey": "shot-transitions-4",
+  "source": "shotcraft",
+  "originalName": "穿暗场直航",
+  "originalDescription": "相机顺运动方向推出前景→纯暗场滑行几帧→后景从景深迎面放大而来，一条 take 不切",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/shot-transitions.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/transition/shot-transitions.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/shot-transitions-4.mp4?v=1784437314735",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/shot-transitions/v2/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

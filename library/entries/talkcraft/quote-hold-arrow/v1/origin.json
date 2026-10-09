@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "talkcraft/quote-hold-arrow",
+  "variantIndex": 0,
+  "variantKey": "talkcraft/quote-hold-arrow",
+  "source": "talkcraft",
+  "originalName": "quote-hold-arrow",
+  "originalDescription": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/quote-hold-arrow.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/quote-hold-arrow.md",
+  "originalPreviewUrl": null,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "locale": "zh-original",
+  "upstreamVersion": null,
+  "promptFile": null,
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

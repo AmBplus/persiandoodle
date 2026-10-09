@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "mg/10-synthwave",
+  "variantIndex": 0,
+  "variantKey": "mg/10-synthwave",
+  "source": "mg",
+  "originalName": "10-synthwave",
+  "originalDescription": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/10-synthwave.md",
+  "originalPromptUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/10-synthwave.md",
+  "originalPreviewUrl": "../assets/library/style-thumbs/10-synthwave.png",
+  "license": "MIT",
+  "locale": "fa-IR",
+  "upstreamVersion": null,
+  "promptFile": "library/vendor/mg-styles-15/prompts/10-synthwave.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "persiandoodle/original-source/v1",
+  "modelId": "shotcraft/riso-print-hits",
+  "variantIndex": 0,
+  "variantKey": "misregistration-hit",
+  "source": "shotcraft",
+  "originalName": "misregistration-hit 单发",
+  "originalDescription": "标题 8f 撞入撞停，裂两版反向错 ~32px，44f 衰减震荡后硬切套准 + scale 脉冲",
+  "originalDocumentUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/riso-print-hits.md",
+  "originalPromptUrl": "https://raw.githubusercontent.com/Vincentwei1021/video-shotcraft/main/references/shots/effects/riso-print-hits.md",
+  "originalPreviewUrl": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/misregistration-hit.mp4?v=1784437314711",
+  "license": "Apache-2.0",
+  "locale": "zh-original",
+  "upstreamVersion": "bdd94be16d60fa8f",
+  "promptFile": "library/entries/shotcraft/riso-print-hits/v1/prompt.original.md",
+  "contentPolicy": "Original authoring instructions must be byte-for-byte preserved. Localize rendered ON-SCREEN strings only.",
+  "audited": false,
+  "renderVerified": false
+}
