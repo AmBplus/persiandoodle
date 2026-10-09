@@ -39,6 +39,11 @@ try{
  await p.waitForFunction(()=>document.querySelector("#promptText")?.value?.includes("You are the director"),{timeout:10000});
  assert((await p.locator("#promptText").inputValue()).includes("line boil"),"original MG prompt was replaced by generic Persian prompt");
  assert((await p.locator("#localizationText").inputValue()).includes('"replacements": []'),"separate exact-text localization file missing");
+ await p.locator("#addToScene").click();
+ await p.locator("#sceneDrawer").waitFor({state:"visible",timeout:15000});
+ const exported=await p.locator("#sceneJSON").innerText();
+ assert(exported.includes("You are the director")&&exported.includes("originalPrompt"),"scene export must embed original prompt without agent lookups");
+ await p.locator("#closeScene").click();
  await p.locator("#closeDetail").click();
  await p.locator("#searchInput").fill("");
  await p.locator("#sourceFilter").selectOption("shotcraft");
