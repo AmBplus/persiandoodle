@@ -13,6 +13,9 @@
 //   caption(ctx, env, text, x, y, size, p, kind, opts)    a small hand-lettered callout, underline or arrow
 import { fractal, probeRect, rng, sample, type Ctx, type Env, type Layer, type P } from "./core";
 import { G, type Glyph } from "./drafting";
+import { drawPersianTrace } from "./persianTrace";
+import { drawPersianText } from "./persianText";
+const hasRTL = (text: string) => /[\u0590-\u08ff]/.test(text);
 import { DOT, TAIL, WORD, inkStroke, outlineOf, type Nib } from "./lettering";
 
 export type KStyle = "ink" | "crayon" | "thread" | "chalk" | "brick" | "marker";
@@ -38,7 +41,7 @@ const GAP = 14; // px of "pen lift" between strokes: the nib travels, nothing is
 const glyphOf = (ch: string): Glyph => G[ch.toUpperCase()] ?? G[ch] ?? G["-"];
 const densify = (pts: P[], step: number): P[] => { const out: P[] = [pts[0]]; for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step)); for (let k = 1; k <= n; k++) out.push([a[0] + ((b[0] - a[0]) * k) / n, a[1] + ((b[1] - a[1]) * k) / n]); } return out; };
 const cum = (pts: P[]) => { const l = [0]; for (let i = 1; i < pts.length; i++) l.push(l[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); return l; };
-export const measure = (text: string, size: number, o: WriteOpts = {}) => { const s = size / 6, tr = o.track ?? 1.5; return [...text].reduce((a, ch) => a + ((glyphOf(ch).w ?? 4) + tr) * s, 0) - tr * s + 6 * (o.slant ?? 0.12) * s; }; // + the slant's overhang at the cap line
+export const measure = (text: string, size: number, o: WriteOpts = {}) => { if (hasRTL(text)) return Array.from(text).length * size * 0.53; const s = size / 6, tr = o.track ?? 1.5; return [...text].reduce((a, ch) => a + ((glyphOf(ch).w ?? 4) + tr) * s, 0) - tr * s + 6 * (o.slant ?? 0.12) * s; }; // + the slant's overhang at the cap line
 const layout = (env: Env, text: string, x: number, y: number, size: number, o: WriteOpts): Layout => {
   const key = `kin:${text}|${x}|${y}|${size}|${o.align}|${o.slant}|${o.track}|${o.seed}`; const hit = env.cache.get(key) as Layout | undefined; if (hit) return hit;
   const s = size / 6, tr = o.track ?? 1.5, sl = o.slant ?? 0.12, r = rng((o.seed ?? 1) * 977 + 3), W = measure(text, size, o);
@@ -262,6 +265,17 @@ const drawBricks = (c: Ctx, env: Env, lay: Layout, p: number, size: number, key:
 export const writeOn = (ctx: Ctx, env: Env, text: string, x: number, y: number, size: number, p: number, style: KStyle, o: WriteOpts = {}) => {
   if (p <= 0) return;
   screen(ctx, env);
+  // English draft-glyph paths contain no Arabic joining forms. Persian takes the
+  // real full-run shaped-font skeleton route instead of substituting hyphens.
+  if (hasRTL(text)) {
+    ctx.save(); ctx.font = `700 ${size}px "Vazirmatn"`; ctx.direction="rtl";
+    const W=ctx.measureText(text).width;
+    const right=o.align==="center"?x+W/2:o.align==="left"?x+W:x;
+    drawPersianTrace(ctx,env,{text,x:right,y,size,family:"Vazirmatn",
+      progress:p,color:o.color,pen:o.tool!==false,weight:700});
+    ctx.restore();
+    return;
+  }
   if (style === "brick" && o.track === undefined) o = { ...o, track: 2.6, slant: o.slant ?? 0 };
   const lay = layout(env, text, x, y, size, o), us = reach(lay, p), color = o.color ?? PALETTE[style], popK = o.pop ?? 1, seed = o.seed ?? 1;
   if (env.root && lay.boxes.length) { const bx = lay.boxes; probeRect(ctx, env, Math.min(...bx.map((b) => b.c[0] - b.w / 2)), y - size * 1.05, Math.max(...bx.map((b) => b.c[0] + b.w / 2)) - Math.min(...bx.map((b) => b.c[0] - b.w / 2)), size * 1.3, text, "text"); }
@@ -393,10 +407,18 @@ export const caption = (ctx: Ctx, env: Env, text: string, x: number, y: number, 
 // gentle move with no bounce and no fade-in. `p` 0..1 is the line's progress. Screen space.
 export type SetOpts = { color?: string; align?: "left" | "center" | "right"; weight?: number; font?: (w: number, px: number) => string; track?: number };
 const SET_FONT = (w: number, px: number) => `${w} ${px}px "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif`;
-export const setWidth = (ctx: Ctx, text: string, size: number, o: SetOpts = {}) => { ctx.font = (o.font ?? SET_FONT)(o.weight ?? 700, size); return ctx.measureText(text).width + Math.max(0, text.length - 1) * (o.track ?? -0.02) * size; };
+export const setWidth = (ctx: Ctx, text: string, size: number, o: SetOpts = {}) => { if(hasRTL(text)){ctx.font=`${o.weight??700} ${size}px "Vazirmatn"`;ctx.direction="rtl";return ctx.measureText(text).width;} ctx.font = (o.font ?? SET_FONT)(o.weight ?? 700, size); return ctx.measureText(text).width + Math.max(0, text.length - 1) * (o.track ?? -0.02) * size; };
 export const setType = (ctx: Ctx, env: Env, text: string, x: number, y: number, size: number, p: number, o: SetOpts = {}) => {
   if (p <= 0) return;
   screen(ctx, env);
+  if (hasRTL(text)) {
+    ctx.save();ctx.font=`${o.weight??700} ${size}px "Vazirmatn"`;ctx.direction="rtl";
+    const W=ctx.measureText(text).width;
+    const right=o.align==="center"?x+W/2:o.align==="left"?x+W:x;
+    drawPersianText(ctx,{text,x:right,y,size,family:"Vazirmatn",weight:o.weight??700,
+      progress:p,mode:"ink",color:o.color});
+    ctx.restore();return;
+  }
   { const w = setWidth(ctx, text, size, o), x0 = o.align === "center" ? x - w / 2 : o.align === "right" ? x - w : x; probeRect(ctx, env, x0, y - size * 0.8, w, size, text, "text"); }
   ctx.save();
   ctx.font = (o.font ?? SET_FONT)(o.weight ?? 700, size); ctx.textBaseline = "alphabetic"; ctx.fillStyle = o.color ?? "#111214";
