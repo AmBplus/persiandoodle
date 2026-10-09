@@ -16,7 +16,7 @@ export const styleScore=(sampleRate:number,fps=30,frames=900):[Float32Array,Floa
  const n=Math.round(sampleRate*frames/fps),left=new Float32Array(n),right=new Float32Array(n);
  const phase=[0,0,0],filter=[0,0],duration=frames/fps;
  for(let i=0;i<n;i++){
-  const t=i/sampleRate,scene=Math.min(14,Math.floor(t/2)),local=t-scene*2;
+  const t=i/sampleRate,scene=Math.floor(t/2)%15,local=t%2;
   const mood=sets[scene],synthType=scene%5;
   const smooth=(f:number)=>Math.sin(TAU*f*t);
   let music=0;
