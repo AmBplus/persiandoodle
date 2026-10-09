@@ -11,17 +11,20 @@ const preview="assets/library/style-thumbs/";
 mkdirSync(join(root,preview),{recursive:true});
 const rows=catalog.entries.filter(x=>x.source==="mg"&&x.kind==="style");
 if(rows.length!==15)throw Error("expected 15 MIT styles, found "+rows.length);
-for(let i=0;i<rows.length;i++){
+const styles="01-flat-vector 02-line-art 03-isometric 04-3d-render 05-cel-boil 06-collage 07-liquid 08-morph 09-bauhaus 10-synthwave 12-aurora-glass 18-hanazi 19-paperclip 20-pixel 22-hud".split(" ");
+for(let i=0;i<styles.length;i++){
+ const row=rows.find(r=>r.name===styles[i]);
+ if(!row)throw Error("style manifest mismatch "+styles[i]);
  const frame=52+i*60;
  const from=join(root,out+"persian-motion-styles/persianMotionSampler-"+frame+".png");
- const to=join(root,preview+rows[i].name+".png");
+ const to=join(root,preview+row.name+".png");
  if(!existsSync(from))throw Error("missing actual Persian rendered frame: "+from);
  copyFileSync(from,to);
- rows[i].status="rendered-persian";
- rows[i].locale="fa-IR";
- rows[i].description="بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.";
- rows[i].preview="../"+preview+rows[i].name+".png";
- rows[i].localizedDemo="../assets/library/persian-motion-styles.mp4";
+ row.status="rendered-persian";
+ row.locale="fa-IR";
+ row.description="بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.";
+ row.preview="../"+preview+row.name+".png";
+ row.localizedDemo="../assets/library/persian-motion-styles.mp4";
 }
 const files=[
  ["persian-motion-styles-contact.jpg","assets/library/persian-motion-styles-contact.jpg"],
