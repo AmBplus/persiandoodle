@@ -10,6 +10,7 @@ skills/anidoodle/engine/.cache/
 .DS_Store
 
 # local scratch (internal, never ship)
+work/
 _readme-preview.html
 _*.png
 .style-gallery-brief.md
