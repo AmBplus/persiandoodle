@@ -4,6 +4,9 @@ const t={shotcraft:"ویدیو شات‌کرافت",mg:"۱۵ سبک موشن",ta
 const groups={designs:"طرح‌های آماده",components:"کامپوننت‌ها"};
 const catFa={all:"همهٔ مدل‌ها",typography:"تایپوگرافی",interaction:"تعامل",transitions:"ترنزیشن",camera:"دوربین",data:"داده و نمودار",entrance:"ورود عناصر",rhythm:"ریتم و تدوین",light:"نور و تأکید",opening:"شروع و هویت",outro:"پایان",effects:"افکت‌ها",style:"سبک‌های هنری",talkcraft:"موشن گفتاری",explainer:"روایت آموزشی",onetake:"حرکت پیوسته",music:"موسیقی",sound:"افکت صوتی",font:"فونت‌های فارسی",pen:"قلم و نوشتن"};
 const synonyms={opening:"شروع",brand:"هویت",typography:"تایپوگرافی",text:"متن",data:"داده",camera:"دوربین",transition:"ترنزیشن",interaction:"تعامل",rhythm:"ریتم",light:"نور",outro:"پایان",ui:"رابط کاربری",shot:"نما",motion:"حرکت",effect:"افکت",style:"سبک",sfx:"افکت صوتی",bgm:"موسیقی",impact:"ضربه",whoosh:"عبور",riser:"اوج‌گیر",paper:"کاغذ",film:"فیلم",glass:"شیشه",mech:"مکانیکی",font:"فونت",audio:"صدا",writing:"نوشتن",drawing:"ترسیم",music:"موسیقی",subtitle:"زیرنویس",title:"عنوان",animated:"متحرک",camera:"دوربین",beat:"ضرباهنگ",color:"رنگ",zoom:"بزرگ‌نمایی",hand:"دست",pen:"قلم"};
+// Human-readable Persian facets. Raw source tags remain unchanged for filtering.
+const extraTagFa={"对比":"مقایسه","论点":"دیدگاه","列举":"فهرست‌سازی","数据":"داده","例证":"نمونه و شاهد","引用":"نقل‌قول","钩子":"قلاب آغازین","标题":"عنوان","转场":"گذار صحنه","转折":"تغییر مسیر","强调":"تأکید","章节":"فصل‌بندی","过程演示":"نمایش فرایند","自我介绍":"معرفی خود","介绍他人":"معرفی افراد","选择":"انتخاب","金句":"جملهٔ کلیدی","步骤":"مراحل","氛围":"فضاسازی","定义":"تعریف","结尾":"پایان‌بندی","空间叙事":"روایت فضایی","时间地点":"زمان و مکان","机制":"سازوکار","号召":"فراخوان","设问":"پرسش",
+"effects":"افکت","ui-entrance":"ورود رابط","counter":"شمارنده","crowd":"جمعیت","fluid":"سیال","scifi":"علمی‌تخیلی","camera":"دوربین","transition":"انتقال","riser":"اوج‌گیر","mech":"مکانیکی","typography":"تایپوگرافی","interaction":"تعامل","rhythm":"ریتم","opening":"آغاز","data":"داده","outro":"پایان","bgm":"موسیقی پس‌زمینه","sfx":"افکت صوتی"};
 const concepts={
 "تایپوگرافی":"تمرکز بر نحوهٔ ظاهرشدن و حرکت عنوان، با حفظ شکل اتصال حروف فارسی و خوانایی.",
 "داده و نمودار":"نمایش آمار و مقایسه با اندازه‌گذاری صحیح، مکث خوانا و انتقال هماهنگ.",
@@ -18,7 +21,7 @@ const escapeHtml=x=>String(x??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;
 const norm=x=>String(x??"").normalize("NFKC").toLocaleLowerCase("en");
 const prs=n=>Number(n).toLocaleString("fa-IR");
 const sourceName=x=>t[x]||x;
-const faTag=x=>synonyms[norm(x)]||x;
+const faTag=x=>extraTagFa[x]||synonyms[norm(x)]||x;
 const modelIcon=x=>({shot:"◫",style:"◈",motion:"↝",explainer:"☷",font:"آ",pen:"✒",music:"♫",sfx:"♪"})[x.kind]||"◈";
 let S={section:"designs",source:"",cat:"all",tag:"",q:"",sort:"source",visible:36,items:[],selection:[],current:null,variant:0,cache:new Map(),audio:null};
 function classify(x){
