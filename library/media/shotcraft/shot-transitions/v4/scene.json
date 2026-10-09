@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/shot-transitions",
+  "variantKey": "shot-transitions-6",
+  "variantIndex": 3,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "گذار · 黑场字卡",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/shot-transitions / shot-transitions-6؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1028,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "前镜收尾淡入黑场，字卡打字机/压印出现，再交棒后镜",
+  "sourceCategory": "transition",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

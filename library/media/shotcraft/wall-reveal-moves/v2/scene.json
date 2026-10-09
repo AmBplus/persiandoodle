@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/wall-reveal-moves",
+  "variantKey": "grid-wave-flip",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "حرکت · grid-wave-flip 波浪翻面",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/wall-reveal-moves / grid-wave-flip؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1008,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "3×3 灰背卡墙沿对角线波前依次 rotateX 原位翻转 180°，翻出正面内容，尾张过冲回弹",
+  "sourceCategory": "ui-entrance",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/scroll-brake-moves",
+  "variantKey": "brake-reticle-lock",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "chart",
+  "titleFa": "داده · brake-reticle-lock",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/scroll-brake-moves / brake-reticle-lock؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1023,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "滚动三段：sin-in 加速→cubic-out 猛减速冲过头 +30px→回弹落定；blur=v×0.12 封顶 24px；角标从 ±620/±320 画外 Easing.back(2.4) 飞入咬合，高亮 6f 内完成、标签 back(2.6) 弹出",
+  "sourceCategory": "data",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

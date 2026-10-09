@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/canvas-materialize-moves",
+  "variantKey": "diagram-cascade",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "تعامل · diagram-cascade 级联生成树",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/canvas-materialize-moves / diagram-cascade؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1017,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "prompt 逐字敲出（敲完描边变深确认）→根（深色）→2 子→4 孙逐层弹出，折角连线描线先行 8f，成树后整棵呼吸一拍",
+  "sourceCategory": "interaction",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

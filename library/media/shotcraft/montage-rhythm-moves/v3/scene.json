@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/montage-rhythm-moves",
+  "variantKey": "domino-cascade",
+  "variantIndex": 2,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "حرکت · domino-cascade 连锁入场",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/montage-rhythm-moves / domino-cascade؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1086,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "标题砸落→震波弹起卡片列→末卡撞滑侧边栏进场，动量方向逐级传递",
+  "sourceCategory": "rhythm",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

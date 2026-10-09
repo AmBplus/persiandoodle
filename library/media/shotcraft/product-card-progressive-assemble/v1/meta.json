@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/product-card-progressive-assemble",
+  "variantKey": "product-card-progressive-assemble",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "121693"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/product-card-progressive-assemble",
+    "variantKey": "product-card-progressive-assemble",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "collage",
+    "titleFa": "حرکت · product-card-progressive-assemble",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/product-card-progressive-assemble / product-card-progressive-assemble؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1005,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "详情卡像被逐字段抓取般自建——图→标题→breadcrumb pill 依次 pop→原价出现后被划线降级、强调色新价 spring 跳出→正文逐行揭示且高亮块由左向右刷过→色卡点亮，整卡全程极慢 scale 前推",
+    "sourceCategory": "ui-entrance",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

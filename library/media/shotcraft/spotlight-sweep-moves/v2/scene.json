@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/spotlight-sweep-moves",
+  "variantKey": "slide-spotlight-pan",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "افکت · slide-spotlight-pan",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/spotlight-sweep-moves / slide-spotlight-pan؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1004,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "贴边泛光横摇：光线先绕左上角竖缘、转角后沿顶边横走，紫光晕染渗入 UI 顶部内侧；聚光头匀速右移显影 + 面板匀速左滑＝相机右摇感",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

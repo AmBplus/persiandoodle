@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/cloner-depth-echo",
+  "variantKey": "cloner-depth-echo",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "حرکت · cloner-depth-echo",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/cloner-depth-echo / cloner-depth-echo؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1026,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "克隆纵队——主卡瞬间\"复印\"出 7 个半透明分身沿斜向纵深排开成队，停一拍后全体加速吸回本体合一+弹跳",
+  "sourceCategory": "ui-entrance",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

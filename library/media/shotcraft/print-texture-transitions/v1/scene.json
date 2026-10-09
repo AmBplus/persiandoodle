@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/print-texture-transitions",
+  "variantKey": "ink-bleed-reveal",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "گذار · ink-bleed-reveal 墨渗揭示",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/print-texture-transitions / ink-bleed-reveal؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1004,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "印刷质感转场——ink-bleed-reveal 墨渗揭示（须状渗边洇开吃掉旧景）",
+  "sourceCategory": "transition",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

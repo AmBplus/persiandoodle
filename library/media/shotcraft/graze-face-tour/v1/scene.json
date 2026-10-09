@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/graze-face-tour",
+  "variantKey": "graze-face-tour",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "دوربین · graze-face-tour",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/graze-face-tour / graze-face-tour؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1062,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "大倾角贴面游走特写——镜头贴着 UI 表面低飞掠过（侧栏树/顶栏/列表当地形），页面文字初始悬浮在界面上空带同形软影，随镜头行进先后加速贴落回界面",
+  "sourceCategory": "camera",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/type-rhythm-sync",
+  "variantKey": "font-weight-pump",
+  "family": "kinetic",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "154417"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/type-rhythm-sync",
+    "variantKey": "font-weight-pump",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "kinetic",
+    "titleFa": "تایپوگرافی · font-weight-pump 字重脉冲",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/type-rhythm-sync / font-weight-pump؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1036,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "命中帧笔画瞬间变粗（stroke+字重跳变），~10f 衰减弹回；重音拍额外撑宽 8%",
+    "sourceCategory": "typography",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

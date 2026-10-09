@@ -9,6 +9,8 @@ const site = resolve(arg("site", "_site")), library = join(site, "library");
 for (const file of ["index.html", "data/catalog.json", "data/shotcraft-full.json", "data/persian-renders.json", "source-first.js"]) if (!existsSync(join(library, file))) throw new Error(`release site missing library/${file}`);
 const gate = spawnSync("python", ["scripts/verify-local-persian-media.py", site], {encoding: "utf8"});
 if (gate.status !== 0) throw new Error(gate.stderr || gate.stdout || "local media gate failed");
+const videoGate = spawnSync(process.execPath, ["scripts/verify-persian-video-profile.mjs", site], {encoding: "utf8"});
+if (videoGate.status !== 0) throw new Error(videoGate.stderr || videoGate.stdout || "Persian video profile gate failed");
 const manifest = JSON.parse(await readFile(join(library, "data/persian-renders.json"), "utf8"));
 const source = await readFile(join(library, "source-first.js"), "utf8");
 if (!source.includes("function localPath") || !source.includes("rendered-persian")) throw new Error("browser local-media contract is missing");

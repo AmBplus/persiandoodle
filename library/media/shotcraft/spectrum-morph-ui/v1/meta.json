@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/spectrum-morph-ui",
+  "variantKey": "spectrum-morph-ui",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "107011"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/spectrum-morph-ui",
+    "variantKey": "spectrum-morph-ui",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "collage",
+    "titleFa": "حرکت · spectrum-morph-ui",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/spectrum-morph-ui / spectrum-morph-ui؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1038,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "频谱化 UI——标题下划线裂成一排竖条按频谱跳动两小节，再收拢还原成直线；音乐可视化长在 UI 上",
+    "sourceCategory": "rhythm",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

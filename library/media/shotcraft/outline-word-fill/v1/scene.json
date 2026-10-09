@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/outline-word-fill",
+  "variantKey": "outline-word-fill",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "تایپوگرافی · outline-word-fill",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/outline-word-fill / outline-word-fill؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1094,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "空心词（1px 灰描边、500 字重）从 3.2 倍急缓收缩落位，虚线大圆随后从 2.8 倍收到字周围并缓慢自转，左右水平虚线从画框边缘内伸；描边先微微增亮，实心白在 0.6 帧内瞬间点亮，一闪辉光即定格",
+  "sourceCategory": "typography",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

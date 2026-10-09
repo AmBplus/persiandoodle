@@ -1,0 +1,50 @@
+{
+  "modelId": "shotcraft/color-block-step-wipe",
+  "variantKey": "color-block-step-wipe",
+  "family": "camera",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "266823"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/color-block-step-wipe",
+    "variantKey": "color-block-step-wipe",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "camera",
+    "titleFa": "گذار · color-block-step-wipe",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/color-block-step-wipe / color-block-step-wipe؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1029,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "离散阶跃色块吞屏两式——A 中央小条按 3–5 步硬跳阶跃扩成全屏（接管后徽章两跳弹出），B 色块从角落斜向 3 步吃屏并携带一张页面卡逐跳前进",
+    "sourceCategory": "transition",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  },
+  "sizeBytes": 266308
+}

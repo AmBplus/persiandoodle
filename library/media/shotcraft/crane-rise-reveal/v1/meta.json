@@ -1,0 +1,50 @@
+{
+  "modelId": "shotcraft/crane-rise-reveal",
+  "variantKey": "crane-rise-reveal",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "106561"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/crane-rise-reveal",
+    "variantKey": "crane-rise-reveal",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "collage",
+    "titleFa": "حرکت · crane-rise-reveal",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/crane-rise-reveal / crane-rise-reveal؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1033,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "升降臂拉升揭示——开场怼在一行数据特写，相机沿 Y 轴减速升起后拉，行行涌入直到整面 dashboard 铺满全幅",
+    "sourceCategory": "opening",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  },
+  "sizeBytes": 105378
+}

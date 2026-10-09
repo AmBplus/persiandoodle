@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/tension-camera-moves",
+  "variantKey": "pull-back-isolation",
+  "variantIndex": 3,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "دوربین · pull-back-isolation 拉远孤立",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/tension-camera-moves / pull-back-isolation؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1013,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "从发光主卡特写后拉，兄弟卡按距离错峰熄灭、背景沉黑，孤卡悬在暗场中央",
+  "sourceCategory": "camera",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

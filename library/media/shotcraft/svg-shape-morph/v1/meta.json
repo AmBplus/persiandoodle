@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/svg-shape-morph",
+  "variantKey": "svg-shape-morph",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "106830"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/svg-shape-morph",
+    "variantKey": "svg-shape-morph",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "collage",
+    "titleFa": "حرکت · svg-shape-morph",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/svg-shape-morph / svg-shape-morph؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1008,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "一条 140 点闭合轮廓平滑变形为另一条再变回，两形状先在极坐标下重采样到相同点数、逐点半径插值 + inOutCubic，变形中段叠轻微 scale 呼吸、缓慢自转与色相从 185° 漂到 305°",
+    "sourceCategory": "ui-entrance",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

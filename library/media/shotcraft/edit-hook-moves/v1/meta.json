@@ -1,0 +1,50 @@
+{
+  "modelId": "shotcraft/edit-hook-moves",
+  "variantKey": "logo-sting-button",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "108706"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/edit-hook-moves",
+    "variantKey": "logo-sting-button",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "collage",
+    "titleFa": "حرکت · logo-sting-button",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/edit-hook-moves / logo-sting-button؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1045,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "logo-sting-button 片尾钩子——片尾 logo 定住后突插 12f 彩蛋再收，预告片 button ending",
+    "sourceCategory": "outro",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  },
+  "sizeBytes": 106987
+}

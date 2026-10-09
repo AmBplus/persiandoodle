@@ -1,0 +1,50 @@
+{
+  "modelId": "shotcraft/page-turn-transitions",
+  "variantKey": "cube-rotate",
+  "family": "camera",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "257878"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/page-turn-transitions",
+    "variantKey": "cube-rotate",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "camera",
+    "titleFa": "گذار · cube-rotate",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/page-turn-transitions / cube-rotate؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1098,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "两页贴立方体相邻面（rotateY 0/90° + translateZ W/2），场景层转 -90°；旧面转出压暗、新面转进变亮，45° 时两面夹一条暗棱",
+    "sourceCategory": "transition",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  },
+  "sizeBytes": 256698
+}

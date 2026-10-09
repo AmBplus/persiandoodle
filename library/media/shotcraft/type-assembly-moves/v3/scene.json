@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/type-assembly-moves",
+  "variantKey": "tracking-expand",
+  "variantIndex": 2,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "تایپوگرافی · tracking-expand 字距呼吸",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/type-assembly-moves / tracking-expand؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1032,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "字母从 −0.42em 叠压展开到 0.14em，blur 10→0 同曲线",
+  "sourceCategory": "typography",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

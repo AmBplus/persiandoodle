@@ -1,0 +1,18 @@
+{
+  "source": "talkcraft",
+  "modelId": "talkcraft/outline-box-title",
+  "variantKey": "talkcraft/outline-box-title",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "حرکت · outline-box-title",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای talkcraft/outline-box-title / talkcraft/outline-box-title؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1009,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
+  "sourceCategory": "گفتار و موشن",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/type-assembly-moves",
+  "variantKey": "text-on-path",
+  "family": "kinetic",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "252618"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/type-assembly-moves",
+    "variantKey": "text-on-path",
+    "variantIndex": 3,
+    "approved": true,
+    "family": "kinetic",
+    "titleFa": "تایپوگرافی · text-on-path 沿线流入",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/type-assembly-moves / text-on-path؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "blueprint",
+    "seed": 1033,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "字符沿贝塞尔曲线鱼贯滑入（切线角旋转），到达后 12f 摆正水平",
+    "sourceCategory": "typography",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

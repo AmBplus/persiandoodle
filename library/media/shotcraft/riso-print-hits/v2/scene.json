@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/riso-print-hits",
+  "variantKey": "beat-pump",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "افکت · beat-pump 节拍泵",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/riso-print-hits / beat-pump؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1014,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "每 24f 一拍：整画面瞬跳 1.08 指数回落 + 标题错版逐拍 8/14/22/32px 加码套准",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

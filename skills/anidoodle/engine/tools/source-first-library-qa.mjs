@@ -41,8 +41,9 @@ try{
  if(!mgCount.includes("۱۵"))throw Error("15 original style designs not discoverable: "+mgCount);
  await page.locator("#searchInput").fill("03-isometric");
  await page.locator(".model button").first().click();
- if(await page.locator("#previewVideo").isVisible())throw Error("unrendered card exposed a playable video");
- if(!await page.locator("#detailCaveat").innerText().then(x=>x.includes("مرجع خارجی")&&x.includes("پخش نمی‌شود")))throw Error("unrendered preview honesty missing");
+ if(!await page.locator("#previewVideo").isVisible())throw Error("completed MG card did not expose a local playable video");
+ const mgLocal=await page.locator("#previewVideo").getAttribute("src");
+ if(!mgLocal?.startsWith("./media/mg/"))throw Error("MG preview did not resolve internally: "+mgLocal);
  await page.locator("#showPrompt").click();if(!await page.locator("#promptText").inputValue().then(s=>s.includes("پرامپت")||s.includes("ماموریت")))throw Error("Persian production prompt missing");
  await page.locator("#addToScene").click();if(!await page.locator("#sceneDrawer").isVisible())throw Error("scene selection missing");
  if(!await page.locator("#sceneJSON").innerText().then(x=>x.includes("source-first-scene/v2")))throw Error("scene JSON missing");
@@ -86,8 +87,11 @@ try{
  if(await page.locator("#variants button").count()<2)throw Error("source shot style variants discarded");
  await page.locator("#variants button").nth(1).click();
  const secondVariant=await page.locator("#previewVideo").getAttribute("src");
- if(secondVariant)throw Error("unrendered second variant exposed a playable source: "+secondVariant);
- if(await page.locator("#sampleSound").isVisible())throw Error("unrendered source demo exposed an audio control");
+ if(!secondVariant?.startsWith("./media/shotcraft/"))throw Error("second Persian variant did not resolve internally: "+secondVariant);
+ if(await page.locator("#sampleSound").isVisible()){
+  const sampleSoundSrc=await page.locator("#sampleSoundPlayer").getAttribute("src");
+  if(sampleSoundSrc&&!sampleSoundSrc.startsWith("./media/"))throw Error("source demo exposed a foreign audio control: "+sampleSoundSrc);
+ }
  await page.locator("#searchInput").fill("");
  await page.locator("#sourceFilter").selectOption("talkcraft");
  await page.locator("#searchInput").fill("bar-chart-growth");
@@ -98,8 +102,9 @@ try{
  await page.locator("#closeDetail").click();
  await page.locator("#searchInput").fill("alt-block-lines");
  await page.locator(".model").first().waitFor({timeout:10000});
- const talkThumb=await page.locator(".model img").count();
- if(talkThumb)throw Error("unrendered Talkcraft card exposed a thumbnail");
+ await page.locator(".model button").first().click();
+ const talkPreview=await page.locator("#previewVideo").getAttribute("src");
+ if(!talkPreview?.startsWith("./media/talkcraft/"))throw Error("Talkcraft local preview did not resolve internally: "+talkPreview);
 
  const mediaSources=await page.locator("video, audio, img").evaluateAll(nodes=>nodes.map(node=>node.getAttribute("src")||node.getAttribute("data-preview")).filter(Boolean));
  if(mediaSources.some(src=>/^https?:\/\//i.test(src)))throw Error("foreign media source exposed in DOM: "+mediaSources.join(", "));

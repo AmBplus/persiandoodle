@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/riso-print-hits",
+  "variantKey": "misregistration-hit",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "109876"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/riso-print-hits",
+    "variantKey": "misregistration-hit",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "collage",
+    "titleFa": "افکت · misregistration-hit 单发",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/riso-print-hits / misregistration-hit؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1013,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "标题 8f 撞入撞停，裂两版反向错 ~32px，44f 衰减震荡后硬切套准 + scale 脉冲",
+    "sourceCategory": "effects",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

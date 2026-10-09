@@ -8,6 +8,7 @@ skills/anidoodle/engine/.cache/
 **/*.log
 **/__pycache__/
 .DS_Store
+.vs/
 
 # local scratch (internal, never ship)
 work/

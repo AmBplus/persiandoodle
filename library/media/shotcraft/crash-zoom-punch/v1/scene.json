@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/crash-zoom-punch",
+  "variantKey": "crash-zoom-punch",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "دوربین · crash-zoom-punch",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/crash-zoom-punch / crash-zoom-punch؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1034,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "全景一拍急推到目标特写（6f），落位二选一——过冲回弹（弹性）或撞停震屏（重量）",
+  "sourceCategory": "camera",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

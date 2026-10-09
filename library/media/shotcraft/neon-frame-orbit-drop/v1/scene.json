@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/neon-frame-orbit-drop",
+  "variantKey": "neon-frame-orbit-drop",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "حرکت · neon-frame-orbit-drop",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/neon-frame-orbit-drop / neon-frame-orbit-drop؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1090,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "霓虹框先行描框后，镜头绕页面左→右弧线旋转，页面全部组件/文字**同帧**从空中往下贴合（同形软影同步收敛）——整体登场式的框内安放",
+  "sourceCategory": "ui-entrance",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

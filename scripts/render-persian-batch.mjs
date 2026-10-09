@@ -13,7 +13,9 @@ const jobs = queue.jobs.slice(0, Number.isFinite(limit) ? limit : queue.jobs.len
 for (const [index, job] of jobs.entries()) {
   if (job.approved !== true) throw new Error(`Refusing unreviewed queue job ${job.modelId}#${job.variantKey}; add approved:true after source analysis`);
   const slug = job.variantKey.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-|-$/g, "") || `variant-${job.variantIndex}`;
-  const out = resolve(`library/media/shotcraft/${job.modelId.split("/").at(-1)}/v${job.variantIndex + 1}`);
+  const source = job.source ?? job.modelId.split("/")[0];
+  const modelSlug = job.modelId.replace(new RegExp(`^${source}/`), "").replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-|-$/g, "") || slug;
+  const out = resolve(`library/media/${source}/${modelSlug}/v${job.variantIndex + 1}`);
   const specPath = join(work, `${index}-${slug}.json`);
   await writeFile(specPath, `${JSON.stringify(job, null, 2)}\n`, "utf8");
   const render = spawnSync(process.execPath, ["tools/render-persian-variant.mjs", "--spec", specPath, "--out", out], {cwd: resolve("skills/anidoodle/engine"), stdio: "inherit"});

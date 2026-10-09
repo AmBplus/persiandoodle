@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/rhythm-interrupt-moves",
+  "variantKey": "jump-cut-punch-in",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "حرکت · jump-cut-punch-in",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/rhythm-interrupt-moves / jump-cut-punch-in؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1010,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "transform-origin 钉目标中心，三档 scale 阶梯跳变（零补间），每跳 2f 加深脉冲当 tick",
+  "sourceCategory": "rhythm",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -39,5 +39,12 @@
       0.75,
       0.91
     ]
-  }
+  },
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "sizeBytes": 118549
 }

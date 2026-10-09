@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/row-embed",
+  "variantKey": "row-embed",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "حرکت · row-embed",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/row-embed / row-embed؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1015,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "内容行像卡片一样从空中降下、rotateX 收平、嵌入瞬间底边亮一道强调色的缝",
+  "sourceCategory": "ui-entrance",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

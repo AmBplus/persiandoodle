@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/word-relay-filmstrip",
+  "variantKey": "word-relay-filmstrip",
+  "family": "kinetic",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "149729"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/word-relay-filmstrip",
+    "variantKey": "word-relay-filmstrip",
+    "variantIndex": 0,
+    "approved": true,
+    "family": "kinetic",
+    "titleFa": "تایپوگرافی · word-relay-filmstrip",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/word-relay-filmstrip / word-relay-filmstrip؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1013,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "左列黑白相间等高页面卡步进滚动、右侧衬线大词原位接力（名词恒定+动词轮换）——切词瞬间才滚动一格，词块垂直中心与当前页面卡中点精确对齐",
+    "sourceCategory": "typography",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

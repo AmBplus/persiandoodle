@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/tension-camera-moves",
+  "variantKey": "bullet-time-freeze-orbit",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "دوربین · bullet-time-freeze-orbit 冻结环绕",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/tension-camera-moves / bullet-time-freeze-orbit؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1010,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "图表生长到一半全冻住，相机绕悬停的 UI 平面 rotateY 扫 55° 再回，时间恢复接着长完",
+  "sourceCategory": "camera",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

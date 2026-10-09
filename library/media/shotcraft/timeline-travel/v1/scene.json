@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/timeline-travel",
+  "variantKey": "timeline-travel",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "chart",
+  "titleFa": "داده · timeline-travel",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/timeline-travel / timeline-travel؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1019,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "时间轴横移——镜头沿水平刻度轴加速掠过版本刻度，每过一格卡片弹立短停，末刻度急停推近",
+  "sourceCategory": "data",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

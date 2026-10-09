@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/ai-stream-response",
+  "variantKey": "ai-stream-response",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "تعامل · ai-stream-response",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/ai-stream-response / ai-stream-response؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1000,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "AI 响应面板先落一句可读摘要，再让带状态图标的证据行逐条汇入，最后统一收束成完成态",
+  "sourceCategory": "interaction",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

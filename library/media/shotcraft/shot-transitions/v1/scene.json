@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/shot-transitions",
+  "variantKey": "flash-cut",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "گذار · 推进流白 flash-cut",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/shot-transitions / flash-cut؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1025,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "前镜相机推进，切点跨骑一层白闪盖住换页",
+  "sourceCategory": "transition",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

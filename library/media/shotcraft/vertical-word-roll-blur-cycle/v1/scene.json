@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/vertical-word-roll-blur-cycle",
+  "variantKey": "vertical-word-roll-blur-cycle",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "تایپوگرافی · vertical-word-roll-blur-cycle",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/vertical-word-roll-blur-cycle / vertical-word-roll-blur-cycle؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1005,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "句尾词换成竖向滚轮，3 次换词各 0.55s（outQuint 七成 + outBack 三成，前快后极慢带微过冲），相邻行按距离上垂直 blur 与灰度，中心词落定瞬间从灰染成强调色",
+  "sourceCategory": "typography",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

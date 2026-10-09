@@ -20,6 +20,7 @@ media_path = re.compile(r"^media/[a-zA-Z0-9_./-]+\.(?:mp4|webm|webp|png|jpg|jpeg
 document_path = re.compile(r"^media/[a-zA-Z0-9_./-]+\.(?:md|json)$")
 statuses = {"identified", "analyzed", "in-progress", "rendered-persian", "verified", "published", "needs-fix"}
 public_statuses = {"rendered-persian", "verified", "published"}
+max_video_bytes = 2_000_000
 
 def check_path(path, label, pattern):
     if not isinstance(path, str) or not pattern.fullmatch(path) or ".." in path:
@@ -31,6 +32,10 @@ def check_path(path, label, pattern):
 
 def check_media(path, label):
     check_path(path, label, media_path)
+    if isinstance(path, str) and path.lower().endswith(".mp4"):
+        target = library / path
+        if target.is_file() and target.stat().st_size > max_video_bytes:
+            errors.append(f"{label}: MP4 exceeds web size budget ({target.stat().st_size} > {max_video_bytes} bytes)")
 
 def check_document(path, label):
     check_path(path, label, document_path)

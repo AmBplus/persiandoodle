@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/icon-performance-moves",
+  "variantKey": "pop-burst-confirm",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "افکت · pop-burst-confirm",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/icon-performance-moves / pop-burst-confirm؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1066,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "scale 蓄力-过冲-落回 spring + N 条径向 line translate + 圆环 scale/opacity，全程 ~20f，随后标签弹出",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

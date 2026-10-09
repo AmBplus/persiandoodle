@@ -118,8 +118,9 @@
 - [x] Generate a queue from the source inventory with a stable `modelId/variantIndex/variantKey` identity.
 - [x] Render in bounded batches with resumable reports and no overwrite of a successful verified package.
 - [x] Add an explicit review gate that checks contact-sheet dimensions, duration, Persian glyph presence, and variant hash uniqueness.
-- [ ] Run batches until every distinct variant has either a verified local render or a documented `needs-fix` record; never label unresolved items published.
-- [ ] Commit each coherent batch with its generated report and keep the repository below the Pages size limit.
+- [x] Run batches until every distinct variant has a verified local render; never label unresolved items published.
+- [x] Apply one web MP4 profile to every preview (`libx264`, `yuv420p`, CRF 22, fast-start, under 2 MB) and enforce it in the release gate.
+- [x] Commit the completed batch with its generated manifest and keep the repository below the Pages size limit.
 
 ### Task 6: Make audio publication local and auditable
 

@@ -1,0 +1,18 @@
+{
+  "source": "onetake",
+  "modelId": "onetake/impactSplit",
+  "variantKey": "onetake/impactSplit",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "حرکت · impactSplit",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای onetake/impactSplit / onetake/impactSplit؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1020,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "الگوی تداوم حرکت؛ صرفاً ارجاع، بدون انتقال پیاده‌سازی محدودشده.",
+  "sourceCategory": "حرکت پیوسته",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

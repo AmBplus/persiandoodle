@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/picker-carousel-feature-cycle",
+  "variantKey": "picker-carousel-feature-cycle",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "تعامل · picker-carousel-feature-cycle",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/picker-carousel-feature-cycle / picker-carousel-feature-cycle؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1000,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "移动端风竖向选择器——焦点药丸不动、内容穿过它，每项带明显 outQuint 减速吸附后完全静止，按到中心距离分层控制透明度/字号/灰度，落定时药丸做 scaleY 极轻呼吸",
+  "sourceCategory": "interaction",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

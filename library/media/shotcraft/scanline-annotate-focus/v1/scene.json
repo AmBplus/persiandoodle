@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/scanline-annotate-focus",
+  "variantKey": "scanline-annotate-focus",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "trace",
+  "titleFa": "افکت · scanline-annotate-focus",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/scanline-annotate-focus / scanline-annotate-focus؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1019,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "一条亮扫描线自上而下掠过页面，扫过之处按先后顺序弹出相机取景框（1.75 倍收拢对准 + 轻微过冲），随后旁侧打出等宽小字标注，顶部状态行同步计数 00/06→06/06",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/voice-waveform-live",
+  "variantKey": "voice-waveform-live",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "تعامل · voice-waveform-live",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/voice-waveform-live / voice-waveform-live؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1006,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "录音胶囊实时声纹——64 根细竖条随\"说话\"起伏，说话时中部高耸、停顿缩成点线，波形从右往左滚动；说→停→说→提交塌缩的完整表演",
+  "sourceCategory": "interaction",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/collab-cursor-moves",
+  "variantKey": "cast-ensemble",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "تعامل · cast-ensemble",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/collab-cursor-moves / cast-ensemble؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1028,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "5 枚具名彩色光标错峰 spring 飞入灰阶画布→双频正弦漂移驻场→一枚在便签上打字机补全一行→结尾全员 easeInOut 聚拢围观",
+  "sourceCategory": "interaction",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

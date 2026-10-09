@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/slam-entrance-moves",
+  "variantKey": "score-slam",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "افکت · score-slam",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/slam-entrance-moves / score-slam؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1033,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "卡从 scale 2.5/rotate 5° 六帧 Easing.in(quad) 砸落，落点帧圆环扩散+尘点飞散+震屏同帧",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

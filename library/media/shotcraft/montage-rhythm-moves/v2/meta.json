@@ -1,0 +1,50 @@
+{
+  "modelId": "shotcraft/montage-rhythm-moves",
+  "variantKey": "wright-triple-cut",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "190005"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/montage-rhythm-moves",
+    "variantKey": "wright-triple-cut",
+    "variantIndex": 1,
+    "approved": true,
+    "family": "collage",
+    "titleFa": "حرکت · wright-triple-cut 三连特写",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/montage-rhythm-moves / wright-triple-cut؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "blueprint",
+    "seed": 1085,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "三个 10f 超近特写硬切连打（各\"静4-动3-静3\"），第三声甩回全景亮结果",
+    "sourceCategory": "rhythm",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  },
+  "sizeBytes": 241044
+}

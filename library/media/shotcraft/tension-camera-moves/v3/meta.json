@@ -1,0 +1,49 @@
+{
+  "modelId": "shotcraft/tension-camera-moves",
+  "variantKey": "slow-push-in",
+  "family": "camera",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "pix_fmt": "yuv420p",
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000",
+      "size": "288956"
+    }
+  },
+  "spec": {
+    "source": "shotcraft",
+    "modelId": "shotcraft/tension-camera-moves",
+    "variantKey": "slow-push-in",
+    "variantIndex": 2,
+    "approved": true,
+    "family": "camera",
+    "titleFa": "دوربین · slow-push-in 慢推压迫",
+    "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+    "promptFa": "بازسازی مستقل فارسی برای shotcraft/tension-camera-moves / slow-push-in؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+    "paper": "warm-paper",
+    "seed": 1012,
+    "durationFrames": 90,
+    "fps": 30,
+    "sourceDescription": "4s 匀加速推近 1.00→1.14 + 暗角渐深，张力顶点无过渡硬切亮场",
+    "sourceCategory": "camera",
+    "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+  }
+}

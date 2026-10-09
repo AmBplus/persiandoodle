@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/logo-shrink-wordmark-lockup",
+  "variantKey": "logo-shrink-wordmark-lockup",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "trace",
+  "titleFa": "حرکت · logo-shrink-wordmark-lockup",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/logo-shrink-wordmark-lockup / logo-shrink-wordmark-lockup؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1081,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "霓虹切口大环快速收束成中央实心小白 O 并带过冲刹车，图标左移让位，字母逐个滑入完成 lockup，强调色标语收尾",
+  "sourceCategory": "outro",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

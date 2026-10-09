@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/type-rhythm-sync",
+  "variantKey": "karaoke-fill-sync",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "تایپوگرافی · karaoke-fill-sync 填色随读",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/type-rhythm-sync / karaoke-fill-sync؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1037,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "每词深色从左到右填亮，进度跟语速，读完保持；活跃词下带读指下划线",
+  "sourceCategory": "typography",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

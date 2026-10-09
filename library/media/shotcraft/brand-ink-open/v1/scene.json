@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/brand-ink-open",
+  "variantKey": "brand-ink-open",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "trace",
+  "titleFa": "حرکت · brand-ink-open",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/brand-ink-open / brand-ink-open؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1014,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "墨线十字准星描画→字标逐字压印→打字机副标→满一秒静止再上浮消散",
+  "sourceCategory": "opening",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/countdown-arc-scatter",
+  "variantKey": "countdown-arc-scatter",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "تایپوگرافی · countdown-arc-scatter",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/countdown-arc-scatter / countdown-arc-scatter؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1031,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "白底表盘 9 个等大数字沿大弧切向排布，整盘扫过 96° 后减速急停，\"5\" 停在弧顶随即平移落位成标题首字符，其余数字带 blur 原地散去，标题逐词模糊淡入、末词转强调色",
+  "sourceCategory": "typography",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

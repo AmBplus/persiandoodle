@@ -1,0 +1,18 @@
+{
+  "source": "talkcraft",
+  "modelId": "talkcraft/color-slam-beat-card",
+  "variantKey": "talkcraft/color-slam-beat-card",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "حرکت · color-slam-beat-card",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای talkcraft/color-slam-beat-card / talkcraft/color-slam-beat-card؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1003,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
+  "sourceCategory": "گفتار و موشن",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

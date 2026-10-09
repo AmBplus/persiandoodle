@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/transition-travel",
+  "variantKey": "shared-element-morph",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "گذار · 共享元素归位 shared-element-morph",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/transition-travel / shared-element-morph؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1027,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "全屏特写卡收缩+位移+长出圆角，严丝合缝飞落进 dashboard 网格所属槽位，3% 过冲落座",
+  "sourceCategory": "transition",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

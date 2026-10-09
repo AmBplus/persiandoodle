@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/canvas-materialize-moves",
+  "variantKey": "panel-to-canvas",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "تعامل · panel-to-canvas 行倒卡",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/canvas-materialize-moves / panel-to-canvas؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1016,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "复选框逐个自动打勾→按钮按下→三行沿上抛弧线错峰飞出，途中行形态与卡形态交叉淡化，落位带随机倾角；面板行槽塌陷成虚线留白",
+  "sourceCategory": "interaction",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/scroll-brake-moves",
+  "variantKey": "changelog-scroll-brake",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "chart",
+  "titleFa": "داده · changelog-scroll-brake",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/scroll-brake-moves / changelog-scroll-brake؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1022,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "translateY 扫 ~2400px（out exp 指数减速 ~50f），blur 由帧间位移差分驱动（0-6px 自动清零）；停点行 scale 1.03 抬升+阴影+3px 描边，其余 opacity 退 0.38",
+  "sourceCategory": "data",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

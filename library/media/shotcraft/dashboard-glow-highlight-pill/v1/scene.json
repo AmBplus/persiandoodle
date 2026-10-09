@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/dashboard-glow-highlight-pill",
+  "variantKey": "dashboard-glow-highlight-pill",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "افکت · dashboard-glow-highlight-pill",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/dashboard-glow-highlight-pill / dashboard-glow-highlight-pill؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1038,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "金字悬于黑场，数据仪表盘自底带透视升入并持续 3D 漂移；金色光斑从右侧巡游到底部拉成胶囊，再由它起笔描出弹窗的辉光轮廓",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/depth-layer-moves",
+  "variantKey": "dolly-zoom",
+  "variantIndex": 1,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "دوربین · dolly-zoom",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/depth-layer-moves / dolly-zoom؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1041,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "伪 dolly-zoom——主体钉死不动、背景层持续膨胀压来，戏剧性蓄力的压迫感",
+  "sourceCategory": "camera",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

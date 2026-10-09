@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/aurora-bloom-bg-flip",
+  "variantKey": "aurora-bloom-bg-flip",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "collage",
+  "titleFa": "افکت · aurora-bloom-bg-flip",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/aurora-bloom-bg-flip / aurora-bloom-bg-flip؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1000,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "浅灰底从底部升起紫橙柔焦 blob，随后整个底色在约 0.36s 内压暗到近黑、blob 压成余晖；文案同步 blur-out 换句 blur-in，换句间留空档不 cross-fade",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

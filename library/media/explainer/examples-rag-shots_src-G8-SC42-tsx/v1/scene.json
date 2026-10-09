@@ -1,0 +1,18 @@
+{
+  "source": "explainer",
+  "modelId": "explainer/examples-rag-shots_src-G8-SC42.tsx",
+  "variantKey": "explainer/examples-rag-shots_src-G8-SC42.tsx",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "حرکت · SC42",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای explainer/examples-rag-shots_src-G8-SC42.tsx / explainer/examples-rag-shots_src-G8-SC42.tsx؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1000,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "فقط نمایهٔ مرجع آموزشی؛ کد دارای محدودیت استفادهٔ تجاری وارد پروژه نشده است.",
+  "sourceCategory": "آموزش و توضیح",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

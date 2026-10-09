@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/glow-flyline-moves",
+  "variantKey": "orb-flyline-relay",
+  "variantIndex": 2,
+  "approved": true,
+  "family": "trace",
+  "titleFa": "افکت · orb-flyline-relay",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/glow-flyline-moves / orb-flyline-relay؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1058,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "A+B 焊接：光斑 surge 与卡脉冲共用落点帧，涨亮 1+1.6×surge、5f 起升 15f 消散",
+  "sourceCategory": "effects",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

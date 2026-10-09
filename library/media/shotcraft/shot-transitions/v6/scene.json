@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/shot-transitions",
+  "variantKey": "mask-wipe",
+  "variantIndex": 5,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "گذار · mask-wipe 穿窗",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/shot-transitions / mask-wipe؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "blueprint",
+  "seed": 1030,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "页面内真实元素（卡片）放大成全屏窗口，新场景从窗内长出接管",
+  "sourceCategory": "transition",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "talkcraft",
+  "modelId": "talkcraft/news-card-desk",
+  "variantKey": "talkcraft/news-card-desk",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "kinetic",
+  "titleFa": "حرکت · news-card-desk",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای talkcraft/news-card-desk / talkcraft/news-card-desk؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1004,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
+  "sourceCategory": "گفتار و موشن",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

@@ -1,0 +1,18 @@
+{
+  "source": "shotcraft",
+  "modelId": "shotcraft/white-flash-logo-simplify-cut",
+  "variantKey": "white-flash-logo-simplify-cut",
+  "variantIndex": 0,
+  "approved": true,
+  "family": "camera",
+  "titleFa": "گذار · white-flash-logo-simplify-cut",
+  "bodyFa": "بازسازی فارسیِ این حرکت با هویت مستقل پروژه",
+  "promptFa": "بازسازی مستقل فارسی برای shotcraft/white-flash-logo-simplify-cut / white-flash-logo-simplify-cut؛ ساختار حرکتی و کاربرد مرجع حفظ و با متن فارسی اجرا می‌شود.",
+  "paper": "warm-paper",
+  "seed": 1010,
+  "durationFrames": 90,
+  "fps": 30,
+  "sourceDescription": "彩色液态渐变字标静置流光，画面一拍冲白过曝，白底上扁平版字标淡入定格——一次闪白完成质感降维",
+  "sourceCategory": "transition",
+  "approvalReason": "Source catalog reviewed; Persian reconstruction family assigned before batch rendering."
+}

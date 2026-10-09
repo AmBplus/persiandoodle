@@ -16,6 +16,8 @@ const probe = spawnSync("ffprobe", ["-v", "error", "-show_entries", "stream=code
 if (probe.status !== 0) throw new Error(`ffprobe failed: ${probe.stderr}`);
 const info = JSON.parse(probe.stdout), video = info.streams?.find((stream) => stream.codec_type === "video");
 if (!video || video.codec_name !== "h264" || video.width !== 1920 || video.height !== 1080 || Number(video.nb_frames) < 1) throw new Error(`invalid video contract: ${JSON.stringify(video)}`);
+const maxBytes = Number(process.env.PERSIAN_MAX_VIDEO_BYTES ?? 2_000_000), sizeBytes = (await stat(resolve(renderDir, "preview.mp4"))).size;
+if (sizeBytes > maxBytes) throw new Error(`Preview exceeds web size budget (${sizeBytes} > ${maxBytes} bytes)`);
 const manifest = JSON.parse(await readFile(manifestPath, "utf8")), entry = manifest.renders?.[modelId];
 if (!entry) throw new Error(`Unknown model in manifest: ${modelId}`);
 const variant = entry.variants?.[variantIndex];
