@@ -138,3 +138,9 @@ workflow; a workflow file alone does not establish live deployment.
 4. Camera transitions that carry objects between scenes with real geometric
    correspondence; continuity QC must test intermediate frames, not only
    two endpoint posters.
+
+## Editorial library v2 (October 2026)
+
+The public library defaults to a fixed menu of **18 categories** and 98 curated technique/family cards. Each family has at most two preview variants. The original 534-entry metadata catalog is preserved as a research archive, **not** as an endless wall of highly similar thumbnails. Pages excludes `assets/library/previews/` while preserving it in git history.
+
+The native examples have been rebuilt with Persian copy and audio: 15 MIT-inspired style videos and 11 Apache shot-inspired videos, each exported separately. The source-only and PolyForm NC samples remain explicitly marked as references. Verified native videos are promoted into `library/data/featured.json` only by successful rendering CI. The browser's optional sound previews are user-activated; production audio is embedded in AAC film clips. The nib actor uses stable posture and lifts around detached glyph strokes rather than spinning with the raster skeleton tangent.

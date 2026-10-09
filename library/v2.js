@@ -62,6 +62,7 @@ function selectCategory(id){
  if(window.innerWidth<690)$("#inspector").classList.remove("is-open");
 }
 function imgPoster(v){
+ if(v?.id==="persian/handwriting")return "../assets/persian/hero.png";
  if(state.active==="style"&&v?.status==="rendered-persian")return "../assets/library/style-thumbs/"+v.name+".png";
  return null;
 }
@@ -115,7 +116,7 @@ function updateInspector(){
   const b=document.createElement("button");b.type="button";b.textContent=(option.label&&/[\u0600-\u06ff]/.test(option.label))?option.label:f.name;
   b.className=option.id===v.id?"active":"";b.addEventListener("click",()=>selectVariant(option));$("#variants").append(b);
  }
- if(native){vid.src=v.video;vid.muted=!state.sound;vid.volume=.9;vid.load();}
+ if(native){vid.poster=imgPoster(v)||"";vid.src=v.video;vid.muted=!state.sound;vid.volume=.9;vid.load();}
  else drawSignature(canvas,cat,f,v,.77);
  fontBox.hidden=state.active!=="font";if(!fontBox.hidden)loadFont(v);
  audio.hidden=!music;
