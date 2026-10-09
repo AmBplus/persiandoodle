@@ -7,6 +7,7 @@ import {drawPersianText} from "./persianText";
 import {drawPersianTrace} from "./persianTrace";
 import {persianFontFiles} from "./persianGallery";
 import {paintPaper} from "./persianSceneKit";
+import {styleScore} from "./persianMotionAudio";
 export const PersianMotionStyles=[
  ["01-flat-vector","برداری تخت","کمتر بگو، بهتر نشان بده"],
  ["02-line-art","طراحی پیوسته با خط","یک خط، هزار داستان"],
@@ -121,6 +122,7 @@ export const persianMotionSampler:Film={
  meta:{title:"۱۵ سبک موشن با تایپوگرافی فارسی",W,H,fps:30,bpm:90,durationFrames:SPAN*15,
    kind:"drawing",poster:48,holds:Array.from({length:15},(_,i)=>[i*SPAN+53,(i+1)*SPAN,"style hold"] as [number,number,string])},
  assets:{images:{},fonts:persianFontFiles},
+ audio:(sampleRate:number)=>styleScore(sampleRate,30,SPAN*15),
  shots:PersianMotionStyles.map(([slug],i)=>({id:`mg-${slug}`,start:i*SPAN,end:(i+1)*SPAN,
    draw:(ctx:Ctx,local:number,env:Env)=>draw(ctx,env,i,local)})),
 };
