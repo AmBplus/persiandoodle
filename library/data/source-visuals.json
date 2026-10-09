@@ -1,0 +1,593 @@
+{
+  "version": 1,
+  "entries": {
+    "mg/05-cel-boil": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/05-cel-boil.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/05-cel-boil.mp4"
+    },
+    "mg/03-isometric": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/03-isometric.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/03-isometric.mp4"
+    },
+    "mg/01-flat-vector": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/01-flat-vector.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/01-flat-vector.mp4"
+    },
+    "mg/02-line-art": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/02-line-art.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/02-line-art.mp4"
+    },
+    "mg/04-3d-render": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/04-3d-render.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/04-3d-render.mp4"
+    },
+    "mg/08-morph": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/08-morph.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/08-morph.mp4"
+    },
+    "mg/19-paperclip": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/19-paperclip.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/19-paperclip.mp4"
+    },
+    "mg/22-hud": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/22-hud.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/22-hud.mp4"
+    },
+    "mg/06-collage": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/06-collage.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/06-collage.mp4"
+    },
+    "mg/12-aurora-glass": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/12-aurora-glass.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/12-aurora-glass.mp4"
+    },
+    "mg/09-bauhaus": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/09-bauhaus.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/09-bauhaus.mp4"
+    },
+    "mg/10-synthwave": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/10-synthwave.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/10-synthwave.mp4"
+    },
+    "mg/20-pixel": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/20-pixel.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/20-pixel.mp4"
+    },
+    "mg/07-liquid": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/07-liquid.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/07-liquid.mp4"
+    },
+    "mg/18-hanazi": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/18-hanazi.jpg",
+      "video": "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/18-hanazi.mp4"
+    },
+    "talkcraft/alt-block-lines": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/alt-block-lines.png",
+      "video": null
+    },
+    "talkcraft/bar-chart-growth": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/bar-chart-growth.png",
+      "video": null
+    },
+    "talkcraft/bed-echo-blur": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/bed-echo-blur.png",
+      "video": null
+    },
+    "talkcraft/behind-text-title": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/behind-text-title.png",
+      "video": null
+    },
+    "talkcraft/black-slam-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/black-slam-transition.png",
+      "video": null
+    },
+    "talkcraft/callout-line-label": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/callout-line-label.png",
+      "video": null
+    },
+    "talkcraft/caret-wipe-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/caret-wipe-transition.png",
+      "video": null
+    },
+    "talkcraft/chapter-progress-list": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/chapter-progress-list.png",
+      "video": null
+    },
+    "talkcraft/chapter-title-card": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/chapter-title-card.png",
+      "video": null
+    },
+    "talkcraft/chart-grow": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/chart-grow.png",
+      "video": null
+    },
+    "talkcraft/chat-gpt": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/chat-gpt.png",
+      "video": null
+    },
+    "talkcraft/chat-message-flow": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/chat-message-flow.png",
+      "video": null
+    },
+    "talkcraft/chevron-lower-third": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/chevron-lower-third.png",
+      "video": null
+    },
+    "talkcraft/chip-grid-single-select": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/chip-grid-single-select.png",
+      "video": null
+    },
+    "talkcraft/claude-code": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/claude-code.png",
+      "video": null
+    },
+    "talkcraft/color-slam-beat-card": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/color-slam-beat-card.png",
+      "video": null
+    },
+    "talkcraft/converging-arrows": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/converging-arrows.png",
+      "video": null
+    },
+    "talkcraft/corner-bracket-frame": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/corner-bracket-frame.png",
+      "video": null
+    },
+    "talkcraft/count-badge-title": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/count-badge-title.png",
+      "video": null
+    },
+    "talkcraft/countdown-arc-scatter": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/countdown-arc-scatter.png",
+      "video": null
+    },
+    "talkcraft/crash-zoom-punch": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/crash-zoom-punch.png",
+      "video": null
+    },
+    "talkcraft/cursor-actor-demo": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/cursor-actor-demo.png",
+      "video": null
+    },
+    "talkcraft/cursor-locked-zoom": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/cursor-locked-zoom.png",
+      "video": null
+    },
+    "talkcraft/danmu-bubble-praise": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/danmu-bubble-praise.png",
+      "video": null
+    },
+    "talkcraft/doc-park-left-pill-deal": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/doc-park-left-pill-deal.png",
+      "video": null
+    },
+    "talkcraft/douyin-follow-card": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/douyin-follow-card.png",
+      "video": null
+    },
+    "talkcraft/error-retype": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/error-retype.png",
+      "video": null
+    },
+    "talkcraft/evidence-scroll-tour": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/evidence-scroll-tour.png",
+      "video": null
+    },
+    "talkcraft/filmstrip-conveyor": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/filmstrip-conveyor.png",
+      "video": null
+    },
+    "talkcraft/flying-words": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/flying-words.png",
+      "video": null
+    },
+    "talkcraft/focus-dim-spotlight": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/focus-dim-spotlight.png",
+      "video": null
+    },
+    "talkcraft/gallery-wall-dolly": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/gallery-wall-dolly.png",
+      "video": null
+    },
+    "talkcraft/glass-code-walk": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/glass-code-walk.png",
+      "video": null
+    },
+    "talkcraft/gooey-morph": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/gooey-morph.png",
+      "video": null
+    },
+    "talkcraft/grid-to-hero": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/grid-to-hero.png",
+      "video": null
+    },
+    "talkcraft/hand-drawn-ellipse": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/hand-drawn-ellipse.png",
+      "video": null
+    },
+    "talkcraft/highlighter-sweep": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/highlighter-sweep.png",
+      "video": null
+    },
+    "talkcraft/host-card-glass-board": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/host-card-glass-board.png",
+      "video": null
+    },
+    "talkcraft/host-shrink-to-chip": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/host-shrink-to-chip.png",
+      "video": null
+    },
+    "talkcraft/impact-open-title": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/impact-open-title.png",
+      "video": null
+    },
+    "talkcraft/info-card-assemble": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/info-card-assemble.png",
+      "video": null
+    },
+    "talkcraft/info-term-card": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/info-term-card.png",
+      "video": null
+    },
+    "talkcraft/ink-underline": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/ink-underline.png",
+      "video": null
+    },
+    "talkcraft/keyword-pop-highlight": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/keyword-pop-highlight.png",
+      "video": null
+    },
+    "talkcraft/lead-word-zoom-assemble": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/lead-word-zoom-assemble.png",
+      "video": null
+    },
+    "talkcraft/line-by-line-slide": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/line-by-line-slide.png",
+      "video": null
+    },
+    "talkcraft/line-carry-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/line-carry-transition.png",
+      "video": null
+    },
+    "talkcraft/line-chart-story-draw": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/line-chart-story-draw.png",
+      "video": null
+    },
+    "talkcraft/logo-enter": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/logo-enter.png",
+      "video": null
+    },
+    "talkcraft/long-take-world": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/long-take-world.png",
+      "video": null
+    },
+    "talkcraft/lower-third-nameplate": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/lower-third-nameplate.png",
+      "video": null
+    },
+    "talkcraft/magnifier-detail": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/magnifier-detail.png",
+      "video": null
+    },
+    "talkcraft/map-route-pin": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/map-route-pin.png",
+      "video": null
+    },
+    "talkcraft/media-pop-in": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/media-pop-in.png",
+      "video": null
+    },
+    "talkcraft/metric-with-sparkline": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/metric-with-sparkline.png",
+      "video": null
+    },
+    "talkcraft/motion-blur-slam-in": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/motion-blur-slam-in.png",
+      "video": null
+    },
+    "talkcraft/news-card-desk": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/news-card-desk.png",
+      "video": null
+    },
+    "talkcraft/number-counter": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/number-counter.png",
+      "video": null
+    },
+    "talkcraft/number-slab-pop": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/number-slab-pop.png",
+      "video": null
+    },
+    "talkcraft/numbered-step-stack": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/numbered-step-stack.png",
+      "video": null
+    },
+    "talkcraft/orbit-drift": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/orbit-drift.png",
+      "video": null
+    },
+    "talkcraft/outline-box-title": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/outline-box-title.png",
+      "video": null
+    },
+    "talkcraft/overexpose-flip-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/overexpose-flip-transition.png",
+      "video": null
+    },
+    "talkcraft/parallel-items-with-host": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/parallel-items-with-host.png",
+      "video": null
+    },
+    "talkcraft/particle-weld-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/particle-weld-transition.png",
+      "video": null
+    },
+    "talkcraft/pencil-sketch-draw": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/pencil-sketch-draw.png",
+      "video": null
+    },
+    "talkcraft/per-character-rise": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/per-character-rise.png",
+      "video": null
+    },
+    "talkcraft/pip-zoom-box": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/pip-zoom-box.png",
+      "video": null
+    },
+    "talkcraft/pullback-cool-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/pullback-cool-transition.png",
+      "video": null
+    },
+    "talkcraft/push-through-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/push-through-transition.png",
+      "video": null
+    },
+    "talkcraft/quote-bracket-pull": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/quote-bracket-pull.png",
+      "video": null
+    },
+    "talkcraft/quote-card": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/quote-card.png",
+      "video": null
+    },
+    "talkcraft/quote-hold-arrow": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/quote-hold-arrow.png",
+      "video": null
+    },
+    "talkcraft/rack-focus-pair": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/rack-focus-pair.png",
+      "video": null
+    },
+    "talkcraft/reticle-lock-on": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/reticle-lock-on.png",
+      "video": null
+    },
+    "talkcraft/scanline-annotate": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/scanline-annotate.png",
+      "video": null
+    },
+    "talkcraft/scribble-annotation": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/scribble-annotation.png",
+      "video": null
+    },
+    "talkcraft/shape-wipe-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/shape-wipe-transition.png",
+      "video": null
+    },
+    "talkcraft/slab-punch-title": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/slab-punch-title.png",
+      "video": null
+    },
+    "talkcraft/slow-pull-reveal": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/slow-pull-reveal.png",
+      "video": null
+    },
+    "talkcraft/slow-push-in": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/slow-push-in.png",
+      "video": null
+    },
+    "talkcraft/soft-blur-in": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/soft-blur-in.png",
+      "video": null
+    },
+    "talkcraft/source-converge": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/source-converge.png",
+      "video": null
+    },
+    "talkcraft/speed-slab-title": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/speed-slab-title.png",
+      "video": null
+    },
+    "talkcraft/split-60-40-story": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/split-60-40-story.png",
+      "video": null
+    },
+    "talkcraft/split-compare-slider": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/split-compare-slider.png",
+      "video": null
+    },
+    "talkcraft/split-text-stagger": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/split-text-stagger.png",
+      "video": null
+    },
+    "talkcraft/stack-fan-out": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/stack-fan-out.png",
+      "video": null
+    },
+    "talkcraft/stage-keyframe-tour": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/stage-keyframe-tour.png",
+      "video": null
+    },
+    "talkcraft/step-timeline-vertical": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/step-timeline-vertical.png",
+      "video": null
+    },
+    "talkcraft/still-layout-relay": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/still-layout-relay.png",
+      "video": null
+    },
+    "talkcraft/strike-and-replace": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/strike-and-replace.png",
+      "video": null
+    },
+    "talkcraft/subscribe-cta": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/subscribe-cta.png",
+      "video": null
+    },
+    "talkcraft/sway-parallax": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/sway-parallax.png",
+      "video": null
+    },
+    "talkcraft/terminal-typing-log": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/terminal-typing-log.png",
+      "video": null
+    },
+    "talkcraft/tilt-3d-page": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/tilt-3d-page.png",
+      "video": null
+    },
+    "talkcraft/timeline-photo-strip": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/timeline-photo-strip.png",
+      "video": null
+    },
+    "talkcraft/title-demote-to-label": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/title-demote-to-label.png",
+      "video": null
+    },
+    "talkcraft/tracking-in": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/tracking-in.png",
+      "video": null
+    },
+    "talkcraft/type-contrast-emphasis": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/type-contrast-emphasis.png",
+      "video": null
+    },
+    "talkcraft/typewriter-reveal": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/typewriter-reveal.png",
+      "video": null
+    },
+    "talkcraft/ui-flow-theater": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/ui-flow-theater.png",
+      "video": null
+    },
+    "talkcraft/ui-prop-theater": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/ui-prop-theater.png",
+      "video": null
+    },
+    "talkcraft/unit-grid-proportion": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/unit-grid-proportion.png",
+      "video": null
+    },
+    "talkcraft/whip-pan-transition": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/whip-pan-transition.png",
+      "video": null
+    },
+    "talkcraft/word-relay-filmstrip": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/word-relay-filmstrip.png",
+      "video": null
+    },
+    "talkcraft/word-slot-cycle": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/word-slot-cycle.png",
+      "video": null
+    },
+    "talkcraft/x-follow-card": {
+      "image": "https://raw.githubusercontent.com/Vincentwei1021/video-talkcraft/main/gallery/thumbs/x-follow-card.png",
+      "video": null
+    },
+    "onetake/camera": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/camera.png",
+      "video": null
+    },
+    "onetake/drift": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/drift.png",
+      "video": null
+    },
+    "onetake/flyThrough": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/flyThrough.png",
+      "video": null
+    },
+    "onetake/gather": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/gather.png",
+      "video": null
+    },
+    "onetake/hop": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/hop.png",
+      "video": null
+    },
+    "onetake/impactSplit": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/impactSplit.png",
+      "video": null
+    },
+    "onetake/iris": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/iris.png",
+      "video": null
+    },
+    "onetake/letterDrop": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/letterDrop.png",
+      "video": null
+    },
+    "onetake/looks": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/looks.png",
+      "video": null
+    },
+    "onetake/maskRise": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/maskRise.png",
+      "video": null
+    },
+    "onetake/morphRect": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/morphRect.png",
+      "video": null
+    },
+    "onetake/popIn": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/popIn.png",
+      "video": null
+    },
+    "onetake/press": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/press.png",
+      "video": null
+    },
+    "onetake/ribbon": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/ribbon.png",
+      "video": null
+    },
+    "onetake/seal": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/seal.png",
+      "video": null
+    },
+    "onetake/shake": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/shake.png",
+      "video": null
+    },
+    "onetake/sims": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/sims.png",
+      "video": null
+    },
+    "onetake/squash": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/squash.png",
+      "video": null
+    },
+    "onetake/staccato": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/staccato.png",
+      "video": null
+    },
+    "onetake/tick": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/tick.png",
+      "video": null
+    },
+    "onetake/typeOn": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/typeOn.png",
+      "video": null
+    },
+    "onetake/whip": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/whip.png",
+      "video": null
+    },
+    "onetake/wordRise": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/wordRise.png",
+      "video": null
+    },
+    "onetake/zoomThrough": {
+      "image": "https://raw.githubusercontent.com/feitangyuan/onetake/main/gallery/sheets/zoomThrough.png",
+      "video": null
+    }
+  }
+}
