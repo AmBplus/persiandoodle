@@ -137,7 +137,8 @@ function ownedVariant(x,variant=0){
  return ["rendered-persian","verified","published"].includes(entry?.status) ? entry : null;
 }
 function localMedia(x,variant=0){return localPath(ownedVariant(x,variant)?.video)}
-function audioPublished(x){return Boolean(localPath(S.renderManifest?.audio?.[x.id]?.preview))}\nfunction originalMedia(x,variant=0){
+function audioPublished(x){return Boolean(localPath(S.renderManifest?.audio?.[x.id]?.preview))}
+function originalMedia(x,variant=0){
  if(x.kind==="music"||x.kind==="sfx")return localPath(S.renderManifest?.audio?.[x.id]?.preview);
  return localMedia(x,variant);
 }
