@@ -1,0 +1,6 @@
+{
+  "schema": "persiandoodle/persian-renders/v1",
+  "policy": "Only locally reconstructed, Persian-rendered and verified files may appear in public playback. Each source variant requires its own output.",
+  "renders": {},
+  "audio": {}
+}
