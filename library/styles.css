@@ -14,3 +14,29 @@ footer{border-top:1px solid #dae4e0;padding:23px;text-align:center;color:#7c8f94
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{gap:25px}.hero-art{height:350px}.lab{grid-template-columns:260px 1fr}}
 @media(max-width:760px){main{padding:0 17px}.topbar{height:75px;padding:0 17px}.topbar nav{gap:10px;font-size:11px}.topbar nav a:last-child{display:none}.hero{grid-template-columns:1fr;padding:43px 0}.hero-art{height:265px;grid-row:2}.hero-copy>p{font-size:15px}.stats{gap:20px}.section-head{display:block}.lab{grid-template-columns:1fr}.lab-canvas{min-height:220px}.cards{grid-template-columns:1fr}.catalog-toolbar select{flex:1;min-width:125px}.results-head span:last-child{display:none}.modal{padding:22px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Unified scene selector and fully Persian catalog controls */
+.composer-section{padding:48px 0 66px}
+.composer-grid{display:grid;grid-template-columns:minmax(340px,.95fr) minmax(0,1.05fr);gap:18px}
+.composer-panel,.composer-output{background:#fff;border:1px solid #dbe4e2;border-radius:19px;padding:23px;box-shadow:var(--shadow)}
+.composer-tools,.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px}
+.composer-tools strong,.preview-head strong{font-size:17px}
+.composer-tools button,.remove-slot{background:#eef3f2;border:1px solid #d4e0dc;border-radius:8px;padding:5px 11px;color:#52717b}
+.scene-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.slot{display:flex;align-items:start;flex-direction:column;min-height:85px;gap:7px;padding:11px;background:#f5f8f7;border:1px solid #e2eae7;border-radius:11px;position:relative}
+.slot strong{font-size:12px;color:#376479}
+.slot .chosen{color:#435c65;font-size:12px;line-height:1.6;max-width:100%;overflow-wrap:anywhere}
+.slot select{width:100%;min-height:36px;border:1px solid #dae7e4;border-radius:8px;background:#fff;color:#29596d}
+.slot .remove-slot{position:absolute;left:7px;top:5px;padding:0 8px;font-size:16px}
+.composer-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.composer-output textarea{width:100%;height:435px;border:1px solid #dce6e5;background:#152f40;color:#d3ebe9;border-radius:13px;padding:16px;resize:vertical;text-align:left;font-family:Consolas,monospace;font-size:12px;line-height:1.65}
+.preview-head span{font-size:11px;color:#7d9194}.composer-panel .helper,.composer-output .helper{font-size:12px;color:#768c91}
+.catalog-card-actions{display:flex;gap:8px;margin:9px 0 0;justify-content:space-between}
+.catalog-add,.catalog-play{font:inherit;border:1px solid #c2d8d9;border-radius:8px;background:#f2f7f7;color:#2e6176;padding:5px 11px;font-size:11px;font-weight:750;cursor:pointer}
+.catalog-add{background:#295f76;color:#fff;border-color:#295f76}
+.modal .demo-frame{width:100%;max-height:320px;aspect-ratio:16/9;border:1px solid #d6e1dc;border-radius:12px;background:#e9eeee}
+.modal .modal-preview-label{display:block;font-size:11px;color:#5e7c84;margin:10px 0 5px}
+.card .subtitle{display:none}
+.card .meta span:last-child{font-size:9px}
+@media(max-width:800px){.composer-grid{grid-template-columns:1fr}.scene-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.composer-output textarea{height:300px}}
+@media(max-width:470px){.scene-slots{grid-template-columns:1fr}.composer-actions>*{flex:1}.hero-actions{flex-wrap:wrap}}
