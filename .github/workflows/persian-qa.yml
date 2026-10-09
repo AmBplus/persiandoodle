@@ -1,0 +1,75 @@
+name: Persian typography QA
+
+on:
+  pull_request:
+    paths:
+      - "skills/anidoodle/engine/**"
+      - ".github/workflows/persian-qa.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: persian-font-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  persian-font-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: skills/anidoodle/engine
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: skills/anidoodle/engine/package-lock.json
+      - name: Install engine and Chromium
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+          npm ci --no-audit --no-fund
+          npx playwright-core install --with-deps chromium
+      - name: Unit tests + actual font frame captures
+        run: node tools/persian-qa.mjs
+      - name: Upload real rendered PNGs and contact sheet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: persian-font-render-qa
+          path: |
+            skills/anidoodle/engine/out/persian-qa/*.png
+            skills/anidoodle/engine/out/persian-gallery-contact.jpg
+            skills/anidoodle/engine/out/persian-showcase/*.png
+            skills/anidoodle/engine/out/persian-showcase-contact.jpg
+            skills/anidoodle/engine/out/persian-showcase.mp4
+            skills/anidoodle/engine/out/persian-launch/*.png
+            skills/anidoodle/engine/out/persian-launch-contact.jpg
+          if-no-files-found: warn
+
+      - name: Publish reviewed Persian demo stills to the feature branch
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/persian-rtl-fonts-20261009' }}
+        working-directory: .
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
+        run: |
+          mkdir -p assets/persian
+          cp skills/anidoodle/engine/out/persian-showcase/persianShowcase-90.png assets/persian/hero.png
+          cp skills/anidoodle/engine/out/persian-showcase-contact.jpg assets/persian/handwriting-contact.jpg
+          cp skills/anidoodle/engine/out/persian-gallery-contact.jpg assets/persian/font-contact.jpg
+          cp skills/anidoodle/engine/out/persian-launch-contact.jpg assets/persian/launch-contact.jpg
+          cp skills/anidoodle/engine/out/persian-showcase.mp4 assets/persian/handwriting-demo.mp4
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/persian
+          if git diff --cached --quiet; then
+            echo "Persian screenshots already up to date"
+            exit 0
+          fi
+          git commit -m "docs: publish reproducible Persian handwriting examples [skip ci]"
+          git push origin "HEAD:$TARGET_BRANCH"

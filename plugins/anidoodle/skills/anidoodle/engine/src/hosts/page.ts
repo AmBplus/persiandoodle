@@ -5,7 +5,7 @@ import type { Ctx, Env, Layer, ProbeRec } from "../canvas-core/core";
 import { Film, renderFrame, validate } from "../canvas-core/film";
 import { embeddedAudio, type AudioPayload } from './audio';
 
-declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string>; __SHAPE__?: string; __AUDIO__?: AudioPayload } }
+declare global { interface Window { FILM: unknown; __ASSETS__?: Record<string, string>; __FONTS__?: Record<string, string>; __BAKE_SRC__?: Record<string, string>; __ANIDOODLE_SRC__?: WeakMap<object, string>; __SHAPE__?: string; __AUDIO__?: AudioPayload } }
 
 // THE BAKE STORE (Env.bake). A finished plate frame, keyed by the hash of the source that draws it
 // (build-page.mjs hashes each film module's whole import closure, plus the engine's own renderer),
@@ -47,6 +47,17 @@ export const mountFilm = (film: Film) => {
   const ready = (async () => {
     const problems = validate(film); if (problems.length) throw new Error("timeline: " + problems.join("; "));
     await Promise.all(Object.entries(film.assets.images).map(async ([name, url]) => { const img = new Image(); img.src = window.__ASSETS__?.[name] ?? url; await img.decode(); images.set(name, img); }));
+    // A still is invalid if the browser substitutes a missing Persian font.
+    // Load every declared face before drawing frame 0; exported pages work offline.
+    await Promise.all(Object.entries(film.assets.fonts ?? {}).map(async ([family, source]) => {
+      const src = window.__FONTS__?.[family] ?? source;
+      const variable = /(?:Variable|VF)\.ttf$/i.test(source);
+      const face = new FontFace(family, `url("${src}")`, variable ? { weight: "100 900" } : {});
+      const loaded = await face.load();
+      document.fonts.add(loaded);
+      if (!document.fonts.check(`16px "${family}"`)) throw new Error(`font did not load: ${family}`);
+    }));
+    await document.fonts.ready;
     mount(1); return film.meta;
   })();
   const seek = (frame: number) => { const t0 = performance.now(); const shot = renderFrame(film, ctx, frame, env); ctx.getImageData(0, 0, 1, 1); current = frame; return { shot, ms: performance.now() - t0 }; }; // getImageData forces the deferred raster so the timing is real

@@ -1,20 +1,48 @@
 <p align="center">
-  <img src="assets/banner.gif" width="100%" alt="anidoodle: an artist's table of code-drawn doodles, with the name writing itself in calligraphy">
+  <img src="assets/persian/hero.png" width="100%" alt="پرشین دودل؛ نوشتن فارسی با مسیر واقعی قلم">
 </p>
 
-https://github.com/user-attachments/assets/1cf7f75c-b040-4c00-bf0c-cf1885f8b8da
+<h1 align="center">PersianDoodle — پرشین‌دودل</h1>
 
-<p align="center"><sub>The launch film, 77 seconds. Every frame and every sound in it was made with anidoodle, in code.</sub></p>
-
-<h1 align="center">anidoodle</h1>
-
-<p align="center"><strong>Hand-drawn art, written as code.</strong></p>
+<p align="center"><strong>تصویرسازی، موشن‌گرافیک و نوشتن فارسی با کد و مسیر قلم</strong></p>
 
 <p align="center">
-  Illustrations, drawing timelapses, films, explainers and interactive web art in 31 styles.<br>
-  Every mark is a function and every score is written, so the same source<br>
-  redraws the same picture on every machine, at every size, for good.
+  <a href="assets/persian/handwriting-demo.mp4">▶ ویدیوی فارسی طراحی حروف (MP4)</a> ·
+  <a href="assets/persian/handwriting-contact.jpg">مشبک فریم‌های طراحی</a> ·
+  <a href="assets/persian/font-contact.jpg">گالری ۲۵ فونت آزاد</a> ·
+  <a href="assets/persian/launch-contact.jpg">نمونه معرفی فارسی</a>
 </p>
+
+## نمونه‌های اصلی فارسی
+
+نمونهٔ معرفی قدیمی انگلیسی با نسخهٔ فارسیِ `persianShowcase` جایگزین شده و
+نمونه‌های `launchExample` و `launchExampleClean` نیز متن و سناریوی فارسی دارند.
+موتور اکنون متن پیوستهٔ فارسی را ابتدا به‌درستی شکل‌دهی می‌کند و سپس با مسیر
+قلم روی اسکلت واقعی همان حروف می‌کشد؛ این روش از تایپ حرف‌به‌حرف یا پردهٔ
+آشکارساز افقی دقیق‌تر است. **توالی خطوط هنوز شبیه‌سازی است و
+جایگزین دستور حرکت دست یک خوشنویس حرفه‌ای نیست.**
+
+<p align="center">
+  <img src="assets/persian/handwriting-contact.jpg" width="100%" alt="۲۰ فریم از حرکت قلم و طراحی عبارت‌های فارسی">
+</p>
+
+```bash
+cd skills/anidoodle/engine
+npm ci
+npx playwright-core install chromium
+node tools/persian-qa.mjs
+node tools/build-page.mjs persianShowcase
+node tools/still.mjs launchExample --frame 120
+```
+
+[راهنمای موتور تایپوگرافی فارسی و فهرست مجوز فونت‌ها](docs/PERSIAN-TYPOGRAPHY.md)
+
+---
+
+### امکانات پایهٔ انیدودل
+
+این پروژه بر مبنای موتور آزاد [anidoodle](https://github.com/alexgreensh/anidoodle) است؛
+نمونه‌های بین‌المللی اصلی موتور و قابلیت‌های ترسیم ۳۱ سبک در ادامه مستند شده‌اند.
 
 <p align="center">
   <a href="https://github.com/alexgreensh/anidoodle/releases"><img src="https://img.shields.io/github/v/release/alexgreensh/anidoodle?color=c2410c&label=release" alt="Latest release"></a>

@@ -1,28 +1,31 @@
-// LAUNCH EXAMPLE. A 16-second launch film for a made-up product, built only from the template: two
-// prompts answered by two plates drawing themselves, one type frame, the end card on bar 4.
-// Copying it: everything here is a PLACEHOLDER. The lighthouse and fox are stock style plates
-// standing in; your film's plates are drawn fresh for YOUR product's subject, in the style recipe
-// the brief chose (references/styles.md). The film is silent because a score is composed per
-// product (references/music/compose.md); pass that piece as `score`. bpm comes from the brief.
-//   node tools/still.mjs launchExample --frame 0      the first frame is the thumbnail: check it
-//   node tools/render.mjs launchExample
+// Primary launch-template example for PersianDoodle, with native Persian copy.
+// The two plates continue to demonstrate code-drawn artwork; words are traced
+// using the same joined RTL font geometry as persianShowcase.
 import { C } from "./launchKit";
 import { makeLaunchFilm } from "./launchTemplate";
 import { lighthouseDraw } from "./lighthouseDraw";
 import { foxDraw } from "./foxDraw";
+import { persianFontFiles } from "./persianGallery";
+import type { Film } from "./film";
 
-export const launchExample = makeLaunchFilm({
-  title: "Your Product",
-  subtitle: "the one line it lives by",
-  placeholder: "Ask for anything…",
+const demo = makeLaunchFilm({
+  title: "نگار",
+  subtitle: "ایده‌ها را به تصویر بکش",
+  placeholder: "یک ایده بنویسید…",
   asks: [
-    { prompt: "a lighthouse at sunset, as a print", plate: lighthouseDraw, label: "print · drawn in code" },
-    { prompt: "now a fox at dusk", plate: foxDraw, label: "a second answer, same thread" },
+    { prompt: "فانوسی در غروب طراحی کن", plate: lighthouseDraw, label: "طرحِ غروب؛ ساخته‌شده با کد" },
+    { prompt: "حالا روباهی در شب بکش", plate: foxDraw, label: "یک داستان تازه، همان قلم" },
   ],
-  words: [[{ text: "IDEA IN.", style: "ink", color: C.ink }, { text: "ART OUT.", style: "ink", color: C.accent }]],
-  tagline: "One sentence that says what it is",
-  install: ["npm install your-product", "your-product init"],
-  footer: "yourproduct.example",
+  words: [[
+    { text: "ایده را بنویس", style: "ink", color: C.ink },
+    { text: "تصویر را ببین", style: "ink", color: C.accent },
+  ]],
+  tagline: "از واژه تا تصویر، تنها در چند لحظه",
+  install: ["ساخت تصویر با دستور فارسی", "طراحی دقیق و تکرارپذیر"],
+  footer: "پرشین دودل",
   bpm: 90, askBeats: 6, typeBeats: 4, endBeats: 8, claimBar: 4,
-  score: null, // silent: compose this product's own score and pass it here
+  score: null,
 });
+export const launchExample:Film = { ...demo, assets: {
+  ...demo.assets, fonts: persianFontFiles,
+} };

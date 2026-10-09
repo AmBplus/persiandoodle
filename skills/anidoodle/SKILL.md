@@ -18,6 +18,30 @@ was an icon of itself, because a style was only a palette swap, because the musi
 or because the person spent their patience approving fragments. This skill carries the craft
 that prevents each of those.
 
+## PersianDoodle: native Persian, handwriting and ready-made examples
+
+There are **25 original licensed font families** already installed in `engine/assets/fonts`:
+see `docs/PERSIAN-TYPOGRAPHY.md` at repository root for each author, source and license.
+Never download or re-research these for every render.
+
+For Persian title animation use `engine/src/canvas-core/persianTrace.ts`:
+`drawPersianTrace(ctx, env, { text, x, y, size, family: "Vazirmatn", progress, pen: true })`.
+It shapes the entire RTL phrase *first*, keeps joining/ZWNJ and draws a moving
+pen along the actual shaped ink skeleton. Small lightweight revealing type
+can still use `persianText.ts`. Always declare the chosen `FontFace` through
+`film.assets.fonts` before frame zero.
+
+**The flagship examples are Persian by default:** `persianShowcase` (four pen-drawn
+scenes and a film), `persianGallery` (25 original fonts), `launchExample` (product
+launch with Persian prompts), `launchExampleClean` (Persian UI).
+Do not silently substitute their old English placeholder content.
+
+Run `cd engine && node tools/persian-qa.mjs`: it tests Persian shaping
+and produces real frame grids, a video and launch-example screenshots.
+Review intermediary frames for incomplete joins and all final frames for
+text overflow. Urdu variants still require specialist native glyph review.
+The skeleton is a visual approximation, not a calligraphy pen-order model.
+
 ## Start by asking, then build
 
 Read `references/workflows/start-here.md` and run its intake: one question at a time, only

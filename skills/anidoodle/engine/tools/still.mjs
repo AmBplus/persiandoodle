@@ -16,7 +16,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { buildPage } from "./build-page.mjs";
 import { requireFilm } from "./names.mjs";
-import { detect } from "./detect.mjs";
+import { detect, findFfmpeg } from "./detect.mjs";
 import * as playwright from "./adapters/playwright.mjs";
 
 const VAL = new Set(["shot", "out", "scale", "frame", "frames", "sheet", "sheet-scale"]);
@@ -86,7 +86,9 @@ if (opt.sheet) {
   const layout = all.map((_, i) => `${(i % cols) * w}_${Math.floor(i / cols) * hh}`).join("|");
   const graph = [...labels, ...pads, `${all.join("")}xstack=inputs=${all.length}:layout=${layout}:fill=white`].join(";");
   const out = resolve(opt.sheet); mkdirSync(dirname(out), { recursive: true });
-  const r = spawnSync("ffmpeg", [...args, "-filter_complex", all.length === 1 ? `[0:v]scale=${w}:${hh}` : graph, "-frames:v", "1", "-q:v", "3", out], { encoding: "utf8" });
-  if (r.status !== 0) die(`contact sheet failed: ${r.stderr.trim()}`);
+  const ffmpeg = findFfmpeg();
+  if (!ffmpeg.ok) die(`contact sheet needs ffmpeg: ${ffmpeg.why}`);
+  const r = spawnSync(ffmpeg.bin, [...args, "-filter_complex", all.length === 1 ? `[0:v]scale=${w}:${hh}` : graph, "-frames:v", "1", "-q:v", "3", out], { encoding: "utf8" });
+  if (r.error || r.status !== 0) die(`contact sheet failed: ${r.error?.message ?? r.stderr?.trim() ?? "unknown encoder error"}`);
   console.log(`  contact sheet ${cols}x${rows} at ${k}x -> ${out}`);
 }
