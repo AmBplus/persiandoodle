@@ -1,0 +1,19 @@
+// Run the Persian typography tests, then capture reproducible stage-by-stage frames
+// and combine the REAL rendered frames into one contact sheet.
+// From engine/: node tools/persian-qa.mjs
+import { spawnSync } from "node:child_process";
+const run = (cmd, args) => {
+  console.log("\n> " + [cmd, ...args].join(" "));
+  const r = spawnSync(cmd, args, { stdio: "inherit" });
+  if (r.error) throw r.error;
+  if (r.status !== 0) process.exit(r.status ?? 1);
+};
+run(process.execPath, ["tools/test.mjs", "persianText"]);
+run(process.execPath, [
+  "tools/still.mjs", "persianGallery",
+  "--frames", "0,15,30,45,65,79,80,95,110,130,145,159,160,180,205,235",
+  "--out", "out/persian-qa/",
+  "--sheet", "out/persian-gallery-contact.jpg",
+  "--sheet-scale", "0.45",
+]);
+console.log("\nQA contact sheet: out/persian-gallery-contact.jpg");
