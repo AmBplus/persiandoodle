@@ -36,6 +36,7 @@ jobs:
           cp -a library/. _site/library/
           cp -a assets/library _site/assets/library
           cp -a assets/persian _site/assets/persian
+          cp -a assets/audio _site/assets/audio
           cp -a skills/anidoodle/engine/assets/fonts _site/skills/anidoodle/engine/assets/fonts
           printf '%s\n' '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>کتابخانه پرشین دودل</title><meta http-equiv="refresh" content="0;url=./library/"><link rel="canonical" href="./library/"></head><body><a href="./library/">ورود به کتابخانه فارسی پرشین‌دودل</a></body></html>' > _site/index.html
           touch _site/.nojekyll
@@ -47,6 +48,8 @@ jobs:
           du -sh _site
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
