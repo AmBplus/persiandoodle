@@ -129,7 +129,10 @@ export const drawPersianTrace = (ctx: Ctx, env: Env, o: TraceOptions): TraceResu
     const paint=env.canvas(p.W,p.H), c=paint.ctx;
     c.clearRect(0,0,p.W,p.H);
     c.lineCap="round";c.lineJoin="round";c.strokeStyle="#fff";
-    c.lineWidth=o.strokeWidth??Math.max(3,o.size*.25);
+    // Hairline first, then naturally broaden the traced skeleton as the nib
+    // deposits ink; a drawn character must not appear fully filled instantly.
+    const thickening=Math.max(0,Math.min(1,(progress-.53)/.47));
+    c.lineWidth=o.strokeWidth??Math.max(1.6,o.size*(.075+.19*thickening*thickening));
     let budget=p.total*progress;
     for(const seg of p.segments){
       if(budget<=0)break;
@@ -161,7 +164,11 @@ export const drawPersianTrace = (ctx: Ctx, env: Env, o: TraceOptions): TraceResu
     ctx.save();ctx.translate(destX+pen[0],destY+pen[1]);
     ctx.rotate(-Math.PI*.23);
     ctx.fillStyle=o.penColor??"#d39b4e";
-    ctx.beginPath();ctx.ellipse(0,-3,2.5,7,0,0,Math.PI*2);ctx.fill();
+    // Visible nib and upper barrel anchored to the ACTUAL trace point.
+    const scale=Math.max(1,o.size/78);
+    ctx.strokeStyle="#80582c";ctx.lineWidth=1.5*scale;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-19*scale);ctx.stroke();
+    ctx.beginPath();ctx.ellipse(0,-5*scale,4*scale,10*scale,0,0,Math.PI*2);ctx.fill();
     ctx.restore();
   }
   return {width:p.width,totalPath:p.total,pen:pen?[destX+pen[0],destY+pen[1]]:null,tracks:p.segments.length};
