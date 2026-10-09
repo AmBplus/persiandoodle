@@ -39,8 +39,10 @@ export const classifyInkBlobs = (alpha: Uint8Array, w: number, h: number, em: nu
     const bw=b.maxX-b.minX+1,bh=b.maxY-b.minY+1;
     // Isolated diacritics, Persian dots and punctuation: small in BOTH axes
     // and small against the largest connected body. Tall alef is never a dot.
-    b.mark=blobs.length>1 && bw<=em*.23 && bh<=em*.23 &&
-      b.area<=Math.max(5,Math.min(em*em*.038,largest*.20));
+    // Three adjacent points or a two-dot pair often form ONE connected blob
+    // that is much wider than a single dot; height and mass still mark it.
+    b.mark=blobs.length>1 && bw<=em*.46 && bh<=em*.27 &&
+      b.area<=Math.max(5,Math.min(em*em*.068,largest*.38));
   }
   return { labels, blobs };
 };
