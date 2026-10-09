@@ -1,3 +1,6 @@
+import {faTitle,faDescription} from "./localization.js";
+import {mountComposer,chooseRole} from "./composer.js";
+import {drawItemPreview,playItemPreview} from "./item-preview.js";
 // Unified Motion Library — original PersianDoodle UI. No copied restricted code.
 const $=(s)=>document.querySelector(s);
 const escapeHtml=(s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -24,9 +27,15 @@ function render(){
   const wrap=$("#cards");wrap.replaceChildren();
   for(const entry of filtered.slice(0,state.visible)){
     const el=document.createElement("article");el.className="card";el.tabIndex=0;el.setAttribute("role","button");
-    el.setAttribute("aria-label","مشاهده "+(entry.titleFa||entry.name));
+    el.setAttribute("aria-label","مشاهده "+faTitle(entry));
     const img=(entry.status==="rendered-persian"||entry.kind==="style")&&entry.preview&&/\.(jpg|png|webp)(\?|$)/i.test(entry.preview);
-    el.innerHTML=`<div class="thumb">${img?`<img loading="lazy" alt="" src="${escapeHtml(entry.preview)}" onerror="this.style.display='none'">`:`<span class="thumb-fallback">${entry.kind==="audio"?"♫":entry.kind==="font"?"اب":entry.kind==="motion"?"↗":entry.kind==="style"?"◈":"پ"}</span>`}<span class="thumb-badge">${escapeHtml(statuses[entry.status]||"مرجع")}</span></div><div class="card-body"><h3>${escapeHtml(entry.titleFa||entry.name)}</h3><div class="subtitle">${escapeHtml(entry.name)}</div><p>${escapeHtml(entry.source==="native"?entry.description:(desc[entry.category]||"الگوی مرجع برای طراحی نما و موشن فارسی؛ برای فارسی‌سازی باید بازآفرینی و تست شود."))}</p><div class="meta"><span>${escapeHtml(kindNames[entry.kind]||entry.kind)}</span><span>${escapeHtml(sourceNames[entry.source])}</span><span>${escapeHtml(entry.license)}</span></div></div>`;
+    el.innerHTML=`<div class="thumb">${img?`<img loading="lazy" alt="" src="${escapeHtml(entry.preview)}" onerror="this.style.display='none'">`:`<span class="thumb-fallback">${entry.kind==="audio"?"♫":entry.kind==="font"?"اب":entry.kind==="motion"?"↗":entry.kind==="style"?"◈":"پ"}</span>`}<span class="thumb-badge">${escapeHtml(statuses[entry.status]||"مرجع")}</span></div><div class="card-body"><h3>${escapeHtml(faTitle(entry))}</h3><div class="subtitle">${escapeHtml(faTitle(entry))}</div><p>${escapeHtml(faDescription(entry))}</p><div class="meta"><span>${escapeHtml(kindNames[entry.kind]||entry.kind)}</span><span>${escapeHtml(sourceNames[entry.source])}</span><span>${escapeHtml(entry.license)}</span></div></div>`;
+    const actions=document.createElement("div");actions.className="catalog-card-actions";
+    const open=document.createElement("button");open.type="button";open.className="catalog-play";open.textContent="دیدن پیش‌نمایش فارسی";
+    open.addEventListener("click",ev=>{ev.stopPropagation();openDetail(entry)});
+    const add=document.createElement("button");add.type="button";add.className="catalog-add";add.textContent="+ افزودن به صحنه";
+    add.addEventListener("click",ev=>{ev.stopPropagation();const label=chooseRole(entry);$("#sceneStatus").textContent="«"+faTitle(entry)+"» به بخش «"+label+"» اضافه شد."});
+    actions.append(open,add);el.querySelector(".card-body").append(actions);
     el.addEventListener("click",()=>openDetail(entry));
     el.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();openDetail(entry)}});
     wrap.append(el);
@@ -41,16 +50,13 @@ function openDetail(item){
    "این منبع مجوز غیرتجاری دارد. تنها ایده و پیوند آن ثبت شده؛ کد، قالب یا رسانهٔ آن منتقل نشده است.":
    item.status==="license-review"?"مجوز این فایل صوتی مستقل است؛ پیش از استفادهٔ تجاری تأیید شود.":
    !isFa&&item.source!=="native"?"پیش‌نمایش مرجع متعلق به پروژهٔ اصلی است و هنوز به فارسی بازطراحی و رندر نشده است.":"";
- let media="";
- if(item.preview&&/\.(mp4|webm)(\?|$)/i.test(item.preview)){
-  media=`<video controls preload="none" playsinline src="${escapeHtml(item.preview)}"></video>`;
- } else if(item.preview&&/\.(jpg|png|webp)(\?|$)/i.test(item.preview)){
-  media=`<img loading="lazy" src="${escapeHtml(item.preview)}" alt="${escapeHtml(item.titleFa)}">`;
- }
- body.innerHTML=`<span class="eyebrow">${escapeHtml(sourceNames[item.source]||"SOURCE")} / ${escapeHtml(item.category)}</span><h2 id="modalTitle">${escapeHtml(item.titleFa||item.name)}</h2><span class="en">${escapeHtml(item.name)}</span><p>${escapeHtml(item.source==="native"?item.description:(desc[item.category]||"الگوی مرجع برای حرکت و طراحی فارسی؛ نیازمند بازسازی و رندر فارسی."))}</p>${media}${originalWarning?`<p class="warning">${escapeHtml(originalWarning)}</p>`:""}<div class="tags"><span>وضعیت: ${escapeHtml(statuses[item.status])}</span><span>مجوز: ${escapeHtml(item.license)}</span><span>${escapeHtml(item.duration||kindNames[item.kind])}</span></div><div class="links">${item.sourceUrl?`<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener">مشاهدهٔ منبع ↗</a>`:""}${path?`<a href="${escapeHtml(path)}" target="_blank" rel="noopener">پرامپت اصلی ↗</a>`:""}${isFa&&item.preview?`<a href="${escapeHtml(item.preview)}" target="_blank" rel="noopener">دریافت پیش‌نمایش فارسی ↗</a>`:""}</div>`;
+ const media='<span class="modal-preview-label">اجرای مستقل فارسی؛ نمایش تکنیک به‌صورت شماتیک، نه بازسازی دقیقِ منبع اصلی</span><canvas class="demo-frame" width="960" height="540"></canvas><button class="catalog-play" id="playDemo" type="button">▶ پخش حرکت فارسی</button>';
+ body.innerHTML=`<span class="eyebrow">${escapeHtml(sourceNames[item.source]||"SOURCE")} / ${escapeHtml(item.category)}</span><h2 id="modalTitle">${escapeHtml(faTitle(item))}</h2><span class="en">${escapeHtml(sourceNames[item.source])}</span><p>${escapeHtml(faDescription(item))}</p>${media}${originalWarning?`<p class="warning">${escapeHtml(originalWarning)}</p>`:""}<div class="tags"><span>وضعیت: ${escapeHtml(statuses[item.status])}</span><span>مجوز: ${escapeHtml(item.license)}</span><span>${escapeHtml(item.duration||kindNames[item.kind])}</span></div><div class="links">${item.sourceUrl?`<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener">مشاهدهٔ منبع ↗</a>`:""}${path?`<a href="${escapeHtml(path)}" target="_blank" rel="noopener">پرامپت اصلی ↗</a>`:""}${isFa&&item.preview?`<a href="${escapeHtml(item.preview)}" target="_blank" rel="noopener">دریافت پیش‌نمایش فارسی ↗</a>`:""}</div>`;
  if(item.kind==="audio"&&item.status==="available-native"){
   const au=document.createElement("audio");au.controls=true;au.preload="none";au.src=item.sourceUrl;au.style.width="100%";au.style.marginTop="16px";body.append(au);
  }
+ const canvas=body.querySelector(".demo-frame");if(canvas){drawItemPreview(canvas,item,.72);body.querySelector("#playDemo")?.addEventListener("click",ev=>playItemPreview(canvas,item,ev.currentTarget));}
+ const role=document.createElement("button");role.type="button";role.className="primary";role.style.marginTop="14px";role.textContent="+ افزودن به ترکیب صحنه";role.addEventListener("click",()=>{chooseRole(item);$("#modal").hidden=true;});body.append(role);
  $("#modal").hidden=false;$("#close").focus();
 }
 $("#close").addEventListener("click",()=>$("#modal").hidden=true);
@@ -77,4 +83,5 @@ async function init(){
 }
 import {startWritingPreview} from "./pen-preview.js";
 startWritingPreview();
+mountComposer();
 init();
