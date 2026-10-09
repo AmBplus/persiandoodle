@@ -15,7 +15,7 @@ const fidelity = spawnSync(process.execPath, ["scripts/verify-source-fidelity.mj
 if(fidelity.status !== 0) throw new Error(fidelity.stderr || fidelity.stdout || "original-source fidelity failed");
 const manifest = JSON.parse(await readFile(join(library, "data/persian-renders.json"), "utf8"));
 const source = await readFile(join(library, "source-first.js"), "utf8");
-if (!source.includes("function localPath") || !source.includes("rendered-persian")) throw new Error("browser local-media contract is missing");
+if (!source.includes("function localPath") || !source.includes("sourceFidelity?.approved")) throw new Error("browser local-media contract is missing");
 if (/\.src\s*=\s*x\.remote(Video|Poster)/.test(source)) throw new Error("browser source-media fallback detected");
 for (const [modelId, entry] of Object.entries(manifest.renders ?? {})) for (const [index, variant] of (entry.variants ?? []).entries()) {
   if (!["rendered-persian", "verified", "published"].includes(variant.status)) continue;
