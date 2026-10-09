@@ -39,20 +39,20 @@
       "source": "shotcraft",
       "kind": "shot",
       "titleFa": "assemble-then-type-flyin",
-      "status": "identified",
+      "status": "rendered-persian",
       "variants": [
         {
           "index": 0,
           "key": "assemble-then-type-flyin",
           "name": "assemble-then-type-flyin",
           "description": "空的暗底网格上，无文字的组件骨架先从四面八方飞入贴合；随后各处文字逐字从 3D 空间旋转着飞来落位，先大标题后小标注，全部落位后页面成形",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/shotcraft/assemble-then-type-flyin/v1/preview.mp4",
+          "poster": "media/shotcraft/assemble-then-type-flyin/v1/poster.webp",
+          "thumbnail": "media/shotcraft/assemble-then-type-flyin/v1/thumb.webp",
+          "prompt": "media/shotcraft/assemble-then-type-flyin/v1/prompt.fa.md",
+          "metadata": "media/shotcraft/assemble-then-type-flyin/v1/meta.json",
+          "scene": "media/shotcraft/assemble-then-type-flyin/v1/scene.json"
         }
       ]
     },
@@ -527,20 +527,20 @@
       "source": "shotcraft",
       "kind": "shot",
       "titleFa": "chart-live-moves",
-      "status": "identified",
+      "status": "in-progress",
       "variants": [
         {
           "index": 0,
           "key": "oscilloscope-stream",
           "name": "oscilloscope-stream",
           "description": "采样窗平移 8px/f + 余弦包络尖峰 + 刹停真静止",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/shotcraft/chart-live-moves/v1/preview.mp4",
+          "poster": "media/shotcraft/chart-live-moves/v1/poster.webp",
+          "thumbnail": "media/shotcraft/chart-live-moves/v1/thumb.webp",
+          "prompt": "media/shotcraft/chart-live-moves/v1/prompt.fa.md",
+          "metadata": "media/shotcraft/chart-live-moves/v1/meta.json",
+          "scene": "media/shotcraft/chart-live-moves/v1/scene.json"
         },
         {
           "index": 1,
@@ -944,20 +944,20 @@
       "source": "shotcraft",
       "kind": "shot",
       "titleFa": "depth-layer-moves",
-      "status": "identified",
+      "status": "in-progress",
       "variants": [
         {
           "index": 0,
           "key": "multiplane",
           "name": "multiplane",
           "description": "多层视差滑轨——3 层素材按速度梯度横移（近快远慢），平面截图滑出纵深",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/shotcraft/depth-layer-moves/v1/preview.mp4",
+          "poster": "media/shotcraft/depth-layer-moves/v1/poster.webp",
+          "thumbnail": "media/shotcraft/depth-layer-moves/v1/thumb.webp",
+          "prompt": "media/shotcraft/depth-layer-moves/v1/prompt.fa.md",
+          "metadata": "media/shotcraft/depth-layer-moves/v1/meta.json",
+          "scene": "media/shotcraft/depth-layer-moves/v1/scene.json"
         },
         {
           "index": 1,
@@ -1269,7 +1269,7 @@
       "source": "shotcraft",
       "kind": "shot",
       "titleFa": "glow-flyline-moves",
-      "status": "identified",
+      "status": "in-progress",
       "variants": [
         {
           "index": 0,
@@ -1289,13 +1289,13 @@
           "key": "flyline-arc",
           "name": "flyline-arc",
           "description": "手写 bezier 100 段采样，22f out-cubic 生长；光头条件挂载领跑，段 opacity 按离头距离渐隐；落点描边脉冲，可接力",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/shotcraft/glow-flyline-moves/v2/preview.mp4",
+          "poster": "media/shotcraft/glow-flyline-moves/v2/poster.webp",
+          "thumbnail": "media/shotcraft/glow-flyline-moves/v2/thumb.webp",
+          "prompt": "media/shotcraft/glow-flyline-moves/v2/prompt.fa.md",
+          "metadata": "media/shotcraft/glow-flyline-moves/v2/meta.json",
+          "scene": "media/shotcraft/glow-flyline-moves/v2/scene.json"
         },
         {
           "index": 2,
@@ -1675,20 +1675,20 @@
       "source": "shotcraft",
       "kind": "shot",
       "titleFa": "خط زنده",
-      "status": "identified",
+      "status": "rendered-persian",
       "variants": [
         {
           "index": 0,
           "key": "line-boil",
           "name": "line-boil",
           "description": "线条沸腾——hold 期间文字/描边轮廓每 3 帧轻微扭动一次，像手绘逐帧重描，静止画面保持\"活着\"的呼吸感",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/shotcraft/line-boil/v1/preview.mp4",
+          "poster": "media/shotcraft/line-boil/v1/poster.webp",
+          "thumbnail": "media/shotcraft/line-boil/v1/thumb.webp",
+          "prompt": "media/shotcraft/line-boil/v1/prompt.fa.md",
+          "metadata": "media/shotcraft/line-boil/v1/meta.json",
+          "scene": "media/shotcraft/line-boil/v1/scene.json"
         }
       ]
     },

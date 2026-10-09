@@ -1,0 +1,20 @@
+{
+  "modelId": "shotcraft/chart-live-moves",
+  "variantKey": "oscilloscope-stream",
+  "variantIndex": 0,
+  "family": "chart",
+  "titleFa": "دادهٔ زنده",
+  "bodyFa": "هر میله یک لحظه را ثبت می‌کند",
+  "promptFa": "نمودار فارسی با رشد ترتیبی، محور خوانا و پایان ثابت برای خواندن.",
+  "paper": "blueprint",
+  "seed": 63,
+  "durationFrames": 90,
+  "fps": 30,
+  "values": [
+    0.22,
+    0.54,
+    0.38,
+    0.75,
+    0.91
+  ]
+}

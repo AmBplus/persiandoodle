@@ -46,6 +46,16 @@ try{
  await page.locator("#addToScene").click();if(!await page.locator("#sceneDrawer").isVisible())throw Error("scene selection missing");
  if(!await page.locator("#sceneJSON").innerText().then(x=>x.includes("source-first-scene/v2")))throw Error("scene JSON missing");
  await page.locator("#closeScene").click();
+ await page.locator("#closeDetail").click();
+ await page.locator("#sourceFilter").selectOption("shotcraft");
+ await page.locator("#searchInput").fill("line-boil");
+ await page.locator(".model button").first().click();
+ await page.locator("#previewVideo").waitFor({state:"visible",timeout:10000});
+ const localRenderedSrc=await page.locator("#previewVideo").getAttribute("src");
+ if(!localRenderedSrc?.startsWith("./media/"))throw Error("published Persian render did not resolve to local media: "+localRenderedSrc);
+ if(!await page.locator("#detailCaveat").innerText().then(x=>x.includes("خود پروژه")))throw Error("published local render honesty missing");
+ await page.locator("#closeDetail").click();
+ await page.locator("#searchInput").fill("");
  await page.locator('[data-section="components"]').first().click();
  await page.locator("#sourceFilter").selectOption("shotcraft");
  await page.locator('[data-category="music"]').first().click();

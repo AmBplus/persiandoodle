@@ -28,6 +28,8 @@ try {
     const r = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", source, "-c:v", "libwebp", "-q:v", "82", target]);
     if (r.status !== 0) throw new Error(`WebP conversion failed for ${source}`);
   }
+  await rm(stillDir, {recursive: true, force: true});
+  await rm(join(output, "contact-sheet.jpg"), {force: true});
   await writeFile(join(output, "prompt.fa.md"), `# ${spec.titleFa}\n\n${spec.promptFa ?? spec.bodyFa}\n`, "utf8");
   await writeFile(join(output, "scene.json"), `${JSON.stringify(spec, null, 2)}\n`, "utf8");
   const probe = spawnSync("ffprobe", ["-v", "error", "-show_entries", "format=duration:stream=codec_name,width,height,nb_frames", "-of", "json", join(output, "preview.mp4")], {encoding: "utf8"});

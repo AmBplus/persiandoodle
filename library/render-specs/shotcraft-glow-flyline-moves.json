@@ -1,0 +1,13 @@
+{
+  "modelId": "shotcraft/glow-flyline-moves",
+  "variantKey": "flyline-arc",
+  "variantIndex": 1,
+  "family": "collage",
+  "titleFa": "پیوندِ نور",
+  "bodyFa": "نقطه‌ها به یک مسیر تبدیل می‌شوند",
+  "promptFa": "کلاژ فارسیِ مسیر نور با کارت‌های مستقل، ورود مرحله‌ای و هویت بصری متفاوت.",
+  "paper": "washi",
+  "seed": 85,
+  "durationFrames": 90,
+  "fps": 30
+}
