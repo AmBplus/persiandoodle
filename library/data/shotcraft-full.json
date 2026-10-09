@@ -56,7 +56,7 @@
           "description": "空的暗底网格上，无文字的组件骨架先从四面八方飞入贴合；随后各处文字逐字从 3D 空间旋转着飞来落位，先大标题后小标注，全部落位后页面成形",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/assemble-then-type-flyin.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/assemble-then-type-flyin.jpg"
         }
       ]
     },
@@ -81,7 +81,7 @@
           "description": "浅灰底从底部升起紫橙柔焦 blob，随后整个底色在约 0.36s 内压暗到近黑、blob 压成余晖；文案同步 blur-out 换句 blur-in，换句间留空档不 cross-fade",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/aurora-bloom-bg-flip.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/aurora-bloom-bg-flip.jpg"
         }
       ]
     },
@@ -106,7 +106,7 @@
           "description": "间距拨盘驱动布局——一排链接块带框选描边+缝隙间距标注，徽章数字逐格跳动、块被参数实时推开再弹簧回弹归位；\"参数驱动布局\"的可视化",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/autolayout-gap-dial.mp4?v=1784437314483",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/autolayout-gap-dial.jpg"
         }
       ]
     },
@@ -131,7 +131,7 @@
           "description": "\"Your ___ teammates\" 填空排版，四角对焦框钉在句中不动，头像队列在框内垂直 spring 轮换三次，入框放大清晰、出框按距离缩小淡化模糊，角色标签同步更换，切换瞬间对焦框呼吸 7%",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/avatar-bracket-carousel.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/avatar-bracket-carousel.jpg"
         }
       ]
     },
@@ -156,7 +156,7 @@
           "description": "8×7 小卡片网格由中心分环生长铺满（内容混合首字母/图标/图片占位），随后约 15% 的卡片随机时刻染红标异常，标题图例常驻中央",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/avatar-grid-radial-build-colorize.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/avatar-grid-radial-build-colorize.jpg"
         }
       ]
     },
@@ -181,7 +181,7 @@
           "description": "impress.js 式空间演示：卡片以不同位置/旋转/缩放散布 3D 空间，相机取各步姿态之逆依次飞行对齐，末步拉到 OVERVIEW 总览",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/basic-3d-scene.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/basic-3d-scene.jpg"
         }
       ]
     },
@@ -241,7 +241,7 @@
           "description": "三通道节拍器——深色场形容词列表逐拍上移一行，视口中央固定胶囊\"接住\"下一个词并换色，整场底色同拍跟换；行、色、场三通道锁死同一拍点",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/beat-step-list-theme-cycle.mp4?v=1784437314492",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/beat-step-list-theme-cycle.jpg"
         }
       ]
     },
@@ -267,7 +267,7 @@
           "description": "前后对比拉杆——\"处理前/后\"两版叠放，分割杆先猛甩后慢扫，杆过处新版\"显影\"揭出",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/before-after-slider-scrub.mp4?v=1784437314494",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/before-after-slider-scrub.jpg"
         }
       ]
     },
@@ -292,7 +292,7 @@
           "description": "左侧四个来源节点各有一条细贝塞尔曲线连向右侧同一汇聚点，曲线先错峰由左向右 draw-on，节点沿自己的曲线滑向汇聚点并三段式加速缩小到消失，强调色数据包全程沿路径滑行，吞并完成后曲线从左端反向擦除只留圆形徽标",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/bezier-source-converge-merge.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/bezier-source-converge-merge.jpg"
         }
       ]
     },
@@ -317,7 +317,7 @@
           "description": "标题逐词入场，y 40→0 + blur 10→0 + opacity 0→1 三通道走同一条 outCubic 同步收敛，词间隔约 3.5f；副标题在标题收完前就错峰跟进",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/blur-slide.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/blur-slide.jpg"
         }
       ]
     },
@@ -342,7 +342,7 @@
           "description": "底边上推换章——新场景连底色整屏从底边向上推入，把旧场景物理顶出画外，连推数章各配一种饱和底色，内容钉死在各自色底坐标系里随底色走",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/bottom-push-stack-wipe.mp4?v=1784437314497",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/bottom-push-stack-wipe.jpg"
         }
       ]
     },
@@ -367,7 +367,7 @@
           "description": "一对花括号先小字号出现在正中，随即带过冲向左右滑到 ±148px 并放大到标题级，文字 clip 宽度严格绑括号间距、像被拉开幕布般揭示，落定后字距再细微松弛",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/brace-expand.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/brace-expand.jpg"
         }
       ]
     },
@@ -554,7 +554,7 @@
           "description": "8 张卡从屏幕下方逐张 spring 弹入叠成一摞，全员落位后整摞一次性展成 3D 扇面——每张按序号偏转 8°、横移 34px、向后退一层 z",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/card-stack.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/card-stack.jpg"
         }
       ]
     },
@@ -579,7 +579,7 @@
           "description": "8 张卡按 sin/cos 排成半径 190px 的圆环并匀速整环自转一圈，每卡只绕 Y 公转、自身 billboard 朝外，正反两层同向贴图配 backface-visibility:hidden 保证任何时刻都正立不倒置，相机全程钉在浅俯角近景",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/carousel-3d.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/carousel-3d.jpg"
         }
       ]
     },
@@ -638,7 +638,7 @@
           "description": "三幕 spring 错峰迁徙（stiffness 150、错峰 8f），终幕点阵拼数字",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/unit-dot-swarm-regroup.mp4?v=1785050513841",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/unit-dot-swarm-regroup.jpg"
         },
         {
           "key": "axis-rescale-shock",
@@ -671,7 +671,7 @@
           "description": "五个选项 chip 以 3+2 居中排布逐个淡入；选中帧先插一帧灰色按压块，紧接数帧内底色变纯黑、文字变白并做 1→1.04→1 极轻回弹，其余 chip 淡到 18% 但位置锁死；随后余项归零，黑 chip 上移收窄，下方浮现算式行",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/chip-grid-single-select-blackout.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/chip-grid-single-select-blackout.jpg"
         }
       ]
     },
@@ -696,7 +696,7 @@
           "description": "网格里的目标 chip 先 3 帧硬切反色成黑底白字，其余 chip 按到它的曼哈顿距离交错淡出缩小；黑 chip 左缘锚定向右生长成药丸，内部逐字打出人名并点亮绿点，再拉一条 1px 连接线接到圆形徽标",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/chip-lift-to-user-pill.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/chip-lift-to-user-pill.jpg"
         }
       ]
     },
@@ -721,7 +721,7 @@
           "description": "圆心匹配光圈切——光圈从页面上圆形元素的圆心炸开，圈内新页的圆形图表接在同一个圆上；匹配剪辑给光圈一个语义锚点",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/circle-match-iris.mp4?v=1784437314526",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/circle-match-iris.jpg"
         }
       ]
     },
@@ -855,7 +855,7 @@
           "description": "白底表盘 9 个等大数字沿大弧切向排布，整盘扫过 96° 后减速急停，\"5\" 停在弧顶随即平移落位成标题首字符，其余数字带 blur 原地散去，标题逐词模糊淡入、末词转强调色",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/countdown-arc-scatter.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/countdown-arc-scatter.jpg"
         }
       ]
     },
@@ -880,7 +880,7 @@
           "description": "大数字 easeOutQuart 冲刺计数并带 scale 过冲，到位前一拍 52 片彩纸从两侧抛物线炸入，冲击环扩散、标签字距收紧收尾",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/counter-confetti.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/counter-confetti.jpg"
         }
       ]
     },
@@ -958,7 +958,7 @@
           "description": "内容贴满 3D 立方体六面，相机正面特写→拉远等轴看棱角→转面推近交替步进，每面按法线朝向实时算明暗",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/cube-navigation.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/cube-navigation.jpg"
         }
       ]
     },
@@ -983,7 +983,7 @@
           "description": "整页俯瞰淡入后，相机依次飞到四个角落 zoom-in 特写，SVG 光标同步跟到位指点并留下点击涟漪",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/cursor-flyover.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/cursor-flyover.jpg"
         }
       ]
     },
@@ -1035,7 +1035,7 @@
           "description": "金字悬于黑场，数据仪表盘自底带透视升入并持续 3D 漂移；金色光斑从右侧巡游到底部拉成胶囊，再由它起笔描出弹窗的辉光轮廓",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/dashboard-glow-highlight-pill.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/dashboard-glow-highlight-pill.jpg"
         }
       ]
     },
@@ -1145,7 +1145,7 @@
           "description": "文档不淡出而是向左滑出只露约 35% 宽并微缩到 0.92，右侧按旁白节奏慢速发牌三张白底描边药丸（outBack 弹入），每张落定后其下方字幕逐词加深、下一张到来前整句淡出，左侧文档全程极缓慢自动滚动保持\"正在被读\"",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/doc-park-left-pill-deal.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/doc-park-left-pill-deal.jpg"
         }
       ]
     },
@@ -1280,7 +1280,7 @@
           "description": "四块浅灰 dashboard wireframe 面板各顶一枚高光胶囊标签横向排队，轨道三拍向右换位（缓起→中段冲→缓收，首拍更慢带长尾），居中者放大清晰、两侧缩到 0.62 并下沉变淡微模糊形成走廊感，末段黑色描白边光标从右上斜滑到末位胶囊右端静止",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/floating-glossy-label-pills.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/floating-glossy-label-pills.jpg"
         }
       ]
     },
@@ -1305,7 +1305,7 @@
           "description": "22 个关键词按黄金角铺在扁椭圆截面上，沿 z 轴从 -1750px 飞到相机前 800px 擦身而过，透明度走 [0,1,0.5,0.2,0] 生命曲线，跑满 2 整圈首尾无缝",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/flying-words.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/flying-words.jpg"
         }
       ]
     },
@@ -1330,7 +1330,7 @@
           "description": "5×5 瓦片从 3D 碎片态按中心波纹逐圈聚合成整面海报，停一拍亮字，随后全部碎片背离中心加速旋转飞出画面",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/fracture.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/fracture.jpg"
         }
       ]
     },
@@ -1422,7 +1422,7 @@
           "description": "纯黑底上一条定宽玻璃胶囊以约 1.25 倍略大弹出后缓落到位，内部自左暗到右亮铺一层强调色光；光标先行、随后打字出现占位句，光随打字进度渐渐熄灭，收尾成中性深色玻璃条",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/glass-pill-dictation-typing.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/glass-pill-dictation-typing.jpg"
         }
       ]
     },
@@ -1447,7 +1447,7 @@
           "description": "同一行等宽槽位循环轮播 4 条状态短语，每条头尾按概率关键帧 [1,0,0,0.1,0,0,1] 全乱码、中段偶发单字抖动，切换瞬间叠 RGB 分离与整行位移；末条概率收 0 保证收尾干净",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/glitch-cycle.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/glitch-cycle.jpg"
         }
       ]
     },
@@ -1514,7 +1514,7 @@
           "description": "背景在 linear、radial、conic 三类 CSS 渐变间平滑过渡——角度、色标、中心、半径逐参数插值，段间交叉淡化换类型",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/gradient-transition.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/gradient-transition.jpg"
         }
       ]
     },
@@ -1565,7 +1565,7 @@
           "description": "整行字爆裂成沸腾颗粒噪点并浮现斜纹选区框，噪点云急速凝聚成更大号发光短字标，位移衰减归零定格",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/grain-dissolve.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/grain-dissolve.jpg"
         }
       ]
     },
@@ -1591,7 +1591,7 @@
           "description": "大倾角贴面游走特写——镜头贴着 UI 表面低飞掠过（侧栏树/顶栏/列表当地形），页面文字初始悬浮在界面上空带同形软影，随镜头行进先后加速贴落回界面",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/graze-face-tour.mp4?v=1785050508191",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/graze-face-tour.jpg"
         }
       ]
     },
@@ -1642,7 +1642,7 @@
           "description": "斜纹占位条逐条 wipe 伸长后，斜纹淡出、强调色实心层淡入并弹出数值，占位图蜕变为真数据条形图",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/hatch-depth.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/hatch-depth.jpg"
         }
       ]
     },
@@ -1968,7 +1968,7 @@
           "description": "垂直菜单 6 项按 0.09 的间隔依次 scale 找位、outBack 轻微过冲落定，同时整个列表容器全程线性上移 32px——逐项入场与整体漂移是两层不相干的运动",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/list-reveal.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/list-reveal.jpg"
         }
       ]
     },
@@ -2018,7 +2018,7 @@
           "description": "霓虹切口大环快速收束成中央实心小白 O 并带过冲刹车，图标左移让位，字母逐个滑入完成 lockup，强调色标语收尾",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/logo-shrink-wordmark-lockup.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/logo-shrink-wordmark-lockup.jpg"
         }
       ]
     },
@@ -2045,7 +2045,7 @@
           "description": "纯黑场上蓝色星芒闪现 0.3s（X 形针状光束旋转 90°+中心辉光放射小光芒），卡片从闪光点弹射而出——极速自旋弧线飞向镜头、自旋随靠近衰减、瞬间硬定格近满幅、定格后 sheen 扫光",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/magician-card-flourish.mp4?v=1784437314633",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/magician-card-flourish.jpg"
         }
       ]
     },
@@ -2162,7 +2162,7 @@
           "description": "12 张瓦片在规则网格、feature mosaic、对角瀑布串三种排版间连续变形，位置宽高各自插值、逐片微错峰，段间留 hold",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/mosaic-reframe.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/mosaic-reframe.jpg"
         }
       ]
     },
@@ -2215,7 +2215,7 @@
           "description": "霓虹框先行描框后，镜头绕页面左→右弧线旋转，页面全部组件/文字**同帧**从空中往下贴合（同形软影同步收敛）——整体登场式的框内安放",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/neon-frame-orbit-drop.mp4?v=1785050511487",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/neon-frame-orbit-drop.jpg"
         }
       ]
     },
@@ -2318,7 +2318,7 @@
           "description": "空心词（1px 灰描边、500 字重）从 3.2 倍急缓收缩落位，虚线大圆随后从 2.8 倍收到字周围并缓慢自转，左右水平虚线从画框边缘内伸；描边先微微增亮，实心白在 0.6 帧内瞬间点亮，一闪辉光即定格",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/outline-word-fill.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/outline-word-fill.jpg"
         }
       ]
     },
@@ -2478,7 +2478,7 @@
           "description": "三格各一份整页 clip-path 12° 斜边裁切 + translate/scale 摆机位（1x/1.9x/2.6x），逐格 2f 间隔弹入；定格 18f 各格缓推保活，末格斜边 12f out-cubic 扩张吃屏",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/comic-panel-split.mp4?v=1784437314685",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/comic-panel-split.jpg"
         }
       ]
     },
@@ -2564,7 +2564,7 @@
           "description": "一句话逐词压印上纸、一个词标强调色斜体、短划线收束",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/paper-title-card.mp4?v=1784437314694",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/paper-title-card.jpg"
         }
       ]
     },
@@ -2649,7 +2649,7 @@
           "description": "移动端风竖向选择器——焦点药丸不动、内容穿过它，每项带明显 outQuint 减速吸附后完全静止，按到中心距离分层控制透明度/字号/灰度，落定时药丸做 scaleY 极轻呼吸",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/picker-carousel-feature-cycle.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/picker-carousel-feature-cycle.jpg"
         }
       ]
     },
@@ -2674,7 +2674,7 @@
           "description": "白底句式 \"Your `chip` Handled\" 里深色胶囊内词竖向滚轮轮换，胶囊宽度按预量文本宽插值平滑伸缩、两侧文字被自然挤开收拢，胶囊上下露出 13% 透明度的灰色幽灵项",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/pill-chip-slot-cycle-handled.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/pill-chip-slot-cycle-handled.jpg"
         }
       ]
     },
@@ -2775,7 +2775,7 @@
           "description": "详情卡像被逐字段抓取般自建——图→标题→breadcrumb pill 依次 pop→原价出现后被划线降级、强调色新价 spring 跳出→正文逐行揭示且高亮块由左向右刷过→色卡点亮，整卡全程极慢 scale 前推",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/product-card-progressive-assemble.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/product-card-progressive-assemble.jpg"
         }
       ]
     },
@@ -2800,7 +2800,7 @@
           "description": "画面硬切 2×2 四宫格，四个象限并行跑各自的微场景（打字、急推、逐词、交互链），关键节拍错开 3–6 帧制造信息轰炸",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/quad-split-parallel-scenes.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/quad-split-parallel-scenes.jpg"
         }
       ]
     },
@@ -2825,7 +2825,7 @@
           "description": "浅灰底四层同心圆错相呼吸如水波，中央手机 mockup 屏内 feed 自动缓滚，两侧白色 chip 先后 spring pop 入场并悬浮",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/radial-ripple-phone-chips.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/radial-ripple-phone-chips.jpg"
         }
       ]
     },
@@ -2850,7 +2850,7 @@
           "description": "17×9 圆点阵列按到波源的欧氏距离错峰点亮，每点 scale 过冲到 1.5 再落回常亮，第一道波扫完后第二道亮蓝脉冲从外圈反向收拢回中心",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/radial-wave.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/radial-wave.jpg"
         }
       ]
     },
@@ -2875,7 +2875,7 @@
           "description": "深色论文卡每 12 帧一张沿右下轴线飞入中心叠压，落位带 1 帧压缩，只有最上一张全清晰渲染标题+作者+摘要，下方卡按堆积深度递增模糊变暗只露标题条，背景横向 grid 同步下移做速度参照",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/research-card-stack-scroll.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/research-card-stack-scroll.jpg"
         }
       ]
     },
@@ -3072,7 +3072,7 @@
           "description": "骨架文档弹到中央，四角落下 L 形取景括号，一条 2.5px 实线带渐变拖尾在文档上往复扫 5 趟——文档全程静止，只有光在读它",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/scan-bracket-sweep.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/scan-bracket-sweep.jpg"
         }
       ]
     },
@@ -3097,7 +3097,7 @@
           "description": "一条亮扫描线自上而下掠过页面，扫过之处按先后顺序弹出相机取景框（1.75 倍收拢对准 + 轻微过冲），随后旁侧打出等宽小字标注，顶部状态行同步计数 00/06→06/06",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/scanline-annotate-focus.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/scanline-annotate-focus.jpg"
         }
       ]
     },
@@ -3122,7 +3122,7 @@
           "description": "页面开场是空的暗底网格，一条亮扫描线自上而下掠过；扫到每个区块的落点，该处组件就从画外飞入贴合，带残影模糊与落位闪边——扫完整页恰好装配完成",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/scanline-assemble-flyin.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/scanline-assemble-flyin.jpg"
         }
       ]
     },
@@ -3147,7 +3147,7 @@
           "description": "等宽整行字符先每 2 帧高速跳乱码，再从左到右逐个锁定为真字，锁定瞬间蓝白高光闪一下——种子驱动可复现的解密感",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/scramble.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/scramble.jpg"
         }
       ]
     },
@@ -3509,7 +3509,7 @@
           "description": "聚光灯扫过页面锁定一张卡，斜 45° 推进后卡片弹起悬浮、光束沿轮廓两圈、贴回原位",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/spotlight-hero-card.mp4?v=1785050510059",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/spotlight-hero-card.jpg"
         }
       ]
     },
@@ -3544,7 +3544,7 @@
           "description": "贴边泛光横摇：光线先绕左上角竖缘、转角后沿顶边横走，紫光晕染渗入 UI 顶部内侧；聚光头匀速右移显影 + 面板匀速左滑＝相机右摇感",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/slide-spotlight-pan.mp4?v=1785050512851",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/slide-spotlight-pan.jpg"
         },
         {
           "key": "corner-spotlight-reveal",
@@ -3629,7 +3629,7 @@
           "description": "一条 140 点闭合轮廓平滑变形为另一条再变回，两形状先在极坐标下重采样到相同点数、逐点半径插值 + inOutCubic，变形中段叠轻微 scale 呼吸、缓慢自转与色相从 185° 漂到 305°",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/svg-shape-morph.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/svg-shape-morph.jpg"
         }
       ]
     },
@@ -3729,7 +3729,7 @@
           "description": "三个终端窗散布 3D 空间，相机窗间飞行、途中正弦拉远，每到一窗打字机敲命令、结果逐行滑出——命令执行的空间叙事流",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/terminal-3d.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/terminal-3d.jpg"
         }
       ]
     },
@@ -3814,7 +3814,7 @@
           "description": "面板 back(1.9) 弹落→逐字输入→回车面板 ease-in 收缩到 0 + 白色高光核钉住位置→圆形 clip 半径 12→1250px cubic-out 荡开，边缘 5px 白环双向辉光",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/palette-theme-ripple.mp4?v=1784437314820",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/palette-theme-ripple.jpg"
         }
       ]
     },
@@ -4184,7 +4184,7 @@
           "description": "同一段语法高亮代码左右并置两种 reveal——左侧行级 stagger 4f 淡入上浮 8px，右侧逐字符打字但字符保持原 token 色，当前字符垫一块 #3a4468 方块光标",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/typing-code-block.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/typing-code-block.jpg"
         }
       ]
     },
@@ -4209,7 +4209,7 @@
           "description": "减法式收尾——点击 Publish 后整个编辑器 UI 从外围到中心层层错峰蒸发，黑场上只剩那颗按钮滑到屏心放大，按钮再淡出交棒字标定版",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/ui-strip-away-outro.mp4?v=1784437314866",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/ui-strip-away-outro.jpg"
         }
       ]
     },
@@ -4267,7 +4267,7 @@
           "description": "16 根柱入场时 delay 是时间错峰，同时高度/色相/位移/模糊四个属性各自铺成从首到末的数值梯度；第二拍把错峰原点换成中心，脉冲幅度以中心为最大重新铺开",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/value-stagger-gradient.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/value-stagger-gradient.jpg"
         }
       ]
     },
@@ -4292,7 +4292,7 @@
           "description": "句尾词换成竖向滚轮，3 次换词各 0.55s（outQuint 七成 + outBack 三成，前快后极慢带微过冲），相邻行按距离上垂直 blur 与灰度，中心词落定瞬间从灰染成强调色",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/vertical-word-roll-blur-cycle.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/vertical-word-roll-blur-cycle.jpg"
         }
       ]
     },
@@ -4383,7 +4383,7 @@
           "description": "彩色液态渐变字标静置流光，画面一拍冲白过曝，白底上扁平版字标淡入定格——一次闪白完成质感降维",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/white-flash-logo-simplify-cut.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/white-flash-logo-simplify-cut.jpg"
         }
       ]
     },
@@ -4442,7 +4442,7 @@
           "description": "左列黑白相间等高页面卡步进滚动、右侧衬线大词原位接力（名词恒定+动词轮换）——切词瞬间才滚动一格，词块垂直中心与当前页面卡中点精确对齐",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/word-relay-filmstrip.mp4?v=1784437314883",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/word-relay-filmstrip.jpg"
         }
       ]
     },
@@ -4467,7 +4467,7 @@
           "description": "三个利益词各带一套专属几何接力——虚线大圆自转收缩 → 三实线圆 trim 依次生长（相位差 0.06）→ 金属 sheen 扫过后一拍收成纯白；旧词缩到 0.86 淡出，新词描边→填充揭示",
           "preview": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/word-relay-geometry.mp4?v=1785600000000",
           "mediaType": "mp4",
-          "poster": null
+          "poster": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/poster/word-relay-geometry.jpg"
         }
       ]
     }
