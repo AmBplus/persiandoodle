@@ -2,12 +2,15 @@
 // reauthored and rendered MIT style demos into "rendered-persian" catalog items.
 import {readFileSync,writeFileSync,copyFileSync,mkdirSync,existsSync} from "node:fs";
 import {resolve,join} from "node:path";
+import {spawnSync} from "node:child_process";
 const root=resolve("../../.."); // from canonical skills/anidoodle/engine
 const read=p=>readFileSync(join(root,p),"utf8");
 const write=(p,x)=>{mkdirSync(resolve(root,p,".."),{recursive:true});writeFileSync(join(root,p),x)};
 const catalog=JSON.parse(read("library/data/catalog.json"));
 const out="skills/anidoodle/engine/out/";
 const preview="assets/library/style-thumbs/";
+const clips="assets/library/style-videos/";
+mkdirSync(join(root,clips),{recursive:true});
 mkdirSync(join(root,preview),{recursive:true});
 const rows=catalog.entries.filter(x=>x.source==="mg"&&x.kind==="style");
 if(rows.length!==15)throw Error("expected 15 MIT styles, found "+rows.length);
@@ -24,7 +27,14 @@ for(let i=0;i<styles.length;i++){
  row.locale="fa-IR";
  row.description="بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.";
  row.preview="../"+preview+row.name+".png";
- row.localizedDemo="../assets/library/persian-motion-styles.mp4";
+ const src=join(root,out+"persian-motion-styles.mp4");
+ const clip=join(root,clips+row.name+".mp4");
+ if(!existsSync(src))throw Error("missing rendered 15-style source video");
+ const result=spawnSync("ffmpeg",["-hide_banner","-loglevel","error",
+  "-ss",String(i*2),"-i",src,"-t","2.0","-an","-c:v","libx264",
+  "-preset","fast","-crf","23","-pix_fmt","yuv420p","-movflags","+faststart","-y",clip],{stdio:"pipe"});
+ if(result.status!==0)throw Error("Failed individual Persian style video "+row.name+": "+result.stderr?.toString());
+ row.localizedDemo="../"+clips+row.name+".mp4";
 }
 const files=[
  ["persian-motion-styles-contact.jpg","assets/library/persian-motion-styles-contact.jpg"],
