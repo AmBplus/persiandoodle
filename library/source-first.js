@@ -57,9 +57,11 @@ function record(x){
  const title=itemTitle(x),tags=[...new Set([...(x.tags||[]),categoryOf(x)])];
  return{...x,section:classify(x),facet:categoryOf(x),titleFaDisplay:title,tags,variants:x.styleVariants?.length?x.styleVariants.map((name,i)=>({name,url:i===0?x.preview:null})):x.variants||[{name:x.name,url:x.preview||null}]};
 }
-function initData(cat,audio,shots){
+function initData(cat,audio,shots,visuals){
  const shotIndex=new Map(shots.items.map(item=>[item.id,item]));
  const arr=cat.entries.filter(x=>!["example","audio"].includes(x.kind)&&x.source!=="native").map(x=>{
+  const visual=visuals.entries[x.id];
+  if(visual)x={...x,remotePoster:visual.image,remoteVideo:visual.video};
   const upstream=shotIndex.get(x.id);
   if(!upstream)return record(x);
   return record({...x,styleVariants:[],category:x.category||upstream.category,
@@ -125,10 +127,11 @@ function localMedia(x){return x.status==="rendered-persian"&&x.source==="native"
 function originalMedia(x,variant=0){
  if(x.kind==="music"||x.kind==="sfx")return x.playUrl||null;
  if(x.source==="shotcraft")return x.variants[variant]?.url||null;
- if(x.source==="mg")return "https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/"+x.name+".mp4";
+ if(x.source==="mg")return x.remoteVideo||"https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/"+x.name+".mp4";
  return null;
 }
 function poster(x){
+ if(x.remotePoster)return x.remotePoster;
  if(x.source==="shotcraft")return x.variants[S.variant]?.poster||x.variants[0]?.poster||null;
  if(x.source==="mg")return"https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/"+x.name+".jpg";
  return null;
@@ -299,7 +302,7 @@ function attach(){
  $("#copyDirector").addEventListener("click",async()=>{const scene=outputScene();await copy("صحنهٔ فارسی زیر را بساز؛ از منابع و پرامپت‌های هر مورد استفاده کن، تمام نوشته‌ها را فارسی و طبیعی بازآفرینی کن، از ویدیوهای مرجع به جای خروجی استفاده نکن، و MP4 با صدای مجاز و مشبک فریم‌های QC تحویل بده.\n"+JSON.stringify(scene,null,2))});
 }
 async function init(){
- attach();try{const [catalog,audio,shots]=await Promise.all([fetch("./data/catalog.json").then(r=>r.json()),fetch("./data/source-audio.json").then(r=>r.json()),fetch("./data/shotcraft-full.json").then(r=>r.json())]);initData(catalog,audio,shots);selectSection("designs");
+ attach();try{const [catalog,audio,shots,visuals]=await Promise.all([fetch("./data/catalog.json").then(r=>r.json()),fetch("./data/source-audio.json").then(r=>r.json()),fetch("./data/shotcraft-full.json").then(r=>r.json()),fetch("./data/source-visuals.json").then(r=>r.json())]);initData(catalog,audio,shots,visuals);selectSection("designs");
  }catch(e){console.error(e);$("#resultCount").textContent="خطا در بارگذاری داده‌ها";$("#empty").hidden=false;$("#empty").textContent="بارگذاری ناموفق بود؛ صفحه را دوباره بارگذاری کنید."}
 }
 init();
