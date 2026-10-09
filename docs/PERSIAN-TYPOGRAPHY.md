@@ -2,7 +2,7 @@
 
 ## Sources and redistribution
 
-The originals are committed at `plugins/anidoodle/skills/anidoodle/engine/assets/fonts/`, **with individual original licenses** in `licenses/`. The list is intentionally curated; "all fonts on the internet" is neither legally auditable nor practical for an offline film exporter.
+The originals are committed at `skills/anidoodle/engine/assets/fonts/` (and mirrored inside `plugins/anidoodle/skills/anidoodle/engine/assets/fonts/`), **with individual original licenses** in `licenses/`. The list is intentionally curated; "all fonts on the internet" is neither legally auditable nor practical for an offline film exporter.
 
 | Canvas family | File | Original repository | Best use | License |
 |---|---|---|---|---|
@@ -19,12 +19,13 @@ The originals are committed at `plugins/anidoodle/skills/anidoodle/engine/assets
 | Estedad | Estedad-Variable.ttf | [aminabedi68/Estedad](https://github.com/aminabedi68/Estedad) | expressive editorial headlines | OFL-1.1 |
 | Lalezar | Lalezar-Regular.ttf | [BornaIz/Lalezar](https://github.com/BornaIz/Lalezar) | posters and short bold headlines | OFL-1.1 |
 | Gulzar | Gulzar-Regular.ttf | [googlefonts/Gulzar](https://github.com/googlefonts/Gulzar) | Urdu Nastaliq and Persian feasibility study | OFL-1.1 |
+| Noto Nastaliq Urdu | NotoNastaliqUrdu-Variable.ttf | [google/fonts](https://github.com/google/fonts/tree/main/ofl/notonastaliqurdu) | alternate Urdu Nastaliq, variable weight comparison | OFL-1.1 |
 
 Do not import commercial IRANSans, IRANYekan, Dana, Peyda, Kalameh or similar fonts without a clear redistribution license. Modifications to fonts covered by reserved font names must be renamed before redistribution. Preserve author and upstream licenses. The Bitstream-based fonts do not all use OFL; read their separate licenses.
 
 ## How to use
 
-From `plugins/anidoodle/skills/anidoodle/engine/`:
+From the canonical `skills/anidoodle/engine/` (the plugin copy is mirrored):
 
 ```ts
 import { drawPersianText } from "./src/canvas-core/persianText";
@@ -44,7 +45,7 @@ Add the chosen face to `film.assets.fonts` using a local path relative to the en
 For the complete demonstration:
 
 ```sh
-cd plugins/anidoodle/skills/anidoodle/engine
+cd skills/anidoodle/engine
 npm install
 node tools/persian-qa.mjs
 # outputs 16 real stills + out/persian-gallery-contact.jpg
@@ -62,8 +63,8 @@ node tools/persian-qa.mjs
 
 ## Urdu font adaptation backlog
 
-Gulzar is preserved unchanged as the licensed upstream font. It is a useful Nastaliq comparison, but Urdu line-height, dots, glyph alternates and typography are not a drop-in Iranian Persian design. Next stages: fontTools cmap/GSUB/GPOS audit, Iranian native visual review of ی/ک/ه/ۀ/ة/ZWNJ, Persian numerals, punctuation, multiple weights and collision tests. Only after review should a *renamed derivative* be produced under the permitted license.
+Gulzar and Noto Nastaliq Urdu are preserved unchanged as licensed upstream fonts. It is a useful Nastaliq comparison, but Urdu line-height, dots, glyph alternates and typography are not a drop-in Iranian Persian design. Next stages: fontTools cmap/GSUB/GPOS audit, Iranian native visual review of ی/ک/ه/ۀ/ة/ZWNJ, Persian numerals, punctuation, multiple weights and collision tests. Only after review should a *renamed derivative* be produced under the permitted license.
 
 ## QA status
 
-The source code, original font binaries and test/gallery generator are committed. Run the commands above to verify full browser rendering in the target system. Without an executed full engine browser render, do **not** claim the contact sheet or glyph-perfect handwriting is visually approved.
+The source code, 14 original font binaries and test/gallery generator are committed. A GitHub Actions job at `.github/workflows/persian-qa.yml` can render a 16-frame contact sheet. Run the commands above to verify full browser rendering in the target system. Without an executed full engine browser render, do **not** claim the contact sheet or glyph-perfect handwriting is visually approved.
