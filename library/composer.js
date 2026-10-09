@@ -96,6 +96,15 @@ export function mountComposer(){
  $("#sceneSlots").innerHTML="";
  for(const [k,o] of Object.entries(defaults))choices[k]=o;
  $("#downloadScene").addEventListener("click",download);
+ $("#copySceneJSON").addEventListener("click",async()=>{
+  const payload=JSON.stringify(getSceneSpec(),null,2);
+  try{await navigator.clipboard.writeText(payload);
+   $("#sceneStatus").textContent="JSON آماده شد؛ در GitHub Actions گزینهٔ Run workflow را بزن و در فیلد scene_json قرار بده.";
+  }catch{
+   $("#sceneOutput").value=payload;$("#sceneOutput").focus();$("#sceneOutput").select();
+   $("#sceneStatus").textContent="JSON انتخاب شد؛ برای اجرا در GitHub Actions آن را کپی کن.";
+  }
+ });
  $("#copyScene").addEventListener("click",async()=>{
   const spec=getSceneSpec();
   try{await navigator.clipboard.writeText(prompt(spec));$("#sceneStatus").textContent="دستور ساخت صحنه در کلیپ‌بورد کپی شد.";}
