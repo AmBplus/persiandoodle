@@ -1,146 +1,73 @@
-# Unified Persian Motion Library — integration architecture
+# معماری کتابخانهٔ اصلی PersianDoodle
 
-## Decision: composable adapters, not six forks
+## هدف
 
-The existing `skills/anidoodle/engine` is the **only production runtime**.
-Its `Film` / `Ctx` / `Env` contracts, frame determinism, original art
-core, Remotion/Playwright adapters, test and music tooling stay intact.
-The packaged mirror `plugins/anidoodle/skills/anidoodle/engine` receives
-the same additive modules only after they pass tests.
+این کتابخانه، ویترینِ تمام مدل‌های منابع اصلی است؛ نه نمایشگر چند انیمیشن ساختگی.
+فهرست موارد واقعی، پرامپت‌ها، پیش‌نمایش‌ها، صداها و ابزارهای موتور قلم با هویت منبع در
+یک رابط فارسی ارائه می‌شوند.
 
-```
-                    PersianDoodle (existing core)
-                       Film + Render + Audio
-                                ↑
-        Native adapters: Persian scene / pen / SFX / sample films
-                                ↑
-         Production recipes + sources catalog + licensing policy
-                  ↗           ↑             ↖
-       MIT / Apache        references-only       native assets
-       prompts & notes     PolyForm NC repos     fonts/audio
-                                ↑
-                  library/index.html
-             RTL search / previews / provenance
-```
+### دو بخش اصلی
 
-The web library is a static, independent front end under `library/`. It
-never controls or alters render internals and requires no extra framework.
+**طرح‌های آماده:** شات‌های `video-shotcraft` (۱۵۷ طرح و ۲۱۴ مدل حرکتی مجزا)، ۱۵ مدل
+`mg-styles-15`، ۱۰۸ کارت `video-talkcraft` و ۴۵ مرجع آموزشی
+`anything2explainer`. هر مدل پرامپت فارسی مخصوصِ همان شناسه، نام و پیوند پرامپت
+اصلی دارد. هر Variant ویدیو یا تصویر اصلی خود را دارد.
 
-## Six upstreams and actual rights
+**کامپوننت‌ها:** ۲۴ الگوی `onetake`، ۲۵ فونت نصب‌شده، چهار قلم منتخب
+(`qalam`، `fountain`، `pencil`، `brush`)، و ۵ موسیقی + ۱۴۹ افکت صوتی
+منبع `video-shotcraft`. منبع و تگ‌ها مستقل فیلتر می‌شوند.
 
-| Source | License of toolkit | Imported into repository | What is NOT automatically imported |
-|---|---|---|---|
-| [video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Apache-2.0 | shot index/metadata; selected shot notes, beat-sync guides + full LICENSE | its BGM/SFX binaries, which have their **own provenance/license** |
-| [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15) | MIT | all 15 original prompt Markdown files plus LICENSE; 15 **independent Persian native reconstructions** | source render binaries, Chinese/English title frames, third-party font/texture assets |
-| [anything2explainer](https://github.com/Vincentwei1021/anything2explainer) | PolyForm Noncommercial 1.0.0 | *only original factual indices/links* to learn where techniques exist | copyrighted code, layouts, shots, video frames, attached noncommercial templates |
-| [video-talkcraft](https://github.com/Vincentwei1021/video-talkcraft) | PolyForm Noncommercial 1.0.0 | external links and factual category indices | source code, cards text, presentation assets, videos, bundled SFX |
-| [onetake](https://github.com/feitangyuan/onetake) | PolyForm Noncommercial 1.0.0 | names/categories/link references to continuity techniques | noncommercial `lib/motion.js`, sound library, look assets, templates |
-| [PersianDoodle](https://github.com/AmBplus/persiandoodle) | repository's own license + third-party assets | 25 installed fonts, original audio catalog, Persian example output and new adapters | no existing core file is replaced or transplanted |
+## فایل‌های داده
 
-**Commercial safeguard.** Merely being on GitHub is not a commercial
-license. PolyForm NC projects require permission for commercial code reuse.
-A conceptual technique (continuity, camera carry, semantic cue alignment)
-can be reimplemented independently without copying copyrighted implementation.
-External original demo URLs are labelled as original-language references.
-Source music and sound have separate rights: entries marked
-`license-review` must not be bulk-downloaded and redistributed.
+- `library/data/catalog.json`: آرشیو ۵۳۴ ورودی اولیه، با شناسه و لینک اصلی.
+- `library/data/shotcraft-full.json`: دادهٔ دقیق ۱۵۷ طرح / ۲۱۴ Variant شامل
+  آدرس ویدیوی **همان Variant** و لینک پرامپت مربوطه.
+- `library/data/source-visuals.json`: تصاویر مجزای مرجعِ ۱۰۸ کارت تاک‌کرافت،
+  ۲۴ ورق نمونه وان‌تیک و ۱۵ سبک MG.
+- `library/data/source-audio.json`: آدرس و اطلاعات اصلی ۵ موسیقی و ۱۴۹ صدا،
+  دسته و وضعیت فایل‌های فاقد منشأ ثبت‌شده.
+- `library/source-first.js`: فیلتر منبع، تگ، دسته، جست‌وجو، لیست کامل
+  و انتخاب چند مدل.
+- `library/source-first.css`: رابط واکنش‌گرا با منوی ثابت و نمایش جزئیات.
+- `library/prompts/PERSIAN-MOTION-DIRECTOR.md`: قرارداد متنیِ تولید مستقل.
 
-The local 15 prompts are the actual upstream MIT originals, not claimed
-translations. Native Persian re-imaginings have original authorship and
-their own rendered QA assets.
+## تفاوتِ نمونهٔ مرجع و محصول نهایی
 
-## Catalog schema
+ویدیوهای اصلی با عنوان *مرجع اصلی* نمایش داده می‌شوند. آن‌ها **خروجی فارسی**
+نیستند. فارسی‌بودن نامِ کارت یا پرامپت، جایگزین تولید فریم‌های واقعی فارسی نمی‌شود.
+برای برچسب `rendered-persian` باید فیلم تازه با متن فارسی در موتور رندر و
+بررسی شود. پیش‌نمایش قدیمی ۱۵ ویدیوی سبک و ۱۱ ویدیوی شات که صرفاً براساس
+نام تکنیک شبیه‌سازی شده بودند حذف شده‌اند؛ آنها مبنای کیفی ما نیستند.
 
-`library/data/catalog.json` contains a normalized index with:
-`id`, `source`, `kind`, `category`, `name`, `titleFa`,
-`description`, `license`, `sourceUrl`, `preview`, `status`, `tags`.
-`library/data/recipes.json` holds reusable Persian bundles keyed by
-intent, aesthetic, background, nib, sound and motion recipe.
+بخش «ترکیب صحنه» انتخاب‌ها را با شناسهٔ دقیق، نام Variant، دسته و منبع به JSON
+تبدیل می‌کند تا Agent بتواند دستور هر تکنیک را مطالعه و نمونهٔ واقعی فارسی را
+تولید کند. این فایل نیاز به پیاده‌سازی افکت‌های مرجع را مخفی نمی‌کند.
 
-Statuses are deliberately mutually distinct:
+## رسانه و صوت
 
-- `rendered-persian`: a **real native Persian render** exists and was
-  generated by Chromium/Canvas, not just translated metadata
-- `available-native`: material or capability exists locally
-- `source-prompt-ready`: the licensed upstream creative prompt is vendored,
-  but an original-language demo must not be called Persian
-- `original-reference`: upstream media/code exists, available via link only
-- `reference-only`: constrained noncommercial project, metadata/link only
-- `license-review`: audio or media provenance incomplete; do not redistribute
+صدای منابع به‌صورت جریان اصلیِ موسیقی/افکت قابل پخش است. در پنل پیش‌نمایش
+ویدیو، پخش جداگانهٔ ترک صوتی در صورت وجود ترک در فایل اصلی نیز ارائه شده است.
+فایل‌های صوتیِ ساخته‌شده توسط پروژه در نسخهٔ قبل، همراه با ۵۳۴ تصویر تکراری،
+ویدیوهای آزمایشی و اسکریپت‌های نمایش نامرتبط از شاخهٔ فعلی حذف شده‌اند.
 
-There are no silently copied full project subtrees, 6 competing runtime
-dependencies or forks.
+برای نسخهٔ منتشرشدهٔ GitHub Pages تنها `library/` و فونت‌های لازم منتشر
+می‌شود؛ تصاویر و ویدیوهای منابع از آدرس اصلی پخش می‌شوند.
 
-## Visual system
+## تست
 
-Shared original modules under `src/canvas-core/`:
-
-- `persianSceneKit.ts`: five background treatments, five visible nib actors
-  anchored precisely at the actual `persianTrace` path position
-- `persianTrace.ts` and `persianInkPlan.ts`: full-run Arabic shaping,
-  ink deposition, disconnected dots and no final-frame popping
-- `persianPenAudio.ts`: original deterministic PCM scratch and dot taps,
-  aligned to exactly the same presentation frames as the nib motion
-- `persianMotionSampler.ts`: 15 original native Persian 16:9 style scenes,
-  one for each MIT prompt, without importing the Chinese rendered films
-- `persianShowcase.ts`: varied canvas papers/pens, a 400-frame Persian
-  handwriting film with audible synchronized scratches
-
-The lightweight interactive `library/pen-preview.js` lets visitors choose
-paper and pen and **preview** an RTL phrase with Web Audio. Its shaped-text
-clip is deliberately labelled a preview; production-quality glyph stroke
-tracing remains exclusively in the canonical canvas engine.
-
-## Avoid stale, zero-based agent research
-
-Read `library/data/catalog.json` and `library/data/recipes.json`
-first. Query by relevant technique and then open **only** the original
-notes/prompts for shortlisted choices. The bundled guidance in
-`library/prompts/PERSIAN-MOTION-DIRECTOR.md` is the production contract.
-Do not redownload fonts or rediscover these six source projects each run.
-
-For a source refresh, compare upstream trees, identify new entry IDs,
-review license and rights, and append metadata without overwriting manually
-localized, already QA-approved Persian entries. Upstream English/Chinese
-previews never overwrite locally generated Persian ones.
-
-## Quality gates / deployment
-
-```sh
+```bash
 cd skills/anidoodle/engine
 npm ci
 npx playwright-core install chromium
+node tools/source-first-library-qa.mjs
 node tools/persian-qa.mjs
-node tools/still.mjs persianMotionSampler --frames 52,112,172,232,292,352,412,472,532,592,652,712,772,832,892 --out out/persian-motion-styles/ --sheet out/persian-motion-styles-contact.jpg
-node tools/render.mjs persianMotionSampler --out out/persian-motion-styles.mp4 --workers 2
-node tools/library-smoke.mjs
 ```
 
-The CI job only promotes the 15 styles to `rendered-persian` **after**
-successful actual renders; the publisher writes thumbnails and video into
-`assets/library/` and updates manifest. A site screenshot is also taken.
-A promoted status is evidence-backed, not user-visible guesswork.
+تست مرورگر باید تعداد مدل‌ها، ۲۱۴ Variant، عملکرد فیلتر منبع/تگ، تصویر مخصوص
+هر مدل، پرامپت فارسی، پخش صوت و واکنش‌گرایی موبایل را بررسی کند.
 
-Static hosting: serve repository root via any static server, then open
-`/library/`. A Pages workflow can publish a curated site containing
-library files, fonts and rendered assets without packaging huge unrelated
-project binaries. Project-specific GitHub Pages settings must permit the
-workflow; a workflow file alone does not establish live deployment.
+## مرجع و منشأ
 
-## Next evolutions (not claimed as delivered)
-
-1. Import more Apache shot recipe *implementations* into isolated adapters
-   with contract tests. 157 source cards ≠ 157 Persian rendered films.
-2. Curate legal, individually auditioned BGM and SFX after reviewing each
-   actual license, durations, noisy intros and synchronization.
-3. Dedicated authored stroke data for Iranian Nastaliq ligature families,
-   rather than morphological approximate stroke order.
-4. Camera transitions that carry objects between scenes with real geometric
-   correspondence; continuity QC must test intermediate frames, not only
-   two endpoint posters.
-
-## Editorial library v2 (October 2026)
-
-The public library defaults to a fixed menu of **18 categories** and 98 curated technique/family cards. Each family has at most two preview variants. The original 534-entry metadata catalog is preserved as a research archive, **not** as an endless wall of highly similar thumbnails. Pages excludes `assets/library/previews/` while preserving it in git history.
-
-The native examples have been rebuilt with Persian copy and audio: 15 MIT-inspired style videos and 11 Apache shot-inspired videos, each exported separately. The source-only and PolyForm NC samples remain explicitly marked as references. Verified native videos are promoted into `library/data/featured.json` only by successful rendering CI. The browser's optional sound previews are user-activated; production audio is embedded in AAC film clips. The nib actor uses stable posture and lifts around detached glyph strokes rather than spinning with the raster skeleton tangent.
+منابع مرجع: `video-shotcraft`, `mg-styles-15`, `video-talkcraft`,
+`anything2explainer`, `onetake`. مجوز سورس/رسانه تابع فایل اصلی و
+سرویس مبدأ است؛ فایل‌های رسانهٔ دیگری به مخزن منتقل نشده‌اند.
