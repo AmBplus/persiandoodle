@@ -2,7 +2,7 @@
 const $=(s)=>document.querySelector(s);
 const escapeHtml=(s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const sourceNames={shotcraft:"شات‌کرافت",mg:"۱۵ سبک موشن",talkcraft:"تاک‌کرافت",explainer:"آموزش تصویری",onetake:"حرکت یکپارچه",native:"پرشین دودل"};
-const kindNames={shot:"شات",style:"سبک",motion:"انیمیشن",explainer:"آموزشی",audio:"موسیقی/صدا",font:"فونت",example:"نمونه فارسی"};
+const kindNames={shot:"شات",style:"سبک",motion:"انیمیشن",explainer:"آموزشی",audio:"موسیقی/صدا",font:"فونت",example:"نمونه فارسی",recipe:"دستور تولید"};
 const statuses={"rendered-persian":"رندر فارسی","available-native":"موجود در موتور","source-prompt-ready":"پرامپت آماده","original-reference":"مرجع اصلی","reference-only":"مرجع محدود","license-review":"مجوز در دست بررسی"};
 const desc={
  "تایپوگرافی":"حرکتِ تایپوگرافیک؛ نسخهٔ فارسی باید با شکل‌دهی درست کل عبارت، نیم‌فاصله و خوانایی آزموده شود.",
@@ -26,7 +26,7 @@ function render(){
     const el=document.createElement("article");el.className="card";el.tabIndex=0;el.setAttribute("role","button");
     el.setAttribute("aria-label","مشاهده "+(entry.titleFa||entry.name));
     const img=(entry.status==="rendered-persian"||entry.kind==="style")&&entry.preview&&/\.(jpg|png|webp)(\?|$)/i.test(entry.preview);
-    el.innerHTML=`<div class="thumb">${img?`<img loading="lazy" alt="" src="${escapeHtml(entry.preview)}" onerror="this.style.display='none'">`:`<span class="thumb-fallback">${entry.kind==="audio"?"♫":entry.kind==="font"?"اب":entry.kind==="motion"?"↗":entry.kind==="style"?"◈":"پ"}</span>`}<span class="thumb-badge">${escapeHtml(statuses[entry.status]||"مرجع")}</span></div><div class="card-body"><h3>${escapeHtml(entry.titleFa||entry.name)}</h3><div class="subtitle">${escapeHtml(entry.name)}</div><p>${escapeHtml(entry.status==="rendered-persian"?entry.description:(desc[entry.category]||"الگوی مرجع برای طراحی نما و موشن فارسی؛ برای فارسی‌سازی باید بازآفرینی و تست شود."))}</p><div class="meta"><span>${escapeHtml(kindNames[entry.kind]||entry.kind)}</span><span>${escapeHtml(sourceNames[entry.source])}</span><span>${escapeHtml(entry.license)}</span></div></div>`;
+    el.innerHTML=`<div class="thumb">${img?`<img loading="lazy" alt="" src="${escapeHtml(entry.preview)}" onerror="this.style.display='none'">`:`<span class="thumb-fallback">${entry.kind==="audio"?"♫":entry.kind==="font"?"اب":entry.kind==="motion"?"↗":entry.kind==="style"?"◈":"پ"}</span>`}<span class="thumb-badge">${escapeHtml(statuses[entry.status]||"مرجع")}</span></div><div class="card-body"><h3>${escapeHtml(entry.titleFa||entry.name)}</h3><div class="subtitle">${escapeHtml(entry.name)}</div><p>${escapeHtml(entry.source==="native"?entry.description:(desc[entry.category]||"الگوی مرجع برای طراحی نما و موشن فارسی؛ برای فارسی‌سازی باید بازآفرینی و تست شود."))}</p><div class="meta"><span>${escapeHtml(kindNames[entry.kind]||entry.kind)}</span><span>${escapeHtml(sourceNames[entry.source])}</span><span>${escapeHtml(entry.license)}</span></div></div>`;
     el.addEventListener("click",()=>openDetail(entry));
     el.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();openDetail(entry)}});
     wrap.append(el);
@@ -36,7 +36,7 @@ function render(){
 function openDetail(item){
  const body=$("#modalBody"),isFa=item.status==="rendered-persian";
  const path=item.kind==="style"&&item.promptPath?
-   "./vendor/mg-styles-15/"+item.promptPath:null;
+   "./vendor/mg-styles-15/"+item.promptPath:item.kind==="recipe"?"./prompts/PERSIAN-MOTION-DIRECTOR.md":null;
  const originalWarning=item.source==="talkcraft"||item.source==="explainer"||item.source==="onetake"?
    "این منبع مجوز غیرتجاری دارد. تنها ایده و پیوند آن ثبت شده؛ کد، قالب یا رسانهٔ آن منتقل نشده است.":
    item.status==="license-review"?"مجوز این فایل صوتی مستقل است؛ پیش از استفادهٔ تجاری تأیید شود.":
@@ -47,7 +47,7 @@ function openDetail(item){
  } else if(item.preview&&/\.(jpg|png|webp)(\?|$)/i.test(item.preview)){
   media=`<img loading="lazy" src="${escapeHtml(item.preview)}" alt="${escapeHtml(item.titleFa)}">`;
  }
- body.innerHTML=`<span class="eyebrow">${escapeHtml(sourceNames[item.source]||"SOURCE")} / ${escapeHtml(item.category)}</span><h2 id="modalTitle">${escapeHtml(item.titleFa||item.name)}</h2><span class="en">${escapeHtml(item.name)}</span><p>${escapeHtml(isFa?item.description:(desc[item.category]||"الگوی مرجع برای حرکت و طراحی فارسی؛ نیازمند بازسازی و رندر فارسی."))}</p>${media}${originalWarning?`<p class="warning">${escapeHtml(originalWarning)}</p>`:""}<div class="tags"><span>وضعیت: ${escapeHtml(statuses[item.status])}</span><span>مجوز: ${escapeHtml(item.license)}</span><span>${escapeHtml(item.duration||kindNames[item.kind])}</span></div><div class="links">${item.sourceUrl?`<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener">مشاهدهٔ منبع ↗</a>`:""}${path?`<a href="${escapeHtml(path)}" target="_blank" rel="noopener">پرامپت اصلی ↗</a>`:""}${isFa&&item.preview?`<a href="${escapeHtml(item.preview)}" target="_blank" rel="noopener">دریافت پیش‌نمایش فارسی ↗</a>`:""}</div>`;
+ body.innerHTML=`<span class="eyebrow">${escapeHtml(sourceNames[item.source]||"SOURCE")} / ${escapeHtml(item.category)}</span><h2 id="modalTitle">${escapeHtml(item.titleFa||item.name)}</h2><span class="en">${escapeHtml(item.name)}</span><p>${escapeHtml(item.source==="native"?item.description:(desc[item.category]||"الگوی مرجع برای حرکت و طراحی فارسی؛ نیازمند بازسازی و رندر فارسی."))}</p>${media}${originalWarning?`<p class="warning">${escapeHtml(originalWarning)}</p>`:""}<div class="tags"><span>وضعیت: ${escapeHtml(statuses[item.status])}</span><span>مجوز: ${escapeHtml(item.license)}</span><span>${escapeHtml(item.duration||kindNames[item.kind])}</span></div><div class="links">${item.sourceUrl?`<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener">مشاهدهٔ منبع ↗</a>`:""}${path?`<a href="${escapeHtml(path)}" target="_blank" rel="noopener">پرامپت اصلی ↗</a>`:""}${isFa&&item.preview?`<a href="${escapeHtml(item.preview)}" target="_blank" rel="noopener">دریافت پیش‌نمایش فارسی ↗</a>`:""}</div>`;
  if(item.kind==="audio"&&item.status==="available-native"){
   const au=document.createElement("audio");au.controls=true;au.preload="none";au.src=item.sourceUrl;au.style.width="100%";au.style.marginTop="16px";body.append(au);
  }
@@ -65,9 +65,10 @@ async function init(){
   const res=await fetch("./data/catalog.json",{cache:"no-cache"});
   if(!res.ok)throw Error("HTTP "+res.status);
   const data=await res.json();if(!Array.isArray(data.entries))throw Error("invalid catalog");
-  state.entries=data.entries;$("#stat-all").textContent=data.entries.length.toLocaleString("fa-IR");
-  $("#stat-rtl").textContent=data.entries.filter(x=>x.status==="rendered-persian").length.toLocaleString("fa-IR");
-  for(const [field,values] of [["source",Object.keys(data.sources)],["kind",Array.from(new Set(data.entries.map(x=>x.kind)))]]) {
+  const recipes=await fetch("./data/recipes.json").then(r=>r.ok?r.json():{recipes:[]}).catch(()=>({recipes:[]}));
+  state.entries=[...data.entries,...(recipes.recipes||[])];$("#stat-all").textContent=state.entries.length.toLocaleString("fa-IR");
+  $("#stat-rtl").textContent=state.entries.filter(x=>x.status==="rendered-persian").length.toLocaleString("fa-IR");
+  for(const [field,values] of [["source",Object.keys(data.sources)],["kind",Array.from(new Set(state.entries.map(x=>x.kind)))]]) {
     const select=$(field==="source"?"#sourceFilter":"#typeFilter");
     for(const val of values){const o=document.createElement("option");o.value=val;o.textContent=(field==="source"?sourceNames:kindNames)[val]||val;select.append(o);}
   }
