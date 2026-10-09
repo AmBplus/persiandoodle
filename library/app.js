@@ -51,12 +51,25 @@ function openDetail(item){
    "این منبع مجوز غیرتجاری دارد. تنها ایده و پیوند آن ثبت شده؛ کد، قالب یا رسانهٔ آن منتقل نشده است.":
    item.status==="license-review"?"مجوز این فایل صوتی مستقل است؛ پیش از استفادهٔ تجاری تأیید شود.":
    !isFa&&item.source!=="native"?"پیش‌نمایش مرجع متعلق به پروژهٔ اصلی است و هنوز به فارسی بازطراحی و رندر نشده است.":"";
- const media='<span class="modal-preview-label">اجرای مستقل فارسی؛ نمایش تکنیک به‌صورت شماتیک، نه بازسازی دقیقِ منبع اصلی</span><canvas class="demo-frame" width="960" height="540"></canvas><button class="catalog-play" id="playDemo" type="button">▶ پخش حرکت فارسی</button>';
+ const media=item.localizedDemo&&item.status==="rendered-persian"
+  ?'<span class="modal-preview-label">ویدیوی جداگانهٔ فارسی، رندرشده در موتور PersianDoodle</span><video controls playsinline preload="metadata" src="'+escapeHtml(item.localizedDemo)+'"></video>'
+  :'<span class="modal-preview-label">پیش‌نمایش متحرکِ مستقل و فارسی؛ برداشت مفهومی است، نه کپی دقیق اجرای منبع</span><canvas class="demo-frame" width="960" height="540"></canvas><button class="catalog-play" id="playDemo" type="button">▶ پخش حرکت فارسی</button>';
  body.innerHTML=`<span class="eyebrow">${escapeHtml(sourceNames[item.source]||"SOURCE")} / ${escapeHtml(item.category)}</span><h2 id="modalTitle">${escapeHtml(faTitle(item))}</h2><span class="en">${escapeHtml(sourceNames[item.source])}</span><p>${escapeHtml(faDescription(item))}</p>${media}${originalWarning?`<p class="warning">${escapeHtml(originalWarning)}</p>`:""}<div class="tags"><span>وضعیت: ${escapeHtml(statuses[item.status])}</span><span>مجوز: ${escapeHtml(item.license)}</span><span>${escapeHtml(item.duration||kindNames[item.kind])}</span></div><div class="links">${item.sourceUrl?`<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener">مشاهدهٔ منبع ↗</a>`:""}${path?`<a href="${escapeHtml(path)}" target="_blank" rel="noopener">پرامپت اصلی ↗</a>`:""}${isFa&&item.preview?`<a href="${escapeHtml(item.preview)}" target="_blank" rel="noopener">دریافت پیش‌نمایش فارسی ↗</a>`:""}</div>`;
  if(item.kind==="audio"&&item.status==="available-native"){
   const au=document.createElement("audio");au.controls=true;au.preload="none";au.src=item.sourceUrl;au.style.width="100%";au.style.marginTop="16px";body.append(au);
  }
  const canvas=body.querySelector(".demo-frame");if(canvas){drawItemPreview(canvas,item,.72);body.querySelector("#playDemo")?.addEventListener("click",ev=>playItemPreview(canvas,item,ev.currentTarget));}
+ const localPrompt=document.createElement("button");localPrompt.className="catalog-play";localPrompt.type="button";
+ localPrompt.style.marginTop="14px";localPrompt.style.marginInlineEnd="9px";
+ localPrompt.textContent="کپی پرامپت ساخت فارسی";
+ localPrompt.addEventListener("click",async()=>{
+  const prompt="در پروژه PersianDoodle، یک انیمیشن کاملاً فارسی و مستقل برای این تکنیک بساز: "+faTitle(item)+
+   "\\nشناسه: "+item.id+"\\nمنبع: "+(item.sourceUrl||"منبع اصلی موجود است")+
+   "\\nابتدا قواعد و نقش آن را از کاتالوگ و پرامپت‌های دارای مجوز بخوان. از متن نمونهٔ چینی یا انگلیسی استفاده نکن. ابتدا طراحی و چینش را با فارسی ایرانی، فونت مناسب، جهت راست‌به‌چپ، پس‌زمینه مرتبط و افکت صوتی همگام مشخص کن؛ سپس رندر واقعی، مشبک فریم و آزمون کیفیت اجرا کن. اگر منبع محدودیت غیرتجاری دارد، کد و دارایی را کپی نکن و بازسازی مستقل انجام بده.";
+  try{await navigator.clipboard.writeText(prompt);localPrompt.textContent="پرامپت فارسی کپی شد";}
+  catch{localPrompt.textContent="امکان کپی نیست؛ از خروجی صحنه استفاده کن";}
+ });
+ body.append(localPrompt);
  const role=document.createElement("button");role.type="button";role.className="primary";role.style.marginTop="14px";role.textContent="+ افزودن به ترکیب صحنه";role.addEventListener("click",()=>{chooseRole(item);$("#modal").hidden=true;});body.append(role);
  $("#modal").hidden=false;$("#close").focus();
 }
