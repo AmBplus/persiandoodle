@@ -11,6 +11,8 @@ const gate = spawnSync("python", ["scripts/verify-local-persian-media.py", site]
 if (gate.status !== 0) throw new Error(gate.stderr || gate.stdout || "local media gate failed");
 const videoGate = spawnSync(process.execPath, ["scripts/verify-persian-video-profile.mjs", site], {encoding: "utf8"});
 if (videoGate.status !== 0) throw new Error(videoGate.stderr || videoGate.stdout || "Persian video profile gate failed");
+const fidelity = spawnSync(process.execPath, ["scripts/verify-source-fidelity.mjs", site], {encoding:"utf8"});
+if(fidelity.status !== 0) throw new Error(fidelity.stderr || fidelity.stdout || "original-source fidelity failed");
 const manifest = JSON.parse(await readFile(join(library, "data/persian-renders.json"), "utf8"));
 const source = await readFile(join(library, "source-first.js"), "utf8");
 if (!source.includes("function localPath") || !source.includes("rendered-persian")) throw new Error("browser local-media contract is missing");
