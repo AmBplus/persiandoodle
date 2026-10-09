@@ -1,0 +1,46 @@
+name: Persian typography QA
+
+on:
+  push:
+    branches: [feature/persian-rtl-fonts-20261009]
+    paths:
+      - "skills/anidoodle/engine/**"
+      - ".github/workflows/persian-qa.yml"
+  pull_request:
+    paths:
+      - "skills/anidoodle/engine/**"
+      - ".github/workflows/persian-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  persian-font-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: skills/anidoodle/engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: skills/anidoodle/engine/package-lock.json
+      - name: Install engine and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright-core install --with-deps chromium
+      - name: Unit tests + actual font frame captures
+        run: node tools/persian-qa.mjs
+      - name: Upload real rendered PNGs and contact sheet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: persian-font-render-qa
+          path: |
+            skills/anidoodle/engine/out/persian-qa/*.png
+            skills/anidoodle/engine/out/persian-gallery-contact.jpg
+          if-no-files-found: warn
