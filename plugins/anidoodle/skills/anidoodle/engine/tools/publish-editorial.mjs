@@ -3,7 +3,9 @@
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from "node:fs";
 import {resolve,join} from "node:path";
 import {spawnSync} from "node:child_process";
-import {PersianShotRecipes} from "../src/canvas-core/persianShotSampler";
+// Keep the publication manifest in runnable JS; Node does not resolve unbuilt TS.
+const PersianShotRecipes="brand-ink-open marker-underline-title document-typewriter-reveal deck-deal-flyin crash-zoom-punch odometer-digit-roll command-palette-summon line-carry-transition beat-cut-moves light-play-moves outro-group-photo-launch"
+ .split(" ").map(slug=>({slug,id:"shotcraft/"+slug}));
 const root=resolve("../../..");
 const manifestPath=join(root,"library/data/featured.json");
 const data=JSON.parse(readFileSync(manifestPath,"utf8"));
