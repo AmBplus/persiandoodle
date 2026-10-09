@@ -48,7 +48,8 @@
       "explainer": 45,
       "onetake": 24,
       "native": 36
-    }
+    },
+    "renderedPersian": 18
   },
   "entries": [
     {
@@ -3807,18 +3808,19 @@
       "name": "05-cel-boil",
       "title": "Frame-by-Frame",
       "titleFa": "خط زنده و نقاشی فریم‌به‌فریم",
-      "description": "Hand-drawn frame by frame, or frame-by-frame texture laid over vector animation. Its signature is line boil: the lines jitter slightly every few frames, as if the picture were breathing. Studios such as Giant Ant and Buck dress their main animation with cel elements (smoke, splashes, speed lines); it is the core antidote to digital polish.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "05-cel-boil"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/05-cel-boil.md",
       "promptPath": "prompts/mg-styles-15/05-cel-boil.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/05-cel-boil.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/05-cel-boil.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/03-isometric",
@@ -3828,18 +3830,19 @@
       "name": "03-isometric",
       "title": "Isometric 2.5D",
       "titleFa": "ایزومتریک",
-      "description": "A miniature world in 30° isometric projection: small cities, office cutaways, server rooms, with no vanishing point and everything at one scale. Dense with information yet cute, it is the standard look for tech architecture animations and app feature demos. School of Motion has a whole isometric mograph tutorial series.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "03-isometric"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/03-isometric.md",
       "promptPath": "prompts/mg-styles-15/03-isometric.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/03-isometric.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/03-isometric.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/01-flat-vector",
@@ -3849,18 +3852,19 @@
       "name": "01-flat-vector",
       "title": "Flat Vector",
       "titleFa": "برداری تخت",
-      "description": "The mainstream baseline of motion graphics, from the Google Material and corporate explainer tradition: geometric characters and scenes in flat colour, no or minimal outlines, bold colour blocks, every element a vector shape. Common in SaaS promos, science explainers and annual-report videos.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "01-flat-vector"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/01-flat-vector.md",
       "promptPath": "prompts/mg-styles-15/01-flat-vector.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/01-flat-vector.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/01-flat-vector.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/02-line-art",
@@ -3870,18 +3874,19 @@
       "name": "02-line-art",
       "title": "Line Art",
       "titleFa": "طراحی پیوسته با خط",
-      "description": "A thin single-colour line is the only visual language: it draws itself on, extends, turns and morphs into the next shape, the whole film in one stroke. Minimal and premium, common in luxury, finance and architecture brand films and logo animations.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "02-line-art"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/02-line-art.md",
       "promptPath": "prompts/mg-styles-15/02-line-art.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/02-line-art.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/02-line-art.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/04-3d-render",
@@ -3891,18 +3896,19 @@
       "name": "04-3d-render",
       "title": "3D Render",
       "titleFa": "3D Render",
-      "description": "Solid, tactile animation rendered in Cinema 4D with Redshift/Octane, or in Blender: soft rubber, glass, metal, cloth, with cloner arrays and physics simulation. The mainstream look for high-end product films (phones, drinks, sneakers) and brand idents; Maxon's official demo reel sets the trend each year.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "04-3d-render"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/04-3d-render.md",
       "promptPath": "prompts/mg-styles-15/04-3d-render.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/04-3d-render.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/04-3d-render.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/08-morph",
@@ -3912,18 +3918,19 @@
       "name": "08-morph",
       "title": "Shape Morph",
       "titleFa": "تبدیل شکل",
-      "description": "One shape turns smoothly and continuously into another: a phone becomes a map pin, a coffee cup becomes a sunset. It is the core grammar of visual storytelling, and the most skilful part of Apple keynote motion and high-end explainers.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "08-morph"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/08-morph.md",
       "promptPath": "prompts/mg-styles-15/08-morph.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/08-morph.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/08-morph.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/19-paperclip",
@@ -3933,18 +3940,19 @@
       "name": "19-paperclip",
       "title": "Sticker Explainer",
       "titleFa": "Sticker Explainer",
-      "description": "The standard package of Chinese knowledge videos, made popular by PaperClip (回形针): photos are cut out and given a thick white outline to become stickers, laid out with flat icons and data charts on a huge canvas, while the camera pans and zooms from point to point. Finance and cross-disciplinary creators such as Lin Chao combine it with handwritten notes and formula cards. It is still the dominant format for hard-science, finance and corporate explainers.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "19-paperclip"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/19-paperclip.md",
       "promptPath": "prompts/mg-styles-15/19-paperclip.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/19-paperclip.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/19-paperclip.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/22-hud",
@@ -3954,18 +3962,19 @@
       "name": "22-hud",
       "title": "Cyberpunk HUD",
       "titleFa": "رابط آینده‌نگر",
-      "description": "Packaging that imitates the head-up displays of sci-fi films and games: cyan and orange neon wireframes, target-lock boxes, radar sweeps, streams of tiny data. It is the default skin for \"tech\" in gadget reviews, game edits (Cyberpunk 2077, Evangelion fan edits), military and space explainers and AI product demos; AE HUD tutorials on Bilibili reach 200,000 views.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "22-hud"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/22-hud.md",
       "promptPath": "prompts/mg-styles-15/22-hud.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/22-hud.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/22-hud.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/06-collage",
@@ -3975,18 +3984,19 @@
       "name": "06-collage",
       "title": "Collage",
       "titleFa": "کلاژ",
-      "description": "A retro, surreal style that cuts up old photos, newspapers and torn paper and reassembles them, rooted in Monty Python and Soviet constructivist posters. Hallmarks: unbalanced head-to-body proportions, mouths that open on their own, halftone textures. Lately merged with the magazine look, it is a frequent choice for music and streetwear short videos.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "06-collage"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/06-collage.md",
       "promptPath": "prompts/mg-styles-15/06-collage.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/06-collage.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/06-collage.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/12-aurora-glass",
@@ -3996,18 +4006,19 @@
       "name": "12-aurora-glass",
       "title": "Aurora & Glassmorphism",
       "titleFa": "شیشه و شفق",
-      "description": "Large, heavily blurred colour blobs (aurora / mesh gradient) drift slowly underneath, with frosted translucent glass cards floating on top. Apple's iOS 26 Liquid Glass and a wave of AI product launches made it the default look of tech brand films in 2024–2026: slow, translucent, premium.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "12-aurora-glass"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/12-aurora-glass.md",
       "promptPath": "prompts/mg-styles-15/12-aurora-glass.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/12-aurora-glass.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/12-aurora-glass.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/09-bauhaus",
@@ -4017,18 +4028,19 @@
       "name": "09-bauhaus",
       "title": "Geometric Bauhaus",
       "titleFa": "باوهاوس",
-      "description": "Circles, triangles and rectangles move, rotate and scale precisely on a strict grid, in a limited palette of the three primaries plus black and white: the ordered beauty of machine rationality. It comes from the Bauhaus and the Swiss International graphic tradition (Adobe once worked with the Bauhaus archive on the Hidden Treasures project), and it is the main language of kinetic posters, a natural match for musical beats.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "09-bauhaus"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/09-bauhaus.md",
       "promptPath": "prompts/mg-styles-15/09-bauhaus.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/09-bauhaus.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/09-bauhaus.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/10-synthwave",
@@ -4038,18 +4050,19 @@
       "name": "10-synthwave",
       "title": "80s Synthwave",
       "titleFa": "سینث‌ویو",
-      "description": "A wholesale quotation of one era's media aesthetics: 80s synthwave is neon grids, sunset gradients and chrome type; VHS is scanlines, colour shift and tape noise; Y2K is liquid chrome, acid green and purple, skeuomorphic system windows and lo-fi 3D. Y2K has come back strongly in music videos and fashion brand films over the last two years, and Bilibili's template market is full of \"acid chrome\" assets.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "10-synthwave"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/10-synthwave.md",
       "promptPath": "prompts/mg-styles-15/10-synthwave.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/10-synthwave.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/10-synthwave.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/20-pixel",
@@ -4059,18 +4072,19 @@
       "name": "20-pixel",
       "title": "Pixel Art",
       "titleFa": "پیکسل آرت",
-      "description": "Retro game aesthetics: low resolution with big pixels, a limited palette and low-frame-rate sprite animation. Common in Bilibili's game section (Minecraft, Terraria, indie games), 8-bit music videos and nostalgic brand marketing; Aseprite tutorials on Bilibili draw 100,000+ views in a steady learning community.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "20-pixel"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/20-pixel.md",
       "promptPath": "prompts/mg-styles-15/20-pixel.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/20-pixel.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/20-pixel.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/07-liquid",
@@ -4080,18 +4094,19 @@
       "name": "07-liquid",
       "title": "Liquid Motion",
       "titleFa": "مایع و سیال",
-      "description": "Shapes flow, stretch into strings, drip and merge like liquid: a transition is a splash of paint washing over the screen, a logo gathers itself out of a single drop. Organic, satisfying and high-energy, widely used in music videos, food and drink ads and transition packages.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "07-liquid"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/07-liquid.md",
       "promptPath": "prompts/mg-styles-15/07-liquid.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/07-liquid.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/07-liquid.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "mg/18-hanazi",
@@ -4101,18 +4116,19 @@
       "name": "18-hanazi",
       "title": "Variety Captions",
       "titleFa": "Variety Captions",
-      "description": "Emotional decorative captions from TV variety-show post-production: rounded type with several outline layers springs in, changes colour and shape with the person's mood, and comes with hit sound effects. Now the everyday packaging of vlogs, pet videos, interviews and comedy edits; CapCut ships many caption templates, and free caption packs circulate on Bilibili.",
+      "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
       "tags": [
         "style",
         "18-hanazi"
       ],
-      "status": "source-prompt-ready",
+      "status": "rendered-persian",
       "license": "MIT",
       "duration": "10s",
       "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/18-hanazi.md",
       "promptPath": "prompts/mg-styles-15/18-hanazi.md",
-      "preview": "https://vincentwei1021.github.io/mg-styles-15/videos/18-hanazi.jpg",
-      "locale": "original-zh-en"
+      "preview": "../assets/library/style-thumbs/18-hanazi.png",
+      "locale": "fa-IR",
+      "localizedDemo": "../assets/library/persian-motion-styles.mp4"
     },
     {
       "id": "talkcraft/alt-block-lines",
