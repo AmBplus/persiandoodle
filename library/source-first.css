@@ -27,3 +27,5 @@
 .prompt-box label{display:block;font-size:11px;color:#49616a;font-weight:750;margin:12px 0 5px}
 .prompt-box #localizationText{direction:ltr;text-align:left;height:180px;font-family:ui-monospace,Consolas,monospace}
 .reference-link{display:block;padding:8px 12px;color:#2c7380;font-size:11px;border-radius:8px;background:#eef4f3;margin:7px 0 13px;text-align:center}
+
+.reference-link[hidden]{display:none!important}

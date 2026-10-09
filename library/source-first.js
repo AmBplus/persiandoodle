@@ -158,10 +158,10 @@ function renderGallery(){
  $("#resultSubtitle").textContent=S.source?sourceName(S.source):groups[S.section];
  $("#empty").hidden=arr.length>0;
  for(const x of arr.slice(0,S.visible)){
-  const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":(!localMedia(x,0)&&!poster(x,0)?" reference-only":""));
+  const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":(x.source!=="native"&&!localMedia(x,0)&&!poster(x,0)?" reference-only":""));
   const orig=x.source!=="native";
   el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(audioPublished(x)?"صدای داخلی تأییدشده":"صدای مرجع، فاقد رندر داخلی"):orig?(localMedia(x,0)?"رندر فارسی":"در انتظار رندر فارسی"):"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
-  '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p>'+((!localMedia(x,0)&&!poster(x,0)&&x.kind!=="music"&&x.kind!=="sfx")?'<div class="reference-summary">'+escapeHtml(String(x.variants[0]?.description||x.description||"مدل مرجع").slice(0,160))+'</div><div class="reference-label">مرجع اصلی · بدون رندر فارسی تأییدشده</div>':'')+'<div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
+  '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p>'+((x.source!=="native"&&!localMedia(x,0)&&!poster(x,0)&&x.kind!=="music"&&x.kind!=="sfx")?'<div class="reference-summary">'+escapeHtml(String(x.variants[0]?.description||x.description||"مدل مرجع").slice(0,160))+'</div><div class="reference-label">مرجع اصلی · بدون رندر فارسی تأییدشده</div>':'')+'<div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
   el.querySelector("button").addEventListener("click",()=>detail(x));
   const cover=el.querySelector(".model-cover"),motion=cover.querySelector("video[data-preview]");
   if(motion){
@@ -197,6 +197,19 @@ function localizationPath(x){
 }
 function sourceDocumentUrl(x){
  return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.originalPromptUrl||x.sourceUrl||"";
+}
+function originalRawUrl(x,index){
+ const url=S.renderManifest?.renders?.[x.id]?.variants?.[index]?.originalPromptUrl||x.sourceUrl||"";
+ if(!url.startsWith("https://github.com/")||![".md",".tsx",".ts",".json"].some(ext=>url.endsWith(ext)))return null;
+ return url.replace("https://github.com/","https://raw.githubusercontent.com/").replace("/blob/main/","/main/");
+}
+async function loadExactOriginal(x,index){
+ const path=S.renderManifest?.renders?.[x.id]?.variants?.[index]?.originalPromptPath;
+ const url=path?"./"+path:originalRawUrl(x,index);
+ if(!url)return null;
+ const response=await fetch(url);
+ if(!response.ok)throw Error("Original source unavailable: "+response.status);
+ return response.text();
 }
 function variants(x){
  const holder=$("#variants");holder.replaceChildren();$("#variantCount").textContent=prs(x.variants.length)+" مدل";
@@ -259,25 +272,27 @@ async function prompt(){
  const x=S.current;if(!x)return;
  const index=S.variant;
  $("#promptBox").hidden=false;
- const output=$("#promptText");
- const localization=$("#localizationText");
- const path=originalPromptPath(x);
+ const output=$("#promptText"),localization=$("#localizationText");
  const loc=localizationPath(x);
- output.value="در حال خواندن دستور اصلی بدون دست‌کاری…";
- localization.value="در حال خواندن نگاشت متن روی تصویر…";
+ output.value="در حال بارگذاری متن اصلی، بدون بازنویسی…";
+ localization.value="در حال بارگذاری نگاشت متن داخل تصویر…";
  $("#sourceLink").href=sourceDocumentUrl(x)||"https://github.com/AmBplus/persiandoodle";
- $("#sourceLink").textContent="منبع اصلی (بدون تغییر) ↗";
- if(loc){try{const r=await fetch("./"+loc);if(!r.ok)throw Error(String(r.status));const obj=await r.json();if(S.current===x&&S.variant===index)localization.value=JSON.stringify(obj,null,2)}catch{localization.value="پروندهٔ جایگزینی متن هنوز در دسترس نیست."}}
- if(!path){output.value="در این منبع، پرامپت مستقل و قابل‌تأیید ثبت نشده است. به‌جای ساختن پرامپت جعلی، فایل و دستور اصلی را از پیوند بالایی بررسی کنید.";return}
- try{const r=await fetch("./"+path);if(!r.ok)throw Error(String(r.status));const raw=await r.text();if(S.current===x&&S.variant===index)output.value=raw}
- catch{if(S.current===x&&S.variant===index)output.value="فایل اصلی هنوز بازیابی نشده؛ هیچ پرامپتِ بازنویسی‌شده‌ای جایگزین آن نشده است."}
+ $("#sourceLink").textContent="مشاهدهٔ سند اصلی (بدون تغییر) ↗";
+ if(loc){try{const response=await fetch("./"+loc);if(!response.ok)throw Error(String(response.status));const data=await response.json();if(S.current===x&&S.variant===index)localization.value=JSON.stringify(data,null,2)}catch{if(S.current===x&&S.variant===index)localization.value="نگاشت فارسی هنوز در دسترس نیست."}}
+ try{const original=await loadExactOriginal(x,index);if(S.current===x&&S.variant===index)output.value=original??"در منبع اصلی این مدل، سند متنیِ مستقل ثبت نشده است. از پیوند منبع برای بررسی رسانهٔ اصلی استفاده کنید."}
+ catch{if(S.current===x&&S.variant===index)output.value="متن اصلی از سرور مرجع قابل بارگیری نبود؛ دستور حدسی تولید نشده است. از پیوند منبع اصلی استفاده کنید."}
 }
 function selectedRecord(x){
  return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",originalPromptPath:originalPromptPath(x),originalPromptUrl:sourceDocumentUrl(x),localizationPath:localizationPath(x),audio:x.playUrl||null};
 }
-function saveSelection(){
- if(!S.current)return;const next=selectedRecord(S.current);
- if(!S.selection.some(x=>x.id===next.id&&x.variant===next.variant))S.selection.push(next);
+async function saveSelection(){
+ if(!S.current)return;
+ const x=S.current,index=S.variant,next=selectedRecord(x);
+ if(S.selection.some(item=>item.id===next.id&&item.variant===next.variant)){openDrawer();return}
+ try{next.originalPrompt=await loadExactOriginal(x,index)}catch{next.originalPrompt=null}
+ const loc=localizationPath(x);
+ if(loc)try{const response=await fetch("./"+loc);if(response.ok)next.onScreenLocalization=await response.json()}catch{}
+ S.selection.push(next);
  $("#selectionCount").textContent=prs(S.selection.length);openDrawer();renderSelection();
 }
 function outputScene(){
