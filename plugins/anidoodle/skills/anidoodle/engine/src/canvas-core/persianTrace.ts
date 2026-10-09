@@ -50,48 +50,68 @@ export const skeletonizeInk = (pixels: Uint8Array, w: number, h: number, limit =
   return bits;
 };
 
+// A topologically complete stroke graph. The previous implementation visited
+// each skeleton *pixel* once, skipping branch edges and leaving some glyph
+// contours to magically fill themselves. Here we visit each EDGE exactly once.
 const neighbors8: P[] = [[-1,0],[0,-1],[1,0],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]];
-// Sort pen strokes RTL. Connected runs are walked along their real skeleton;
-// branches and detached marks get their own strokes (pen lifts between them).
+const reverse8=[3,2,1,0,7,6,5,4];
 export const inkTracks = (bits: Uint8Array, w: number, h: number): TraceSegment[] => {
-  const ids: number[] = [];
-  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) if (bits[y*w+x]) ids.push(y*w+x);
-  const near = (id: number) => {
-    const x = id % w, y = Math.floor(id / w);
-    return neighbors8.map(([dx,dy]) => (y+dy)*w+x+dx)
-      .filter(n => n >= 0 && n < bits.length && bits[n]);
+  const ids:number[]=[];
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(bits[y*w+x])ids.push(y*w+x);
+  const near=(id:number):{id:number;dir:number}[]=>{
+    const x=id%w,y=Math.floor(id/w),out:{id:number;dir:number}[]=[];
+    neighbors8.forEach(([dx,dy],dir)=>{
+      const nx=x+dx,ny=y+dy;
+      if(nx<0||nx>=w||ny<0||ny>=h||!bits[ny*w+nx])return;
+      // Do not double-connect a diagonal if either bridging orthogonal pixel
+      // exists: that creates false triangular cycles at Persian joins.
+      if(dx&&dy&&(bits[y*w+nx]||bits[ny*w+x]))return;
+      out.push({id:ny*w+nx,dir});
+    });
+    return out;
   };
-  const degree = new Map<number,number>();
-  ids.forEach(id => degree.set(id,near(id).length));
-  const order = ids.sort((a,b) => (b%w-a%w) || (Math.floor(a/w)-Math.floor(b/w)));
-  const endpoints = order.filter(id => degree.get(id)! <= 1);
-  const starts = [...endpoints,...order];
-  const seen = new Uint8Array(bits.length), out: TraceSegment[] = [];
-  for (const start of starts) {
-    if (seen[start]) continue;
-    const track: P[] = []; let here = start, prev = -1, length = 0;
-    while (!seen[here]) {
-      seen[here] = 1;
-      const p: P = [here % w, Math.floor(here / w)];
-      if (track.length) length += Math.hypot(p[0]-track[track.length-1][0], p[1]-track[track.length-1][1]);
-      track.push(p);
-      const candidates = near(here).filter(id => !seen[id]);
-      if (!candidates.length) break;
-      // Prefer continuing the stroke direction through intersections.
-      candidates.sort((a,b) => {
-        if (prev < 0) return (b%w-a%w) || a-b;
-        const px = here%w-prev%w, py = Math.floor(here/w)-Math.floor(prev/w);
-        const cost = (id: number) => {
-          const dx=id%w-here%w,dy=Math.floor(id/w)-Math.floor(here/w);
-          return (px*dx+py*dy)/(Math.hypot(px,py)*Math.hypot(dx,dy)||1);
-        };
-        return cost(b)-cost(a) || (b%w-a%w);
-      });
-      prev=here; here=candidates[0];
+  const visited=new Uint8Array(w*h);
+  const edgeDone=(id:number,dir:number)=>!!(visited[id]&(1<<dir));
+  const markEdge=(a:number,dir:number,b:number)=>{
+    visited[a]|=1<<dir;visited[b]|=1<<reverse8[dir];
+  };
+  const degree=new Uint8Array(w*h);
+  for(const id of ids)degree[id]=near(id).length;
+  // Stroke ordering starts rightmost: the phrase remains logically RTL.
+  ids.sort((a,b)=>b%w-a%w||Math.floor(a/w)-Math.floor(b/w));
+  const strokes:TraceSegment[]=[];
+  const push=(points:P[],length:number)=>{
+    if(points.length)strokes.push({points,length:Math.max(.5,length)});
+  };
+  for(const from of [...ids.filter(id=>degree[id]!==2),...ids.filter(id=>degree[id]===2)]){
+    if(degree[from]===0){
+      if(!visited[from]){visited[from]=255;push([[from%w,Math.floor(from/w)]],.5);}
+      continue;
     }
-    if (track.length) out.push({points:track,length:Math.max(length,0.5)});
+    for(const next of near(from)){
+      if(edgeDone(from,next.dir))continue;
+      const pts:P[]=[[from%w,Math.floor(from/w)]];
+      let current=from,edge=next,length=0;
+      while(true){
+        const nextId=edge.id,px=current%w,py=Math.floor(current/w),
+          qx=nextId%w,qy=Math.floor(nextId/w);
+        if(edgeDone(current,edge.dir))break;
+        markEdge(current,edge.dir,nextId);
+        length+=Math.hypot(qx-px,qy-py);
+        pts.push([qx,qy]);
+        if(degree[nextId]!==2)break;
+        const following=near(nextId).find(n=>!edgeDone(nextId,n.dir));
+        if(!following)break;
+        current=nextId;edge=following;
+        if(pts.length>bits.length+1)throw new Error("skeleton loop did not terminate");
+      }
+      push(pts,length);
+    }
   }
-  return out;
+  return strokes.sort((a,b)=>{
+    const ar=Math.max(...a.points.map(p=>p[0])),br=Math.max(...b.points.map(p=>p[0]));
+    return br-ar || a.points[0][1]-b.points[0][1];
+  });
 };
 
 const clamp = (x: number) => Number.isFinite(x) ? Math.max(0,Math.min(1,x)) : 0;

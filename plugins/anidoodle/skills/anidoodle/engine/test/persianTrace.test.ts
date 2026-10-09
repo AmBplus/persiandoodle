@@ -28,14 +28,20 @@ export const run = (ok: (value:boolean,label:string)=>void) => {
   const {blobs}=classifyInkBlobs(ink,W,H,60);
   ok(blobs.filter(b=>b.mark).length===3 &&
     blobs.filter(b=>!b.mark).length===1,"three Persian dots are separated from the connected baseline");
-  const skeleton=skeletonizeInk(Uint8Array.from(ink,x=>x?1:0),W,H);
-  const paths=inkTracks(skeleton,W,H);
+  const dotSkeleton=skeletonizeInk(Uint8Array.from(ink,x=>x?1:0),W,H);
+  const paths=inkTracks(dotSkeleton,W,H);
   const plan=buildInkPlan(ink,paths,W,H,60);
   ok(plan.markComponents===3 && plan.bodyComponents===1,
     "component-based scheduler distinguishes body from marks");
   ok(plan.tracks.some(x=>x.mark)&&plan.tracks.every(x=>!x.mark||x.start>=.80),
     "small detached dots are written AFTER the main letter body");
-  ok(plan.inkPixels===ink.reduce((n,v)=>n+(v?1:0),0),
+  const BW=18,BH=13,branchInk=new Uint8Array(BW*BH);
+  for(let x=4;x<=12;x++)branchInk[7*BW+x]=1;
+  for(let y=3;y<=10;y++)branchInk[y*BW+8]=1;
+  const connected=inkTracks(branchInk,BW,BH);
+  ok(connected.reduce((a,p)=>a+p.points.length-1,0)===15,
+    "every skeleton edge is traced, including both arms and the branch junction");
+    ok(plan.inkPixels===ink.reduce((n,v)=>n+(v?1:0),0),
     "all dots and body have scheduled ink");
   ok(plan.lastInkTime<=.979,
     "all ink arrives before the final frame, preventing the old full-fill pop");
