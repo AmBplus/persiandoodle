@@ -5,6 +5,15 @@ import {chromium} from "playwright-core";
 const root=resolve("../../.."),out=resolve("out");mkdirSync(out,{recursive:true});
 const catalog=JSON.parse(readFileSync(join(root,"library/data/catalog.json"),"utf8"));
 const audio=JSON.parse(readFileSync(join(root,"library/data/source-audio.json"),"utf8"));
+const shots=JSON.parse(readFileSync(join(root,"library/data/shotcraft-full.json"),"utf8"));
+const visuals=JSON.parse(readFileSync(join(root,"library/data/source-visuals.json"),"utf8"));
+if(shots.items.length!==157)throw Error("not all 157 upstream shot recipes indexed");
+const totalStyles=shots.items.reduce((sum,c)=>sum+c.styles.length,0);
+if(totalStyles!==214)throw Error("214 distinct original shot executions were not preserved: "+totalStyles);
+if(new Set(shots.items.flatMap(x=>x.styles.map(s=>s.key))).size!==214)throw Error("duplicate or overwritten style video identity");
+if(Object.keys(visuals.entries).length!==147)throw Error("missing source-specific thumbnail mapping");
+if(shots.items.some(x=>x.styles.some(st=>!st.preview?.endsWith(".mp4")&&!st.preview?.includes(".mp4?"))))throw Error("missing exact upstream motion preview URL");
+
 if(catalog.entries.filter(x=>x.source==="shotcraft"&&x.kind==="shot").length<150)throw Error("missing upstream shotcraft models");
 if(audio.summary.music!==5||audio.summary.sfx!==149)throw Error("missing original audio");
 if(audio.tracks.some(x=>x.playUrl&&!x.playUrl.startsWith("https://assets.mixkit.co/")))throw Error("source audio URL unverified");
@@ -53,6 +62,16 @@ try{
  await page.locator("#searchInput").fill("chart-live-moves");
  await page.locator(".model button").first().click();
  if(await page.locator("#variants button").count()<2)throw Error("source shot style variants discarded");
+ await page.locator("#variants button").nth(1).click();
+ const secondVariant=await page.locator("#previewVideo").getAttribute("src");
+ if(!secondVariant||!secondVariant.includes("unit-dot-swarm-regroup"))throw Error("second distinct source video did not switch: "+secondVariant);
+ if(!await page.locator("#sampleSound").isVisible())throw Error("separate audio-only control missing for source demo");
+ await page.locator("#searchInput").fill("");
+ await page.locator("#sourceFilter").selectOption("talkcraft");
+ await page.locator(".model img").first().waitFor({timeout:10000});
+ const talkThumb=await page.locator(".model img").first().getAttribute("src");
+ if(!talkThumb?.includes("/video-talkcraft/main/gallery/thumbs/"))throw Error("talkcraft source-specific thumbnails missing");
+
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  mobile.on("pageerror",e=>errors.push(e.message));await mobile.goto(`http://127.0.0.1:${port}/library/`);
  await mobile.locator(".model").first().waitFor({timeout:15000});
