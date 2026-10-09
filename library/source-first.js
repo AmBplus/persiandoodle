@@ -57,8 +57,22 @@ function record(x){
  const title=itemTitle(x),tags=[...new Set([...(x.tags||[]),categoryOf(x)])];
  return{...x,section:classify(x),facet:categoryOf(x),titleFaDisplay:title,tags,variants:x.styleVariants?.length?x.styleVariants.map((name,i)=>({name,url:i===0?x.preview:null})):x.variants||[{name:x.name,url:x.preview||null}]};
 }
-function initData(cat,audio){
- const arr=cat.entries.filter(x=>!["example","audio"].includes(x.kind)&&x.source!=="native").map(record);
+function initData(cat,audio,shots){
+ const shotIndex=new Map(shots.items.map(item=>[item.id,item]));
+ const arr=cat.entries.filter(x=>!["example","audio"].includes(x.kind)&&x.source!=="native").map(x=>{
+  const upstream=shotIndex.get(x.id);
+  if(!upstream)return record(x);
+  return record({...x,styleVariants:[],category:x.category||upstream.category,
+   tags:[...new Set([...(x.tags||[]),...(upstream.tags||[])])],
+   sourceUrl:upstream.sourceUrl,promptUrl:upstream.promptUrl,
+   use:upstream.use,intention:upstream.intention,duration:upstream.duration,energy:upstream.energy,
+   variants:upstream.styles.map((st,i)=>({
+    name:faTitle({name:st.key,kind:"shot",source:"shotcraft"})+" · "+(i+1).toLocaleString("fa-IR"),
+    key:st.key,url:st.preview,poster:st.poster||null,description:st.description,
+    originalName:st.name
+   }))
+  });
+ });
  for(const x of cat.entries.filter(x=>x.kind==="font"&&x.source==="native"))arr.push(record({...x,titleFa:x.name.replace(/-(Regular|Variable)$/,""),kind:"font"}));
  for(const x of audio.tracks)arr.push(record({...x,name:x.slug,source:"shotcraft",kind:x.kind,category:x.category,tags:[...(x.tags||[]),x.category],variants:[{name:x.slug,url:x.playUrl}]}));
  for(const [slug,name] of [["qalam","قلم نی"],["fountain","خودنویس"],["pencil","مداد"],["brush","قلم‌مو"]])arr.push(record({id:"native/pen/"+slug,source:"native",kind:"pen",titleFa:name,name:slug,status:"available-native",tags:["pen","handwriting"],sourceUrl:"https://github.com/AmBplus/persiandoodle/blob/main/skills/anidoodle/engine/src/canvas-core/persianSceneKit.ts"}));
@@ -115,13 +129,16 @@ function originalMedia(x,variant=0){
  return null;
 }
 function poster(x){
+ if(x.source==="shotcraft")return x.variants[S.variant]?.poster||x.variants[0]?.poster||null;
  if(x.source==="mg")return"https://raw.githubusercontent.com/Vincentwei1021/mg-styles-15/main/videos/"+x.name+".jpg";
  return null;
 }
 function art(x){
  if(x.kind==="music"||x.kind==="sfx")return'<div class="cover-muted"><span class="icon">♫</span><span class="source-mark">'+escapeHtml(x.kind==="music"?"موسیقی مرجع":"افکت صوتی مرجع")+'</span></div>';
- const image=poster(x);
- return image?'<img loading="lazy" alt="" src="'+escapeHtml(image)+'">':'<div class="cover-muted"><span class="icon">'+modelIcon(x)+'</span><span class="source-mark">'+escapeHtml(sourceName(x.source))+'</span></div>';
+ const image=poster(x),video=x.source==="shotcraft"?x.variants[0]?.url:null;
+ if(image)return '<img loading="lazy" alt="" src="'+escapeHtml(image)+'">';
+ if(video)return '<video muted loop playsinline preload="none" data-preview="'+escapeHtml(video)+'" aria-label="پیش‌نمایش واقعی مدل مرجع"></video>';
+ return '<div class="cover-muted"><span class="icon">'+modelIcon(x)+'</span><span class="source-mark">'+escapeHtml(sourceName(x.source))+'</span></div>';
 }
 function renderGallery(){
  const arr=filtered(),gallery=$("#gallery");gallery.replaceChildren();
@@ -134,7 +151,14 @@ function renderGallery(){
   el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(x.available?"پخش از منبع اصلی":"مجوز نیازمند بررسی"):orig?"مرجع اصلی":"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
   '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p><div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
   el.querySelector("button").addEventListener("click",()=>detail(x));
-  el.querySelector(".model-cover").addEventListener("click",()=>detail(x));
+  const cover=el.querySelector(".model-cover"),motion=cover.querySelector("video[data-preview]");
+  if(motion){
+   cover.addEventListener("mouseenter",()=>{if(!motion.src)motion.src=motion.dataset.preview;motion.play().catch(()=>{})});
+   cover.addEventListener("mouseleave",()=>{motion.pause();motion.currentTime=0});
+   cover.addEventListener("focusin",()=>{if(!motion.src)motion.src=motion.dataset.preview;motion.play().catch(()=>{})});
+   cover.addEventListener("focusout",()=>motion.pause());
+  }
+  cover.addEventListener("click",()=>detail(x));
   gallery.append(el);
  }
  const more=$("#showMore");more.hidden=arr.length<=S.visible;
@@ -275,7 +299,7 @@ function attach(){
  $("#copyDirector").addEventListener("click",async()=>{const scene=outputScene();await copy("صحنهٔ فارسی زیر را بساز؛ از منابع و پرامپت‌های هر مورد استفاده کن، تمام نوشته‌ها را فارسی و طبیعی بازآفرینی کن، از ویدیوهای مرجع به جای خروجی استفاده نکن، و MP4 با صدای مجاز و مشبک فریم‌های QC تحویل بده.\n"+JSON.stringify(scene,null,2))});
 }
 async function init(){
- attach();try{const [catalog,audio]=await Promise.all([fetch("./data/catalog.json").then(r=>r.json()),fetch("./data/source-audio.json").then(r=>r.json())]);initData(catalog,audio);selectSection("designs");
+ attach();try{const [catalog,audio,shots]=await Promise.all([fetch("./data/catalog.json").then(r=>r.json()),fetch("./data/source-audio.json").then(r=>r.json()),fetch("./data/shotcraft-full.json").then(r=>r.json())]);initData(catalog,audio,shots);selectSection("designs");
  }catch(e){console.error(e);$("#resultCount").textContent="خطا در بارگذاری داده‌ها";$("#empty").hidden=false;$("#empty").textContent="بارگذاری ناموفق بود؛ صفحه را دوباره بارگذاری کنید."}
 }
 init();
