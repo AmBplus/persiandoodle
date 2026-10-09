@@ -40,8 +40,8 @@ try{
  const mgCount=await page.locator("#resultCount").innerText();
  if(!mgCount.includes("۱۵"))throw Error("15 original style designs not discoverable: "+mgCount);
  await page.locator(".model button").first().click();
- if(!await page.locator("#previewVideo").isVisible())throw Error("source film reference missing");
- if(!await page.locator("#detailCaveat").innerText().then(x=>x.includes("فارسی")))throw Error("foreign-language preview honesty missing");
+ if(await page.locator("#previewVideo").isVisible())throw Error("unrendered card exposed a playable video");
+ if(!await page.locator("#detailCaveat").innerText().then(x=>x.includes("مرجع خارجی")&&x.includes("پخش نمی‌شود")))throw Error("unrendered preview honesty missing");
  await page.locator("#showPrompt").click();if(!await page.locator("#promptText").inputValue().then(s=>s.includes("پرامپت")||s.includes("ماموریت")))throw Error("Persian production prompt missing");
  await page.locator("#addToScene").click();if(!await page.locator("#sceneDrawer").isVisible())throw Error("scene selection missing");
  if(!await page.locator("#sceneJSON").innerText().then(x=>x.includes("source-first-scene/v2")))throw Error("scene JSON missing");
@@ -51,9 +51,10 @@ try{
  await page.locator('[data-category="music"]').first().click();
  const music=await page.locator("#resultCount").innerText();if(!music.includes("۵"))throw Error("five upstream BGM not in category: "+music);
  await page.locator(".model button").first().click();
- if(!await page.locator("#mediaAudio").isVisible())throw Error("music player not visible");
+ if(!await page.locator("#mediaAudio").isVisible())throw Error("music detail audio section missing");
  const src=await page.locator("#audioPlayer").getAttribute("src");
- if(!src?.includes("mixkit.co"))throw Error("music player did not use original licensed URL: "+src);
+ if(src)throw Error("unrendered music exposed a playable source: "+src);
+ if(!await page.locator("#rightsNote").innerText().then(x=>x.includes("هنوز آماده نیست")))throw Error("unrendered music status missing");
  await page.locator("#sourceFilter").selectOption("");// preserves music category
  await page.locator('[data-category="sound"]').first().click();
  const sfx=await page.locator("#resultCount").innerText();if(!sfx.includes("۱۴۹"))throw Error("149 sound effects not indexed: "+sfx);
@@ -64,13 +65,16 @@ try{
  if(await page.locator("#variants button").count()<2)throw Error("source shot style variants discarded");
  await page.locator("#variants button").nth(1).click();
  const secondVariant=await page.locator("#previewVideo").getAttribute("src");
- if(!secondVariant||!secondVariant.includes("unit-dot-swarm-regroup"))throw Error("second distinct source video did not switch: "+secondVariant);
- if(!await page.locator("#sampleSound").isVisible())throw Error("separate audio-only control missing for source demo");
+ if(secondVariant)throw Error("unrendered second variant exposed a playable source: "+secondVariant);
+ if(await page.locator("#sampleSound").isVisible())throw Error("unrendered source demo exposed an audio control");
  await page.locator("#searchInput").fill("");
  await page.locator("#sourceFilter").selectOption("talkcraft");
- await page.locator(".model img").first().waitFor({timeout:10000});
- const talkThumb=await page.locator(".model img").first().getAttribute("src");
- if(!talkThumb?.includes("/video-talkcraft/main/gallery/thumbs/"))throw Error("talkcraft source-specific thumbnails missing");
+ await page.locator(".model").first().waitFor({timeout:10000});
+ const talkThumb=await page.locator(".model img").count();
+ if(talkThumb)throw Error("unrendered Talkcraft card exposed a thumbnail");
+
+ const mediaSources=await page.locator("video, audio, img").evaluateAll(nodes=>nodes.map(node=>node.getAttribute("src")||node.getAttribute("data-preview")).filter(Boolean));
+ if(mediaSources.some(src=>/^https?:\/\//i.test(src)))throw Error("foreign media source exposed in DOM: "+mediaSources.join(", "));
 
  const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  mobile.on("pageerror",e=>errors.push(e.message));await mobile.goto(`http://127.0.0.1:${port}/library/`);
@@ -78,5 +82,5 @@ try{
  if(!await mobile.locator("#mobileNav").isVisible())throw Error("fixed mobile category navigation missing");
  await mobile.screenshot({path:join(out,"source-first-mobile.png"),fullPage:true});
  if(errors.length)throw Error("browser exceptions: "+errors.join(" ; "));
- console.log("PASS: complete model catalog, 15 styles, source/tag/category filters, >= 2 shot variants, 5 original BGM, 149 SFX, actionable Persian prompts, honest videos, responsive UI, composer");
+ console.log("PASS: complete model catalog, 15 styles, source/tag/category filters, >= 2 shot variants, 5 indexed BGM, 149 indexed SFX, actionable Persian prompts, honest local-only media states, responsive UI, composer");
 }finally{await browser.close();await new Promise(ok=>server.close(ok))}
