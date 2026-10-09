@@ -1,0 +1,51 @@
+name: Render selected Persian scene
+
+on:
+  workflow_dispatch:
+    inputs:
+      scene_json:
+        description: "Paste JSON from PersianDoodle Library scene composer"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  render-scene:
+    name: Native Persian scene render
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: skills/anidoodle/engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: skills/anidoodle/engine/package-lock.json
+      - name: Install engine dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+          npm ci --no-audit --no-fund
+          npx playwright-core install --with-deps chromium
+      - name: Validate and render the chosen scene
+        env:
+          SCENE_JSON: ${{ inputs.scene_json }}
+        run: |
+          printf '%s' "$SCENE_JSON" > .tmp-scene.json
+          node -e 'const f=require("fs"),s=JSON.parse(f.readFileSync(".tmp-scene.json","utf8"));if(s.schema!=="persiandoodle/scene-selection/v1"||s.locale!=="fa-IR"||typeof s.text!=="string"||s.text.length>75)process.exit(1);console.log("Persian scene manifest accepted")'
+          node tools/render-library-scene.mjs --config .tmp-scene.json --out out/selected-persian-scene.mp4 --sheet out/selected-persian-scene-sheet.jpg --allow-concept
+      - name: Upload video, intermediate frames and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: persiandoodle-selected-scene
+          path: |
+            skills/anidoodle/engine/out/selected-persian-scene.mp4
+            skills/anidoodle/engine/out/selected-persian-scene-sheet.jpg
+            skills/anidoodle/engine/out/composed-selection-stills/*.png
+            skills/anidoodle/engine/.tmp-scene.json
+          if-no-files-found: warn
