@@ -31,8 +31,8 @@ for(let i=0;i<styles.length;i++){
  const clip=join(root,clips+row.name+".mp4");
  if(!existsSync(src))throw Error("missing rendered 15-style source video");
  const result=spawnSync("ffmpeg",["-hide_banner","-loglevel","error",
-  "-ss",String(i*2),"-i",src,"-t","2.0","-an","-c:v","libx264",
-  "-preset","fast","-crf","23","-pix_fmt","yuv420p","-movflags","+faststart","-y",clip],{stdio:"pipe"});
+  "-ss",String(i*2),"-i",src,"-t","2.0","-c:v","libx264",
+  "-preset","fast","-crf","23","-pix_fmt","yuv420p","-c:a","aac","-b:a","128k","-movflags","+faststart","-y",clip],{stdio:"pipe"});
  if(result.status!==0)throw Error("Failed individual Persian style video "+row.name+": "+result.stderr?.toString());
  row.localizedDemo="../"+clips+row.name+".mp4";
 }
