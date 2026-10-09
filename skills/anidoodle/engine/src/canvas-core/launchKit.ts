@@ -11,7 +11,7 @@ export const C = {
   bg: "#ece6da", card: "#fffdf8", ink: "#1d1a16", soft: "#6f675c", mute: "#a39a8c", line: "#e0d8c8",
   chip: "#f3ede1", accent: "#d4622b", accentDeep: "#a9471a", paper: "#fbf9f3", shadow: "rgba(60,40,20,0.10)",
 };
-export const SANS = (w: number, px: number) => `${w} ${px}px "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif`;
+export const SANS = (w: number, px: number) => `${w} ${px}px "Vazirmatn", "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif`;
 export const MONO = (px: number) => `${px}px "SF Mono", Menlo, Monaco, monospace`;
 
 // ---------------------------------------------------------------- time
@@ -199,20 +199,24 @@ export const drawChatFrame = (ctx: Ctx, s: ChatState, g: ChatGeom = CHAT_GEOM) =
   ctx.fillStyle = P.paper; rr(ctx, INPUT.x, INPUT.y, INPUT.w, INPUT.h, INPUT.r); ctx.fill();
   ctx.lineWidth = 2 * k; ctx.strokeStyle = P.line; ctx.stroke();
   ctx.font = SANS(500, TEXT.px); ctx.textBaseline = "alphabetic";
-  if (!s.typed && s.placeholder) { ctx.fillStyle = P.mute; ctx.fillText(s.placeholder, TEXT.x, TEXT.base); }
+  const persian = /[\u0590-\u08ff]/.test(s.typed || s.placeholder || s.title || "");
+  const origin = persian ? GEN.x - 28*k : TEXT.x;
+  ctx.direction = persian ? "rtl" : "ltr";
+  ctx.textAlign = persian ? "right" : "left";
+  if (!s.typed && s.placeholder) { ctx.fillStyle = P.mute; ctx.fillText(s.placeholder, origin, TEXT.base); }
   const acc = s.accent ?? P.accent;
   if (g2.wrap > 0) {
     const lines = composerLines(ctx, s.typed, g2); ctx.font = SANS(500, TEXT.px); ctx.fillStyle = P.ink;
-    lines.forEach((l, i) => ctx.fillText(l, TEXT.x, TEXT.base + i * g2.lineH));
-    if (s.caret) { const i = lines.length - 1, x = TEXT.x + ctx.measureText(lines[i]).width + 3 * k; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base + i * g2.lineH - 0.94 * TEXT.px, 3 * k, 1.18 * TEXT.px); }
+    lines.forEach((l, i) => ctx.fillText(l, origin, TEXT.base + i * g2.lineH));
+    if (s.caret) { const i = lines.length - 1, x = origin + (persian ? -1 : 1) * (ctx.measureText(lines[i]).width + 3*k); ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base + i * g2.lineH - 0.94 * TEXT.px, 3 * k, 1.18 * TEXT.px); }
   } else {
-    ctx.fillStyle = P.ink; ctx.fillText(s.typed, TEXT.x, TEXT.base);
-    if (s.caret) { const x = TEXT.x + ctx.measureText(s.typed).width + 3; ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base - 32, 3, 40); }
+    ctx.fillStyle = P.ink; ctx.fillText(s.typed, origin, TEXT.base);
+    if (s.caret) { const x = origin + (persian ? -1 : 1) * (ctx.measureText(s.typed).width + 3); ctx.fillStyle = acc; ctx.fillRect(x, TEXT.base - 32, 3, 40); }
   }
   // Generate
   const pr = s.genPress ?? 0, hot = s.genHot ?? 0, q = 1 - 0.07 * pr, gx = GEN.x + (GEN.w * (1 - q)) / 2, gy = GEN.y + (GEN.h * (1 - q)) / 2;
   ctx.fillStyle = hot > 0 ? mixHex(acc, s.accent ? deepen(acc) : P.accentDeep, 0.35 * hot + 0.4 * pr) : acc; rr(ctx, gx, gy, GEN.w * q, GEN.h * q, GEN.r * q); ctx.fill();
-  ctx.fillStyle = "#fff"; ctx.font = SANS(600, px.gen * q); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText(s.genLabel ?? "Generate", GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1 * k); ctx.textAlign = "left";
+  ctx.fillStyle = "#fff"; ctx.font = SANS(600, px.gen * q); ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillText(s.genLabel ?? (persian ? "بساز" : "Generate"), GEN.x + GEN.w / 2, GEN.y + GEN.h / 2 + 1 * k); ctx.textAlign = "left"; ctx.direction="ltr";
   if (s.composer !== undefined) ctx.globalAlpha = 1; }
 };
 // where the caret is: the end of the typed words (on their last line in a wrapping composer)
