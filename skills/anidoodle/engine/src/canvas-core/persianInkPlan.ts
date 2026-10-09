@@ -10,7 +10,7 @@ export type InkPlan = {
   bodyComponents: number; markComponents: number; lastInkTime: number;
 };
 type Blob = { id: number; area: number; minX: number; maxX: number; minY: number; maxY: number;
-  mark: boolean; paths: { points: P[]; length: number }[] };
+  mark: boolean; seed: number; paths: { points: P[]; length: number }[] };
 const neighbors: P[] = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];
 export const classifyInkBlobs = (alpha: Uint8Array, w: number, h: number, em: number) => {
   const labels = new Int32Array(w*h).fill(-1), blobs: Blob[] = [];
@@ -19,7 +19,7 @@ export const classifyInkBlobs = (alpha: Uint8Array, w: number, h: number, em: nu
     const first=y*w+x;
     if(alpha[first]===0 || labels[first]>=0)continue;
     const id=blobs.length;
-    const b:Blob={id,area:0,minX:x,maxX:x,minY:y,maxY:y,mark:false,paths:[]};
+    const b:Blob={id,area:0,minX:x,maxX:x,minY:y,maxY:y,mark:false,seed:first,paths:[]};
     labels[first]=id;stack.push(first);
     while(stack.length){
       const p=stack.pop()!,px=p%w,py=Math.floor(p/w);
@@ -62,7 +62,7 @@ export const buildInkPlan = (
   }
   // Nonzero ink that is too small to skeletonize still gets a nib tap.
   for(const b of blobs)if(!b.paths.length){
-    const cx=Math.round((b.minX+b.maxX)/2),cy=Math.round((b.minY+b.maxY)/2);
+    const cx=b.seed%w,cy=Math.floor(b.seed/w);
     b.paths.push({points:[[cx,cy]],length:1});
   }
   const ordered=blobs.slice().sort((a,b)=>Number(a.mark)-Number(b.mark) ||
