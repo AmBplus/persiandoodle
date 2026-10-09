@@ -38,6 +38,7 @@ jobs:
           test -s _site/skills/anidoodle/engine/assets/fonts/Vazirmatn-Variable.ttf
           test ! -d _site/assets/audio
           test ! -d _site/assets/library
+          node scripts/release-check.mjs --site _site
           du -sh _site
       - uses: actions/configure-pages@v5
         with:
