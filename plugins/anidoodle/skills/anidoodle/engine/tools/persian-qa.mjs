@@ -25,6 +25,7 @@ run(process.execPath, [
   "--sheet", "out/persian-showcase-contact.jpg", "--sheet-scale", "0.5"
 ]);
 console.log("Pen-drawn RTL demo: out/persian-showcase-contact.jpg");
+run(process.execPath, ["tools/verify-persian-frames.mjs"]);
 
 run(process.execPath, ["tools/render.mjs","persianShowcase",
   "--out","out/persian-showcase.mp4","--workers","2"]);
