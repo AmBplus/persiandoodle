@@ -8,7 +8,7 @@ const run = (cmd, args) => {
   if (r.error) throw r.error;
   if (r.status !== 0) process.exit(r.status ?? 1);
 };
-run(process.execPath, ["tools/test.mjs", "persianText", "persianTrace", "persianPenAudio", "persianMotionSampler"]);
+run(process.execPath, ["tools/test.mjs", "persianText", "persianTrace", "persianPenAudio", "persianMotionSampler", "persianShotSampler"]);
 run(process.execPath, [
   "tools/still.mjs", "persianGallery",
   "--frames", "0,20,40,60,79,80,100,120,140,159,160,180,200,220,239,240,260,280,300,319,320,340,360,380,399",
@@ -41,3 +41,12 @@ run(process.execPath,["tools/still.mjs","persianMotionSampler",
   "--sheet","out/persian-motion-styles-contact.jpg",
   "--sheet-scale","0.33"]);
 console.log("15 native Persian style frames: out/persian-motion-styles-contact.jpg");
+
+run(process.execPath,[
+ "tools/still.mjs","persianShotSampler",
+ "--frames","72,162,252,342,432,522,612,702,792,882,972",
+ "--out","out/persian-native-shots/",
+ "--sheet","out/persian-native-shots-contact.jpg",
+ "--sheet-scale","0.36"
+]);
+console.log("Eleven distinct Persian shot mechanism captures: out/persian-native-shots-contact.jpg");

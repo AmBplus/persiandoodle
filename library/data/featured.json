@@ -1,0 +1,2103 @@
+{
+  "version": 2,
+  "design": "editorial curated",
+  "rule": "maximum two previews per motion family",
+  "categories": [
+    {
+      "id": "opening",
+      "title": "شروع و هویت",
+      "subtitle": "هدف، نشان و پیام آغازین",
+      "icon": "brand",
+      "families": [
+        {
+          "id": "ink-brand",
+          "name": "شروع با مرکب",
+          "variants": [
+            {
+              "id": "shotcraft/brand-ink-open",
+              "name": "brand-ink-open",
+              "source": "shotcraft",
+              "label": "شروع با مرکب",
+              "video": "../assets/library/shot-videos/brand-ink-open.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/brand-ink-open.mp4?v=1784437314501",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/brand-ink-open.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/brand-frame-snap",
+              "name": "brand-frame-snap",
+              "source": "shotcraft",
+              "label": "brand-frame-snap",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/brand-frame-snap.mp4?v=1784437314500",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/brand-frame-snap.md"
+            }
+          ]
+        },
+        {
+          "id": "editorial-opening",
+          "name": "آغاز سینمایی",
+          "variants": [
+            {
+              "id": "shotcraft/crane-rise-reveal",
+              "name": "crane-rise-reveal",
+              "source": "shotcraft",
+              "label": "crane-rise-reveal",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/crane-rise-reveal.mp4?v=1784437314541",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/crane-rise-reveal.md"
+            },
+            {
+              "id": "shotcraft/dataviz-landscape-open",
+              "name": "dataviz-landscape-open",
+              "source": "shotcraft",
+              "label": "dataviz-landscape-open",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/dataviz-landscape-open.mp4?v=1784437314547",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/dataviz-landscape-open.md"
+            }
+          ]
+        },
+        {
+          "id": "brand-reveal",
+          "name": "معرفی نشان",
+          "variants": [
+            {
+              "id": "shotcraft/letterspace-materialize",
+              "name": "letterspace-materialize",
+              "source": "shotcraft",
+              "label": "letterspace-materialize",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/letterspace-materialize.mp4?v=1784437314618",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/letterspace-materialize.md"
+            },
+            {
+              "id": "shotcraft/icon-field-colorize",
+              "name": "icon-field-colorize",
+              "source": "shotcraft",
+              "label": "icon-field-colorize",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/icon-field-colorize.mp4?v=1784437314599",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/icon-field-colorize.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "typography",
+      "title": "تایپوگرافی",
+      "subtitle": "ورود متن و نوشتار فارسی",
+      "icon": "type",
+      "families": [
+        {
+          "id": "handwriting",
+          "name": "نوشتن با قلم",
+          "variants": [
+            {
+              "id": "persian/handwriting",
+              "source": "native",
+              "name": "handwriting",
+              "label": "نقاشی با قلم فارسی",
+              "video": "../assets/persian/handwriting-demo.mp4",
+              "status": "rendered-persian",
+              "license": "Original",
+              "sourceUrl": "https://github.com/AmBplus/persiandoodle"
+            },
+            {
+              "id": "shotcraft/marker-underline-title",
+              "name": "marker-underline-title",
+              "source": "shotcraft",
+              "label": "زیرخط با ماژیک",
+              "video": "../assets/library/shot-videos/marker-underline-title.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/marker-underline-title.mp4?v=1784437314635",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/marker-underline-title.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            }
+          ]
+        },
+        {
+          "id": "typewriter",
+          "name": "تایپ و سند",
+          "variants": [
+            {
+              "id": "shotcraft/document-typewriter-reveal",
+              "name": "document-typewriter-reveal",
+              "source": "shotcraft",
+              "label": "نوشتن سند",
+              "video": "../assets/library/shot-videos/document-typewriter-reveal.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/document-typewriter-reveal.mp4?v=1784437314877",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/document-typewriter-reveal.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/split-flap-title",
+              "name": "split-flap-title",
+              "source": "shotcraft",
+              "label": "split-flap-title",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/split-flap-title.mp4?v=1784437314774",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/split-flap-title.md"
+            }
+          ]
+        },
+        {
+          "id": "kinetic",
+          "name": "تایپ حرکتی",
+          "variants": [
+            {
+              "id": "shotcraft/gradient-word-sweep",
+              "name": "gradient-word-sweep",
+              "source": "shotcraft",
+              "label": "gradient-word-sweep",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/gradient-word-sweep.mp4?v=1784437314587",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/gradient-word-sweep.md"
+            },
+            {
+              "id": "shotcraft/cel-flash-stomp",
+              "name": "cel-flash-stomp",
+              "source": "shotcraft",
+              "label": "cel-flash-stomp",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/cel-flash-stomp.mp4?v=1784437314517",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/cel-flash-stomp.md"
+            }
+          ]
+        },
+        {
+          "id": "path-type",
+          "name": "متن روی مسیر",
+          "variants": [
+            {
+              "id": "shotcraft/stroke-segment-build",
+              "name": "stroke-segment-build",
+              "source": "shotcraft",
+              "label": "stroke-segment-build",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/stroke-segment-build.mp4?v=1784437314790",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/stroke-segment-build.md"
+            },
+            {
+              "id": "shotcraft/title-demote-to-label",
+              "name": "title-demote-to-label",
+              "source": "shotcraft",
+              "label": "title-demote-to-label",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/title-demote-to-label.mp4?v=1784437314825",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/title-demote-to-label.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entrance",
+      "title": "ورود عناصر",
+      "subtitle": "ورود کارت‌ها و اجزای رابط",
+      "icon": "layout",
+      "families": [
+        {
+          "id": "card-motion",
+          "name": "ورود کارت‌ها",
+          "variants": [
+            {
+              "id": "shotcraft/deck-deal-flyin",
+              "name": "deck-deal-flyin",
+              "source": "shotcraft",
+              "label": "deck-deal-flyin",
+              "video": "../assets/library/shot-videos/deck-deal-flyin.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/deck-deal-flyin.mp4?v=1784437314552",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/deck-deal-flyin.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/list-stack-press",
+              "name": "list-stack-press",
+              "source": "shotcraft",
+              "label": "list-stack-press",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/list-stack-press.mp4?v=1784437314631",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/list-stack-press.md"
+            }
+          ]
+        },
+        {
+          "id": "vector-draw",
+          "name": "ترسیم عناصر",
+          "variants": [
+            {
+              "id": "shotcraft/draw-svg-trace",
+              "name": "draw-svg-trace",
+              "source": "shotcraft",
+              "label": "ردگیری مسیر طراحی",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/draw-svg-trace.mp4?v=1784437314561",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/draw-svg-trace.md"
+            },
+            {
+              "id": "shotcraft/morph-from-primitive",
+              "name": "morph-from-primitive",
+              "source": "shotcraft",
+              "label": "morph-from-primitive",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/morph-from-primitive.mp4?v=1784437314642",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/morph-from-primitive.md"
+            }
+          ]
+        },
+        {
+          "id": "panel-build",
+          "name": "مونتاژ قاب",
+          "variants": [
+            {
+              "id": "shotcraft/neon-frame-forerun",
+              "name": "neon-frame-forerun",
+              "source": "shotcraft",
+              "label": "neon-frame-forerun",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/neon-frame-forerun.mp4?v=1784437314646",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/neon-frame-forerun.md"
+            },
+            {
+              "id": "shotcraft/element-body-moves",
+              "name": "element-body-moves",
+              "source": "shotcraft",
+              "label": "element-body-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/axial-stretch.mp4?v=1784437314564",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/element-body-moves.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "camera",
+      "title": "دوربین و عمق",
+      "subtitle": "حرکت فضایی و تغییر قاب",
+      "icon": "camera",
+      "families": [
+        {
+          "id": "push-zoom",
+          "name": "زوم سینمایی",
+          "variants": [
+            {
+              "id": "shotcraft/crash-zoom-punch",
+              "name": "crash-zoom-punch",
+              "source": "shotcraft",
+              "label": "crash-zoom-punch",
+              "video": "../assets/library/shot-videos/crash-zoom-punch.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/crash-zoom-punch.mp4?v=1784437314543",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/crash-zoom-punch.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/depth-layer-moves",
+              "name": "depth-layer-moves",
+              "source": "shotcraft",
+              "label": "depth-layer-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/multiplane.mp4?v=1784437314556",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/depth-layer-moves.md"
+            }
+          ]
+        },
+        {
+          "id": "camera-tour",
+          "name": "گردش دوربین",
+          "variants": [
+            {
+              "id": "shotcraft/graze-face-tour",
+              "name": "graze-face-tour",
+              "source": "shotcraft",
+              "label": "graze-face-tour",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/graze-face-tour.mp4?v=1785050508191",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/graze-face-tour.md"
+            },
+            {
+              "id": "shotcraft/overhead-camera-moves",
+              "name": "overhead-camera-moves",
+              "source": "shotcraft",
+              "label": "overhead-camera-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/tilt-reveal.mp4?v=1784437314664",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/overhead-camera-moves.md"
+            }
+          ]
+        },
+        {
+          "id": "spatial",
+          "name": "عمق و منظر",
+          "variants": [
+            {
+              "id": "shotcraft/space-camera-moves",
+              "name": "space-camera-moves",
+              "source": "shotcraft",
+              "label": "space-camera-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/exploded-view.mp4?v=1784437314760",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/space-camera-moves.md"
+            },
+            {
+              "id": "shotcraft/tension-camera-moves",
+              "name": "tension-camera-moves",
+              "source": "shotcraft",
+              "label": "tension-camera-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/bullet-time-freeze-orbit.mp4?v=1784437314794",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/camera/tension-camera-moves.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "نمودار و آمار",
+      "subtitle": "نمایش اعداد و داده‌های واقعی",
+      "icon": "chart",
+      "families": [
+        {
+          "id": "number",
+          "name": "اعداد زنده",
+          "variants": [
+            {
+              "id": "shotcraft/odometer-digit-roll",
+              "name": "odometer-digit-roll",
+              "source": "shotcraft",
+              "label": "odometer-digit-roll",
+              "video": "../assets/library/shot-videos/odometer-digit-roll.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/odometer-digit-roll.mp4?v=1784437314659",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/odometer-digit-roll.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/gauge-readout-moves",
+              "name": "gauge-readout-moves",
+              "source": "shotcraft",
+              "label": "gauge-readout-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/needle-sweep-selftest.mp4?v=1784437314573",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/gauge-readout-moves.md"
+            }
+          ]
+        },
+        {
+          "id": "chart",
+          "name": "نمودار متحرک",
+          "variants": [
+            {
+              "id": "shotcraft/chart-live-moves",
+              "name": "chart-live-moves",
+              "source": "shotcraft",
+              "label": "chart-live-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/oscilloscope-stream.mp4?v=1784437314519",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/chart-live-moves.md"
+            },
+            {
+              "id": "shotcraft/particle-sand-fill",
+              "name": "particle-sand-fill",
+              "source": "shotcraft",
+              "label": "particle-sand-fill",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/particle-sand-fill.mp4?v=1784437314700",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/particle-sand-fill.md"
+            }
+          ]
+        },
+        {
+          "id": "compare",
+          "name": "مقایسه و تغییر",
+          "variants": [
+            {
+              "id": "shotcraft/before-after-slider-scrub",
+              "name": "before-after-slider-scrub",
+              "source": "shotcraft",
+              "label": "before-after-slider-scrub",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/before-after-slider-scrub.mp4?v=1784437314494",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/before-after-slider-scrub.md"
+            },
+            {
+              "id": "shotcraft/timeline-travel",
+              "name": "timeline-travel",
+              "source": "shotcraft",
+              "label": "timeline-travel",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/timeline-travel.mp4?v=1784437314823",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/timeline-travel.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interaction",
+      "title": "تعامل و محصول",
+      "subtitle": "کنش، پاسخ و رابط کاربری",
+      "icon": "ui",
+      "families": [
+        {
+          "id": "command",
+          "name": "ورود و جست‌وجو",
+          "variants": [
+            {
+              "id": "shotcraft/command-palette-summon",
+              "name": "command-palette-summon",
+              "source": "shotcraft",
+              "label": "command-palette-summon",
+              "video": "../assets/library/shot-videos/command-palette-summon.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/command-palette-summon.mp4?v=1784437314539",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/command-palette-summon.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/ai-stream-response",
+              "name": "ai-stream-response",
+              "source": "shotcraft",
+              "label": "ai-stream-response",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/ai-stream-response.mp4?v=1784437314480",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/ai-stream-response.md"
+            }
+          ]
+        },
+        {
+          "id": "selection",
+          "name": "انتخاب و تأیید",
+          "variants": [
+            {
+              "id": "shotcraft/input-trigger-moves",
+              "name": "input-trigger-moves",
+              "source": "shotcraft",
+              "label": "input-trigger-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/cursor-performance.mp4?v=1784437314610",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/input-trigger-moves.md"
+            },
+            {
+              "id": "shotcraft/icon-performance-moves",
+              "name": "icon-performance-moves",
+              "source": "shotcraft",
+              "label": "icon-performance-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/pop-burst-confirm.mp4?v=1784437314602",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/icon-performance-moves.md"
+            }
+          ]
+        },
+        {
+          "id": "flow",
+          "name": "تبدیل رابط",
+          "variants": [
+            {
+              "id": "shotcraft/canvas-materialize-moves",
+              "name": "canvas-materialize-moves",
+              "source": "shotcraft",
+              "label": "canvas-materialize-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/panel-to-canvas.mp4?v=1784437314506",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/canvas-materialize-moves.md"
+            },
+            {
+              "id": "shotcraft/integration-hub-map",
+              "name": "integration-hub-map",
+              "source": "shotcraft",
+              "label": "integration-hub-map",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/integration-hub-map.mp4?v=1784437314616",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/integration-hub-map.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition",
+      "title": "ترنزیشن‌ها",
+      "subtitle": "انتقال هدفمند از یک نما به بعدی",
+      "icon": "swap",
+      "families": [
+        {
+          "id": "ink-wipe",
+          "name": "انتقال با خط",
+          "variants": [
+            {
+              "id": "shotcraft/line-carry-transition",
+              "name": "line-carry-transition",
+              "source": "shotcraft",
+              "label": "انتقال خط پیوسته",
+              "video": "../assets/library/shot-videos/line-carry-transition.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/line-carry-transition.mp4?v=1784437314628",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/line-carry-transition.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/print-texture-transitions",
+              "name": "print-texture-transitions",
+              "source": "shotcraft",
+              "label": "print-texture-transitions",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/ink-bleed-reveal.mp4?v=1784437314705",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/print-texture-transitions.md"
+            }
+          ]
+        },
+        {
+          "id": "shape-morph",
+          "name": "تبدیل شکل",
+          "variants": [
+            {
+              "id": "shotcraft/circle-match-iris",
+              "name": "circle-match-iris",
+              "source": "shotcraft",
+              "label": "circle-match-iris",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/circle-match-iris.mp4?v=1784437314526",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/circle-match-iris.md"
+            },
+            {
+              "id": "shotcraft/page-turn-transitions",
+              "name": "page-turn-transitions",
+              "source": "shotcraft",
+              "label": "page-turn-transitions",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/cube-rotate.mp4?v=1784437314669",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/page-turn-transitions.md"
+            }
+          ]
+        },
+        {
+          "id": "hard-cut",
+          "name": "برش و جایگزینی",
+          "variants": [
+            {
+              "id": "shotcraft/color-block-step-wipe",
+              "name": "color-block-step-wipe",
+              "source": "shotcraft",
+              "label": "color-block-step-wipe",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/color-block-step-wipe.mp4?v=1784437314536",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/color-block-step-wipe.md"
+            },
+            {
+              "id": "shotcraft/shot-transitions",
+              "name": "shot-transitions",
+              "source": "shotcraft",
+              "label": "shot-transitions",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/flash-cut.mp4?v=1784437314733",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/transition/shot-transitions.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rhythm",
+      "title": "ریتم و تدوین",
+      "subtitle": "زمان‌بندیِ تصویر و موسیقی",
+      "icon": "beat",
+      "families": [
+        {
+          "id": "beat-motion",
+          "name": "ضربه و ریتم",
+          "variants": [
+            {
+              "id": "shotcraft/beat-cut-moves",
+              "name": "beat-cut-moves",
+              "source": "shotcraft",
+              "label": "beat-cut-moves",
+              "video": "../assets/library/shot-videos/beat-cut-moves.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/beat-cut-accelerando.mp4?v=1784437314486",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/beat-cut-moves.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/montage-rhythm-moves",
+              "name": "montage-rhythm-moves",
+              "source": "shotcraft",
+              "label": "montage-rhythm-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/drop-blackout-slam.mp4?v=1784437314637",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/montage-rhythm-moves.md"
+            }
+          ]
+        },
+        {
+          "id": "timing",
+          "name": "تغییر سرعت",
+          "variants": [
+            {
+              "id": "shotcraft/speed-ramp-freeze",
+              "name": "speed-ramp-freeze",
+              "source": "shotcraft",
+              "label": "speed-ramp-freeze",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/speed-ramp.mp4?v=1784437314770",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/speed-ramp-freeze.md"
+            },
+            {
+              "id": "shotcraft/rhythm-interrupt-moves",
+              "name": "rhythm-interrupt-moves",
+              "source": "shotcraft",
+              "label": "rhythm-interrupt-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/jump-cut-punch-in.mp4?v=1784437314707",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/rhythm/rhythm-interrupt-moves.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "title": "نور و افکت",
+      "subtitle": "افکت‌های تأکید و پرداخت",
+      "icon": "spark",
+      "families": [
+        {
+          "id": "lighting",
+          "name": "بازی نور",
+          "variants": [
+            {
+              "id": "shotcraft/light-play-moves",
+              "name": "light-play-moves",
+              "source": "shotcraft",
+              "label": "light-play-moves",
+              "video": "../assets/library/shot-videos/light-play-moves.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/spotlight-sweep.mp4?v=1784437314621",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/light-play-moves.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/glow-flyline-moves",
+              "name": "glow-flyline-moves",
+              "source": "shotcraft",
+              "label": "glow-flyline-moves",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/glow-orb-ambient.mp4?v=1784437314579",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/glow-flyline-moves.md"
+            }
+          ]
+        },
+        {
+          "id": "feedback",
+          "name": "تأثیر و بازخورد",
+          "variants": [
+            {
+              "id": "shotcraft/impact-feedback",
+              "name": "impact-feedback",
+              "source": "shotcraft",
+              "label": "impact-feedback",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/hit-counter.mp4?v=1784437314606",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/impact-feedback.md"
+            },
+            {
+              "id": "shotcraft/line-boil",
+              "name": "line-boil",
+              "source": "shotcraft",
+              "label": "خط زنده",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/line-boil.mp4?v=1784437314626",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/line-boil.md"
+            }
+          ]
+        },
+        {
+          "id": "texture",
+          "name": "رنگ و بافت",
+          "variants": [
+            {
+              "id": "shotcraft/riso-print-hits",
+              "name": "riso-print-hits",
+              "source": "shotcraft",
+              "label": "riso-print-hits",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/misregistration-hit.mp4?v=1784437314711",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/effects/riso-print-hits.md"
+            },
+            {
+              "id": "shotcraft/gradient-word-sweep",
+              "name": "gradient-word-sweep",
+              "source": "shotcraft",
+              "label": "gradient-word-sweep",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/gradient-word-sweep.mp4?v=1784437314587",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/gradient-word-sweep.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "outro",
+      "title": "پایان و برند",
+      "subtitle": "امضای بصری پایان و جمع‌بندی",
+      "icon": "finish",
+      "families": [
+        {
+          "id": "brand-outro",
+          "name": "پایان هویتی",
+          "variants": [
+            {
+              "id": "shotcraft/outro-group-photo-launch",
+              "name": "outro-group-photo-launch",
+              "source": "shotcraft",
+              "label": "outro-group-photo-launch",
+              "video": "../assets/library/shot-videos/outro-group-photo-launch.mp4",
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/outro-group-photo-launch.mp4?v=1784437314661",
+              "status": "rendered-persian",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/outro/outro-group-photo-launch.md",
+              "previewKind": "native-inspired-Persian-render",
+              "license": "Apache-2.0 recipe inspiration; original new animation"
+            },
+            {
+              "id": "shotcraft/neon-triple-marquee",
+              "name": "neon-triple-marquee",
+              "source": "shotcraft",
+              "label": "neon-triple-marquee",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/neon-triple-marquee.mp4?v=1784437314656",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/outro/neon-triple-marquee.md"
+            }
+          ]
+        },
+        {
+          "id": "clean-exit",
+          "name": "خروج آرام",
+          "variants": [
+            {
+              "id": "shotcraft/title-demote-to-label",
+              "name": "title-demote-to-label",
+              "source": "shotcraft",
+              "label": "title-demote-to-label",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/title-demote-to-label.mp4?v=1784437314825",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/title-demote-to-label.md"
+            },
+            {
+              "id": "shotcraft/gradient-word-sweep",
+              "name": "gradient-word-sweep",
+              "source": "shotcraft",
+              "label": "gradient-word-sweep",
+              "video": null,
+              "thumbnail": "https://vincentwei1021.github.io/video-shotcraft/gallery/media/gradient-word-sweep.mp4?v=1784437314587",
+              "status": "original-reference",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/gradient-word-sweep.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "style",
+      "title": "سبک‌های هنری",
+      "subtitle": "۱۵ فیلم مستقل فارسیِ قابل پخش",
+      "icon": "palette",
+      "families": [
+        {
+          "id": "01-flat-vector",
+          "name": "برداری تخت",
+          "variants": [
+            {
+              "id": "mg/01-flat-vector",
+              "name": "01-flat-vector",
+              "source": "mg",
+              "label": "برداری تخت",
+              "video": "../assets/library/style-videos/01-flat-vector.mp4",
+              "thumbnail": "../assets/library/style-thumbs/01-flat-vector.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/01-flat-vector.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/01-flat-vector.md"
+            }
+          ]
+        },
+        {
+          "id": "02-line-art",
+          "name": "طراحی پیوسته با خط",
+          "variants": [
+            {
+              "id": "mg/02-line-art",
+              "name": "02-line-art",
+              "source": "mg",
+              "label": "طراحی پیوسته با خط",
+              "video": "../assets/library/style-videos/02-line-art.mp4",
+              "thumbnail": "../assets/library/style-thumbs/02-line-art.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/02-line-art.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/02-line-art.md"
+            }
+          ]
+        },
+        {
+          "id": "03-isometric",
+          "name": "ایزومتریک",
+          "variants": [
+            {
+              "id": "mg/03-isometric",
+              "name": "03-isometric",
+              "source": "mg",
+              "label": "ایزومتریک",
+              "video": "../assets/library/style-videos/03-isometric.mp4",
+              "thumbnail": "../assets/library/style-thumbs/03-isometric.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/03-isometric.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/03-isometric.md"
+            }
+          ]
+        },
+        {
+          "id": "04-3d-render",
+          "name": "3D Render",
+          "variants": [
+            {
+              "id": "mg/04-3d-render",
+              "name": "04-3d-render",
+              "source": "mg",
+              "label": "3D Render",
+              "video": "../assets/library/style-videos/04-3d-render.mp4",
+              "thumbnail": "../assets/library/style-thumbs/04-3d-render.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/04-3d-render.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/04-3d-render.md"
+            }
+          ]
+        },
+        {
+          "id": "05-cel-boil",
+          "name": "خط زنده و نقاشی فریم‌به‌فریم",
+          "variants": [
+            {
+              "id": "mg/05-cel-boil",
+              "name": "05-cel-boil",
+              "source": "mg",
+              "label": "خط زنده و نقاشی فریم‌به‌فریم",
+              "video": "../assets/library/style-videos/05-cel-boil.mp4",
+              "thumbnail": "../assets/library/style-thumbs/05-cel-boil.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/05-cel-boil.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/05-cel-boil.md"
+            }
+          ]
+        },
+        {
+          "id": "06-collage",
+          "name": "کلاژ",
+          "variants": [
+            {
+              "id": "mg/06-collage",
+              "name": "06-collage",
+              "source": "mg",
+              "label": "کلاژ",
+              "video": "../assets/library/style-videos/06-collage.mp4",
+              "thumbnail": "../assets/library/style-thumbs/06-collage.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/06-collage.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/06-collage.md"
+            }
+          ]
+        },
+        {
+          "id": "07-liquid",
+          "name": "مایع و سیال",
+          "variants": [
+            {
+              "id": "mg/07-liquid",
+              "name": "07-liquid",
+              "source": "mg",
+              "label": "مایع و سیال",
+              "video": "../assets/library/style-videos/07-liquid.mp4",
+              "thumbnail": "../assets/library/style-thumbs/07-liquid.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/07-liquid.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/07-liquid.md"
+            }
+          ]
+        },
+        {
+          "id": "08-morph",
+          "name": "تبدیل شکل",
+          "variants": [
+            {
+              "id": "mg/08-morph",
+              "name": "08-morph",
+              "source": "mg",
+              "label": "تبدیل شکل",
+              "video": "../assets/library/style-videos/08-morph.mp4",
+              "thumbnail": "../assets/library/style-thumbs/08-morph.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/08-morph.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/08-morph.md"
+            }
+          ]
+        },
+        {
+          "id": "09-bauhaus",
+          "name": "باوهاوس",
+          "variants": [
+            {
+              "id": "mg/09-bauhaus",
+              "name": "09-bauhaus",
+              "source": "mg",
+              "label": "باوهاوس",
+              "video": "../assets/library/style-videos/09-bauhaus.mp4",
+              "thumbnail": "../assets/library/style-thumbs/09-bauhaus.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/09-bauhaus.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/09-bauhaus.md"
+            }
+          ]
+        },
+        {
+          "id": "10-synthwave",
+          "name": "سینث‌ویو",
+          "variants": [
+            {
+              "id": "mg/10-synthwave",
+              "name": "10-synthwave",
+              "source": "mg",
+              "label": "سینث‌ویو",
+              "video": "../assets/library/style-videos/10-synthwave.mp4",
+              "thumbnail": "../assets/library/style-thumbs/10-synthwave.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/10-synthwave.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/10-synthwave.md"
+            }
+          ]
+        },
+        {
+          "id": "12-aurora-glass",
+          "name": "شیشه و شفق",
+          "variants": [
+            {
+              "id": "mg/12-aurora-glass",
+              "name": "12-aurora-glass",
+              "source": "mg",
+              "label": "شیشه و شفق",
+              "video": "../assets/library/style-videos/12-aurora-glass.mp4",
+              "thumbnail": "../assets/library/style-thumbs/12-aurora-glass.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/12-aurora-glass.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/12-aurora-glass.md"
+            }
+          ]
+        },
+        {
+          "id": "18-hanazi",
+          "name": "Variety Captions",
+          "variants": [
+            {
+              "id": "mg/18-hanazi",
+              "name": "18-hanazi",
+              "source": "mg",
+              "label": "Variety Captions",
+              "video": "../assets/library/style-videos/18-hanazi.mp4",
+              "thumbnail": "../assets/library/style-thumbs/18-hanazi.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/18-hanazi.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/18-hanazi.md"
+            }
+          ]
+        },
+        {
+          "id": "19-paperclip",
+          "name": "Sticker Explainer",
+          "variants": [
+            {
+              "id": "mg/19-paperclip",
+              "name": "19-paperclip",
+              "source": "mg",
+              "label": "Sticker Explainer",
+              "video": "../assets/library/style-videos/19-paperclip.mp4",
+              "thumbnail": "../assets/library/style-thumbs/19-paperclip.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/19-paperclip.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/19-paperclip.md"
+            }
+          ]
+        },
+        {
+          "id": "20-pixel",
+          "name": "پیکسل آرت",
+          "variants": [
+            {
+              "id": "mg/20-pixel",
+              "name": "20-pixel",
+              "source": "mg",
+              "label": "پیکسل آرت",
+              "video": "../assets/library/style-videos/20-pixel.mp4",
+              "thumbnail": "../assets/library/style-thumbs/20-pixel.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/20-pixel.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/20-pixel.md"
+            }
+          ]
+        },
+        {
+          "id": "22-hud",
+          "name": "رابط آینده‌نگر",
+          "variants": [
+            {
+              "id": "mg/22-hud",
+              "name": "22-hud",
+              "source": "mg",
+              "label": "رابط آینده‌نگر",
+              "video": "../assets/library/style-videos/22-hud.mp4",
+              "thumbnail": "../assets/library/style-thumbs/22-hud.png",
+              "status": "rendered-persian",
+              "prompt": "prompts/mg-styles-15/22-hud.md",
+              "sourceUrl": "https://github.com/Vincentwei1021/mg-styles-15/blob/main/prompts/22-hud.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "narrative",
+      "title": "روایت و آموزش",
+      "subtitle": "ساختار روایت و انتقال مفهوم",
+      "icon": "story",
+      "families": [
+        {
+          "id": "explainer",
+          "name": "روایت آموزشی",
+          "variants": [
+            {
+              "id": "explainer/examples-rag-shots_src-G1-SC01.tsx",
+              "name": "SC01",
+              "source": "explainer",
+              "label": "نمونهٔ روایت آموزشی",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/anything2explainer/blob/main/examples/rag/shots_src/G1/SC01.tsx"
+            },
+            {
+              "id": "explainer/examples-rag-shots_src-G2-SC06.tsx",
+              "name": "SC06",
+              "source": "explainer",
+              "label": "نمونهٔ روایت آموزشی",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/anything2explainer/blob/main/examples/rag/shots_src/G2/SC06.tsx"
+            }
+          ]
+        },
+        {
+          "id": "talking-motion",
+          "name": "واکنش به گفتار",
+          "variants": [
+            {
+              "id": "talkcraft/chapter-title-card",
+              "name": "chapter-title-card",
+              "source": "talkcraft",
+              "label": "chapter-title-card",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/chapter-title-card.md"
+            },
+            {
+              "id": "talkcraft/callout-line-label",
+              "name": "callout-line-label",
+              "source": "talkcraft",
+              "label": "callout-line-label",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/Vincentwei1021/video-talkcraft/blob/main/references/cards/callout-line-label.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "continuity",
+      "title": "حرکت پیوسته",
+      "subtitle": "تداوم مسیر، برداشت و دوربین",
+      "icon": "route",
+      "families": [
+        {
+          "id": "onetake",
+          "name": "یک برداشت",
+          "variants": [
+            {
+              "id": "onetake/flyThrough",
+              "name": "flyThrough",
+              "source": "onetake",
+              "label": "flyThrough",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/feitangyuan/onetake/blob/main/gallery/sheets/flyThrough.png"
+            },
+            {
+              "id": "onetake/ribbon",
+              "name": "ribbon",
+              "source": "onetake",
+              "label": "ribbon",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/feitangyuan/onetake/blob/main/gallery/sheets/ribbon.png"
+            }
+          ]
+        },
+        {
+          "id": "camera-carry",
+          "name": "حمل حرکت",
+          "variants": [
+            {
+              "id": "onetake/iris",
+              "name": "iris",
+              "source": "onetake",
+              "label": "iris",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/feitangyuan/onetake/blob/main/gallery/sheets/iris.png"
+            },
+            {
+              "id": "onetake/zoomThrough",
+              "name": "zoomThrough",
+              "source": "onetake",
+              "label": "zoomThrough",
+              "video": null,
+              "thumbnail": null,
+              "status": "reference-only",
+              "prompt": null,
+              "sourceUrl": "https://github.com/feitangyuan/onetake/blob/main/gallery/sheets/zoomThrough.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "music",
+      "title": "موسیقی",
+      "subtitle": "انتخاب و شنیدن قطعه‌های موجود",
+      "icon": "music",
+      "families": [
+        {
+          "id": "native/assets/audio/fit-theme-15s.mp3",
+          "name": "موسیقی fit-theme-15s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/fit-theme-15s.mp3",
+              "name": "fit-theme-15s.mp3",
+              "source": "native",
+              "label": "موسیقی fit-theme-15s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/fit-theme-15s.mp3"
+            }
+          ]
+        },
+        {
+          "id": "native/assets/audio/nocturne-45s.mp3",
+          "name": "موسیقی nocturne-45s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/nocturne-45s.mp3",
+              "name": "nocturne-45s.mp3",
+              "source": "native",
+              "label": "موسیقی nocturne-45s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/nocturne-45s.mp3"
+            }
+          ]
+        },
+        {
+          "id": "native/assets/audio/piano-8s.mp3",
+          "name": "موسیقی piano-8s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/piano-8s.mp3",
+              "name": "piano-8s.mp3",
+              "source": "native",
+              "label": "موسیقی piano-8s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/piano-8s.mp3"
+            }
+          ]
+        },
+        {
+          "id": "native/assets/audio/piano-flat-baseline-8s.mp3",
+          "name": "موسیقی piano-flat-baseline-8s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/piano-flat-baseline-8s.mp3",
+              "name": "piano-flat-baseline-8s.mp3",
+              "source": "native",
+              "label": "موسیقی piano-flat-baseline-8s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/piano-flat-baseline-8s.mp3"
+            }
+          ]
+        },
+        {
+          "id": "native/assets/audio/sampler-cinematic-awe-8s.mp3",
+          "name": "موسیقی sampler-cinematic-awe-8s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/sampler-cinematic-awe-8s.mp3",
+              "name": "sampler-cinematic-awe-8s.mp3",
+              "source": "native",
+              "label": "موسیقی sampler-cinematic-awe-8s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/sampler-cinematic-awe-8s.mp3"
+            }
+          ]
+        },
+        {
+          "id": "native/assets/audio/sampler-drive-electronic-8s.mp3",
+          "name": "موسیقی sampler-drive-electronic-8s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/sampler-drive-electronic-8s.mp3",
+              "name": "sampler-drive-electronic-8s.mp3",
+              "source": "native",
+              "label": "موسیقی sampler-drive-electronic-8s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/sampler-drive-electronic-8s.mp3"
+            }
+          ]
+        },
+        {
+          "id": "native/assets/audio/sampler-lofi-nostalgic-8s.mp3",
+          "name": "موسیقی sampler-lofi-nostalgic-8s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/sampler-lofi-nostalgic-8s.mp3",
+              "name": "sampler-lofi-nostalgic-8s.mp3",
+              "source": "native",
+              "label": "موسیقی sampler-lofi-nostalgic-8s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/sampler-lofi-nostalgic-8s.mp3"
+            }
+          ]
+        },
+        {
+          "id": "native/assets/audio/sampler-marimba-curious-8s.mp3",
+          "name": "موسیقی sampler-marimba-curious-8s.mp3",
+          "variants": [
+            {
+              "id": "native/assets/audio/sampler-marimba-curious-8s.mp3",
+              "name": "sampler-marimba-curious-8s.mp3",
+              "source": "native",
+              "label": "موسیقی sampler-marimba-curious-8s.mp3",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../assets/audio/sampler-marimba-curious-8s.mp3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sound",
+      "title": "افکت صوتی",
+      "subtitle": "صداهای آغاز، پایان، قلم و تعامل",
+      "icon": "sound",
+      "families": [
+        {
+          "id": "pen-paper",
+          "name": "خش‌خش قلم و کاغذ",
+          "variants": [
+            {
+              "id": "native/sfx/pen-paper",
+              "name": "خش‌خش قلم و کاغذ",
+              "label": "خش‌خش قلم و کاغذ",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "soft-tick",
+          "name": "تیک نرم",
+          "variants": [
+            {
+              "id": "native/sfx/soft-tick",
+              "name": "تیک نرم",
+              "label": "تیک نرم",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "ui-click",
+          "name": "کلیک ظریف",
+          "variants": [
+            {
+              "id": "native/sfx/ui-click",
+              "name": "کلیک ظریف",
+              "label": "کلیک ظریف",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "brush",
+          "name": "صدای قلم‌مو",
+          "variants": [
+            {
+              "id": "native/sfx/brush",
+              "name": "صدای قلم‌مو",
+              "label": "صدای قلم‌مو",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "whoosh",
+          "name": "عبور نرم",
+          "variants": [
+            {
+              "id": "native/sfx/whoosh",
+              "name": "عبور نرم",
+              "label": "عبور نرم",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "impact",
+          "name": "ضربه نرم",
+          "variants": [
+            {
+              "id": "native/sfx/impact",
+              "name": "ضربه نرم",
+              "label": "ضربه نرم",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "background",
+      "title": "پس‌زمینه‌ها",
+      "subtitle": "کاغذ، فضا و الگوهای طراحی",
+      "icon": "layers",
+      "families": [
+        {
+          "id": "warm-paper",
+          "name": "کاغذ گرم",
+          "variants": [
+            {
+              "id": "native/background/warm-paper",
+              "name": "کاغذ گرم",
+              "label": "کاغذ گرم",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "blueprint",
+          "name": "نقشه آبی",
+          "variants": [
+            {
+              "id": "native/background/blueprint",
+              "name": "نقشه آبی",
+              "label": "نقشه آبی",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "parchment",
+          "name": "دست‌نوشتهٔ کلاسیک",
+          "variants": [
+            {
+              "id": "native/background/parchment",
+              "name": "دست‌نوشتهٔ کلاسیک",
+              "label": "دست‌نوشتهٔ کلاسیک",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "night-ink",
+          "name": "مرکب شب",
+          "variants": [
+            {
+              "id": "native/background/night-ink",
+              "name": "مرکب شب",
+              "label": "مرکب شب",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "washi",
+          "name": "بافت ژاپنی",
+          "variants": [
+            {
+              "id": "native/background/washi",
+              "name": "بافت ژاپنی",
+              "label": "بافت ژاپنی",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "font",
+      "title": "فونت‌های فارسی",
+      "subtitle": "تست متن در فونت‌های نصب‌شده",
+      "icon": "font",
+      "families": [
+        {
+          "id": "font/Amiri-Regular.ttf",
+          "name": "امیری",
+          "variants": [
+            {
+              "id": "font/Amiri-Regular.ttf",
+              "name": "Amiri-Regular",
+              "source": "native",
+              "label": "امیری",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Amiri-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/ArefRuqaa-Regular.ttf",
+          "name": "عارف",
+          "variants": [
+            {
+              "id": "font/ArefRuqaa-Regular.ttf",
+              "name": "ArefRuqaa-Regular",
+              "source": "native",
+              "label": "عارف",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/ArefRuqaa-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/BalooBhaijaan2-Variable.ttf",
+          "name": "بالو • متغیر",
+          "variants": [
+            {
+              "id": "font/BalooBhaijaan2-Variable.ttf",
+              "name": "BalooBhaijaan2-Variable",
+              "source": "native",
+              "label": "بالو • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/BalooBhaijaan2-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Estedad-Variable.ttf",
+          "name": "استعداد • متغیر",
+          "variants": [
+            {
+              "id": "font/Estedad-Variable.ttf",
+              "name": "Estedad-Variable",
+              "source": "native",
+              "label": "استعداد • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Estedad-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Gandom-Regular.ttf",
+          "name": "گندم",
+          "variants": [
+            {
+              "id": "font/Gandom-Regular.ttf",
+              "name": "Gandom-Regular",
+              "source": "native",
+              "label": "گندم",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Gandom-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Gulzar-Regular.ttf",
+          "name": "گلزار",
+          "variants": [
+            {
+              "id": "font/Gulzar-Regular.ttf",
+              "name": "Gulzar-Regular",
+              "source": "native",
+              "label": "گلزار",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Gulzar-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Katibeh-Regular.ttf",
+          "name": "کتیبه",
+          "variants": [
+            {
+              "id": "font/Katibeh-Regular.ttf",
+              "name": "Katibeh-Regular",
+              "source": "native",
+              "label": "کتیبه",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Katibeh-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Lalezar-Regular.ttf",
+          "name": "لاله‌زار",
+          "variants": [
+            {
+              "id": "font/Lalezar-Regular.ttf",
+              "name": "Lalezar-Regular",
+              "source": "native",
+              "label": "لاله‌زار",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Lalezar-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Lateef-Regular.ttf",
+          "name": "لطیف",
+          "variants": [
+            {
+              "id": "font/Lateef-Regular.ttf",
+              "name": "Lateef-Regular",
+              "source": "native",
+              "label": "لطیف",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Lateef-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Lemonada-Variable.ttf",
+          "name": "لیمونادا • متغیر",
+          "variants": [
+            {
+              "id": "font/Lemonada-Variable.ttf",
+              "name": "Lemonada-Variable",
+              "source": "native",
+              "label": "لیمونادا • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Lemonada-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/MarkaziText-Variable.ttf",
+          "name": "مرکزی • متغیر",
+          "variants": [
+            {
+              "id": "font/MarkaziText-Variable.ttf",
+              "name": "MarkaziText-Variable",
+              "source": "native",
+              "label": "مرکزی • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/MarkaziText-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Nahid-Regular.ttf",
+          "name": "ناهید",
+          "variants": [
+            {
+              "id": "font/Nahid-Regular.ttf",
+              "name": "Nahid-Regular",
+              "source": "native",
+              "label": "ناهید",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Nahid-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/NotoKufiArabic-Variable.ttf",
+          "name": "نوتو • متغیر",
+          "variants": [
+            {
+              "id": "font/NotoKufiArabic-Variable.ttf",
+              "name": "NotoKufiArabic-Variable",
+              "source": "native",
+              "label": "نوتو • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/NotoKufiArabic-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/NotoNaskhArabic-Variable.ttf",
+          "name": "نوتو • متغیر",
+          "variants": [
+            {
+              "id": "font/NotoNaskhArabic-Variable.ttf",
+              "name": "NotoNaskhArabic-Variable",
+              "source": "native",
+              "label": "نوتو • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/NotoNaskhArabic-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/NotoNastaliqUrdu-Variable.ttf",
+          "name": "نوتو • متغیر",
+          "variants": [
+            {
+              "id": "font/NotoNastaliqUrdu-Variable.ttf",
+              "name": "NotoNastaliqUrdu-Variable",
+              "source": "native",
+              "label": "نوتو • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/NotoNastaliqUrdu-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Parastoo-Regular.ttf",
+          "name": "پرستو",
+          "variants": [
+            {
+              "id": "font/Parastoo-Regular.ttf",
+              "name": "Parastoo-Regular",
+              "source": "native",
+              "label": "پرستو",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Parastoo-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/ReemKufi-Variable.ttf",
+          "name": "ریم • متغیر",
+          "variants": [
+            {
+              "id": "font/ReemKufi-Variable.ttf",
+              "name": "ReemKufi-Variable",
+              "source": "native",
+              "label": "ریم • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/ReemKufi-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Sahel-Variable.ttf",
+          "name": "ساحل • متغیر",
+          "variants": [
+            {
+              "id": "font/Sahel-Variable.ttf",
+              "name": "Sahel-Variable",
+              "source": "native",
+              "label": "ساحل • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Sahel-Variable.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Samim-Regular.ttf",
+          "name": "صمیم",
+          "variants": [
+            {
+              "id": "font/Samim-Regular.ttf",
+              "name": "Samim-Regular",
+              "source": "native",
+              "label": "صمیم",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Samim-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/ScheherazadeNew-Regular.ttf",
+          "name": "شهرزاد",
+          "variants": [
+            {
+              "id": "font/ScheherazadeNew-Regular.ttf",
+              "name": "ScheherazadeNew-Regular",
+              "source": "native",
+              "label": "شهرزاد",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/ScheherazadeNew-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Shabnam-Regular.ttf",
+          "name": "شبنم",
+          "variants": [
+            {
+              "id": "font/Shabnam-Regular.ttf",
+              "name": "Shabnam-Regular",
+              "source": "native",
+              "label": "شبنم",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Shabnam-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Tanha-Regular.ttf",
+          "name": "تنها",
+          "variants": [
+            {
+              "id": "font/Tanha-Regular.ttf",
+              "name": "Tanha-Regular",
+              "source": "native",
+              "label": "تنها",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Tanha-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Vazir-Code-Regular.ttf",
+          "name": "وزیر",
+          "variants": [
+            {
+              "id": "font/Vazir-Code-Regular.ttf",
+              "name": "Vazir-Code-Regular",
+              "source": "native",
+              "label": "وزیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Vazir-Code-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Vazirmatn-RD-Regular.ttf",
+          "name": "وزیرمتن",
+          "variants": [
+            {
+              "id": "font/Vazirmatn-RD-Regular.ttf",
+              "name": "Vazirmatn-RD-Regular",
+              "source": "native",
+              "label": "وزیرمتن",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Vazirmatn-RD-Regular.ttf"
+            }
+          ]
+        },
+        {
+          "id": "font/Vazirmatn-Variable.ttf",
+          "name": "وزیرمتن • متغیر",
+          "variants": [
+            {
+              "id": "font/Vazirmatn-Variable.ttf",
+              "name": "Vazirmatn-Variable",
+              "source": "native",
+              "label": "وزیرمتن • متغیر",
+              "video": null,
+              "thumbnail": null,
+              "status": "available-native",
+              "sourceUrl": "../skills/anidoodle/engine/assets/fonts/Vazirmatn-Variable.ttf"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pen",
+      "title": "قلم و خوشنویسی",
+      "subtitle": "ابزار قلم با کنترل وقار و حرکت",
+      "icon": "pen",
+      "families": [
+        {
+          "id": "qalam",
+          "name": "قلم نی",
+          "variants": [
+            {
+              "id": "native/pen/qalam",
+              "name": "قلم نی",
+              "label": "قلم نی",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "fountain",
+          "name": "خودنویس",
+          "variants": [
+            {
+              "id": "native/pen/fountain",
+              "name": "خودنویس",
+              "label": "خودنویس",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "pencil",
+          "name": "مداد",
+          "variants": [
+            {
+              "id": "native/pen/pencil",
+              "name": "مداد",
+              "label": "مداد",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "marker",
+          "name": "ماژیک",
+          "variants": [
+            {
+              "id": "native/pen/marker",
+              "name": "ماژیک",
+              "label": "ماژیک",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "brush",
+          "name": "قلم‌مو",
+          "variants": [
+            {
+              "id": "native/pen/brush",
+              "name": "قلم‌مو",
+              "label": "قلم‌مو",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        },
+        {
+          "id": "none",
+          "name": "بدون قلم",
+          "variants": [
+            {
+              "id": "native/pen/none",
+              "name": "بدون قلم",
+              "label": "بدون قلم",
+              "source": "native",
+              "status": "available-native"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "hiddenArchive": "data/catalog.json",
+  "unmatched": [],
+  "description": "Editorial Persian-native motion references; variants capped at 2 per family"
+}

@@ -35,6 +35,8 @@ jobs:
           mkdir -p _site/library _site/assets _site/skills/anidoodle/engine/assets
           cp -a library/. _site/library/
           cp -a assets/library _site/assets/library
+          # Legacy 534 generic thumbnails remain archived in Git but are not public gallery material.
+          rm -rf _site/assets/library/previews
           cp -a assets/persian _site/assets/persian
           cp -a assets/audio _site/assets/audio
           cp -a skills/anidoodle/engine/assets/fonts _site/skills/anidoodle/engine/assets/fonts
@@ -43,6 +45,8 @@ jobs:
           test -s _site/library/data/catalog.json
           test -s _site/library/index.html
           test -s _site/assets/library/persian-motion-styles.mp4
+          test -s _site/assets/library/shot-videos/brand-ink-open.mp4
+          test -s _site/library/data/featured.json
           test -s _site/skills/anidoodle/engine/assets/fonts/Vazirmatn-Variable.ttf
           echo "Prepared Pages site:"
           du -sh _site

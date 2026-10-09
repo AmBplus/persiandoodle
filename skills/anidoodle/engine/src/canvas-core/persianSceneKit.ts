@@ -38,31 +38,44 @@ export const paintPaper=(ctx:Ctx,W:number,H:number,style:PaperStyle,time=0)=>{
 };
 export const paintPen=(ctx:Ctx,point:P,angle:number,style:PenStyle,size=1,color="#ad824c")=>{
   if(style==="none")return;
-  ctx.save();ctx.translate(point[0],point[1]);ctx.rotate(angle+Math.PI*.42);
-  const k=Math.max(.72,Math.min(2,size));ctx.scale(k,k);
-  // Tip always at local (0,0); body extends away from the drawn ink.
+  ctx.save();
+  ctx.translate(point[0],point[1]);
+  // The hand keeps an elegant, mostly fixed posture. Sudden geometric
+  // changes at dots or glyph junctions must NEVER rotate the pen barrel.
+  ctx.rotate(Math.max(-.13,Math.min(.13,angle))-.40);
+  const k=Math.max(.62,Math.min(1.23,size*.77));
+  ctx.scale(k,k);
   ctx.lineJoin="round";ctx.lineCap="round";
-  if(style==="pencil"){
-    ctx.fillStyle="#e9bc57";ctx.strokeStyle="#6a563e";ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-5,-12);ctx.lineTo(-5,-86);ctx.lineTo(7,-86);ctx.lineTo(6,-12);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle="#28282b";ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-2,-6);ctx.lineTo(2,-6);ctx.closePath();ctx.fill();
+  // A slim hand-made writing instrument; sharp tip anchored to the ink path.
+  ctx.shadowColor="#17273445";ctx.shadowBlur=3;ctx.shadowOffsetX=2;ctx.shadowOffsetY=3;
+  const body=(fill:string,outline:string,length=66,half=4)=>{
+    ctx.fillStyle=fill;ctx.strokeStyle=outline;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-half,-11);ctx.lineTo(-half,-length);
+    ctx.quadraticCurveTo(0,-length-6,half,-length);
+    ctx.lineTo(half,-11);ctx.closePath();ctx.fill();ctx.stroke();
+  };
+  if(style==="qalam"){
+    body("#774b2d","#463222",73,3.8);
+    ctx.strokeStyle="#c49a64";ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.moveTo(-1,-15);ctx.lineTo(-1,-65);ctx.stroke();
+    ctx.fillStyle="#292522";ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-3,-7);ctx.lineTo(3,-7);ctx.fill();
+  }else if(style==="fountain"){
+    body("#2e4450","#172731",76,5);
+    ctx.fillStyle="#bfa16b";ctx.fillRect(-5,-28,10,3);ctx.fillRect(-5,-68,10,2);
+    ctx.fillStyle="#d6b377";ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-3,-12);ctx.lineTo(3,-12);ctx.fill();
+  }else if(style==="pencil"){
+    body("#d6ad60","#866641",70,4.5);
+    ctx.fillStyle="#2c2d31";ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-2.3,-7);ctx.lineTo(2.3,-7);ctx.fill();
+    ctx.fillStyle="#c67e79";ctx.fillRect(-4,-67,8,6);
   }else if(style==="brush"){
-    ctx.fillStyle="#8d4e35";ctx.strokeStyle="#66462c";ctx.lineWidth=1.7;
-    ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(-12,-20,-5,-28);ctx.lineTo(-7,-94);ctx.lineTo(5,-94);ctx.lineTo(5,-28);ctx.quadraticCurveTo(8,-12,0,0);ctx.fill();ctx.stroke();
-    ctx.fillStyle="#d2b689";ctx.fillRect(-7,-34,12,11);
-  }else if(style==="marker"){
-    ctx.fillStyle="#30435b";ctx.strokeStyle="#182836";ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-7,-11);ctx.lineTo(-7,-88);ctx.quadraticCurveTo(0,-96,7,-88);ctx.lineTo(7,-11);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle=color;ctx.fillRect(-6,-88,12,8);
-  }else if(style==="qalam"){
-    ctx.fillStyle="#6e4325";ctx.strokeStyle="#412b1d";ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-4,-6);ctx.lineTo(-5,-91);ctx.quadraticCurveTo(0,-102,6,-91);ctx.lineTo(4,-8);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle="#be9158";ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(-1,-20);ctx.lineTo(-2,-78);ctx.stroke();
+    body("#744a33","#513628",83,3.8);
+    ctx.fillStyle="#ccb796";ctx.fillRect(-4,-21,8,11);
+    ctx.fillStyle="#574b43";ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(-8,-10,-3,-13);
+    ctx.lineTo(3,-13);ctx.quadraticCurveTo(8,-10,0,0);ctx.fill();
   }else{
-    ctx.fillStyle="#263d50";ctx.strokeStyle="#152534";ctx.lineWidth=1.2;
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-6,-14);ctx.lineTo(-5,-100);ctx.lineTo(6,-100);ctx.lineTo(6,-14);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle=color;ctx.fillRect(-6,-58,12,4);
-    ctx.fillStyle="#d6c6a6";ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-5,-14);ctx.lineTo(5,-14);ctx.closePath();ctx.fill();
+    body("#465968","#233640",64,5.6);
+    ctx.fillStyle=color;ctx.fillRect(-5,-61,10,5);
+    ctx.fillStyle="#2b3b47";ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-5,-10);ctx.lineTo(5,-10);ctx.fill();
   }
   ctx.restore();
 };

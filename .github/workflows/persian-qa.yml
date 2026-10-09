@@ -39,19 +39,22 @@ jobs:
         run: node tools/persian-qa.mjs
       - name: Render 15 original Persian motion styles (Chromium + video)
         run: node tools/render.mjs persianMotionSampler --out out/persian-motion-styles.mp4 --workers 2
+      - name: Render eleven distinct Persian-native source-inspired shots
+        run: node tools/render.mjs persianShotSampler --out out/persian-shot-sampler.mp4 --workers 2
+      - name: Assert native sample movies have actual sound
+        run: |
+          for film in out/persian-motion-styles.mp4 out/persian-shot-sampler.mp4; do
+            ffprobe -v error -select_streams a -show_entries stream=codec_name -of csv=p=0 "$film" | grep -q aac || { echo "Audio stream missing: $film"; exit 1; }
+          done
       - name: Smoke-test RTL library in desktop and mobile Chromium
         run: node tools/library-smoke.mjs
       - name: Promote tested native Persian samples
-        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
-        run: node tools/publish-persian-library.mjs
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/library-editorial-v2-20261009' }}
+        run: |
+          node tools/publish-persian-library.mjs
+          node tools/publish-editorial.mjs
       - name: Render a scene composed from the exported Library JSON
         run: node tools/render-library-scene.mjs --config ../../../library/examples/persian-calligraphy-scene.json --out out/library-composed-scene.mp4 --sheet out/library-composed-sheet.jpg
-      - name: Independently render every catalog item with Persian glyphs
-        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
-        run: node tools/render-item-previews.mjs
-      - name: Verify complete gallery after preview generation
-        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
-        run: node tools/library-smoke.mjs
       - name: Upload real rendered PNGs, MP4 and contact sheets
         if: always()
         uses: actions/upload-artifact@v4
@@ -66,18 +69,21 @@ jobs:
             skills/anidoodle/engine/out/persian-motion-styles/*.png
             skills/anidoodle/engine/out/persian-motion-styles-contact.jpg
             skills/anidoodle/engine/out/persian-motion-styles.mp4
+            skills/anidoodle/engine/out/persian-native-shots-contact.jpg
+            skills/anidoodle/engine/out/persian-native-shots/*.png
+            skills/anidoodle/engine/out/persian-shot-sampler.mp4
             skills/anidoodle/engine/out/persian-library-desktop.png
             skills/anidoodle/engine/out/persian-library-mobile.png
             skills/anidoodle/engine/out/library-composed-scene.mp4
             skills/anidoodle/engine/out/library-composed-sheet.jpg
           if-no-files-found: warn
       - name: Commit and publish Persian-verified media and catalog
-        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/library-editorial-v2-20261009' }}
         working-directory: .
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/persian assets/library library/data/catalog.json
+          git add assets/persian assets/library/style-thumbs assets/library/style-videos assets/library/shot-videos library/data/catalog.json library/data/featured.json
           git diff --cached --quiet && exit 0
           git commit -m "docs: publish verified Persian motion previews [skip ci]"
           git push origin "HEAD:${{ github.head_ref }}"

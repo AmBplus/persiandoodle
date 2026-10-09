@@ -172,15 +172,19 @@ export const drawPersianTrace = (ctx: Ctx, env: Env, o: TraceOptions): TraceResu
       ctx.drawImage(paint.canvas,destX,destY);
     }
   }
-  const pen=progress>0&&progress<.96?nibPosition(p.plan.tracks,progress):null;
-  if(pen && o.pen!==false){
-    const before=nibPosition(p.plan.tracks,Math.max(0,progress-.0015));
-    const after=nibPosition(p.plan.tracks,Math.min(.96,progress+.0015));
-    const angle=before&&after?Math.atan2(after[1]-before[1],after[0]-before[0]):-.30;
-    ctx.save();
-    paintPen(ctx,[destX+pen[0],destY+pen[1]],angle,
-      o.penStyle??"fountain",o.penScale??o.size/90,o.penColor??"#a17745");
-    ctx.restore();
+  const track=p.plan.tracks.find(t=>progress>=t.start&&progress<t.end);
+  const pen=track&&o.pen!==false?nibPosition([track],progress):null;
+  if(pen && track){
+    const phase=(progress-track.start)/Math.max(1e-7,track.end-track.start);
+    // A pen lifts between separated dots/strokes. Its body remains nearly
+    // vertical in a calm writer's grip, rather than spinning with every edge.
+    const fade=Math.min(1,phase*16,(1-phase)*16);
+    if(fade>0){
+      ctx.save();ctx.globalAlpha*=fade;
+      paintPen(ctx,[destX+pen[0],destY+pen[1]],0,
+        o.penStyle??"qalam",o.penScale??o.size/95,o.penColor??"#a17745");
+      ctx.restore();
+    }
   }
   return {width:p.width,totalPath:p.total,pen:pen?[destX+pen[0],destY+pen[1]]:null,
     tracks:p.segments.length,marks:p.plan.markComponents,inkPixels:p.plan.inkPixels};
