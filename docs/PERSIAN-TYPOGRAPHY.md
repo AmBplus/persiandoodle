@@ -39,19 +39,19 @@ Do not import commercial IRANSans, IRANYekan, Dana, Peyda, Kalameh or similar fo
 From the canonical `skills/anidoodle/engine/` (the plugin copy is mirrored):
 
 ```ts
-import { drawPersianText } from "./src/canvas-core/persianText";
+import { drawPersianTrace } from "./src/canvas-core/persianTrace";
 
 // Inside your Film shot.draw(ctx, local, env):
-drawPersianText(ctx, {
+drawPersianTrace(ctx, env, {
   text: "می‌توانیم روی طرح‌های ۱۴۰۵ کار کنیم",
   family: "Vazirmatn",
   x: 1110, y: 240, size: 56,
   progress: Math.min(1, local / 56),
-  mode: "ink", pen: true,
+  pen: true,
 });
 ```
 
-Add the chosen face to `film.assets.fonts` using a local path relative to the engine directory. `tools/build-page.mjs` embeds its bytes into the offline HTML; `src/hosts/page.ts` registers every `FontFace` and waits for it before frame 0. Family names in `film.assets.fonts` must match `drawPersianText.family`.
+Add the chosen face to `film.assets.fonts` using a local path relative to the engine directory. `tools/build-page.mjs` embeds its bytes into the offline HTML; `src/hosts/page.ts` registers every `FontFace` and waits for it before frame 0. Family names in `film.assets.fonts` must match `drawPersianTrace.family`.
 
 For the complete demonstration:
 
@@ -59,7 +59,7 @@ For the complete demonstration:
 cd skills/anidoodle/engine
 npm install
 node tools/persian-qa.mjs
-# outputs 25 real stills + out/persian-gallery-contact.jpg
+# outputs 25 font samples + 20 pen-trace samples + the Persian demo MP4
 # additional interactive HTML: node tools/build-page.mjs persianGallery
 ```
 
@@ -69,7 +69,8 @@ node tools/persian-qa.mjs
 - `normalizeIranianPersian` converts Arabic kaf/yeh glyph codes to Iranian forms while retaining ZWNJ and punctuation. Disable this normalization for genuine Urdu examples (`normalize: false`).
 - `persianDigits` is opt-in. Mixed Persian/Latin runs rely on the browser's Unicode bidirectional layout.
 - `ink` simulates an RTL ink sweep with a traveling nib. `type` reveals in grapheme-sized steps without breaking contextual shaping.
-- **This is NOT a physically reconstructed handwriting path**. Precise nib-following glyph contours requires a separate glyph-outline, GSUB/GPOS-aware path engine and stroke topology.
+- `drawPersianTrace(ctx, env, opts)` traces a cached one-pixel skeleton extracted from the browser-shaped full text and places a nib on real glyph interior paths. The line broadens near the end, then resolves to the original font. This draws lines rather than sweeping a rectangular reveal.
+- It is **not a true handwritten calligrapher's stroke-order model**; without real centreline metadata for each glyph and GSUB/GPOS-aware stroke topology, stroke/mark sequencing remains an approximation. `drawPersianText` remains available for lightweight reveal.
 - Always check actual glyphs at 0/25/50/75/100%, including `می‌روم`, `ی`, `ک`, `۰۱۲۳۴۵۶۷۸۹`, joining, RTL/LTR and punctuation. Large vertical metrics and diagonal baselines need room.
 
 ## Urdu font adaptation backlog
@@ -78,4 +79,4 @@ Gulzar and Noto Nastaliq Urdu are preserved unchanged as licensed upstream fonts
 
 ## QA status
 
-The source code, 25 original font binaries and test/gallery generator are committed. A GitHub Actions job at `.github/workflows/persian-qa.yml` can render a 25-frame contact sheet. Run the commands above to verify full browser rendering in the target system. The first 14-font test completed all 13 unit checks and captured 16 reproducible browser frames. Actual frames were inspected and compared, including Urdu Nastaliq. The new extended 25-font version must pass its own Actions checks and visual review before merging; precise glyph-outline writing and any altered Urdu derivative need separate evaluation.
+The source code, 25 original font binaries and test/gallery generator are committed. A GitHub Actions job at `.github/workflows/persian-qa.yml` can render a 25-frame contact sheet. Run the commands above to verify full browser rendering in the target system. The first 14-font test completed all 13 unit checks and captured 16 reproducible browser frames. Actual frames were inspected and compared, including Urdu Nastaliq. The expanded 25-font gallery and 4-scene Persian handwritten film render in GitHub Actions. Native Iranian calligrapher review and font-specific stroke reconstruction remain future quality upgrades.
