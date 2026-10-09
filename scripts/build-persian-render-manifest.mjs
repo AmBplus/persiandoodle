@@ -15,6 +15,9 @@ const statuses = ["identified", "analyzed", "in-progress", "rendered-persian", "
 const catalog = await readJson("library/data/catalog.json");
 const shots = await readJson("library/data/shotcraft-full.json");
 const audio = await readJson("library/data/source-audio.json");
+const out = resolve(root, arg("out", "library/data/persian-renders.json"));
+let existing = {};
+try { existing = JSON.parse(await readFile(out, "utf8")); } catch { /* first manifest build */ }
 const shotById = new Map(shots.items.map((item) => [item.id, item]));
 const renders = {};
 
@@ -29,24 +32,28 @@ for (const item of catalog.entries) {
     ? item.styleVariants.map((name) => ({key: `${item.id}/${name}`, name, description: null}))
     : [{key: item.id, name: item.name ?? item.id, description: item.description ?? null}]);
 
+  const priorModel = existing.renders?.[item.id];
   renders[item.id] = {
     source: item.source,
     kind: item.kind,
     titleFa: item.titleFa ?? item.name ?? item.id,
-    status: "identified",
-    variants: sourceVariants.map((variant, index) => ({
-      index,
-      key: variant.key,
-      name: variant.name,
-      description: variant.description,
-      status: "identified",
-      video: null,
-      poster: null,
-      thumbnail: null,
-      prompt: null,
-      metadata: null,
-      scene: null,
-    })),
+    status: priorModel?.status ?? "identified",
+    variants: sourceVariants.map((variant, index) => {
+      const prior = priorModel?.variants?.find((candidate) => candidate.key === variant.key);
+      return {
+        index,
+        key: variant.key,
+        name: variant.name,
+        description: variant.description,
+        status: prior?.status ?? "identified",
+        video: prior?.video ?? null,
+        poster: prior?.poster ?? null,
+        thumbnail: prior?.thumbnail ?? null,
+        prompt: prior?.prompt ?? null,
+        metadata: prior?.metadata ?? null,
+        scene: prior?.scene ?? null,
+      };
+    }),
   };
 }
 
@@ -75,9 +82,8 @@ const output = {
     audioTracks: audio.tracks.length,
   },
   renders,
-  audio: {},
+  audio: existing.audio ?? {},
 };
 
-const out = resolve(root, arg("out", "library/data/persian-renders.json"));
 await writeFile(out, `${JSON.stringify(output, null, 2)}\n`, "utf8");
 console.log(`Wrote ${out}: ${output.stats.visualModels} visual models, ${output.stats.shotcraftVariants} Shotcraft variants, ${output.stats.audioTracks} audio records`);

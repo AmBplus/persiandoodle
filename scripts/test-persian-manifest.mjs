@@ -2,10 +2,10 @@
 import {readFile} from "node:fs/promises";
 import {spawnSync} from "node:child_process";
 
-const run = spawnSync(process.execPath, ["scripts/build-persian-render-manifest.mjs"], {encoding: "utf8"});
+const run = spawnSync(process.execPath, ["scripts/build-persian-render-manifest.mjs", "--out", "work/manifest-test.json"], {encoding: "utf8"});
 if (run.status !== 0) throw new Error(run.stderr || run.stdout || `manifest build exited ${run.status}`);
 
-const manifest = JSON.parse(await readFile("library/data/persian-renders.json", "utf8"));
+const manifest = JSON.parse(await readFile("work/manifest-test.json", "utf8"));
 const entries = Object.entries(manifest.renders);
 const variants = entries.flatMap(([modelId, entry]) => entry.variants.map((variant) => `${modelId}#${variant.key}`));
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
