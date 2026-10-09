@@ -1,0 +1,39 @@
+name: Source-first Library QA
+on:
+  pull_request:
+    paths:
+      - "library/**"
+      - "skills/anidoodle/engine/tools/source-first-library-qa.mjs"
+      - ".github/workflows/source-first-library-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: skills/anidoodle/engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: skills/anidoodle/engine/package-lock.json
+      - name: Install browser dependencies
+        run: |
+          npm ci --no-fund --no-audit
+          npx playwright-core install --with-deps chromium
+      - name: Verify source-index completeness, 154 original audios, UX and RTL
+        run: node tools/source-first-library-qa.mjs
+      - name: Capture real desktop/mobile evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-first-library-screenshots
+          path: |
+            skills/anidoodle/engine/out/source-first-desktop.png
+            skills/anidoodle/engine/out/source-first-mobile.png
+          if-no-files-found: warn

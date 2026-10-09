@@ -1,56 +1,69 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5f5f1"><meta name="description" content="کتابخانهٔ نمونه‌های فارسی موشن: از تایپوگرافی و شات تا دوربین و ریتم و صدا">
-<title>کتابخانهٔ حرکت | پرشین دودل</title><link rel="stylesheet" href="./v2.css">
-</head>
+<html lang="fa" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111b23">
+<meta name="description" content="کتابخانهٔ مرجع موشن فارسی: همهٔ شات‌ها، سبک‌ها، پرامپت‌ها، کامپوننت‌ها، موسیقی و افکت‌های صوتی با فیلتر منبع و تگ">
+<title>کتابخانهٔ موشن | PersianDoodle</title>
+<link rel="stylesheet" href="./source-first.css"></head>
 <body>
-<div class="site">
-<header class="topbar">
-  <a href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener" class="brand"><span class="mark">پ</span><span class="brand-copy"><b>پرشین دودل</b><small>کتابخانهٔ طراحی و موشن</small></span></a>
-  <div class="top-center"><span class="live-dot"></span> نمونه‌های برگزیده • فارسی</div>
-  <div class="header-actions"><button id="globalSearchButton" title="جست‌وجو در دسته‌ها">⌕ <span>جست‌وجو</span> <kbd>Ctrl K</kbd></button><button id="composerToggle" class="primary">ترکیب صحنه <span id="composerCount">۰</span></button></div>
+<div class="app">
+<header class="global-header">
+  <a class="brand" href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener"><span class="brand-emblem">پ</span><span><b>پرشین دودل</b><small>کتابخانهٔ مرجع ساخت موشن</small></span></a>
+  <nav class="workspace-tabs" role="tablist" aria-label="بخش‌های اصلی">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-section="designs">طرح‌های آماده <span id="countDesigns"></span></button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-section="components">کامپوننت‌ها <span id="countComponents"></span></button>
+  </nav>
+  <div class="global-actions"><button id="searchButton" class="top-action" title="جست‌وجو">⌕ <kbd>Ctrl K</kbd></button><button id="openScene" class="create-action">انتخاب‌های من <span id="selectionCount">۰</span></button></div>
 </header>
-<div class="workspace">
-  <aside class="nav-shell" aria-label="دسته‌بندی‌های کتابخانه">
-    <div class="nav-heading"><b>دسته‌بندی‌ها</b><small>انتخاب و مقایسه</small></div>
-    <nav id="categoryNav" class="nav-list" aria-label="دسته‌های حرکت"></nav>
-    <div class="nav-tip"><b>از مشاهده تا ساخت</b><p>یک دسته را باز کن، نمونه‌ها را ببین و هر قسمت را به صحنهٔ خودت اضافه کن.</p></div>
+<div class="layout">
+  <aside class="navigation" aria-label="منوی دسته‌ها"><div class="nav-title">کاوش کتابخانه</div>
+    <div class="facet-group"><label for="sourceFilter">منبع نمونه</label><select id="sourceFilter" aria-label="فیلتر منبع"><option value="">همهٔ کتابخانه‌ها</option></select></div>
+    <nav class="category-nav" id="categoryNav" aria-label="دسته‌های تکنیک"></nav>
+    <div class="nav-note">هر مدل متمایز حفظ شده است؛ نسخه‌های واقعاً تکراری در نتایج دوبار نمایش داده نمی‌شوند.</div>
   </aside>
-  <main class="explorer" id="explorer">
-    <div class="explorer-top"><div><div class="eyebrow" id="categoryEyebrow">کتابخانهٔ طراحی</div><h1 id="categoryTitle">انتخاب دسته</h1><p id="categorySubtitle">دسته را از منوی کناری انتخاب کنید.</p></div><div class="explorer-top-actions"><span class="count" id="familyCount">—</span><button id="showAllReferences" class="ghost">نمایهٔ کامل منابع ↗</button></div></div>
-    <div class="toolbar"><label class="searchbox" for="searchFamily"><span>⌕</span><input id="searchFamily" type="search" placeholder="جست‌وجوی سبک، خانواده یا تکنیک…" autocomplete="off"></label><span class="toolbar-note">هر خانواده حداکثر دو اجرای منتخب دارد.</span></div>
-    <div class="family-grid" id="familyGrid" aria-live="polite"></div>
-    <div id="noResults" class="empty" hidden>نمونه‌ای برای این جست‌وجو پیدا نشد.</div>
-    <div class="explorer-foot">منابع اصلی در مخزن حفظ شده‌اند؛ نمایش فارسی به‌معنای کپی ویدیوی خارجی نیست.</div>
+  <main id="main" class="main">
+    <div class="hero-copy"><div class="hero-overline">MOTION REFERENCE LIBRARY · نسخهٔ فارسی</div><h1 id="pageTitle">طرح‌های آماده، با پرامپت ساخت</h1>
+      <p id="pageDescription">تمام مدل‌های معرفی‌شده، بدون محدودیت مصنوعی در تعداد؛ فیلتر دقیق براساس کتابخانه، دسته و تگ.</p></div>
+    <div class="filterbar"><label class="search" for="searchInput"><span class="search-icon">⌕</span><input id="searchInput" type="search" placeholder="جست‌وجوی عنوان، مدل، کاربرد، تگ یا شناسهٔ اصلی..." autocomplete="off"><kbd>⌘ K</kbd></label>
+      <button id="resetFilters" type="button" class="quiet-button">پاک‌کردن فیلترها</button></div>
+    <div class="tag-strip" id="tagStrip" aria-label="فیلتر تگ"></div>
+    <div class="result-head"><div><strong id="resultCount">در حال بارگذاری…</strong><span class="result-subtitle" id="resultSubtitle"></span></div>
+       <div class="result-tools"><label>چیدمان <select id="sortSelect"><option value="source">ترتیب منبع</option><option value="title">عنوان</option><option value="category">دسته</option></select></label></div></div>
+    <div class="gallery" id="gallery" aria-live="polite"></div>
+    <div id="empty" class="empty" hidden>مدلی با فیلترهای انتخابی پیدا نشد. جست‌وجو یا تگ را تغییر بده.</div>
+    <button id="showMore" class="more" type="button" hidden>نمایش موارد بیشتر ↓</button>
+    <div class="footer-note">پیش‌نمایش غیرفارسیِ منابع با برچسب «مرجع اصلی» مشخص می‌شود و هرگز به‌عنوان رندر فارسی معرفی نمی‌شود.</div>
   </main>
-  <aside class="inspector" id="inspector" aria-label="پیش‌نمایش و جزئیات تکنیک">
-    <div class="inspect-title"><div><span class="eyebrow">پیش‌نمایش انتخابی</span><h2 id="inspectHeading">یک مدل انتخاب کن</h2></div><button id="closeInspector" class="icon-button" title="بستن پیش‌نمایش">✕</button></div>
-    <div class="inspect-stage"><video id="inspectVideo" playsinline preload="metadata" controls hidden></video><canvas id="inspectCanvas" width="960" height="540" aria-label="انیمیشن فارسی نمونه"></canvas><span class="stage-tag" id="previewKind">پیش‌نمایش فارسی</span></div>
-    <div class="transport"><button id="playPreview" class="player-primary">▶ پخش نمونه با صدا</button><button id="toggleSound" class="sound-button" aria-pressed="true">◖)) صدا روشن</button></div>
-    <div class="variation-head"><b>مدل‌های همین تکنیک</b><small>حداکثر ۲ مدل</small></div><div id="variants" class="variants"></div>
-    <div class="inspect-info"><p id="inspectExplanation"></p><div class="tags" id="inspectTags"></div></div>
-    <div id="fontOptions" class="font-options" hidden><input id="fontSample" value="طراحیِ فارسی، دقیق و زیبا" aria-label="متن تست فونت"><div id="fontRender" dir="rtl"></div></div>
-    <audio id="assetAudio" controls preload="none" hidden></audio>
-    <div class="inspector-actions"><button class="primary" id="addSelected">+ افزودن به صحنه</button><button class="outline" id="promptSelected">پرامپت و روش ساخت</button></div>
-    <div id="promptPanel" hidden class="prompt-panel"><h3>دستور ساخت فارسی</h3><textarea readonly id="promptText"></textarea><div class="prompt-actions"><button id="copyPrompt" class="outline">کپی دستور</button><a id="viewOriginal" target="_blank" rel="noopener">منبع اصلی ↗</a></div></div>
-    <p class="inspect-disclaimer" id="inspectDisclaimer"></p>
+  <aside class="detail" id="detail" aria-label="جزئیات و دستور مدل">
+   <div class="detail-header"><div><span class="detail-eyebrow" id="detailCategory">مدل انتخاب‌شده</span><h2 id="detailTitle">برای دیدن مشخصات روی یک کارت بزن</h2></div><button type="button" id="closeDetail" class="close-detail" title="بستن">✕</button></div>
+   <div class="preview" id="preview">
+     <video id="previewVideo" controls preload="none" playsinline hidden></video>
+     <img id="previewImage" alt="تصویر واقعی مدل از منبع اصلی" loading="lazy" hidden>
+     <div class="preview-empty" id="previewEmpty"><span>◈</span><p>نمونهٔ تصویریِ منبع در دسترس نیست</p></div>
+     <span class="preview-status" id="previewStatus">وضعیت نمونه</span>
+   </div>
+   <div class="variant-header"><strong>مدل‌های همین طرح</strong><small id="variantCount"></small></div><div class="variants" id="variants"></div>
+   <p id="detailDescription" class="description"></p>
+   <div class="metadata" id="detailMeta"></div>
+   <div id="mediaAudio" class="audio-area" hidden><p>صدای مرجع (از منبع اصلی)</p><audio id="audioPlayer" controls preload="none"></audio><div class="rights-note" id="rightsNote"></div></div>
+   <div id="sampleSound" class="audio-area" hidden><p>شنیدن مستقل صدای همراه همین نمونه</p><audio id="sampleSoundPlayer" controls preload="none" aria-label="صدای همراه نمونه"></audio><div class="rights-note" id="sampleSoundStatus">صدا مستقیماً از فایل ویدیوی مرجع پخش می‌شود.</div></div>
+   <div id="fontTester" class="font-tester" hidden><label for="fontText">متن آزمایشی فارسی</label><input id="fontText" value="طراحی زیبا با خط فارسی"><div id="fontDisplay"></div></div>
+   <div class="detail-buttons"><button type="button" id="addToScene" class="button-main">+ افزودن به صحنه</button><button type="button" id="showPrompt" class="button-secondary">پرامپت و جزئیات</button></div>
+   <div class="prompt-box" id="promptBox" hidden><div class="prompt-head"><b>دستور ساخت و منبع</b><button type="button" id="copyPrompt">کپی پرامپت فارسی</button></div><textarea id="promptText" readonly></textarea><a id="sourceLink" target="_blank" rel="noopener">مشاهدهٔ دستور و منبع اصلی ↗</a></div>
+   <div class="detail-caveat" id="detailCaveat"></div>
   </aside>
 </div>
-<div class="mobile-categories" id="mobileCategories" aria-label="دسترسی سریع به دسته‌ها"></div>
-<div class="drawer-scrim" id="drawerScrim" hidden></div>
-<aside id="composer" class="composer-drawer" role="dialog" aria-label="ترکیب صحنه" aria-modal="true" hidden>
-  <div class="drawer-head"><div><span class="eyebrow">استودیوی انتخاب</span><h2>صحنهٔ خودت را بساز</h2></div><button id="closeComposer" class="icon-button">✕</button></div>
-  <p>هر جزء انتخاب‌شده با شناسه و مجوز واقعی ذخیره می‌شود. می‌توانی به موتور خروجی ویدیو بدهی.</p>
-  <label for="writingText" class="field-label">متن اصلی صحنه</label><input id="writingText" value="زیباییِ فارسی در حرکت" maxlength="75">
-  <div id="sceneSlots" class="scene-slots"></div>
-  <div class="scene-actions"><button id="downloadScene" class="primary">دریافت JSON</button><button id="copySceneJSON" class="outline">کپی JSON</button><button id="copyScene" class="outline">کپی پرامپت</button><button id="resetScene" class="light-button">پاک‌کردن انتخاب‌ها</button></div>
-  <a class="run-online" href="https://github.com/AmBplus/persiandoodle/actions/workflows/render-scene.yml" target="_blank" rel="noopener">ساخت ویدیو در GitHub Actions ↗</a>
-  <p role="status" id="sceneStatus" class="status-note"></p>
-  <textarea id="sceneOutput" readonly spellcheck="false" dir="ltr"></textarea>
+<div class="mobile-nav" id="mobileNav" aria-label="دسته‌بندی سریع موبایل"></div>
+<div class="overlay" id="overlay" hidden></div>
+<aside class="scene-drawer" id="sceneDrawer" role="dialog" aria-label="انتخاب‌های صحنه" hidden>
+ <div class="drawer-head"><div><small>MY SCENE · عناصر انتخابی</small><h2>ترکیب صحنه</h2></div><button id="closeScene" type="button">✕</button></div>
+ <p>طرح‌ها، کامپوننت‌ها و صداها را جداگانه انتخاب کن. مدل‌های اصلی با شناسه و لینک مرجعشان داخل خروجی JSON نگهداری می‌شوند.</p>
+ <label class="input-label" for="sceneTitle">متن فارسی صحنه</label><input id="sceneTitle" value="یک داستان تازه آغاز می‌شود">
+ <div id="sceneSelections"></div>
+ <div class="drawer-actions"><button id="copyScene" class="button-main">کپی JSON</button><button id="downloadScene" class="button-secondary">دانلود JSON</button><button id="copyDirector" class="button-secondary">کپی دستور تولید</button><button id="clearScene" class="button-secondary">پاک‌کردن انتخاب‌ها</button></div>
+ <pre id="sceneJSON" dir="ltr"></pre>
 </aside>
-<dialog id="archiveDialog" class="archive-dialog"><form method="dialog"><button class="icon-button close-archive">✕</button></form><span class="eyebrow">آرشیو منبع</span><h2>نمایهٔ کامل، جدا از ویترین منتخب</h2><p>کتابخانهٔ کامل شامل منابع و تکنیک‌های اصلی است. برای جلوگیری از صدها کارت شبیه هم، آن‌ها را در ویترین تکرار نکرده‌ایم. داده‌های خام، پرامپت‌های قابل‌بازتوزیع و حق نشر هر مرجع در این فایل موجود است.</p><div class="archive-actions"><a href="./data/catalog.json" target="_blank" rel="noopener">فهرست کامل منابع ↗</a><a href="https://github.com/AmBplus/persiandoodle/tree/main/library/vendor" target="_blank" rel="noopener">پرامپت‌های اصلی و مجوزها ↗</a></div></dialog>
-<script type="module" src="./v2.js"></script>
+<footer class="footer"><a href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener">PersianDoodle</a><span>فهرست کامل منابع و مجوزها حفظ شده است. موسیقی‌ها فقط از منبع اصلی پخش می‌شوند.</span><a href="https://github.com/AmBplus/persiandoodle/blob/main/docs/MOTION-LIBRARY-ARCHITECTURE.md" target="_blank" rel="noopener">حقوق و معماری</a></footer>
 </div>
+<script type="module" src="./source-first.js"></script>
 </body></html>

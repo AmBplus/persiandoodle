@@ -48,38 +48,31 @@ Review intermediary frames for incomplete joins and all final frames for
 text overflow. Urdu variants still require specialist native glyph review.
 The skeleton is a visual approximation, not a calligraphy pen-order model.
 
-## Unified motion library — read before searching the web
+## کتابخانهٔ کامل منابع موشن — قبل از هر جست‌وجوی دوباره بخوان
 
-The integrated motion knowledge index at repository root
-`library/data/catalog.json` covers six upstream projects, including
-shot recipes, MIT style prompts, noncommercial reference links, original
-audio provenance, and the 25 installed font families. Ready-made,
-independent production combinations live in `library/data/recipes.json`.
-**Search the index first**; never inspect all upstream skill instructions
-again for every shot. For a selected MIT or Apache source, read the original
-full prompt in `library/vendor/`; preserve its signature visual/audio idea
-while rebuilding all text as correctly shaped Persian.
+این مخزن یک کتابخانهٔ دو‌بخشی دارد: **طرح‌های آماده با پرامپت اصلی** و
+**کامپوننت‌های قابل ترکیب**. منبع ساخت را از شناسهٔ اصلی انتخاب کن، نه از
+چند انیمیشن نمونهٔ متفرقه. در `library/data/shotcraft-full.json` تمام ۱۵۷ طرح
+و **۲۱۴ مدل مستقل** با لینک دقیق ویدیو و پرامپت نگهداری می‌شوند. در
+`library/data/catalog.json` منابع دیگر (`mg-styles-15`، `video-talkcraft`،
+`anything2explainer`، `onetake`) و فونت‌های فارسی موجودند.
+`library/data/source-visuals.json` تصاویر نمونهٔ اصلی و
+`library/data/source-audio.json` فهرست ۵ موسیقی و ۱۴۹ افکت صوتی را دارد.
 
-The creative production contract is
-`library/prompts/PERSIAN-MOTION-DIRECTOR.md`. Use it as a mid-control
-decision guide rather than rules that flatten creative direction. Use
-`engine/src/canvas-core/persianSceneKit.ts` to select five backgrounds
-and five pen actors; `persianPenAudio.ts` provides original frame-cued nib
-sounds. The 15 MIT motion styles each have a native Persian film scene in
-`engine/src/canvas-core/persianMotionSampler.ts`, alongside the existing
-`persianShowcase`. Re-use these assets and verified example configs.
+۱. نخست به کاتالوگ منبع مراجعه کن و دسته/تگ/مدل دلخواه را پیدا کن.
+۲. اگر یک طرح چند `styles` دارد، مدل صحیح را با **کلید مستقل ویدیو** انتخاب کن.
+۳. دستور اصلی آن طرح را بخوان؛ جایگزین‌کردن با یک حرکت عمومی مجاز نیست.
+۴. متن فارسیِ هر نما را با اتصال درست حرف، نقطه و نیم‌فاصله در فیلم تازه
+   اجرا کن و با فریم‌های میانی و تماس نوک قلم کنترل کیفیت بگیر.
+۵. موسیقی یا صدای واقعی را از فهرست منبع انتخاب کن؛ هیچ صدای مصنوعی و
+   ترک نمونهٔ قدیمی را به‌عنوان انتخاب کتابخانه استفاده نکن.
+۶. اجزای منتخب صحنه را در JSON نسخه‌دار با شناسه، منبع و مدل نگه دار.
 
-**License gate:** video-talkcraft, anything2explainer and onetake use
-PolyForm Noncommercial and are only indexed as metadata/links. Do not copy
-their code, demos, prompts or media into this commercially capable repo.
-See `docs/MOTION-LIBRARY-ARCHITECTURE.md` for boundaries. Any original
-SFX of uncertain provenance remains `license-review`.
-
-**Gallery gate:** Never mark an upstream Chinese/English demo
-`rendered-persian`. Only a successful native Chromium render plus saved
-actual image/video warrants promotion. Run `node tools/persian-qa.mjs`,
-then inspect intermediate frames, output audio onsets and the mobile/desktop
-library screenshots. Preserve the existing Film renderer contract.
+**مهم:** ویدیوی اصلی چینی/انگلیسی که در کتابخانه پخش می‌شود، فقط مرجع
+حرکت است. بدون ساخت و تست دوباره، آن را خروجی فارسی معرفی نکن.
+۱۴+ طرح نمونهٔ عمومی که سابقاً تولید شده بودند حذف شده‌اند. فقط قلم‌های
+`qalam`، `fountain`، `pencil` و `brush` در موتور فارسی باقی مانده‌اند.
+جزئیات را در `docs/MOTION-LIBRARY-ARCHITECTURE.md` بخوان.
 
 ## Start by asking, then build
 
