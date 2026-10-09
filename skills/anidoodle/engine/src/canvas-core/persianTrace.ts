@@ -54,7 +54,7 @@ export const skeletonizeInk = (pixels: Uint8Array, w: number, h: number, limit =
 // each skeleton *pixel* once, skipping branch edges and leaving some glyph
 // contours to magically fill themselves. Here we visit each EDGE exactly once.
 const neighbors8: P[] = [[-1,0],[0,-1],[1,0],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]];
-const reverse8=[3,2,1,0,7,6,5,4];
+const reverse8=[2,3,0,1,7,6,5,4];
 export const inkTracks = (bits: Uint8Array, w: number, h: number): TraceSegment[] => {
   const ids:number[]=[];
   for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(bits[y*w+x])ids.push(y*w+x);
