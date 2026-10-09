@@ -13,3 +13,10 @@ This is an enforceable delivery requirement, not a reference-only showcase.
 - CI validates the complete inventory, manifest entries, and deployed files before publication. An inventory with zero published variants is an honest state, not a completed product.
 
 Current state: all 406 visual variants have verified local Persian packages; the Pages release gate also enforces the compressed MP4 profile. Source audio remains indexed and auditable, with no unverified foreign playback.
+
+
+## Fidelity approval (2026-10-10)
+No synthetic or generic five-family render is eligible for public playback just because FFmpeg finished.
+A variant is visible as rendered media only when `status: "published"` AND `sourceFidelity.approved: true`.
+The `sourceFidelity` payload must record the exact source prompt SHA, at least three before/after frame comparisons (source vs localized frame), and reviewedAt date. CI rejects `published` without these evidence fields. `rendered-persian` and `verified` remain work-in-progress, NOT public claims.
+The original Chinese/English instructions are immutable; localization only replaces literal on-screen text.

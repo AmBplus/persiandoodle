@@ -134,7 +134,7 @@ function localPath(path){
 }
 function ownedVariant(x,variant=0){
  const entry=S.renderManifest?.renders?.[x.id]?.variants?.[variant];
- return ["rendered-persian","verified","published"].includes(entry?.status) ? entry : null;
+ return entry?.status==="published" && entry?.sourceFidelity?.approved===true ? entry : null;
 }
 function localMedia(x,variant=0){return localPath(ownedVariant(x,variant)?.video)}
 function audioPublished(x){return Boolean(localPath(S.renderManifest?.audio?.[x.id]?.preview))}

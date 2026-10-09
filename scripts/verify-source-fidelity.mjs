@@ -29,7 +29,17 @@ for(const [id,record] of Object.entries(manifest.renders||{})){
     else orig++;
    }catch(e){failures.push("original missing "+path+": "+e.message)}
   }
-  if(publicStatuses.has(v.status)){publicRenders++;for(const key of ["video","poster","thumbnail","prompt","metadata","scene"])if(!v[key])failures.push("invalid published media "+id+" "+key)}
+  if(publicStatuses.has(v.status)){
+   publicRenders++;
+   for(const key of ["video","poster","thumbnail","prompt","metadata","scene"])if(!v[key])failures.push("invalid published media "+id+" "+key);
+   if(v.status==="published"){
+    const evidence=v.sourceFidelity;
+    if(evidence?.approved!==true || !Array.isArray(evidence?.comparisonFrames) || evidence.comparisonFrames.length<3
+       || typeof evidence?.reviewedAt!=="string" || evidence.reviewedAt.length<10
+       || typeof evidence?.sourcePromptSha!=="string" || evidence.sourcePromptSha.length!==40)
+     failures.push("public render has no human-reviewed source-faithfulness evidence: "+id+"["+index+"]");
+   }
+  }
   else if(["video","poster","thumbnail","prompt","metadata","scene"].some(key=>v[key]!==null))failures.push("unpublished entry carries fake media "+id);
  }
 }
