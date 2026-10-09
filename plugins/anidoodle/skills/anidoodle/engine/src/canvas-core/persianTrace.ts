@@ -6,12 +6,13 @@
 import type { Ctx, Env, Layer, P } from "./core";
 import { normalizeIranianPersian, persianDigits } from "./persianText";
 import { buildInkPlan, inkOpacity, nibPosition, type InkPlan } from "./persianInkPlan";
+import { paintPen, type PenStyle } from "./persianSceneKit";
 
 export type TraceOptions = {
   text: string; family: string; size: number; x: number; y: number;
   progress: number; weight?: string | number; color?: string;
   pen?: boolean; penColor?: string; digits?: "preserve" | "persian";
-  normalize?: boolean; strokeWidth?: number;
+  normalize?: boolean; strokeWidth?: number; penStyle?: PenStyle; penScale?: number;
 };
 export type TraceSegment = { points: P[]; length: number };
 export type TraceResult = { width: number; totalPath: number; pen: P | null; tracks: number; marks: number; inkPixels: number };
@@ -173,15 +174,12 @@ export const drawPersianTrace = (ctx: Ctx, env: Env, o: TraceOptions): TraceResu
   }
   const pen=progress>0&&progress<.96?nibPosition(p.plan.tracks,progress):null;
   if(pen && o.pen!==false){
-    ctx.save();ctx.translate(destX+pen[0],destY+pen[1]);
-    // The visible nib is placed at the exact pixel that seeds ink deposition;
-    // it is hidden on genuine pen lifts between disconnected strokes.
-    ctx.rotate(-Math.PI*.23);
-    const k=Math.max(.85,o.size/78);
-    ctx.strokeStyle="#80582c";ctx.lineWidth=1.5*k;
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-19*k);ctx.stroke();
-    ctx.fillStyle=o.penColor??"#d39b4e";
-    ctx.beginPath();ctx.ellipse(0,-5*k,4*k,10*k,0,0,Math.PI*2);ctx.fill();
+    const before=nibPosition(p.plan.tracks,Math.max(0,progress-.0015));
+    const after=nibPosition(p.plan.tracks,Math.min(.96,progress+.0015));
+    const angle=before&&after?Math.atan2(after[1]-before[1],after[0]-before[0]):-.30;
+    ctx.save();
+    paintPen(ctx,[destX+pen[0],destY+pen[1]],angle,
+      o.penStyle??"fountain",o.penScale??o.size/90,o.penColor??"#a17745");
     ctx.restore();
   }
   return {width:p.width,totalPath:p.total,pen:pen?[destX+pen[0],destY+pen[1]]:null,

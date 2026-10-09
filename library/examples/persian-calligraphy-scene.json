@@ -1,0 +1,56 @@
+{
+  "schema": "persiandoodle/scene-selection/v1",
+  "locale": "fa-IR",
+  "direction": "rtl",
+  "title": "صحنهٔ خطاطی فارسی",
+  "text": "از ایده تا تصویر",
+  "durationSeconds": 6,
+  "fps": 30,
+  "format": {
+    "width": 1280,
+    "height": 720
+  },
+  "selections": {
+    "style": null,
+    "typography": {
+      "id": "font/Vazirmatn-Variable.ttf",
+      "name": "وزیرمتن",
+      "status": "available-native",
+      "source": "native"
+    },
+    "background": {
+      "id": "native/background/parchment",
+      "name": "کاغذ قدیمی",
+      "status": "available-native",
+      "source": "native"
+    },
+    "entrance": null,
+    "animation": null,
+    "transition": null,
+    "music": null,
+    "sound": {
+      "id": "native/sound/nib",
+      "name": "صدای قلم",
+      "status": "available-native",
+      "source": "native"
+    },
+    "pen": {
+      "id": "native/pen/qalam",
+      "name": "قلم نی",
+      "status": "available-native",
+      "source": "native"
+    }
+  },
+  "implementation": {
+    "missingSlots": [
+      "style",
+      "entrance",
+      "animation",
+      "transition",
+      "music"
+    ],
+    "referenceComponents": [],
+    "readyForNativeRender": true
+  },
+  "directorNotes": "نوک قلم و صدا باید با مسیر واقعی نوشتن فارسی همگام باشد."
+}

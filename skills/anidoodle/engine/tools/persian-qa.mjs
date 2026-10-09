@@ -8,7 +8,7 @@ const run = (cmd, args) => {
   if (r.error) throw r.error;
   if (r.status !== 0) process.exit(r.status ?? 1);
 };
-run(process.execPath, ["tools/test.mjs", "persianText", "persianTrace"]);
+run(process.execPath, ["tools/test.mjs", "persianText", "persianTrace", "persianPenAudio", "persianMotionSampler"]);
 run(process.execPath, [
   "tools/still.mjs", "persianGallery",
   "--frames", "0,20,40,60,79,80,100,120,140,159,160,180,200,220,239,240,260,280,300,319,320,340,360,380,399",
@@ -34,3 +34,10 @@ run(process.execPath, ["tools/still.mjs","launchExample",
   "--sheet","out/persian-launch-contact.jpg","--sheet-scale","0.45"]);
 run(process.execPath, ["tools/build-page.mjs","launchExampleClean"]);
 console.log("Persian launch template and RTL product demo built successfully.");
+
+run(process.execPath,["tools/still.mjs","persianMotionSampler",
+  "--frames","52,112,172,232,292,352,412,472,532,592,652,712,772,832,892",
+  "--out","out/persian-motion-styles/",
+  "--sheet","out/persian-motion-styles-contact.jpg",
+  "--sheet-scale","0.33"]);
+console.log("15 native Persian style frames: out/persian-motion-styles-contact.jpg");

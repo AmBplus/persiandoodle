@@ -17,7 +17,7 @@ permissions:
 jobs:
   persian-font-render:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: skills/anidoodle/engine
@@ -37,39 +37,47 @@ jobs:
           npx playwright-core install --with-deps chromium
       - name: Unit tests + actual font frame captures
         run: node tools/persian-qa.mjs
-      - name: Upload real rendered PNGs and contact sheet
+      - name: Render 15 original Persian motion styles (Chromium + video)
+        run: node tools/render.mjs persianMotionSampler --out out/persian-motion-styles.mp4 --workers 2
+      - name: Smoke-test RTL library in desktop and mobile Chromium
+        run: node tools/library-smoke.mjs
+      - name: Promote tested native Persian samples
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
+        run: node tools/publish-persian-library.mjs
+      - name: Render a scene composed from the exported Library JSON
+        run: node tools/render-library-scene.mjs --config ../../../library/examples/persian-calligraphy-scene.json --out out/library-composed-scene.mp4 --sheet out/library-composed-sheet.jpg
+      - name: Independently render every catalog item with Persian glyphs
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
+        run: node tools/render-item-previews.mjs
+      - name: Verify complete gallery after preview generation
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
+        run: node tools/library-smoke.mjs
+      - name: Upload real rendered PNGs, MP4 and contact sheets
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: persian-font-render-qa
+          name: persian-motion-library-qa
           path: |
             skills/anidoodle/engine/out/persian-qa/*.png
             skills/anidoodle/engine/out/persian-gallery-contact.jpg
             skills/anidoodle/engine/out/persian-showcase/*.png
             skills/anidoodle/engine/out/persian-showcase-contact.jpg
             skills/anidoodle/engine/out/persian-showcase.mp4
-            skills/anidoodle/engine/out/persian-launch/*.png
-            skills/anidoodle/engine/out/persian-launch-contact.jpg
+            skills/anidoodle/engine/out/persian-motion-styles/*.png
+            skills/anidoodle/engine/out/persian-motion-styles-contact.jpg
+            skills/anidoodle/engine/out/persian-motion-styles.mp4
+            skills/anidoodle/engine/out/persian-library-desktop.png
+            skills/anidoodle/engine/out/persian-library-mobile.png
+            skills/anidoodle/engine/out/library-composed-scene.mp4
+            skills/anidoodle/engine/out/library-composed-sheet.jpg
           if-no-files-found: warn
-
-      - name: Publish reviewed Persian demo stills to the feature branch
-        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/professional-persian-strokes-20261009' }}
+      - name: Commit and publish Persian-verified media and catalog
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
         working-directory: .
-        env:
-          TARGET_BRANCH: ${{ github.head_ref }}
         run: |
-          mkdir -p assets/persian
-          cp skills/anidoodle/engine/out/persian-showcase/persianShowcase-90.png assets/persian/hero.png
-          cp skills/anidoodle/engine/out/persian-showcase-contact.jpg assets/persian/handwriting-contact.jpg
-          cp skills/anidoodle/engine/out/persian-gallery-contact.jpg assets/persian/font-contact.jpg
-          cp skills/anidoodle/engine/out/persian-launch-contact.jpg assets/persian/launch-contact.jpg
-          cp skills/anidoodle/engine/out/persian-showcase.mp4 assets/persian/handwriting-demo.mp4
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/persian
-          if git diff --cached --quiet; then
-            echo "Persian screenshots already up to date"
-            exit 0
-          fi
-          git commit -m "docs: publish reproducible Persian handwriting examples [skip ci]"
-          git push origin "HEAD:$TARGET_BRANCH"
+          git add assets/persian assets/library library/data/catalog.json
+          git diff --cached --quiet && exit 0
+          git commit -m "docs: publish verified Persian motion previews [skip ci]"
+          git push origin "HEAD:${{ github.head_ref }}"

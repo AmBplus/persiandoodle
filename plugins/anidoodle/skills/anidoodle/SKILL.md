@@ -48,6 +48,39 @@ Review intermediary frames for incomplete joins and all final frames for
 text overflow. Urdu variants still require specialist native glyph review.
 The skeleton is a visual approximation, not a calligraphy pen-order model.
 
+## Unified motion library — read before searching the web
+
+The integrated motion knowledge index at repository root
+`library/data/catalog.json` covers six upstream projects, including
+shot recipes, MIT style prompts, noncommercial reference links, original
+audio provenance, and the 25 installed font families. Ready-made,
+independent production combinations live in `library/data/recipes.json`.
+**Search the index first**; never inspect all upstream skill instructions
+again for every shot. For a selected MIT or Apache source, read the original
+full prompt in `library/vendor/`; preserve its signature visual/audio idea
+while rebuilding all text as correctly shaped Persian.
+
+The creative production contract is
+`library/prompts/PERSIAN-MOTION-DIRECTOR.md`. Use it as a mid-control
+decision guide rather than rules that flatten creative direction. Use
+`engine/src/canvas-core/persianSceneKit.ts` to select five backgrounds
+and five pen actors; `persianPenAudio.ts` provides original frame-cued nib
+sounds. The 15 MIT motion styles each have a native Persian film scene in
+`engine/src/canvas-core/persianMotionSampler.ts`, alongside the existing
+`persianShowcase`. Re-use these assets and verified example configs.
+
+**License gate:** video-talkcraft, anything2explainer and onetake use
+PolyForm Noncommercial and are only indexed as metadata/links. Do not copy
+their code, demos, prompts or media into this commercially capable repo.
+See `docs/MOTION-LIBRARY-ARCHITECTURE.md` for boundaries. Any original
+SFX of uncertain provenance remains `license-review`.
+
+**Gallery gate:** Never mark an upstream Chinese/English demo
+`rendered-persian`. Only a successful native Chromium render plus saved
+actual image/video warrants promotion. Run `node tools/persian-qa.mjs`,
+then inspect intermediate frames, output audio onsets and the mobile/desktop
+library screenshots. Preserve the existing Film renderer contract.
+
 ## Start by asking, then build
 
 Read `references/workflows/start-here.md` and run its intake: one question at a time, only

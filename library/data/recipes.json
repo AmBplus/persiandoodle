@@ -1,0 +1,536 @@
+{
+  "schemaVersion": "1.0",
+  "recipeContract": "versioned independent reusable production knowledge, no upstream NC code",
+  "recipes": [
+    {
+      "id": "recipe/lettering-luxury",
+      "source": "native",
+      "kind": "recipe",
+      "name": "lettering-luxury",
+      "titleFa": "خطاطیِ سینمایی",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "نوشتن یک عبارت کوتاه با حرکت قلم نی؛ نقطه‌ها پس از بدنه و مکث پایانی برای خوانایی",
+      "tags": [
+        "fa",
+        "recipe",
+        "line-art"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "خطاطیِ سینمایی",
+        "brief": "نوشتن یک عبارت کوتاه با حرکت قلم نی؛ نقطه‌ها پس از بدنه و مکث پایانی برای خوانایی",
+        "visual": {
+          "style": "line-art",
+          "background": "parchment",
+          "pen": "qalam",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "marker-underline-title",
+            "brand-ink-open"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "felt-piano",
+          "penCue": "nib-paper",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/educational-diagram",
+      "source": "native",
+      "kind": "recipe",
+      "name": "educational-diagram",
+      "titleFa": "توضیح علمی فارسی",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "تعریف ساده، نمودار علّی و یک جمع‌بندی دیدنی؛ بدون ازدحام متن",
+      "tags": [
+        "fa",
+        "recipe",
+        "flat-vector"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "توضیح علمی فارسی",
+        "brief": "تعریف ساده، نمودار علّی و یک جمع‌بندی دیدنی؛ بدون ازدحام متن",
+        "visual": {
+          "style": "flat-vector",
+          "background": "blueprint",
+          "pen": "none",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "ai-stream-response",
+            "chart-live-moves"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "marimba-curious",
+          "penCue": "soft-tick",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/corporate-identity",
+      "source": "native",
+      "kind": "recipe",
+      "name": "corporate-identity",
+      "titleFa": "هویت سازمانی",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "هویت بصری، یک جمله پیام، شاهد مشخص و پایان آرام",
+      "tags": [
+        "fa",
+        "recipe",
+        "bauhaus"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "هویت سازمانی",
+        "brief": "هویت بصری، یک جمله پیام، شاهد مشخص و پایان آرام",
+        "visual": {
+          "style": "bauhaus",
+          "background": "warm-paper",
+          "pen": "fountain",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "brand-frame-snap",
+            "color-block-step-wipe"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "cinematic-awe",
+          "penCue": "soft-whoosh",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/product-showcase",
+      "source": "native",
+      "kind": "recipe",
+      "name": "product-showcase",
+      "titleFa": "تیزر محصول دیجیتال",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "نمایش علت و نتیجهٔ عملیات واقعی محصول در یک برداشت",
+      "tags": [
+        "fa",
+        "recipe",
+        "aurora-glass"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "تیزر محصول دیجیتال",
+        "brief": "نمایش علت و نتیجهٔ عملیات واقعی محصول در یک برداشت",
+        "visual": {
+          "style": "aurora-glass",
+          "background": "blueprint",
+          "pen": "marker",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "command-palette-summon",
+            "type-and-filter"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "drive-electronic",
+          "penCue": "ui-select",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/paper-sketch",
+      "source": "native",
+      "kind": "recipe",
+      "name": "paper-sketch",
+      "titleFa": "طراحی دفترچه‌ای",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "خط لرزش کنترل‌شده، گردوغبار کاغذ و صدای مداد هماهنگ",
+      "tags": [
+        "fa",
+        "recipe",
+        "cel-boil"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "طراحی دفترچه‌ای",
+        "brief": "خط لرزش کنترل‌شده، گردوغبار کاغذ و صدای مداد هماهنگ",
+        "visual": {
+          "style": "cel-boil",
+          "background": "washi",
+          "pen": "pencil",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "line-boil",
+            "paper-title-card"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "lofi-nostalgic",
+          "penCue": "pencil-soft",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/one-take-journey",
+      "source": "native",
+      "kind": "recipe",
+      "name": "one-take-journey",
+      "titleFa": "روایت پیوسته",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "هر عنصر، حرکت بعدی را به‌وجود بیاورد؛ دوربین بدون قطع بی‌دلیل",
+      "tags": [
+        "fa",
+        "recipe",
+        "morph"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "روایت پیوسته",
+        "brief": "هر عنصر، حرکت بعدی را به‌وجود بیاورد؛ دوربین بدون قطع بی‌دلیل",
+        "visual": {
+          "style": "morph",
+          "background": "warm-paper",
+          "pen": "fountain",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "line-carry-transition",
+            "transition-travel"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "minimal-percussion",
+          "penCue": "pen-lift",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/data-story",
+      "source": "native",
+      "kind": "recipe",
+      "name": "data-story",
+      "titleFa": "داستان‌گویی با اعداد",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "عدد اصلی خوانا، منبع معتبر، سیر تغییر و نتیجه",
+      "tags": [
+        "fa",
+        "recipe",
+        "hud"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "داستان‌گویی با اعداد",
+        "brief": "عدد اصلی خوانا، منبع معتبر، سیر تغییر و نتیجه",
+        "visual": {
+          "style": "hud",
+          "background": "night-ink",
+          "pen": "none",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "odometer-digit-roll",
+            "chart-live-moves"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "tech-house",
+          "penCue": "tick-precise",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/ink-and-poster",
+      "source": "native",
+      "kind": "recipe",
+      "name": "ink-and-poster",
+      "titleFa": "پوستر مرکب و برش",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "خط بر زمینهٔ کاغذ و متن فارسی خوانا در لایهٔ جلویی",
+      "tags": [
+        "fa",
+        "recipe",
+        "collage"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "پوستر مرکب و برش",
+        "brief": "خط بر زمینهٔ کاغذ و متن فارسی خوانا در لایهٔ جلویی",
+        "visual": {
+          "style": "collage",
+          "background": "parchment",
+          "pen": "brush",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "draw-svg-trace",
+            "paper-title-card"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "felt-piano",
+          "penCue": "brush-grain",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/dynamic-kids",
+      "source": "native",
+      "kind": "recipe",
+      "name": "dynamic-kids",
+      "titleFa": "آموزش پویا برای نوجوان",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "ترکیب رنگ شاد کنترل‌شده، عنصر مرکزی ساده و ضرباهنگ مشخص",
+      "tags": [
+        "fa",
+        "recipe",
+        "pixel"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "آموزش پویا برای نوجوان",
+        "brief": "ترکیب رنگ شاد کنترل‌شده، عنصر مرکزی ساده و ضرباهنگ مشخص",
+        "visual": {
+          "style": "pixel",
+          "background": "blueprint",
+          "pen": "marker",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "pop-burst-confirm",
+            "card-flip-reveal"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "marimba-curious",
+          "penCue": "playful-pop",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    },
+    {
+      "id": "recipe/narrative-contrast",
+      "source": "native",
+      "kind": "recipe",
+      "name": "narrative-contrast",
+      "titleFa": "تضاد قبل و بعد",
+      "category": "دستور تولید",
+      "status": "available-native",
+      "license": "Original-PersianDoodle",
+      "description": "چالش واقعی، تغییر قابل‌مشاهده و نتیجهٔ مستدل",
+      "tags": [
+        "fa",
+        "recipe",
+        "liquid"
+      ],
+      "promptPath": "prompts/PERSIAN-MOTION-DIRECTOR.md",
+      "recipe": {
+        "intent": "تضاد قبل و بعد",
+        "brief": "چالش واقعی، تغییر قابل‌مشاهده و نتیجهٔ مستدل",
+        "visual": {
+          "style": "liquid",
+          "background": "washi",
+          "pen": "none",
+          "font": "Vazirmatn",
+          "rtl": true
+        },
+        "timing": {
+          "fps": 30,
+          "primaryBeats": "semantic",
+          "shotRecipes": [
+            "before-after-slider-scrub",
+            "morph-from-primitive"
+          ],
+          "contactSheetAt": [
+            "hook",
+            "hero",
+            "outro"
+          ]
+        },
+        "audio": {
+          "musicMood": "cinematic-awe",
+          "penCue": "transition-soft",
+          "sync": "frame-aligned"
+        },
+        "quality": [
+          "connected-persian-glyphs",
+          "safe-area",
+          "genuine-motion",
+          "no-unsupported-claims",
+          "verified-license"
+        ]
+      }
+    }
+  ]
+}

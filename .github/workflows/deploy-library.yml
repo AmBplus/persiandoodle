@@ -1,0 +1,59 @@
+name: Publish Persian Motion Library
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "library/**"
+      - "assets/library/**"
+      - "assets/persian/**"
+      - "skills/anidoodle/engine/assets/fonts/**"
+      - ".github/workflows/deploy-library.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout approved main
+        uses: actions/checkout@v4
+      - name: Assemble minimal public gallery
+        run: |
+          mkdir -p _site/library _site/assets _site/skills/anidoodle/engine/assets
+          cp -a library/. _site/library/
+          cp -a assets/library _site/assets/library
+          cp -a assets/persian _site/assets/persian
+          cp -a assets/audio _site/assets/audio
+          cp -a skills/anidoodle/engine/assets/fonts _site/skills/anidoodle/engine/assets/fonts
+          printf '%s\n' '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>کتابخانه پرشین دودل</title><meta http-equiv="refresh" content="0;url=./library/"><link rel="canonical" href="./library/"></head><body><a href="./library/">ورود به کتابخانه فارسی پرشین‌دودل</a></body></html>' > _site/index.html
+          touch _site/.nojekyll
+          test -s _site/library/data/catalog.json
+          test -s _site/library/index.html
+          test -s _site/assets/library/persian-motion-styles.mp4
+          test -s _site/skills/anidoodle/engine/assets/fonts/Vazirmatn-Variable.ttf
+          echo "Prepared Pages site:"
+          du -sh _site
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
