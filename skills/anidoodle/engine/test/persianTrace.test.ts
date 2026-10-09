@@ -28,6 +28,13 @@ export const run = (ok: (value:boolean,label:string)=>void) => {
   const {blobs}=classifyInkBlobs(ink,W,H,60);
   ok(blobs.filter(b=>b.mark).length===3 &&
     blobs.filter(b=>!b.mark).length===1,"three Persian dots are separated from the connected baseline");
+  const joinedDots=new Uint8Array(48*24);
+  for(let y=14;y<=20;y++)for(let x=4;x<=39;x++)joinedDots[y*48+x]=255;
+  for(let y=5;y<=8;y++)for(let x=20;x<=36;x++)joinedDots[y*48+x]=255;
+  const classified=classifyInkBlobs(joinedDots,48,24,60);
+  ok(classified.blobs.some(b=>b.mark&&(b.maxX-b.minX+1)===17),
+    "a wide connected two/three-dot mark is not mistaken for a letter body");
+
   const dotSkeleton=skeletonizeInk(Uint8Array.from(ink,x=>x?1:0),W,H);
   const paths=inkTracks(dotSkeleton,W,H);
   const plan=buildInkPlan(ink,paths,W,H,60);
