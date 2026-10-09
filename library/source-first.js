@@ -250,6 +250,8 @@ function updatePreview(){
  video.hidden=!playable;img.hidden=!!playable||!still;empty.hidden=!!playable||!!still;
  if(!playable&&still)img.src=still;
  if(playable){video.src=media;video.poster=still||"";video.load();}
+ video.onerror=()=>{$("#previewStatus").textContent="خطا در دریافت ویدیوی داخلی";video.hidden=true;empty.hidden=false;};
+ img.onerror=()=>{$("#previewStatus").textContent="خطا در دریافت پوستر داخلی";img.hidden=true;empty.hidden=false;};
   $("#previewStatus").textContent=playable?"رندر فارسی داخلی":still?"پوستر فارسی داخلی":"رندر فارسی هنوز آماده نیست";
   $("#detailCaveat").textContent=playable?"نسخهٔ فارسی در خود پروژه میزبانی شده است.":"این مدل هنوز رندر فارسیِ منتشرشده ندارد؛ مرجع خارجی در سایت پخش نمی‌شود.";
 }
@@ -281,7 +283,7 @@ async function prompt(){
  }catch{}
 }
 function selectedRecord(x){
- return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",prompt:markPrompt(x),audio:x.playUrl||null};
+ return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:localMedia(x,S.variant)?"rendered-persian":x.source==="native"?"native":"pending-persian-render",prompt:markPrompt(x),audio:originalMedia(x)||null};
 }
 function saveSelection(){
  if(!S.current)return;const next=selectedRecord(S.current);
@@ -291,7 +293,7 @@ function saveSelection(){
 function outputScene(){
  return{schema:"persiandoodle/source-first-scene/v2",locale:"fa-IR",direction:"rtl",title:$("#sceneTitle").value,
   selections:S.selection,needsImplementation:S.selection.filter(x=>x.implementation!=="native").map(x=>x.id),
-  policy:"Original references are not yet Persian-native renders. Rebuild selected motion independently, translate all on-frame text, verify output frames and rights. Mixkit samples may not be redistributed as standalone stock assets."};
+  policy:"Selected source models without a verified internal Persian render are pending reconstruction. Never use upstream media as substitutes."};
 }
 function renderSelection(){
  $("#sceneSelections").replaceChildren();
