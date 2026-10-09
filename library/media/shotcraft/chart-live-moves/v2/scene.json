@@ -1,0 +1,20 @@
+{
+  "modelId": "shotcraft/chart-live-moves",
+  "variantKey": "unit-dot-swarm-regroup",
+  "variantIndex": 1,
+  "family": "chart",
+  "titleFa": "نقطه‌ها دوباره می‌چینند",
+  "bodyFa": "جمعیتِ داده مسیر تازه‌ای می‌سازد",
+  "promptFa": "بازسازی مستقلِ حرکتِ گروه نقطه‌های داده با فارسی‌سازی عنوان و پایان خوانا.",
+  "paper": "warm-paper",
+  "seed": 164,
+  "durationFrames": 90,
+  "fps": 30,
+  "values": [
+    0.62,
+    0.32,
+    0.72,
+    0.44,
+    0.86
+  ]
+}

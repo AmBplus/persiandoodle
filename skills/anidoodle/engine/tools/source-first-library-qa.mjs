@@ -55,6 +55,16 @@ try{
  if(!localRenderedSrc?.startsWith("./media/"))throw Error("published Persian render did not resolve to local media: "+localRenderedSrc);
  if(!await page.locator("#detailCaveat").innerText().then(x=>x.includes("خود پروژه")))throw Error("published local render honesty missing");
  await page.locator("#closeDetail").click();
+ await page.locator("#searchInput").fill("chart-live-moves");
+ await page.locator(".model button").first().click();
+ if(await page.locator("#variants button").count()<3)throw Error("three local variants were not preserved");
+ await page.locator("#variants button").nth(1).click();
+ const chartVariant2=await page.locator("#previewVideo").getAttribute("src");
+ if(!chartVariant2?.includes("/chart-live-moves/v2/"))throw Error("second local chart variant did not switch: "+chartVariant2);
+ await page.locator("#variants button").nth(2).click();
+ const chartVariant3=await page.locator("#previewVideo").getAttribute("src");
+ if(!chartVariant3?.includes("/chart-live-moves/v3/"))throw Error("third local chart variant did not switch: "+chartVariant3);
+ await page.locator("#closeDetail").click();
  await page.locator("#searchInput").fill("");
  await page.locator('[data-section="components"]').first().click();
  await page.locator("#sourceFilter").selectOption("shotcraft");
@@ -70,7 +80,7 @@ try{
  const sfx=await page.locator("#resultCount").innerText();if(!sfx.includes("۱۴۹"))throw Error("149 sound effects not indexed: "+sfx);
  await page.locator('[data-section="designs"]').first().click();
  await page.locator("#sourceFilter").selectOption("shotcraft");
- await page.locator("#searchInput").fill("chart-live-moves");
+ await page.locator("#searchInput").fill("depth-layer-moves");
  await page.locator(".model button").first().click();
  if(await page.locator("#variants button").count()<2)throw Error("source shot style variants discarded");
  await page.locator("#variants button").nth(1).click();

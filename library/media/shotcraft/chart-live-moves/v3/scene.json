@@ -1,0 +1,20 @@
+{
+  "modelId": "shotcraft/chart-live-moves",
+  "variantKey": "axis-rescale-shock",
+  "variantIndex": 2,
+  "family": "chart",
+  "titleFa": "محور دوباره سنجیده می‌شود",
+  "bodyFa": "مقیاس تغییر می‌کند، معنا می‌ماند",
+  "promptFa": "بازسازی مستقلِ شوک مقیاس محور با تغییر ارتفاع‌ها، مکث و تایپوگرافی فارسی.",
+  "paper": "night-ink",
+  "seed": 275,
+  "durationFrames": 90,
+  "fps": 30,
+  "values": [
+    0.86,
+    0.48,
+    0.74,
+    0.34,
+    0.64
+  ]
+}
