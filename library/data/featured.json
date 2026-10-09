@@ -106,6 +106,16 @@
           "name": "نوشتن با قلم",
           "variants": [
             {
+              "id": "persian/handwriting",
+              "source": "native",
+              "name": "handwriting",
+              "label": "نقاشی با قلم فارسی",
+              "video": "../assets/persian/handwriting-demo.mp4",
+              "status": "rendered-persian",
+              "license": "Original",
+              "sourceUrl": "https://github.com/AmBplus/persiandoodle"
+            },
+            {
               "id": "shotcraft/marker-underline-title",
               "name": "marker-underline-title",
               "source": "shotcraft",
@@ -1283,13 +1293,13 @@
       "families": [
         {
           "id": "native/assets/audio/fit-theme-15s.mp3",
-          "name": "fit-theme-15s.mp3",
+          "name": "موسیقی fit-theme-15s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/fit-theme-15s.mp3",
               "name": "fit-theme-15s.mp3",
               "source": "native",
-              "label": "fit-theme-15s.mp3",
+              "label": "موسیقی fit-theme-15s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1299,13 +1309,13 @@
         },
         {
           "id": "native/assets/audio/nocturne-45s.mp3",
-          "name": "nocturne-45s.mp3",
+          "name": "موسیقی nocturne-45s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/nocturne-45s.mp3",
               "name": "nocturne-45s.mp3",
               "source": "native",
-              "label": "nocturne-45s.mp3",
+              "label": "موسیقی nocturne-45s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1315,13 +1325,13 @@
         },
         {
           "id": "native/assets/audio/piano-8s.mp3",
-          "name": "piano-8s.mp3",
+          "name": "موسیقی piano-8s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/piano-8s.mp3",
               "name": "piano-8s.mp3",
               "source": "native",
-              "label": "piano-8s.mp3",
+              "label": "موسیقی piano-8s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1331,13 +1341,13 @@
         },
         {
           "id": "native/assets/audio/piano-flat-baseline-8s.mp3",
-          "name": "piano-flat-baseline-8s.mp3",
+          "name": "موسیقی piano-flat-baseline-8s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/piano-flat-baseline-8s.mp3",
               "name": "piano-flat-baseline-8s.mp3",
               "source": "native",
-              "label": "piano-flat-baseline-8s.mp3",
+              "label": "موسیقی piano-flat-baseline-8s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1347,13 +1357,13 @@
         },
         {
           "id": "native/assets/audio/sampler-cinematic-awe-8s.mp3",
-          "name": "sampler-cinematic-awe-8s.mp3",
+          "name": "موسیقی sampler-cinematic-awe-8s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/sampler-cinematic-awe-8s.mp3",
               "name": "sampler-cinematic-awe-8s.mp3",
               "source": "native",
-              "label": "sampler-cinematic-awe-8s.mp3",
+              "label": "موسیقی sampler-cinematic-awe-8s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1363,13 +1373,13 @@
         },
         {
           "id": "native/assets/audio/sampler-drive-electronic-8s.mp3",
-          "name": "sampler-drive-electronic-8s.mp3",
+          "name": "موسیقی sampler-drive-electronic-8s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/sampler-drive-electronic-8s.mp3",
               "name": "sampler-drive-electronic-8s.mp3",
               "source": "native",
-              "label": "sampler-drive-electronic-8s.mp3",
+              "label": "موسیقی sampler-drive-electronic-8s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1379,13 +1389,13 @@
         },
         {
           "id": "native/assets/audio/sampler-lofi-nostalgic-8s.mp3",
-          "name": "sampler-lofi-nostalgic-8s.mp3",
+          "name": "موسیقی sampler-lofi-nostalgic-8s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/sampler-lofi-nostalgic-8s.mp3",
               "name": "sampler-lofi-nostalgic-8s.mp3",
               "source": "native",
-              "label": "sampler-lofi-nostalgic-8s.mp3",
+              "label": "موسیقی sampler-lofi-nostalgic-8s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1395,13 +1405,13 @@
         },
         {
           "id": "native/assets/audio/sampler-marimba-curious-8s.mp3",
-          "name": "sampler-marimba-curious-8s.mp3",
+          "name": "موسیقی sampler-marimba-curious-8s.mp3",
           "variants": [
             {
               "id": "native/assets/audio/sampler-marimba-curious-8s.mp3",
               "name": "sampler-marimba-curious-8s.mp3",
               "source": "native",
-              "label": "sampler-marimba-curious-8s.mp3",
+              "label": "موسیقی sampler-marimba-curious-8s.mp3",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1578,13 +1588,13 @@
       "families": [
         {
           "id": "font/Amiri-Regular.ttf",
-          "name": "Amiri-Regular",
+          "name": "امیری",
           "variants": [
             {
               "id": "font/Amiri-Regular.ttf",
               "name": "Amiri-Regular",
               "source": "native",
-              "label": "Amiri-Regular",
+              "label": "امیری",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1594,13 +1604,13 @@
         },
         {
           "id": "font/ArefRuqaa-Regular.ttf",
-          "name": "ArefRuqaa-Regular",
+          "name": "عارف",
           "variants": [
             {
               "id": "font/ArefRuqaa-Regular.ttf",
               "name": "ArefRuqaa-Regular",
               "source": "native",
-              "label": "ArefRuqaa-Regular",
+              "label": "عارف",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1610,13 +1620,13 @@
         },
         {
           "id": "font/BalooBhaijaan2-Variable.ttf",
-          "name": "BalooBhaijaan2-Variable",
+          "name": "بالو • متغیر",
           "variants": [
             {
               "id": "font/BalooBhaijaan2-Variable.ttf",
               "name": "BalooBhaijaan2-Variable",
               "source": "native",
-              "label": "BalooBhaijaan2-Variable",
+              "label": "بالو • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1626,13 +1636,13 @@
         },
         {
           "id": "font/Estedad-Variable.ttf",
-          "name": "Estedad-Variable",
+          "name": "استعداد • متغیر",
           "variants": [
             {
               "id": "font/Estedad-Variable.ttf",
               "name": "Estedad-Variable",
               "source": "native",
-              "label": "Estedad-Variable",
+              "label": "استعداد • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1642,13 +1652,13 @@
         },
         {
           "id": "font/Gandom-Regular.ttf",
-          "name": "Gandom-Regular",
+          "name": "گندم",
           "variants": [
             {
               "id": "font/Gandom-Regular.ttf",
               "name": "Gandom-Regular",
               "source": "native",
-              "label": "Gandom-Regular",
+              "label": "گندم",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1658,13 +1668,13 @@
         },
         {
           "id": "font/Gulzar-Regular.ttf",
-          "name": "Gulzar-Regular",
+          "name": "گلزار",
           "variants": [
             {
               "id": "font/Gulzar-Regular.ttf",
               "name": "Gulzar-Regular",
               "source": "native",
-              "label": "Gulzar-Regular",
+              "label": "گلزار",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1674,13 +1684,13 @@
         },
         {
           "id": "font/Katibeh-Regular.ttf",
-          "name": "Katibeh-Regular",
+          "name": "کتیبه",
           "variants": [
             {
               "id": "font/Katibeh-Regular.ttf",
               "name": "Katibeh-Regular",
               "source": "native",
-              "label": "Katibeh-Regular",
+              "label": "کتیبه",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1690,13 +1700,13 @@
         },
         {
           "id": "font/Lalezar-Regular.ttf",
-          "name": "Lalezar-Regular",
+          "name": "لاله‌زار",
           "variants": [
             {
               "id": "font/Lalezar-Regular.ttf",
               "name": "Lalezar-Regular",
               "source": "native",
-              "label": "Lalezar-Regular",
+              "label": "لاله‌زار",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1706,13 +1716,13 @@
         },
         {
           "id": "font/Lateef-Regular.ttf",
-          "name": "Lateef-Regular",
+          "name": "لطیف",
           "variants": [
             {
               "id": "font/Lateef-Regular.ttf",
               "name": "Lateef-Regular",
               "source": "native",
-              "label": "Lateef-Regular",
+              "label": "لطیف",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1722,13 +1732,13 @@
         },
         {
           "id": "font/Lemonada-Variable.ttf",
-          "name": "Lemonada-Variable",
+          "name": "لیمونادا • متغیر",
           "variants": [
             {
               "id": "font/Lemonada-Variable.ttf",
               "name": "Lemonada-Variable",
               "source": "native",
-              "label": "Lemonada-Variable",
+              "label": "لیمونادا • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1738,13 +1748,13 @@
         },
         {
           "id": "font/MarkaziText-Variable.ttf",
-          "name": "MarkaziText-Variable",
+          "name": "مرکزی • متغیر",
           "variants": [
             {
               "id": "font/MarkaziText-Variable.ttf",
               "name": "MarkaziText-Variable",
               "source": "native",
-              "label": "MarkaziText-Variable",
+              "label": "مرکزی • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1754,13 +1764,13 @@
         },
         {
           "id": "font/Nahid-Regular.ttf",
-          "name": "Nahid-Regular",
+          "name": "ناهید",
           "variants": [
             {
               "id": "font/Nahid-Regular.ttf",
               "name": "Nahid-Regular",
               "source": "native",
-              "label": "Nahid-Regular",
+              "label": "ناهید",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1770,13 +1780,13 @@
         },
         {
           "id": "font/NotoKufiArabic-Variable.ttf",
-          "name": "NotoKufiArabic-Variable",
+          "name": "نوتو • متغیر",
           "variants": [
             {
               "id": "font/NotoKufiArabic-Variable.ttf",
               "name": "NotoKufiArabic-Variable",
               "source": "native",
-              "label": "NotoKufiArabic-Variable",
+              "label": "نوتو • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1786,13 +1796,13 @@
         },
         {
           "id": "font/NotoNaskhArabic-Variable.ttf",
-          "name": "NotoNaskhArabic-Variable",
+          "name": "نوتو • متغیر",
           "variants": [
             {
               "id": "font/NotoNaskhArabic-Variable.ttf",
               "name": "NotoNaskhArabic-Variable",
               "source": "native",
-              "label": "NotoNaskhArabic-Variable",
+              "label": "نوتو • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1802,13 +1812,13 @@
         },
         {
           "id": "font/NotoNastaliqUrdu-Variable.ttf",
-          "name": "NotoNastaliqUrdu-Variable",
+          "name": "نوتو • متغیر",
           "variants": [
             {
               "id": "font/NotoNastaliqUrdu-Variable.ttf",
               "name": "NotoNastaliqUrdu-Variable",
               "source": "native",
-              "label": "NotoNastaliqUrdu-Variable",
+              "label": "نوتو • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1818,13 +1828,13 @@
         },
         {
           "id": "font/Parastoo-Regular.ttf",
-          "name": "Parastoo-Regular",
+          "name": "پرستو",
           "variants": [
             {
               "id": "font/Parastoo-Regular.ttf",
               "name": "Parastoo-Regular",
               "source": "native",
-              "label": "Parastoo-Regular",
+              "label": "پرستو",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1834,13 +1844,13 @@
         },
         {
           "id": "font/ReemKufi-Variable.ttf",
-          "name": "ReemKufi-Variable",
+          "name": "ریم • متغیر",
           "variants": [
             {
               "id": "font/ReemKufi-Variable.ttf",
               "name": "ReemKufi-Variable",
               "source": "native",
-              "label": "ReemKufi-Variable",
+              "label": "ریم • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1850,13 +1860,13 @@
         },
         {
           "id": "font/Sahel-Variable.ttf",
-          "name": "Sahel-Variable",
+          "name": "ساحل • متغیر",
           "variants": [
             {
               "id": "font/Sahel-Variable.ttf",
               "name": "Sahel-Variable",
               "source": "native",
-              "label": "Sahel-Variable",
+              "label": "ساحل • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1866,13 +1876,13 @@
         },
         {
           "id": "font/Samim-Regular.ttf",
-          "name": "Samim-Regular",
+          "name": "صمیم",
           "variants": [
             {
               "id": "font/Samim-Regular.ttf",
               "name": "Samim-Regular",
               "source": "native",
-              "label": "Samim-Regular",
+              "label": "صمیم",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1882,13 +1892,13 @@
         },
         {
           "id": "font/ScheherazadeNew-Regular.ttf",
-          "name": "ScheherazadeNew-Regular",
+          "name": "شهرزاد",
           "variants": [
             {
               "id": "font/ScheherazadeNew-Regular.ttf",
               "name": "ScheherazadeNew-Regular",
               "source": "native",
-              "label": "ScheherazadeNew-Regular",
+              "label": "شهرزاد",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1898,13 +1908,13 @@
         },
         {
           "id": "font/Shabnam-Regular.ttf",
-          "name": "Shabnam-Regular",
+          "name": "شبنم",
           "variants": [
             {
               "id": "font/Shabnam-Regular.ttf",
               "name": "Shabnam-Regular",
               "source": "native",
-              "label": "Shabnam-Regular",
+              "label": "شبنم",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1914,13 +1924,13 @@
         },
         {
           "id": "font/Tanha-Regular.ttf",
-          "name": "Tanha-Regular",
+          "name": "تنها",
           "variants": [
             {
               "id": "font/Tanha-Regular.ttf",
               "name": "Tanha-Regular",
               "source": "native",
-              "label": "Tanha-Regular",
+              "label": "تنها",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1930,13 +1940,13 @@
         },
         {
           "id": "font/Vazir-Code-Regular.ttf",
-          "name": "Vazir-Code-Regular",
+          "name": "وزیر",
           "variants": [
             {
               "id": "font/Vazir-Code-Regular.ttf",
               "name": "Vazir-Code-Regular",
               "source": "native",
-              "label": "Vazir-Code-Regular",
+              "label": "وزیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1946,13 +1956,13 @@
         },
         {
           "id": "font/Vazirmatn-RD-Regular.ttf",
-          "name": "Vazirmatn-RD-Regular",
+          "name": "وزیرمتن",
           "variants": [
             {
               "id": "font/Vazirmatn-RD-Regular.ttf",
               "name": "Vazirmatn-RD-Regular",
               "source": "native",
-              "label": "Vazirmatn-RD-Regular",
+              "label": "وزیرمتن",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -1962,13 +1972,13 @@
         },
         {
           "id": "font/Vazirmatn-Variable.ttf",
-          "name": "Vazirmatn-Variable",
+          "name": "وزیرمتن • متغیر",
           "variants": [
             {
               "id": "font/Vazirmatn-Variable.ttf",
               "name": "Vazirmatn-Variable",
               "source": "native",
-              "label": "Vazirmatn-Variable",
+              "label": "وزیرمتن • متغیر",
               "video": null,
               "thumbnail": null,
               "status": "available-native",
@@ -2066,5 +2076,6 @@
     }
   ],
   "hiddenArchive": "data/catalog.json",
-  "unmatched": []
+  "unmatched": [],
+  "description": "Editorial Persian-native motion references; variants capped at 2 per family"
 }
