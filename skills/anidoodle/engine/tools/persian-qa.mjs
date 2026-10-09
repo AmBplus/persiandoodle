@@ -25,3 +25,11 @@ run(process.execPath, [
   "--sheet", "out/persian-showcase-contact.jpg", "--sheet-scale", "0.5"
 ]);
 console.log("Pen-drawn RTL demo: out/persian-showcase-contact.jpg");
+
+run(process.execPath, ["tools/render.mjs","persianShowcase",
+  "--out","out/persian-showcase.mp4","--workers","2"]);
+run(process.execPath, ["tools/still.mjs","launchExample",
+  "--frames","0,120,280","--out","out/persian-launch/",
+  "--sheet","out/persian-launch-contact.jpg","--sheet-scale","0.45"]);
+run(process.execPath, ["tools/build-page.mjs","launchExampleClean"]);
+console.log("Persian launch template and RTL product demo built successfully.");
