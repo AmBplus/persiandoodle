@@ -42,7 +42,7 @@ const bakeHashes = (metafile, salt) => {
   return out;
 };
 
-const MIME = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".woff2": "font/woff2" };
+const MIME = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".woff2": "font/woff2", ".ttf": "font/ttf", ".otf": "font/otf" };
 export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   const plugins = [...extra, overlay]; // extra first: a caller's shim (snap --only) outranks the overlay
   // <film>-<shape>: the film's own host page, told which shape to compose (hosts/page.ts reshapes it)
@@ -56,14 +56,15 @@ export const buildPage = async ({ entry, out, title, plugins: extra = [] }) => {
   const { film, music } = await loadFilmModule(shape ? `${title}-${shape}` : title, plugins);
   const recorded = prepareFilmSounds(film, music), audio = recorded ? filmFloat32(film) : null;
   const assets = Object.fromEntries(Object.entries(film.assets.images).map(([name, file]) => { const mime = MIME[extname(file).toLowerCase()]; if (!mime) throw new Error(`asset '${name}': unsupported type ${file}`); return [name, `data:${mime};base64,${readFileSync(join(process.cwd(), file)).toString("base64")}`]; }));
+  const fonts = Object.fromEntries(Object.entries(film.assets.fonts ?? {}).map(([name, file]) => { const mime = MIME[extname(file).toLowerCase()]; if (!mime || !mime.startsWith("font/")) throw new Error(`font '${name}': unsupported type ${file}`); return [name, `data:${mime};base64,${readFileSync(join(process.cwd(), file)).toString("base64")}`]; }));
   // the renderer that draws every plate frame, and the assets any plate may read, salt every key
-  const salt = [BAKE_FORMAT, ...["src/canvas-core/film.ts", "src/canvas-core/core.ts"].map((f) => readFileSync(resolve(f), "utf8")), JSON.stringify(assets)].join("\0");
+  const salt = [BAKE_FORMAT, ...["src/canvas-core/film.ts", "src/canvas-core/core.ts"].map((f) => readFileSync(resolve(f), "utf8")), JSON.stringify(assets), JSON.stringify(fonts)].join("\0");
   const bakeSrc = bakeHashes(main.metafile, salt);
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${film.meta.title}</title>
 <style>html,body{margin:0;height:100%;background:#1b1a1a;display:grid;place-items:center}canvas{max-width:100vw;max-height:100vh;aspect-ratio:${film.meta.W}/${film.meta.H};cursor:pointer;background:#fff}</style></head>
-<body><canvas id="film"></canvas><script>window.__ASSETS__=${JSON.stringify(assets)};window.__BAKE_SRC__=${JSON.stringify(bakeSrc)};${audio ? `window.__AUDIO__=${JSON.stringify(audio)};` : ''}${shape ? `window.__SHAPE__=${JSON.stringify(shape)};` : ""}</script><script>${js.replace(/<\/script/g, "<\\/script")}</script></body></html>`;
+<body><canvas id="film"></canvas><script>window.__ASSETS__=${JSON.stringify(assets)};window.__FONTS__=${JSON.stringify(fonts)};window.__BAKE_SRC__=${JSON.stringify(bakeSrc)};${audio ? `window.__AUDIO__=${JSON.stringify(audio)};` : ''}${shape ? `window.__SHAPE__=${JSON.stringify(shape)};` : ""}</script><script>${js.replace(/<\/script/g, "<\\/script")}</script></body></html>`;
   mkdirSync(join(out, ".."), { recursive: true }); writeFileSync(out, html);
   const meta = film.meta;
-  return { out, bytes: html.length, meta, assets: Object.keys(film.assets.images) };
+  return { out, bytes: html.length, meta, assets: Object.keys(film.assets.images), fonts: Object.keys(fonts) };
 };
 if (isMain(import.meta.url)) { const title = requireFilm(process.argv[2], "build-page", "node tools/build-page.mjs <film>"); const r = await buildPage({ entry: `src/hosts/page-${title}.ts`, out: `dist/${title}.html`, title }); console.log(`built ${r.out} (${(r.bytes / 1024).toFixed(0)} KB, self-contained)`); }
