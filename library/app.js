@@ -28,8 +28,9 @@ function render(){
   for(const entry of filtered.slice(0,state.visible)){
     const el=document.createElement("article");el.className="card";el.tabIndex=0;el.setAttribute("role","button");
     el.setAttribute("aria-label","مشاهده "+faTitle(entry));
-    const img=(entry.status==="rendered-persian"||entry.kind==="style")&&entry.preview&&/\.(jpg|png|webp)(\?|$)/i.test(entry.preview);
-    el.innerHTML=`<div class="thumb">${img?`<img loading="lazy" alt="" src="${escapeHtml(entry.preview)}" onerror="this.style.display='none'">`:`<span class="thumb-fallback">${entry.kind==="audio"?"♫":entry.kind==="font"?"اب":entry.kind==="motion"?"↗":entry.kind==="style"?"◈":"پ"}</span>`}<span class="thumb-badge">${escapeHtml(statuses[entry.status]||"مرجع")}</span></div><div class="card-body"><h3>${escapeHtml(faTitle(entry))}</h3><div class="subtitle">${escapeHtml(faTitle(entry))}</div><p>${escapeHtml(faDescription(entry))}</p><div class="meta"><span>${escapeHtml(kindNames[entry.kind]||entry.kind)}</span><span>${escapeHtml(sourceNames[entry.source])}</span><span>${escapeHtml(entry.license)}</span></div></div>`;
+    const poster=entry.status==="rendered-persian"&&/\.(jpg|png|webp)(\?|$)/i.test(entry.preview||"")?entry.preview:entry.persianPreview;
+    const img=poster&&/\.(jpg|png|webp)(\?|$)/i.test(poster);
+    el.innerHTML=`<div class="thumb">${img?`<img loading="lazy" alt="" src="${escapeHtml(poster)}" onerror="this.style.display='none'">`:`<span class="thumb-fallback">${entry.kind==="audio"?"♫":entry.kind==="font"?"اب":entry.kind==="motion"?"↗":entry.kind==="style"?"◈":"پ"}</span>`}<span class="thumb-badge">${escapeHtml(statuses[entry.status]||"مرجع")}</span></div><div class="card-body"><h3>${escapeHtml(faTitle(entry))}</h3><div class="subtitle">${escapeHtml(faTitle(entry))}</div><p>${escapeHtml(faDescription(entry))}</p><div class="meta"><span>${escapeHtml(kindNames[entry.kind]||entry.kind)}</span><span>${escapeHtml(sourceNames[entry.source])}</span><span>${escapeHtml(entry.license)}</span></div></div>`;
     const actions=document.createElement("div");actions.className="catalog-card-actions";
     const open=document.createElement("button");open.type="button";open.className="catalog-play";open.textContent="دیدن پیش‌نمایش فارسی";
     open.addEventListener("click",ev=>{ev.stopPropagation();openDetail(entry)});
