@@ -1,0 +1,36 @@
+{
+  "modelId": "onetake/camera",
+  "variantKey": "onetake/camera",
+  "family": "camera",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000"
+    }
+  },
+  "spec": {
+    "modelId": "onetake/camera",
+    "variantKey": "onetake/camera",
+    "variantIndex": 0,
+    "family": "camera",
+    "titleFa": "حرکتِ پیوسته",
+    "bodyFa": "دوربین بدون پرش معنا را دنبال می‌کند",
+    "promptFa": "بازسازی مستقل فارسیِ حرکت OneTake با عبور دوربین از لایه‌های پیوسته و بدون برش.",
+    "paper": "night-ink",
+    "seed": 344,
+    "durationFrames": 90,
+    "fps": 30
+  }
+}

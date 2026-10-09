@@ -1,0 +1,36 @@
+{
+  "modelId": "explainer/examples-rag-shots_src-G0-Overlay.tsx",
+  "variantKey": "explainer/examples-rag-shots_src-G0-Overlay.tsx",
+  "family": "collage",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000"
+    }
+  },
+  "spec": {
+    "modelId": "explainer/examples-rag-shots_src-G0-Overlay.tsx",
+    "variantKey": "explainer/examples-rag-shots_src-G0-Overlay.tsx",
+    "variantIndex": 0,
+    "family": "collage",
+    "titleFa": "لایهٔ توضیح",
+    "bodyFa": "مفهوم، قطعه‌قطعه روشن می‌شود",
+    "promptFa": "بازسازی مستقل فارسی برای یک Overlay آموزشی؛ کارت‌ها مرحله‌ای کنار هم می‌نشینند و متن RTL می‌خواند.",
+    "paper": "parchment",
+    "seed": 333,
+    "durationFrames": 90,
+    "fps": 30
+  }
+}

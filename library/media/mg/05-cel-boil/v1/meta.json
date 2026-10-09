@@ -1,0 +1,36 @@
+{
+  "modelId": "mg/05-cel-boil",
+  "variantKey": "mg/05-cel-boil",
+  "family": "trace",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000"
+    }
+  },
+  "spec": {
+    "modelId": "mg/05-cel-boil",
+    "variantKey": "mg/05-cel-boil",
+    "variantIndex": 0,
+    "family": "trace",
+    "titleFa": "خطِ جوشان",
+    "bodyFa": "هر فریم، یک لرزشِ زنده",
+    "promptFa": "بازسازی مستقل فارسی از امضای cel-boil با خط ترسیم‌شونده و لرزش فریم‌به‌فریم.",
+    "paper": "warm-paper",
+    "seed": 311,
+    "durationFrames": 90,
+    "fps": 30
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "modelId": "talkcraft/bar-chart-growth",
+  "variantKey": "talkcraft/bar-chart-growth",
+  "family": "chart",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "90"
+      }
+    ],
+    "format": {
+      "duration": "3.000000"
+    }
+  },
+  "spec": {
+    "modelId": "talkcraft/bar-chart-growth",
+    "variantKey": "talkcraft/bar-chart-growth",
+    "variantIndex": 0,
+    "family": "chart",
+    "titleFa": "رشدِ قابل‌گفتن",
+    "bodyFa": "عددها با روایت جلو می‌روند",
+    "promptFa": "بازسازی مستقل فارسیِ نمودار رشد برای موشن گفتاری، با مکث خوانا و پایان توضیحی.",
+    "paper": "blueprint",
+    "seed": 322,
+    "durationFrames": 90,
+    "fps": 30,
+    "values": [
+      0.2,
+      0.42,
+      0.58,
+      0.76,
+      0.94
+    ]
+  }
+}

@@ -39,6 +39,7 @@ try{
  await page.waitForTimeout(100);
  const mgCount=await page.locator("#resultCount").innerText();
  if(!mgCount.includes("۱۵"))throw Error("15 original style designs not discoverable: "+mgCount);
+ await page.locator("#searchInput").fill("03-isometric");
  await page.locator(".model button").first().click();
  if(await page.locator("#previewVideo").isVisible())throw Error("unrendered card exposed a playable video");
  if(!await page.locator("#detailCaveat").innerText().then(x=>x.includes("مرجع خارجی")&&x.includes("پخش نمی‌شود")))throw Error("unrendered preview honesty missing");
@@ -89,6 +90,13 @@ try{
  if(await page.locator("#sampleSound").isVisible())throw Error("unrendered source demo exposed an audio control");
  await page.locator("#searchInput").fill("");
  await page.locator("#sourceFilter").selectOption("talkcraft");
+ await page.locator("#searchInput").fill("bar-chart-growth");
+ await page.locator(".model button").first().click();
+ await page.locator("#previewVideo").waitFor({state:"visible",timeout:10000});
+ const talkLocal=await page.locator("#previewVideo").getAttribute("src");
+ if(!talkLocal?.startsWith("./media/talkcraft/"))throw Error("Talkcraft local render did not resolve internally: "+talkLocal);
+ await page.locator("#closeDetail").click();
+ await page.locator("#searchInput").fill("alt-block-lines");
  await page.locator(".model").first().waitFor({timeout:10000});
  const talkThumb=await page.locator(".model img").count();
  if(talkThumb)throw Error("unrendered Talkcraft card exposed a thumbnail");

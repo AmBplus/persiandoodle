@@ -4056,20 +4056,20 @@
       "source": "mg",
       "kind": "style",
       "titleFa": "خط زنده و نقاشی فریم‌به‌فریم",
-      "status": "identified",
+      "status": "rendered-persian",
       "variants": [
         {
           "index": 0,
           "key": "mg/05-cel-boil",
           "name": "05-cel-boil",
           "description": "بازآفرینی مستقل فارسی با موتور PersianDoodle؛ ساختار بصری بر اساس امضای سبک اصلی.",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/mg/05-cel-boil/v1/preview.mp4",
+          "poster": "media/mg/05-cel-boil/v1/poster.webp",
+          "thumbnail": "media/mg/05-cel-boil/v1/thumb.webp",
+          "prompt": "media/mg/05-cel-boil/v1/prompt.fa.md",
+          "metadata": "media/mg/05-cel-boil/v1/meta.json",
+          "scene": "media/mg/05-cel-boil/v1/scene.json"
         }
       ]
     },
@@ -4392,20 +4392,20 @@
       "source": "talkcraft",
       "kind": "motion",
       "titleFa": "bar-chart-growth",
-      "status": "identified",
+      "status": "rendered-persian",
       "variants": [
         {
           "index": 0,
           "key": "talkcraft/bar-chart-growth",
           "name": "bar-chart-growth",
           "description": "مرجع تکنیک؛ پیاده‌سازی در PersianDoodle باید مستقل باشد.",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/talkcraft/bar-chart-growth/v1/preview.mp4",
+          "poster": "media/talkcraft/bar-chart-growth/v1/poster.webp",
+          "thumbnail": "media/talkcraft/bar-chart-growth/v1/thumb.webp",
+          "prompt": "media/talkcraft/bar-chart-growth/v1/prompt.fa.md",
+          "metadata": "media/talkcraft/bar-chart-growth/v1/meta.json",
+          "scene": "media/talkcraft/bar-chart-growth/v1/scene.json"
         }
       ]
     },
@@ -6639,20 +6639,20 @@
       "source": "onetake",
       "kind": "motion",
       "titleFa": "camera",
-      "status": "identified",
+      "status": "rendered-persian",
       "variants": [
         {
           "index": 0,
           "key": "onetake/camera",
           "name": "camera",
           "description": "الگوی تداوم حرکت؛ صرفاً ارجاع، بدون انتقال پیاده‌سازی محدودشده.",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/onetake/camera/v1/preview.mp4",
+          "poster": "media/onetake/camera/v1/poster.webp",
+          "thumbnail": "media/onetake/camera/v1/thumb.webp",
+          "prompt": "media/onetake/camera/v1/prompt.fa.md",
+          "metadata": "media/onetake/camera/v1/meta.json",
+          "scene": "media/onetake/camera/v1/scene.json"
         }
       ]
     },
@@ -7143,20 +7143,20 @@
       "source": "explainer",
       "kind": "explainer",
       "titleFa": "نمونهٔ روایت آموزشی",
-      "status": "identified",
+      "status": "rendered-persian",
       "variants": [
         {
           "index": 0,
           "key": "explainer/examples-rag-shots_src-G0-Overlay.tsx",
           "name": "Overlay",
           "description": "فقط نمایهٔ مرجع آموزشی؛ کد دارای محدودیت استفادهٔ تجاری وارد پروژه نشده است.",
-          "status": "identified",
-          "video": null,
-          "poster": null,
-          "thumbnail": null,
-          "prompt": null,
-          "metadata": null,
-          "scene": null
+          "status": "rendered-persian",
+          "video": "media/explainer/examples-rag-shots_src-G0-Overlay.tsx/v1/preview.mp4",
+          "poster": "media/explainer/examples-rag-shots_src-G0-Overlay.tsx/v1/poster.webp",
+          "thumbnail": "media/explainer/examples-rag-shots_src-G0-Overlay.tsx/v1/thumb.webp",
+          "prompt": "media/explainer/examples-rag-shots_src-G0-Overlay.tsx/v1/prompt.fa.md",
+          "metadata": "media/explainer/examples-rag-shots_src-G0-Overlay.tsx/v1/meta.json",
+          "scene": "media/explainer/examples-rag-shots_src-G0-Overlay.tsx/v1/scene.json"
         }
       ]
     },
