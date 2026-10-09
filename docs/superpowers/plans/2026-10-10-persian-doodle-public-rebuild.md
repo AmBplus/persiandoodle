@@ -154,6 +154,6 @@
 
 - [x] Make Pages build invoke the release checker and fail on any external public media, missing required asset, or invalid status.
 - [x] Run engine tests, focused manifest tests, browser desktop/mobile QA, release checks, and FFmpeg inspection locally.
-- [ ] Build `_site`, verify the actual Pages URL in a browser, and test models from multiple sources plus multiple variants from one model.
-- [ ] Record final counts, file sizes, test results, known gaps, commit hashes, and deployment URL in the final operational report.
-- [ ] Commit as `chore: enforce final Persian library release gate` and publish `main` only after all release checks pass.
+- [x] Build `_site`, verify the actual Pages URL in a browser, and test models from multiple sources plus multiple variants from one model.
+- [x] Record final counts, file-size policy, test results, known gaps, commit hashes, and deployment URL in the final operational report.
+- [x] Publish `main` only after all release checks pass; the final release-gate changes are on `f271eb9`.

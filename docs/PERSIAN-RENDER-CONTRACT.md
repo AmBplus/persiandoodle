@@ -12,4 +12,4 @@ This is an enforceable delivery requirement, not a reference-only showcase.
 - Preserve internal reference prompt links for research only. Audio previews also require a project-owned local asset.
 - CI validates the complete inventory, manifest entries, and deployed files before publication. An inventory with zero published variants is an honest state, not a completed product.
 
-Current state: source inventory and local-only manifest gate are in place; native batch reconstruction of the variants remains to be carried out.
+Current state: all 406 visual variants have verified local Persian packages; the Pages release gate also enforces the compressed MP4 profile. Source audio remains indexed and auditable, with no unverified foreign playback.
