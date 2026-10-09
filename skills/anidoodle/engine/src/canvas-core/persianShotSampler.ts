@@ -106,7 +106,7 @@ function draw(c:Ctx,local:number,env:Env,i:number){
  c.restore();
 }
 export const persianShotSampler:Film={
- meta:{title:"نمونه‌های منتخب شات‌کرافت با متن فارسی",W,H,fps:30,bpm:90,
+ meta:{title:"نمونه‌های منتخب شات‌کرافت با متن فارسی",W,H,fps:30,bpm:60,
  durationFrames:SPAN*PersianShotRecipes.length,kind:"drawing",poster:72,
  holds:PersianShotRecipes.map((_,i)=>[SPAN*i+80,SPAN*(i+1),"read"] as [number,number,string])},
  assets:{images:{},fonts:persianFontFiles},
