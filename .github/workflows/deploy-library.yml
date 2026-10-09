@@ -30,6 +30,8 @@ jobs:
           cp -a skills/anidoodle/engine/assets/fonts _site/skills/anidoodle/engine/assets/fonts
           printf '%s\n' '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>کتابخانه پرشین‌دودل</title><meta http-equiv="refresh" content="0;url=./library/"></head><body><a href="./library/">ورود به کتابخانه</a></body></html>' > _site/index.html
           touch _site/.nojekyll
+          test -s _site/library/data/persian-renders.json
+          python3 scripts/verify-local-persian-media.py _site
           test -s _site/library/data/catalog.json
           test -s _site/library/data/source-audio.json
           test -s _site/library/index.html
