@@ -17,7 +17,7 @@ permissions:
 jobs:
   persian-font-render:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: skills/anidoodle/engine
@@ -44,6 +44,8 @@ jobs:
       - name: Promote tested native Persian samples
         if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
         run: node tools/publish-persian-library.mjs
+      - name: Render a scene composed from the exported Library JSON
+        run: node tools/render-library-scene.mjs --config ../../../library/examples/persian-calligraphy-scene.json --out out/library-composed-scene.mp4 --sheet out/library-composed-sheet.jpg
       - name: Independently render every catalog item with Persian glyphs
         if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
         run: node tools/render-item-previews.mjs
@@ -66,6 +68,8 @@ jobs:
             skills/anidoodle/engine/out/persian-motion-styles.mp4
             skills/anidoodle/engine/out/persian-library-desktop.png
             skills/anidoodle/engine/out/persian-library-mobile.png
+            skills/anidoodle/engine/out/library-composed-scene.mp4
+            skills/anidoodle/engine/out/library-composed-sheet.jpg
           if-no-files-found: warn
       - name: Commit and publish Persian-verified media and catalog
         if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/unified-persian-motion-library-20261009' }}
