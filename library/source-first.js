@@ -143,7 +143,7 @@ function art(x){
  if(x.kind==="music"||x.kind==="sfx")return'<div class="cover-muted"><span class="icon">♫</span><span class="source-mark">'+escapeHtml(x.kind==="music"?"موسیقی مرجع":"افکت صوتی مرجع")+'</span></div>';
  const image=poster(x),video=x.source==="shotcraft"?x.variants[0]?.url:null;
  if(image)return '<img loading="lazy" alt="" src="'+escapeHtml(image)+'">';
- if(video)return '<video muted loop playsinline preload="none" data-preview="'+escapeHtml(video)+'" aria-label="پیش‌نمایش واقعی مدل مرجع"></video>';
+ if(video)return '<video muted loop playsinline preload="metadata" data-preview="'+escapeHtml(video)+'" aria-label="پیش‌نمایش واقعی مدل مرجع"></video>';
  return '<div class="cover-muted"><span class="icon">'+modelIcon(x)+'</span><span class="source-mark">'+escapeHtml(sourceName(x.source))+'</span></div>';
 }
 function renderGallery(){
@@ -166,6 +166,19 @@ function renderGallery(){
   }
   cover.addEventListener("click",()=>detail(x));
   gallery.append(el);
+  // Fill each visible card with a true frame from the upstream motion, not a synthetic design.
+  // Media is loaded lazily near the viewport to avoid fetching 214 videos at once.
+  if(motion){
+   const io=new IntersectionObserver(entries=>{
+    if(!entries[0].isIntersecting)return;
+    io.disconnect();
+    if(!motion.src)motion.src=motion.dataset.preview;
+    motion.addEventListener("loadedmetadata",()=>{
+     if(Number.isFinite(motion.duration)&&motion.duration>0)motion.currentTime=Math.min(.85,motion.duration*.25);
+    },{once:true});
+   },{rootMargin:"180px"});
+   io.observe(cover);
+  }
  }
  const more=$("#showMore");more.hidden=arr.length<=S.visible;
  more.textContent="نمایش "+prs(Math.min(36,arr.length-S.visible))+" مدل دیگر ↓";
@@ -219,7 +232,7 @@ async function showFont(x){
  d.textContent=$("#fontText").value;
 }
 function updatePreview(){
- const x=S.current,v=S.variant,video=$("#previewVideo"),empty=$("#previewEmpty");
+ const x=S.current,v=S.variant,video=$("#previewVideo"),img=$("#previewImage"),empty=$("#previewEmpty");
  video.pause();video.removeAttribute("src");video.load();
  const media=originalMedia(x,v);
  const playable=media&&(x.kind!=="music"&&x.kind!=="sfx");
@@ -228,9 +241,11 @@ function updatePreview(){
  separate.hidden=!playable;
  if(playable){player.src=media;player.load();$("#sampleSoundStatus").textContent="در این بخش فقط صدای فایل ویدیوی انتخاب‌شده پخش می‌شود؛ اگر نمونه فاقد ترک صوتی باشد، پلیر آن را نشان می‌دهد.";}
 
- video.hidden=!playable;empty.hidden=!!playable;
- if(playable){video.src=media;video.poster=poster(x)||"";video.load();}
- $("#previewStatus").textContent=playable?"ویدیوی مرجع اصلی — هنوز فارسی نشده":x.source==="native"?"کامپوننت فارسی":"مرجع تصویری در این فهرست موجود نیست";
+ const still=poster(x);
+ video.hidden=!playable;img.hidden=!!playable||!still;empty.hidden=!!playable||!!still;
+ if(!playable&&still)img.src=still;
+ if(playable){video.src=media;video.poster=still||"";video.load();}
+ $("#previewStatus").textContent=playable?"ویدیوی مرجع اصلی — هنوز فارسی نشده":still?"تصویر واقعی منبع — مرجع":"نمونهٔ تصویری ثبت نشده";
  $("#detailCaveat").textContent=x.source==="native"?"ابزار قلم موجود در پروژه است.":x.source==="shotcraft"||x.source==="mg"?"نمونهٔ پخش‌شده، ویدیوی اصلیِ منبع است. متن فارسی در پرامپت آماده شده؛ خود ویدیوی مرجع هنوز بازآفرینی فارسی نشده است.":"منبع فقط برای مطالعه و بازسازی مستقل فهرست شده است؛ مجوز غیرتجاری ممکن است اجازهٔ بازاستفاده از سورس را ندهد.";
 }
 function detail(x){
