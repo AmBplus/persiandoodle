@@ -18,6 +18,17 @@ The originals are committed at `skills/anidoodle/engine/assets/fonts/` (and mirr
 | Vazir Code | Vazir-Code-Regular.ttf | [rastikerdar/vazir-code-font](https://github.com/rastikerdar/vazir-code-font) | technology/code graphics | author PD + Bitstream Vera notices |
 | Estedad | Estedad-Variable.ttf | [aminabedi68/Estedad](https://github.com/aminabedi68/Estedad) | expressive editorial headlines | OFL-1.1 |
 | Lalezar | Lalezar-Regular.ttf | [BornaIz/Lalezar](https://github.com/BornaIz/Lalezar) | posters and short bold headlines | OFL-1.1 |
+| Amiri | Amiri-Regular.ttf | [google/fonts: amiri](https://github.com/google/fonts/tree/main/ofl/amiri) | book typography and classical Naskh | OFL-1.1 |
+| Aref Ruqaa | ArefRuqaa-Regular.ttf | [google/fonts: arefruqaa](https://github.com/google/fonts/tree/main/ofl/arefruqaa) | Ruqaa-style expressive lettering | OFL-1.1 |
+| Katibeh | Katibeh-Regular.ttf | [google/fonts: katibeh](https://github.com/google/fonts/tree/main/ofl/katibeh) | calligraphic historical poster | OFL-1.1 |
+| Markazi Text | MarkaziText-Variable.ttf | [google/fonts: markazitext](https://github.com/google/fonts/tree/main/ofl/markazitext) | literary Arabic/Persian text | OFL-1.1 |
+| Lemonada | Lemonada-Variable.ttf | [google/fonts: lemonada](https://github.com/google/fonts/tree/main/ofl/lemonada) | contemporary Naskh/Diwani display | OFL-1.1 |
+| Noto Kufi Arabic | NotoKufiArabic-Variable.ttf | [google/fonts: notokufiarabic](https://github.com/google/fonts/tree/main/ofl/notokufiarabic) | Kufic geometric headlines | OFL-1.1 |
+| Noto Naskh Arabic | NotoNaskhArabic-Variable.ttf | [google/fonts: notonaskharabic](https://github.com/google/fonts/tree/main/ofl/notonaskharabic) | neutral traditional Naskh | OFL-1.1 |
+| Baloo Bhaijaan 2 | BalooBhaijaan2-Variable.ttf | [google/fonts: baloobhaijaan2](https://github.com/google/fonts/tree/main/ofl/baloobhaijaan2) | playful rounded headlines | OFL-1.1 |
+| Reem Kufi | ReemKufi-Variable.ttf | [google/fonts: reemkufi](https://github.com/google/fonts/tree/main/ofl/reemkufi) | contemporary geometric Kufi | OFL-1.1 |
+| Scheherazade New | ScheherazadeNew-Regular.ttf | [google/fonts: scheherazadenew](https://github.com/google/fonts/tree/main/ofl/scheherazadenew) | dense religious and literary text, verify Persian styling | OFL-1.1 |
+| Lateef | Lateef-Regular.ttf | [google/fonts: lateef](https://github.com/google/fonts/tree/main/ofl/lateef) | lightweight elegant Naskh | OFL-1.1 |
 | Gulzar | Gulzar-Regular.ttf | [googlefonts/Gulzar](https://github.com/googlefonts/Gulzar) | Urdu Nastaliq and Persian feasibility study | OFL-1.1 |
 | Noto Nastaliq Urdu | NotoNastaliqUrdu-Variable.ttf | [google/fonts](https://github.com/google/fonts/tree/main/ofl/notonastaliqurdu) | alternate Urdu Nastaliq, variable weight comparison | OFL-1.1 |
 
@@ -48,7 +59,7 @@ For the complete demonstration:
 cd skills/anidoodle/engine
 npm install
 node tools/persian-qa.mjs
-# outputs 16 real stills + out/persian-gallery-contact.jpg
+# outputs 25 real stills + out/persian-gallery-contact.jpg
 # additional interactive HTML: node tools/build-page.mjs persianGallery
 ```
 
@@ -67,4 +78,4 @@ Gulzar and Noto Nastaliq Urdu are preserved unchanged as licensed upstream fonts
 
 ## QA status
 
-The source code, 14 original font binaries and test/gallery generator are committed. A GitHub Actions job at `.github/workflows/persian-qa.yml` can render a 16-frame contact sheet. Run the commands above to verify full browser rendering in the target system. Without an executed full engine browser render, do **not** claim the contact sheet or glyph-perfect handwriting is visually approved.
+The source code, 25 original font binaries and test/gallery generator are committed. A GitHub Actions job at `.github/workflows/persian-qa.yml` can render a 25-frame contact sheet. Run the commands above to verify full browser rendering in the target system. The first 14-font test completed all 13 unit checks and captured 16 reproducible browser frames. Actual frames were inspected and compared, including Urdu Nastaliq. The new extended 25-font version must pass its own Actions checks and visual review before merging; precise glyph-outline writing and any altered Urdu derivative need separate evaluation.
