@@ -11,6 +11,7 @@ const fontFiles: Record<string, string> = {
   Nahid: "Nahid-Regular.ttf", "Vazir Code": "Vazir-Code-Regular.ttf",
   Estedad: "Estedad-Variable.ttf", Lalezar: "Lalezar-Regular.ttf",
   Gulzar: "Gulzar-Regular.ttf",
+  "Noto Nastaliq Urdu": "NotoNastaliqUrdu-Variable.ttf",
 };
 export const persianFontFiles = Object.fromEntries(
   Object.entries(fontFiles).map(([name, file]) => [name, `assets/fonts/${file}`]),
@@ -63,11 +64,13 @@ const scene = (ctx: Ctx, local: number, env: Env, page: number) => {
     ctx.fillStyle = "#fff"; ctx.fillRect(55, 185, 1170, 445);
     ctx.fillStyle = "#e6e8e6"; ctx.fillRect(80, 356, 1120, 1);
     drawPersianText(ctx, { text: "زیباییِ خط، روحِ کلمات است", x: 1180, y: 348,
-      family: "Gulzar", size: 66, color: C.ink, progress, mode: "ink", pen: local < 65 });
-    drawPersianText(ctx, { text: "پاکستان، زبانِ اُردو، نستعلیق", x: 1174, y: 531,
-      family: "Gulzar", size: 48, color: C.blue, progress, mode: "type", normalize: false });
-    drawPersianText(ctx, { text: "نمونهٔ آزمایشی — تأیید نهایی نیازمند بازبینی بومی است", x: 1190,
-      y: 705, family: "Vazirmatn", size: 25, color: C.muted });
+      family: "Gulzar", size: 61, color: C.ink, progress, mode: "ink", pen: local < 65 });
+    drawPersianText(ctx, { text: "زندگی، خلاقیت، خوشنویسی", x: 1174, y: 536,
+      family: "Noto Nastaliq Urdu", size: 47, color: C.blue, progress, mode: "ink", pen: local < 65 });
+    drawPersianText(ctx, { text: "پاکستان، اُردو — فارسی ایرانی: ی، ک، ه، ۱۲۳", x: 1174,
+      y: 692, family: "Gulzar", size: 32, color: C.ink, progress, mode: "type", normalize: false });
+    drawPersianText(ctx, { text: "آزمایشی — پذیرش نهایی نیازمند بازبینی یک طراح خط فارسی است", x: 1190,
+      y: 772, family: "Vazirmatn", size: 22, color: C.muted });
   }
   ctx.restore();
 };
