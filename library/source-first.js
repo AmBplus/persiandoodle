@@ -157,10 +157,10 @@ function renderGallery(){
  $("#resultSubtitle").textContent=S.source?sourceName(S.source):groups[S.section];
  $("#empty").hidden=arr.length>0;
  for(const x of arr.slice(0,S.visible)){
-  const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":"");
+  const el=document.createElement("article");el.className="model"+(S.current?.id===x.id?" active":"")+(x.kind==="sfx"||x.kind==="music"?" audio-model":(!localMedia(x,0)&&!poster(x,0)?" reference-only":""));
   const orig=x.source!=="native";
   el.innerHTML='<div class="model-cover">'+art(x)+'<span class="badge">'+escapeHtml(x.kind==="music"||x.kind==="sfx"?(audioPublished(x)?"صدای داخلی تأییدشده":"صدای مرجع، فاقد رندر داخلی"):orig?(localMedia(x,0)?"رندر فارسی":"در انتظار رندر فارسی"):"ابزار قلم")+'</span>'+(x.variants.length>1?'<span class="variants-pill">'+prs(x.variants.length)+' مدل اجرایی</span>':"")+'</div>'+
-  '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p><div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
+  '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.category||catFa[x.facet]||"")+'</p>'+((!localMedia(x,0)&&!poster(x,0)&&x.kind!=="music"&&x.kind!=="sfx")?'<div class="reference-summary">'+escapeHtml(String(x.variants[0]?.description||x.description||"مدل مرجع").slice(0,160))+'</div><div class="reference-label">مرجع اصلی · بدون رندر فارسی تأییدشده</div>':'')+'<div class="model-bottom"><span class="source-logo">'+escapeHtml(sourceName(x.source))+'</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
   el.querySelector("button").addEventListener("click",()=>detail(x));
   const cover=el.querySelector(".model-cover"),motion=cover.querySelector("video[data-preview]");
   if(motion){
@@ -171,8 +171,8 @@ function renderGallery(){
   }
   cover.addEventListener("click",()=>detail(x));
   gallery.append(el);
-  // Fill each visible card with a true frame from the upstream motion, not a synthetic design.
-  // Media is loaded lazily near the viewport to avoid fetching 214 videos at once.
+  // Display only locally verified renders, never synthetic placeholders.
+  // External sources stay as references, never imported as gallery video.
   if(motion){
    const io=new IntersectionObserver(entries=>{
     if(!entries[0].isIntersecting)return;
@@ -234,6 +234,8 @@ function updatePreview(){
  separate.hidden=!playable;
  if(playable){player.src=media;player.load();$("#sampleSoundStatus").textContent="در این بخش فقط صدای فایل ویدیوی انتخاب‌شده پخش می‌شود؛ اگر نمونه فاقد ترک صوتی باشد، پلیر آن را نشان می‌دهد.";}
 
+ const originalLink=$("#originalPreviewLink"),originUrl=x.variants[v]?.url||x.remoteVideo||"";
+ originalLink.hidden=!/^https:\/\//.test(originUrl);if(!originalLink.hidden)originalLink.href=originUrl;
  const still=poster(x,v);
  video.hidden=!playable;img.hidden=!!playable||!still;empty.hidden=!!playable||!!still;
  if(!playable&&still)img.src=still;
