@@ -27,7 +27,13 @@ Never download or re-research these for every render.
 For Persian title animation use `engine/src/canvas-core/persianTrace.ts`:
 `drawPersianTrace(ctx, env, { text, x, y, size, family: "Vazirmatn", progress, pen: true })`.
 It shapes the entire RTL phrase *first*, keeps joining/ZWNJ and draws a moving
-pen along the actual shaped ink skeleton. Small lightweight revealing type
+pen along the actual shaped ink skeleton. The current implementation also uses
+`engine/src/canvas-core/persianInkPlan.ts` to give every pixel of ink a
+deterministic arrival time, including separately timed dot groups and diacritics.
+Never reintroduce global stroke-width thickening, `source-in` fill or any
+last-frame glyph replacement: all opaque pixels must be complete before 99%.
+See `docs/PERSIAN-INK-ENGINE.md` for the stroke graph, pen/dot order and
+regression gates. Small lightweight revealing type
 can still use `persianText.ts`. Always declare the chosen `FontFace` through
 `film.assets.fonts` before frame zero.
 

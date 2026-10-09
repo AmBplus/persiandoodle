@@ -20,11 +20,12 @@ console.log("\nQA contact sheet: out/persian-gallery-contact.jpg");
 
 run(process.execPath, [
   "tools/still.mjs", "persianShowcase",
-  "--frames", "0,20,45,70,90,100,125,150,175,190,200,225,250,275,290,300,325,350,375,399",
+  "--frames", "0,8,20,35,45,60,70,82,90,98,99,100,125,150,175,190,198,199,200,225,250,275,290,298,299,300,325,350,375,390,398,399",
   "--out", "out/persian-showcase/",
   "--sheet", "out/persian-showcase-contact.jpg", "--sheet-scale", "0.5"
 ]);
 console.log("Pen-drawn RTL demo: out/persian-showcase-contact.jpg");
+run(process.execPath, ["tools/verify-persian-frames.mjs"]);
 
 run(process.execPath, ["tools/render.mjs","persianShowcase",
   "--out","out/persian-showcase.mp4","--workers","2"]);

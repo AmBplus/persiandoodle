@@ -53,7 +53,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Publish reviewed Persian demo stills to the feature branch
-        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/persian-rtl-fonts-20261009' }}
+        if: ${{ github.event_name == 'pull_request' && github.head_ref == 'feature/professional-persian-strokes-20261009' }}
         working-directory: .
         env:
           TARGET_BRANCH: ${{ github.head_ref }}
