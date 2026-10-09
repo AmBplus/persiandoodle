@@ -18,6 +18,25 @@ was an icon of itself, because a style was only a palette swap, because the musi
 or because the person spent their patience approving fragments. This skill carries the craft
 that prevents each of those.
 
+## PersianDoodle: Persian/RTL text (built-in extension)
+
+When rendering Persian or Urdu text, **do not rediscover or redownload fonts every time**.
+The engine already vendors 14 licensed typefaces in `engine/assets/fonts/` (Vazirmatn,
+Shabnam, Sahel, Samim, Gandom, Tanha, Parastoo, Nahid, Vazir Code, Estedad,
+Lalezar, Gulzar, Noto Nastaliq Urdu and rounded Vazirmatn). Read
+`../../docs/PERSIAN-TYPOGRAPHY.md` from this skill directory's repository root
+or `docs/PERSIAN-TYPOGRAPHY.md` from the repository itself for provenance and licensing.
+
+Use `engine/src/canvas-core/persianText.ts` `drawPersianText(ctx, { text, x, y,
+size, family, progress, mode: "ink", pen: true })`; include the selected family
+in `film.assets.fonts`. The standard HTML host embeds and preloads every font
+before frame zero. Use original whole-script shaping, right alignment and
+preserve ZWNJ. For native Urdu, set `normalize: false`.
+Never animate Persian by `fillText` on isolated codepoints, which breaks joining.
+The current "ink" mode is a shaped-ink reveal, **not true outline stroke tracing**.
+For quality assurance run `cd engine && node tools/persian-qa.mjs` to test and
+produce sixteen real frames as a grid. Do not claim the visual gate passes without viewing it.
+
 ## Start by asking, then build
 
 Read `references/workflows/start-here.md` and run its intake: one question at a time, only
