@@ -36,11 +36,11 @@
 - `verify-local-persian-media.py` accepts a site directory and rejects invalid local paths, missing files, wrong statuses, duplicate variant keys, and unexpected public media fields.
 - `manifest-report.mjs` prints counts grouped by source and status for release reports.
 
-- [ ] Add the status enum `identified`, `analyzed`, `in-progress`, `rendered-persian`, `verified`, `published`, and `needs-fix`, and validate it in both Node and Python.
-- [ ] Generate one manifest record per catalog model and one variant record per distinct Shotcraft style, with `null` media fields until files exist.
-- [ ] Add tests that prove 534 models, 214 Shotcraft variants, and no duplicate variant keys are represented.
-- [ ] Run `node scripts/test-persian-manifest.mjs` and `python scripts/verify-local-persian-media.py .`; keep the empty manifest honest until a real render is added.
-- [ ] Commit the inventory/contract change as `feat: formalize local Persian render inventory`.
+- [x] Add the status enum `identified`, `analyzed`, `in-progress`, `rendered-persian`, `verified`, `published`, and `needs-fix`, and validate it in both Node and Python.
+- [x] Generate one manifest record per catalog model and one variant record per distinct Shotcraft style, with `null` media fields until files exist.
+- [x] Add tests that prove 534 models, 214 Shotcraft variants, and no duplicate variant keys are represented.
+- [x] Run `node scripts/test-persian-manifest.mjs` and `python scripts/verify-local-persian-media.py .`; keep the empty manifest honest until a real render is added.
+- [x] Commit the inventory/contract change as `feat: formalize local Persian render inventory`.
 
 ### Task 2: Enforce local-only playback in the browser
 
@@ -54,12 +54,12 @@
 - `localPath(value)` accepts only project-relative `media/...` paths from the manifest and returns `null` for external URLs.
 - `resolveVariantMedia(item, index)` returns `{video, poster, thumbnail, status}` from the manifest without consulting source preview fields.
 
-- [ ] Replace source-video/source-poster fallback in cards and detail preview with `resolveVariantMedia`.
-- [ ] Render an honest status label and research link for `identified`, `in-progress`, and `needs-fix` records.
-- [ ] Ensure audio controls use only manifest-local previews; source audio remains metadata-only when no local file exists.
-- [ ] Add a Playwright assertion that no `<video>`, `<audio>`, or media `src` on the library page contains `http://` or `https://`.
-- [ ] Run the browser QA against the current empty manifest and verify it fails only on the expected “no local render” assertions, then update the test to accept honest empty states.
-- [ ] Commit as `fix: remove foreign media playback fallbacks`.
+- [x] Replace source-video/source-poster fallback in cards and detail preview with `resolveVariantMedia`.
+- [x] Render an honest status label and research link for `identified`, `in-progress`, and `needs-fix` records.
+- [x] Ensure audio controls use only manifest-local previews; source audio remains metadata-only when no local file exists.
+- [x] Add a Playwright assertion that no `<video>`, `<audio>`, or media `src` on the library page contains `http://` or `https://`.
+- [x] Run the browser QA against the current empty manifest and verify it fails only on the expected “no local render” assertions, then update the test to accept honest empty states.
+- [x] Commit as `fix: remove foreign media playback fallbacks`.
 
 ### Task 3: Add a native Persian variant scene contract
 
@@ -75,12 +75,12 @@
 - `makePersianVariantFilm(spec)` returns the engine `Film` with deterministic frame output and Persian RTL text.
 - `render-persian-variant.mjs --spec <json> --out <dir>` writes an MP4, poster, thumbnail, editable spec, and render report.
 
-- [ ] Implement the shared frame contract at 1920x1080, 30fps, with explicit RTL canvas text direction and Vazirmatn fallback.
-- [ ] Implement family dispatch for `trace`, `kinetic`, `chart`, `camera`, and `collage`; reject unknown families instead of silently using a generic scene.
-- [ ] Add deterministic seed and variant identity into the scene so two distinct variants cannot produce the same output accidentally.
-- [ ] Add tests for Persian shaping, finite frames, stable hashes, variant identity, and out-of-frame bounds.
-- [ ] Run the focused test and a 30-frame smoke render before any long batch.
-- [ ] Commit as `feat: add native Persian variant render contract`.
+- [x] Implement the shared frame contract at 1920x1080, 30fps, with explicit RTL canvas text direction and Vazirmatn fallback.
+- [x] Implement family dispatch for `trace`, `kinetic`, `chart`, `camera`, and `collage`; reject unknown families instead of silently using a generic scene.
+- [x] Add deterministic seed and variant identity into the scene so two distinct variants cannot produce the same output accidentally.
+- [x] Add tests for Persian shaping, finite frames, stable hashes, variant identity, and out-of-frame bounds.
+- [x] Run the focused test and a 30-frame smoke render before any long batch.
+- [x] Commit as `feat: add native Persian variant render contract`.
 
 ### Task 4: Render and package a representative verified batch
 
@@ -95,12 +95,12 @@
 - `package-persian-render.mjs --render <dir> --manifest <path>` updates one manifest variant only after all required files exist and pass media inspection.
 - A packaged directory contains `preview.mp4`, `poster.webp`, `thumb.webp`, `prompt.fa.md`, `meta.json`, and `scene.json`.
 
-- [ ] Select at least one real source variant from each family and record its source technique, timing, Persian copy, and mapping in `library/render-specs`.
-- [ ] Render a short smoke output, inspect contact sheets, then render the complete representative batch.
-- [ ] Convert posters/thumbnails to WebP, extract them from real rendered frames, and run `ffprobe` on every MP4.
-- [ ] Package only outputs with valid local paths and status `rendered-persian`; leave failures as `needs-fix`.
-- [ ] Run the manifest gate and browser QA against the representative batch.
-- [ ] Commit as `feat: publish verified Persian render batch`.
+- [x] Select at least one real source variant from each family and record its source technique, timing, Persian copy, and mapping in `library/render-specs`.
+- [x] Render a short smoke output, inspect contact sheets, then render the complete representative batch.
+- [x] Convert posters/thumbnails to WebP, extract them from real rendered frames, and run `ffprobe` on every MP4.
+- [x] Package only outputs with valid local paths and status `rendered-persian`; leave failures as `needs-fix`.
+- [x] Run the manifest gate and browser QA against the representative batch.
+- [x] Commit as `feat: publish verified Persian render batch`.
 
 ### Task 5: Build the queued batch renderer for the remaining variants
 
@@ -115,9 +115,9 @@
 - `render-persian-batch.mjs --queue scripts/render-queue.json --workers 2` renders independent jobs, writes per-job logs, and never copies another variant’s output.
 - `render-report.mjs` compares expected source variant keys against packaged outputs and reports missing, failed, verified, and published counts.
 
-- [ ] Generate a queue from the source inventory with a stable `modelId/variantIndex/variantKey` identity.
-- [ ] Render in bounded batches with resumable reports and no overwrite of a successful verified package.
-- [ ] Add an explicit review gate that checks contact-sheet dimensions, duration, Persian glyph presence, and variant hash uniqueness.
+- [x] Generate a queue from the source inventory with a stable `modelId/variantIndex/variantKey` identity.
+- [x] Render in bounded batches with resumable reports and no overwrite of a successful verified package.
+- [x] Add an explicit review gate that checks contact-sheet dimensions, duration, Persian glyph presence, and variant hash uniqueness.
 - [ ] Run batches until every distinct variant has either a verified local render or a documented `needs-fix` record; never label unresolved items published.
 - [ ] Commit each coherent batch with its generated report and keep the repository below the Pages size limit.
 
@@ -135,7 +135,7 @@
 - Local audio records contain `sourceId`, `localPreview`, `kind`, `duration`, `format`, `bytes`, `licenseStatus`, and `publicationStatus`.
 - `build-local-audio-manifest.mjs` refuses to mark a source stock URL as a local project asset.
 
-- [ ] Preserve all 154 source audio records and their attribution metadata.
+- [x] Preserve all 154 source audio records and their attribution metadata.
 - [ ] Generate or package only licensed/project-owned previews for public playback, using native engine audio where stock redistribution is not permitted.
 - [ ] Run `ffprobe` on every published MP3/OGG and verify the UI points only to local paths.
 - [ ] Commit as `feat: add auditable local audio publication records`.
@@ -151,8 +151,8 @@
 **Interfaces:**
 - `release-check.mjs --site <dir>` runs manifest validation, file existence checks, ffprobe checks, external-media scans, and catalog/variant count checks.
 
-- [ ] Make Pages build invoke the release checker and fail on any external public media, missing required asset, or invalid status.
-- [ ] Run engine tests, focused manifest tests, browser desktop/mobile QA, release checks, and FFmpeg inspection locally.
+- [x] Make Pages build invoke the release checker and fail on any external public media, missing required asset, or invalid status.
+- [x] Run engine tests, focused manifest tests, browser desktop/mobile QA, release checks, and FFmpeg inspection locally.
 - [ ] Build `_site`, verify the actual Pages URL in a browser, and test models from multiple sources plus multiple variants from one model.
 - [ ] Record final counts, file sizes, test results, known gaps, commit hashes, and deployment URL in the final operational report.
 - [ ] Commit as `chore: enforce final Persian library release gate` and publish `main` only after all release checks pass.
