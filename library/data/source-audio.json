@@ -1,0 +1,2787 @@
+{
+  "version": 2,
+  "source": "Vincentwei1021/video-shotcraft",
+  "attributionUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/ATTRIBUTION.md",
+  "licenseUrl": "https://mixkit.co/license/",
+  "policy": "Metadata and link-only audio browser. Never redistribute stock files or extracted music as standalone assets. Six unattributed SFX + tech-house remain unplayable pending verification.",
+  "tracks": [
+    {
+      "id": "music/shotcraft/cat-walk",
+      "slug": "cat-walk",
+      "kind": "music",
+      "category": "bgm",
+      "titleFa": "کت واک",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/bgm/cat-walk.mp3",
+      "playUrl": "https://assets.mixkit.co/music/371/371.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "available": true,
+      "artist": "Arulo",
+      "bpm": 129,
+      "tags": [
+        "music",
+        "bgm"
+      ]
+    },
+    {
+      "id": "music/shotcraft/g-eazy-nba-type",
+      "slug": "g-eazy-nba-type",
+      "kind": "music",
+      "category": "bgm",
+      "titleFa": "هیپ‌هاپ ان‌بی‌ای",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/bgm/g-eazy-nba-type.mp3",
+      "playUrl": "https://assets.mixkit.co/music/403/403.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "available": true,
+      "artist": "Arulo",
+      "bpm": 86,
+      "tags": [
+        "music",
+        "bgm"
+      ]
+    },
+    {
+      "id": "music/shotcraft/house-vibez",
+      "slug": "house-vibez",
+      "kind": "music",
+      "category": "bgm",
+      "titleFa": "هاوس وایبز",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/bgm/house-vibez.mp3",
+      "playUrl": "https://assets.mixkit.co/music/745/745.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "available": true,
+      "artist": "Lily J",
+      "bpm": 123,
+      "tags": [
+        "music",
+        "bgm"
+      ]
+    },
+    {
+      "id": "music/shotcraft/tonight-hiphop",
+      "slug": "tonight-hiphop",
+      "kind": "music",
+      "category": "bgm",
+      "titleFa": "امشب",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/bgm/tonight-hiphop.mp3",
+      "playUrl": "https://assets.mixkit.co/music/841/841.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "available": true,
+      "artist": "Michael Ramir C.",
+      "bpm": 103,
+      "tags": [
+        "music",
+        "bgm"
+      ]
+    },
+    {
+      "id": "music/shotcraft/bgm-tech-house",
+      "slug": "bgm-tech-house",
+      "kind": "music",
+      "category": "bgm",
+      "titleFa": "تک هاوس (مجوز نامشخص)",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/bgm/bgm-tech-house.mp3",
+      "playUrl": null,
+      "license": "needs-review",
+      "available": false,
+      "artist": "",
+      "bpm": 124,
+      "tags": [
+        "music",
+        "bgm"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/camera-autofocus.mp3",
+      "slug": "camera-autofocus",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "camera-autofocus",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/camera-autofocus.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1437/1437-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Camera lens autofocus",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/camera-lens-shutter.mp3",
+      "slug": "camera-lens-shutter",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "camera-lens-shutter",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/camera-lens-shutter.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1433/1433-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Camera lens shutter",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/camera-shutter-hard.mp3",
+      "slug": "camera-shutter-hard",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "camera-shutter-hard",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/camera-shutter-hard.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1430/1430-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Camera shutter hard click",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/camera-shutter-vintage.mp3",
+      "slug": "camera-shutter-vintage",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "camera-shutter-vintage",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/camera-shutter-vintage.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1438/1438-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Vintage camera shutter",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/click-camera.mp3",
+      "slug": "click-camera",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "click-camera",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/click-camera.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1133/1133-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mixkit SFX Free License",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/ui-zoom-in.mp3",
+      "slug": "ui-zoom-in",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "ui-zoom-in",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/ui-zoom-in.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2618/2618-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "User interface zoom in",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/ui-zoom-out.mp3",
+      "slug": "ui-zoom-out",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "ui-zoom-out",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/ui-zoom-out.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2619/2619-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "UI zoom out",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/zoom-air-fast.mp3",
+      "slug": "zoom-air-fast",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "zoom-air-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/zoom-air-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2625/2625-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast air zoom",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/zoom-futuristic.mp3",
+      "slug": "zoom-futuristic",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "zoom-futuristic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/zoom-futuristic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2626/2626-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Futuristic zoom move",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/camera/zoom-swipe-fast.mp3",
+      "slug": "zoom-swipe-fast",
+      "kind": "sfx",
+      "category": "camera",
+      "titleFa": "zoom-swipe-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/camera/zoom-swipe-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2627/2627-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast swipe zoom",
+      "tags": [
+        "sfx",
+        "camera"
+      ]
+    },
+    {
+      "id": "sound/sfx/counter/clock-knob-spin.mp3",
+      "slug": "clock-knob-spin",
+      "kind": "sfx",
+      "category": "counter",
+      "titleFa": "clock-knob-spin",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/counter/clock-knob-spin.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1062/1062-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Clock knob spin",
+      "tags": [
+        "sfx",
+        "counter"
+      ]
+    },
+    {
+      "id": "sound/sfx/counter/clock-mech-retract.mp3",
+      "slug": "clock-mech-retract",
+      "kind": "sfx",
+      "category": "counter",
+      "titleFa": "clock-mech-retract",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/counter/clock-mech-retract.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1049/1049-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Retract clock mechanism",
+      "tags": [
+        "sfx",
+        "counter"
+      ]
+    },
+    {
+      "id": "sound/sfx/counter/clock-tick-single.mp3",
+      "slug": "clock-tick-single",
+      "kind": "sfx",
+      "category": "counter",
+      "titleFa": "clock-tick-single",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/counter/clock-tick-single.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1061/1061-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Clock ticker single",
+      "tags": [
+        "sfx",
+        "counter"
+      ]
+    },
+    {
+      "id": "sound/sfx/counter/countdown-bleeps.mp3",
+      "slug": "countdown-bleeps",
+      "kind": "sfx",
+      "category": "counter",
+      "titleFa": "countdown-bleeps",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/counter/countdown-bleeps.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/916/916-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Clock countdown bleeps",
+      "tags": [
+        "sfx",
+        "counter"
+      ]
+    },
+    {
+      "id": "sound/sfx/crowd/applause-rhythmic-loop.mp3",
+      "slug": "applause-rhythmic-loop",
+      "kind": "sfx",
+      "category": "crowd",
+      "titleFa": "applause-rhythmic-loop",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/crowd/applause-rhythmic-loop.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/522/522-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Rhythmic audience clapping loop",
+      "tags": [
+        "sfx",
+        "crowd"
+      ]
+    },
+    {
+      "id": "sound/sfx/crowd/clap-single.mp3",
+      "slug": "clap-single",
+      "kind": "sfx",
+      "category": "crowd",
+      "titleFa": "clap-single",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/crowd/clap-single.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/481/481-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "One clap",
+      "tags": [
+        "sfx",
+        "crowd"
+      ]
+    },
+    {
+      "id": "sound/sfx/crowd/heartbeat-single.mp3",
+      "slug": "heartbeat-single",
+      "kind": "sfx",
+      "category": "crowd",
+      "titleFa": "heartbeat-single",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/crowd/heartbeat-single.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/490/490-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Human single heart beat",
+      "tags": [
+        "sfx",
+        "crowd"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/break-glitch-digital.mp3",
+      "slug": "break-glitch-digital",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "break-glitch-digital",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/break-glitch-digital.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2951/2951-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Digital glitch break",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/data-compute.mp3",
+      "slug": "data-compute",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "data-compute",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/data-compute.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3122/3122-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Technology computer calculations",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/data-load-os.mp3",
+      "slug": "data-load-os",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "data-load-os",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/data-load-os.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2529/2529-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Sci fi loading operative system",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/data-scan.mp3",
+      "slug": "data-scan",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "data-scan",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/data-scan.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2847/2847-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Data scaner",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/glitch-electric-small.mp3",
+      "slug": "glitch-electric-small",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "glitch-electric-small",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/glitch-electric-small.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2595/2595-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Small electric glitch",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/glitch-static-electric.mp3",
+      "slug": "glitch-static-electric",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "glitch-static-electric",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/glitch-static-electric.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2597/2597-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Static electric glitch",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/glitch-static.mp3",
+      "slug": "glitch-static",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "glitch-static",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/glitch-static.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1457/1457-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Glitch static",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/glitch-virtual-quick.mp3",
+      "slug": "glitch-virtual-quick",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "glitch-virtual-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/glitch-virtual-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2946/2946-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Virtual quick glitch",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/power-up-electronic.mp3",
+      "slug": "power-up-electronic",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "power-up-electronic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/power-up-electronic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2602/2602-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Electronics power up",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/power-up-static.mp3",
+      "slug": "power-up-static",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "power-up-static",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/power-up-static.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2600/2600-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Electricity static power up",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/static-electric-present.mp3",
+      "slug": "static-electric-present",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "static-electric-present",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/static-electric-present.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2592/2592-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Static electricity presentation",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/sweep-digital.mp3",
+      "slug": "sweep-digital",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "sweep-digital",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/sweep-digital.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2631/2631-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Digital sweep effect",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/data/whoosh-electric.mp3",
+      "slug": "whoosh-electric",
+      "kind": "sfx",
+      "category": "data",
+      "titleFa": "whoosh-electric",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/data/whoosh-electric.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2596/2596-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Electric whoosh",
+      "tags": [
+        "sfx",
+        "data"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/cassette-stretch.mp3",
+      "slug": "cassette-stretch",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "cassette-stretch",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/cassette-stretch.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3097/3097-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Cassette tape stretch",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/cassette-working.mp3",
+      "slug": "cassette-working",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "cassette-working",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/cassette-working.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2557/2557-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Cassette player working",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/projector-spin-antique.mp3",
+      "slug": "projector-spin-antique",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "projector-spin-antique",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/projector-spin-antique.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1444/1444-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Antique movie projector spinning",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/reel-rewind.mp3",
+      "slug": "reel-rewind",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "reel-rewind",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/reel-rewind.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1095/1095-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Reel to reel rewind",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/tape-rewind-cine.mp3",
+      "slug": "tape-rewind-cine",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "tape-rewind-cine",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/tape-rewind-cine.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1088/1088-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Tape rewind cinematic transition",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/tape-rewind-fast.mp3",
+      "slug": "tape-rewind-fast",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "tape-rewind-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/tape-rewind-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1092/1092-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast tape rewind cinematic transition",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/vinyl-needle-drop.mp3",
+      "slug": "vinyl-needle-drop",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "vinyl-needle-drop",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/vinyl-needle-drop.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/701/701-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Record player needle drop on vinyl",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/film/vinyl-scratch-small.mp3",
+      "slug": "vinyl-scratch-small",
+      "kind": "sfx",
+      "category": "film",
+      "titleFa": "vinyl-scratch-small",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/film/vinyl-scratch-small.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/710/710-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Vinyl record small scratch",
+      "tags": [
+        "sfx",
+        "film"
+      ]
+    },
+    {
+      "id": "sound/sfx/fluid/liquid-bubble.mp3",
+      "slug": "liquid-bubble",
+      "kind": "sfx",
+      "category": "fluid",
+      "titleFa": "liquid-bubble",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/fluid/liquid-bubble.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3000/3000-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Liquid bubble",
+      "tags": [
+        "sfx",
+        "fluid"
+      ]
+    },
+    {
+      "id": "sound/sfx/fluid/sand-swish.mp3",
+      "slug": "sand-swish",
+      "kind": "sfx",
+      "category": "fluid",
+      "titleFa": "sand-swish",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/fluid/sand-swish.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1494/1494-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Sand swish",
+      "tags": [
+        "sfx",
+        "fluid"
+      ]
+    },
+    {
+      "id": "sound/sfx/fluid/water-bubble.mp3",
+      "slug": "water-bubble",
+      "kind": "sfx",
+      "category": "fluid",
+      "titleFa": "water-bubble",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/fluid/water-bubble.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1317/1317-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Water bubble",
+      "tags": [
+        "sfx",
+        "fluid"
+      ]
+    },
+    {
+      "id": "sound/sfx/fluid/water-drop-cave.mp3",
+      "slug": "water-drop-cave",
+      "kind": "sfx",
+      "category": "fluid",
+      "titleFa": "water-drop-cave",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/fluid/water-drop-cave.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3179/3179-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Water drop splashes in cave",
+      "tags": [
+        "sfx",
+        "fluid"
+      ]
+    },
+    {
+      "id": "sound/sfx/fluid/water-splash.mp3",
+      "slug": "water-splash",
+      "kind": "sfx",
+      "category": "fluid",
+      "titleFa": "water-splash",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/fluid/water-splash.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1311/1311-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Water splash",
+      "tags": [
+        "sfx",
+        "fluid"
+      ]
+    },
+    {
+      "id": "sound/sfx/glass/glass-break-hammer.mp3",
+      "slug": "glass-break-hammer",
+      "kind": "sfx",
+      "category": "glass",
+      "titleFa": "glass-break-hammer",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/glass/glass-break-hammer.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/759/759-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Glass break with hammer thud",
+      "tags": [
+        "sfx",
+        "glass"
+      ]
+    },
+    {
+      "id": "sound/sfx/glass/glass-debris-sweep.mp3",
+      "slug": "glass-debris-sweep",
+      "kind": "sfx",
+      "category": "glass",
+      "titleFa": "glass-debris-sweep",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/glass/glass-debris-sweep.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/172/172-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Sweeping glass debris",
+      "tags": [
+        "sfx",
+        "glass"
+      ]
+    },
+    {
+      "id": "sound/sfx/glass/glass-hit-cine.mp3",
+      "slug": "glass-hit-cine",
+      "kind": "sfx",
+      "category": "glass",
+      "titleFa": "glass-hit-cine",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/glass/glass-hit-cine.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/677/677-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Cinematic glass hit suspense",
+      "tags": [
+        "sfx",
+        "glass"
+      ]
+    },
+    {
+      "id": "sound/sfx/glass/glass-plate-slide.mp3",
+      "slug": "glass-plate-slide",
+      "kind": "sfx",
+      "category": "glass",
+      "titleFa": "glass-plate-slide",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/glass/glass-plate-slide.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1527/1527-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Glass plate slide",
+      "tags": [
+        "sfx",
+        "glass"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/bass-hit-futuristic.mp3",
+      "slug": "bass-hit-futuristic",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "bass-hit-futuristic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/bass-hit-futuristic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2303/2303-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Futuristic bass hit",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/bass-hit-short.mp3",
+      "slug": "bass-hit-short",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "bass-hit-short",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/bass-hit-short.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2299/2299-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Short bass hit",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/gravel-fall-hit.mp3",
+      "slug": "gravel-fall-hit",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "gravel-fall-hit",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/gravel-fall-hit.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/756/756-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Falling hit on gravel",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/hit-blow.mp3",
+      "slug": "hit-blow",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "hit-blow",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/hit-blow.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2150/2150-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Impact of a blow",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/hit-fast-exciting.mp3",
+      "slug": "hit-fast-exciting",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "hit-fast-exciting",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/hit-fast-exciting.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2180/2180-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Exciting fast hit",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/hit-weak.mp3",
+      "slug": "hit-weak",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "hit-weak",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/hit-weak.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2148/2148-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Weak hit impact",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/impact-cine-big.mp3",
+      "slug": "impact-cine-big",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "impact-cine-big",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/impact-cine-big.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/788/788-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Big cinematic impact",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/impact-deep-whoosh.mp3",
+      "slug": "impact-deep-whoosh",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "impact-deep-whoosh",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/impact-deep-whoosh.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1143/1143-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Cinematic whoosh deep impact",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/impact-epic-trailer.mp3",
+      "slug": "impact-epic-trailer",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "impact-epic-trailer",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/impact-epic-trailer.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2908/2908-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Movie trailer epic impact",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/impact-movie-epic.mp3",
+      "slug": "impact-movie-epic",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "impact-movie-epic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/impact-movie-epic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2901/2901-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Epic movie impact",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/impact-transition.mp3",
+      "slug": "impact-transition",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "impact-transition",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/impact-transition.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2908/2908-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mixkit SFX Free License",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/impact-zoom-quick.mp3",
+      "slug": "impact-zoom-quick",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "impact-zoom-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/impact-zoom-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/772/772-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Quick zoom impact",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/metal-spring-hit.mp3",
+      "slug": "metal-spring-hit",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "metal-spring-hit",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/metal-spring-hit.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2302/2302-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Spring metal hit",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/impact/stomp-apocalyptic.mp3",
+      "slug": "stomp-apocalyptic",
+      "kind": "sfx",
+      "category": "impact",
+      "titleFa": "stomp-apocalyptic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/impact/stomp-apocalyptic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3057/3057-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Apocalyptic stomp impact",
+      "tags": [
+        "sfx",
+        "impact"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/light-aura.mp3",
+      "slug": "light-aura",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "light-aura",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/light-aura.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2581/2581-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Magical ligth aura",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/light-spell.mp3",
+      "slug": "light-spell",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "light-spell",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/light-spell.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2588/2588-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Magic spell of light",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/light-sweep-magic.mp3",
+      "slug": "light-sweep-magic",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "light-sweep-magic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/light-sweep-magic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2586/2586-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Magical light sweep",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/light-transition-magic.mp3",
+      "slug": "light-transition-magic",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "light-transition-magic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/light-transition-magic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2583/2583-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Magical light transition",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/shimmer-sparkle-sweep.mp3",
+      "slug": "shimmer-sparkle-sweep",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "shimmer-sparkle-sweep",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/shimmer-sparkle-sweep.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2633/2633-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Sweeping sparkle presentation intro",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/sparkle-poof-hit.mp3",
+      "slug": "sparkle-poof-hit",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "sparkle-poof-hit",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/sparkle-poof-hit.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3082/3082-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Magic sparkle poof hit",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/sparkle-touch.mp3",
+      "slug": "sparkle-touch",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "sparkle-touch",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/sparkle-touch.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3083/3083-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Magic sparkle touch",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/sparkle-wand.mp3",
+      "slug": "sparkle-wand",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "sparkle-wand",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/sparkle-wand.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3062/3062-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Magic wand sparkle",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/sparkle.mp3",
+      "slug": "sparkle",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "sparkle",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/sparkle.mp3",
+      "playUrl": null,
+      "license": "needs-review",
+      "available": false,
+      "artist": null,
+      "originalName": "Mixkit License",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/light/stardust-swish.mp3",
+      "slug": "stardust-swish",
+      "kind": "sfx",
+      "category": "light",
+      "titleFa": "stardust-swish",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/light/stardust-swish.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1498/1498-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Stardust swish",
+      "tags": [
+        "sfx",
+        "light"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/door-open-futuristic.mp3",
+      "slug": "door-open-futuristic",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "door-open-futuristic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/door-open-futuristic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/183/183-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Futuristic door open",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/gear-lock-metallic.mp3",
+      "slug": "gear-lock-metallic",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "gear-lock-metallic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/gear-lock-metallic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2858/2858-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Gear metallic lock sound",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/lock-digital.mp3",
+      "slug": "lock-digital",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "lock-digital",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/lock-digital.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2859/2859-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Computer digital lock",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/lock-quick.mp3",
+      "slug": "lock-quick",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "lock-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/lock-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2854/2854-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Quick lock sound",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/machine-activate-short.mp3",
+      "slug": "machine-activate-short",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "machine-activate-short",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/machine-activate-short.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3180/3180-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Machine activation short",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/mech-robotic-futuristic.mp3",
+      "slug": "mech-robotic-futuristic",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "mech-robotic-futuristic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/mech-robotic-futuristic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2530/2530-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Futuristic robotic mechanism",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/mech-tech-movement.mp3",
+      "slug": "mech-tech-movement",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "mech-tech-movement",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/mech-tech-movement.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3117/3117-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mechanical technology movements",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/mech/metal-drop-scifi-small.mp3",
+      "slug": "metal-drop-scifi-small",
+      "kind": "sfx",
+      "category": "mech",
+      "titleFa": "metal-drop-scifi-small",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/mech/metal-drop-scifi-small.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/888/888-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Small metallic sci fi drop",
+      "tags": [
+        "sfx",
+        "mech"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-book-browse-fast.mp3",
+      "slug": "paper-book-browse-fast",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-book-browse-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-book-browse-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1102/1102-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast browsing book paging",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-crumple-quick.mp3",
+      "slug": "paper-crumple-quick",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-crumple-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-crumple-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2996/2996-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Quick paper crumple sound",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-move-quick.mp3",
+      "slug": "paper-move-quick",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-move-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-move-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2380/2380-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Paper quick movement",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-page-turn-big.mp3",
+      "slug": "paper-page-turn-big",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-page-turn-big",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-page-turn-big.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1105/1105-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Big paper page turn",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-page-turn.mp3",
+      "slug": "paper-page-turn",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-page-turn",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-page-turn.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1104/1104-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Page turn single",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-scissors-cut.mp3",
+      "slug": "paper-scissors-cut",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-scissors-cut",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-scissors-cut.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2378/2378-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Scissors cutting paper",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-slice-quick.mp3",
+      "slug": "paper-slice-quick",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-slice-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-slice-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2384/2384-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Paper quick slice",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-slide.mp3",
+      "slug": "paper-slide",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-slide",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-slide.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1530/1530-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Paper slide",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-staple.mp3",
+      "slug": "paper-staple",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-staple",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-staple.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2995/2995-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Stapling paper",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/paper/paper-wind-blow.mp3",
+      "slug": "paper-wind-blow",
+      "kind": "sfx",
+      "category": "paper",
+      "titleFa": "paper-wind-blow",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/paper/paper-wind-blow.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2652/2652-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Wind blowing papers",
+      "tags": [
+        "sfx",
+        "paper"
+      ]
+    },
+    {
+      "id": "sound/sfx/riser/riser-cine.mp3",
+      "slug": "riser-cine",
+      "kind": "sfx",
+      "category": "riser",
+      "titleFa": "riser-cine",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/riser/riser-cine.mp3",
+      "playUrl": null,
+      "license": "needs-review",
+      "available": false,
+      "artist": null,
+      "originalName": "Mixkit License",
+      "tags": [
+        "sfx",
+        "riser"
+      ]
+    },
+    {
+      "id": "sound/sfx/scifi/hitech-bleep.mp3",
+      "slug": "hitech-bleep",
+      "kind": "sfx",
+      "category": "scifi",
+      "titleFa": "hitech-bleep",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/scifi/hitech-bleep.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2521/2521-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "High tech bleep",
+      "tags": [
+        "sfx",
+        "scifi"
+      ]
+    },
+    {
+      "id": "sound/sfx/scifi/scifi-click.mp3",
+      "slug": "scifi-click",
+      "kind": "sfx",
+      "category": "scifi",
+      "titleFa": "scifi-click",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/scifi/scifi-click.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/900/900-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Sci fi click",
+      "tags": [
+        "sfx",
+        "scifi"
+      ]
+    },
+    {
+      "id": "sound/sfx/scifi/scifi-computer-ambience.mp3",
+      "slug": "scifi-computer-ambience",
+      "kind": "sfx",
+      "category": "scifi",
+      "titleFa": "scifi-computer-ambience",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/scifi/scifi-computer-ambience.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2507/2507-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Futuristic Sci Fi computer ambience",
+      "tags": [
+        "sfx",
+        "scifi"
+      ]
+    },
+    {
+      "id": "sound/sfx/scifi/space-intro-futuristic.mp3",
+      "slug": "space-intro-futuristic",
+      "kind": "sfx",
+      "category": "scifi",
+      "titleFa": "space-intro-futuristic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/scifi/space-intro-futuristic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2523/2523-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Futuristic space intro",
+      "tags": [
+        "sfx",
+        "scifi"
+      ]
+    },
+    {
+      "id": "sound/sfx/scifi/tech-hum-futuristic.mp3",
+      "slug": "tech-hum-futuristic",
+      "kind": "sfx",
+      "category": "scifi",
+      "titleFa": "tech-hum-futuristic",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/scifi/tech-hum-futuristic.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2133/2133-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Technological futuristic hum",
+      "tags": [
+        "sfx",
+        "scifi"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/chalk-line.mp3",
+      "slug": "chalk-line",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "chalk-line",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/chalk-line.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2372/2372-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Chalk line sound",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/keyboard.mp3",
+      "slug": "keyboard",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "keyboard",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/keyboard.mp3",
+      "playUrl": null,
+      "license": "needs-review",
+      "available": false,
+      "artist": null,
+      "originalName": "Mixkit License",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/marker-pen-line.mp3",
+      "slug": "marker-pen-line",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "marker-pen-line",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/marker-pen-line.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2998/2998-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Pen marker line",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/pen-click-twice.mp3",
+      "slug": "pen-click-twice",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "pen-click-twice",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/pen-click-twice.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2371/2371-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Pen clicking twice",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/pen-write-paper.mp3",
+      "slug": "pen-write-paper",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "pen-write-paper",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/pen-write-paper.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2367/2367-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Writing with a pen on paper",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/pencil-write-short.mp3",
+      "slug": "pencil-write-short",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "pencil-write-short",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/pencil-write-short.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2376/2376-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Short pencil writing",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/typewriter-digital.mp3",
+      "slug": "typewriter-digital",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "typewriter-digital",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/typewriter-digital.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1363/1363-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Digital typewriter",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/typewriter-hit-hard.mp3",
+      "slug": "typewriter-hit-hard",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "typewriter-hit-hard",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/typewriter-hit-hard.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1364/1364-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Hard typewriter hit",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/typewriter-hit-single.mp3",
+      "slug": "typewriter-hit-single",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "typewriter-hit-single",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/typewriter-hit-single.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1382/1382-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mechanical typewriter single hit",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/typewriter-hit-soft.mp3",
+      "slug": "typewriter-hit-soft",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "typewriter-hit-soft",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/typewriter-hit-soft.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1366/1366-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Typewriter soft hit",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/typewriter-return-bell.mp3",
+      "slug": "typewriter-return-bell",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "typewriter-return-bell",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/typewriter-return-bell.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1383/1383-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Typewriter return bell sound",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/write-blackboard.mp3",
+      "slug": "write-blackboard",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "write-blackboard",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/write-blackboard.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2366/2366-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Writing on blackboard",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/text/write-fast.mp3",
+      "slug": "write-fast",
+      "kind": "sfx",
+      "category": "text",
+      "titleFa": "write-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/text/write-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3196/3196-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast writing",
+      "tags": [
+        "sfx",
+        "text"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/air-whoosh-powerful.mp3",
+      "slug": "air-whoosh-powerful",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "air-whoosh-powerful",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/air-whoosh-powerful.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3220/3220-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Powerful air whooshes",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/air-woosh-deep.mp3",
+      "slug": "air-woosh-deep",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "air-woosh-deep",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/air-woosh-deep.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2604/2604-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Deep air woosh",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/air-woosh-quick.mp3",
+      "slug": "air-woosh-quick",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "air-woosh-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/air-woosh-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2605/2605-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Quick air woosh",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/air-zoom-vacuum.mp3",
+      "slug": "air-zoom-vacuum",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "air-zoom-vacuum",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/air-zoom-vacuum.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2608/2608-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Air zoom vacuum",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/sweep-fast-small.mp3",
+      "slug": "sweep-fast-small",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "sweep-fast-small",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/sweep-fast-small.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/166/166-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast small sweep transition",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/sweep-fast.mp3",
+      "slug": "sweep-fast",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "sweep-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/sweep-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/164/164-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast sweeping transition",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/sweep-metal-quick.mp3",
+      "slug": "sweep-metal-quick",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "sweep-metal-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/sweep-metal-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2639/2639-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Quick metal transition sweep",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/sweep-scifi-fast.mp3",
+      "slug": "sweep-scifi-fast",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "sweep-scifi-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/sweep-scifi-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3114/3114-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fast sci fi transition sweep",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/sweep-short.mp3",
+      "slug": "sweep-short",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "sweep-short",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/sweep-short.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/175/175-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Short transition sweep",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/swoosh-quick.mp3",
+      "slug": "swoosh-quick",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "swoosh-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/swoosh-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/166/166-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mixkit SFX Free License",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/swoosh-slow.mp3",
+      "slug": "swoosh-slow",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "swoosh-slow",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/swoosh-slow.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/163/163-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Slow sweeping swoosh",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/transition-snap.mp3",
+      "slug": "transition-snap",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "transition-snap",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/transition-snap.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3115/3115-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mixkit SFX Free License",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/transition-soft.mp3",
+      "slug": "transition-soft",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "transition-soft",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/transition-soft.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2608/2608-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mixkit SFX Free License",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/transition-tech-slide.mp3",
+      "slug": "transition-tech-slide",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "transition-tech-slide",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/transition-tech-slide.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3120/3120-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Technology transition slide",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/transition-tech.mp3",
+      "slug": "transition-tech",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "transition-tech",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/transition-tech.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3176/3176-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Tech transitions",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/warp-slide.mp3",
+      "slug": "warp-slide",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "warp-slide",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/warp-slide.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3113/3113-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Sci fi warp slide",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/whoosh-big.mp3",
+      "slug": "whoosh-big",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "whoosh-big",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/whoosh-big.mp3",
+      "playUrl": null,
+      "license": "needs-review",
+      "available": false,
+      "artist": null,
+      "originalName": "Mixkit License",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/whoosh-fast.mp3",
+      "slug": "whoosh-fast",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "whoosh-fast",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/whoosh-fast.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1490/1490-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Mixkit SFX Free License",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/whoosh-swirl.mp3",
+      "slug": "whoosh-swirl",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "whoosh-swirl",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/whoosh-swirl.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1493/1493-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Swirling whoosh",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/wind-pass-vibrate.mp3",
+      "slug": "wind-pass-vibrate",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "wind-pass-vibrate",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/wind-pass-vibrate.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2705/2705-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Vibrating wind passing by",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/wind-swoosh-short.mp3",
+      "slug": "wind-swoosh-short",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "wind-swoosh-short",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/wind-swoosh-short.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1461/1461-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Short wind swoosh",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/wind-woosh-throw.mp3",
+      "slug": "wind-woosh-throw",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "wind-woosh-throw",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/wind-woosh-throw.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1488/1488-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Throw hard wind woosh",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/transition/wing-flutter.mp3",
+      "slug": "wing-flutter",
+      "kind": "sfx",
+      "category": "transition",
+      "titleFa": "wing-flutter",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/transition/wing-flutter.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2697/2697-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Fly wings movement",
+      "tags": [
+        "sfx",
+        "transition"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/chime-crystal.mp3",
+      "slug": "chime-crystal",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "chime-crystal",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/chime-crystal.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3108/3108-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Crystal chime",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/hitech-touch-magnet.mp3",
+      "slug": "hitech-touch-magnet",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "hitech-touch-magnet",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/hitech-touch-magnet.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3171/3171-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Hi-tech touch with magnet",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/pop-electric.mp3",
+      "slug": "pop-electric",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "pop-electric",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/pop-electric.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2365/2365-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Electric pop",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/pop.mp3",
+      "slug": "pop",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "pop",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/pop.mp3",
+      "playUrl": null,
+      "license": "needs-review",
+      "available": false,
+      "artist": null,
+      "originalName": "来源待考，商用前须确认",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/switch-click-quick.mp3",
+      "slug": "switch-click-quick",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "switch-click-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/switch-click-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2582/2582-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Quick switch click",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/switch-light.mp3",
+      "slug": "switch-light",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "switch-light",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/switch-light.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2579/2579-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Light switch sound",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/switch-tap.mp3",
+      "slug": "switch-tap",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "switch-tap",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/switch-tap.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2585/2585-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "On or off light switch tap",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-click-tone.mp3",
+      "slug": "ui-click-tone",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-click-tone",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-click-tone.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Cool interface click tone",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-confirm-bleep.mp3",
+      "slug": "ui-confirm-bleep",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-confirm-bleep",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-confirm-bleep.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2520/2520-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "High tech bleep confirmation",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-confirm-tone.mp3",
+      "slug": "ui-confirm-tone",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-confirm-tone",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-confirm-tone.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2867/2867-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Confirmation tone",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-message-pop.mp3",
+      "slug": "ui-message-pop",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-message-pop",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-message-pop.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Message pop alert",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-notify-tech.mp3",
+      "slug": "ui-notify-tech",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-notify-tech",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-notify-tech.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3123/3123-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Technology notification",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-option-select.mp3",
+      "slug": "ui-option-select",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-option-select",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-option-select.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2573/2573-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Interface option select",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-popup-dry.mp3",
+      "slug": "ui-popup-dry",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-popup-dry",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-popup-dry.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Dry pop up notification alert",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-select-click.mp3",
+      "slug": "ui-select-click",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-select-click",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-select-click.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/1109/1109-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Select click",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-select-modern.mp3",
+      "slug": "ui-select-modern",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-select-modern",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-select-modern.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/3124/3124-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Modern technology select",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-success-soft.mp3",
+      "slug": "ui-success-soft",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-success-soft",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-success-soft.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2865/2865-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Success software tone",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    },
+    {
+      "id": "sound/sfx/ui/ui-tone-quick.mp3",
+      "slug": "ui-tone-quick",
+      "kind": "sfx",
+      "category": "ui",
+      "titleFa": "ui-tone-quick",
+      "source": "shotcraft",
+      "sourceUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/assets/audio/sfx/ui/ui-tone-quick.mp3",
+      "playUrl": "https://assets.mixkit.co/active_storage/sfx/2866/2866-preview.mp3",
+      "license": "Mixkit SFX Free License",
+      "available": true,
+      "artist": null,
+      "originalName": "Digital quick tone",
+      "tags": [
+        "sfx",
+        "ui"
+      ]
+    }
+  ],
+  "summary": {
+    "music": 5,
+    "sfx": 149,
+    "verified": 148,
+    "needsReview": 6
+  }
+}
