@@ -5,6 +5,7 @@
 // This is a centreline approximation, NOT historical Nastaliq stroke sequencing.
 import type { Ctx, Env, Layer, P } from "./core";
 import { normalizeIranianPersian, persianDigits } from "./persianText";
+import { buildInkPlan, inkOpacity, nibPosition, type InkPlan } from "./persianInkPlan";
 
 export type TraceOptions = {
   text: string; family: string; size: number; x: number; y: number;
@@ -13,9 +14,10 @@ export type TraceOptions = {
   normalize?: boolean; strokeWidth?: number;
 };
 export type TraceSegment = { points: P[]; length: number };
-export type TraceResult = { width: number; totalPath: number; pen: P | null; tracks: number };
+export type TraceResult = { width: number; totalPath: number; pen: P | null; tracks: number; marks: number; inkPixels: number };
 type Prepared = { mask: Layer; W: number; H: number; right: number; baseline: number;
-  width: number; segments: TraceSegment[]; total: number };
+  width: number; segments: TraceSegment[]; total: number;
+  rgba: Uint8ClampedArray; plan: InkPlan };
 
 // Zhang-Suen morphological thinning. Pure binary input; never guesses Unicode
 // character boundaries and therefore cannot separate joined Persian forms.
@@ -104,11 +106,17 @@ const prepare = (ctx: Ctx, env: Env, o: TraceOptions, text: string): Prepared =>
   const mask=env.canvas(W,H), m=mask.ctx;
   m.clearRect(0,0,W,H);m.font=fontCSS(o);m.textAlign="right";m.direction="rtl";
   m.textBaseline="alphabetic";m.fillStyle=o.color??"#17496b";m.fillText(text,right,baseline);
-  const data=m.getImageData(0,0,W,H).data, bits=new Uint8Array(W*H);
-  for(let i=0;i<bits.length;i++) bits[i]=data[4*i+3]>45?1:0;
-  const skeleton=skeletonizeInk(bits,W,H);
+  const rgba=m.getImageData(0,0,W,H).data, alpha=new Uint8Array(W*H);
+  const skeletonInput=new Uint8Array(W*H);
+  for(let i=0;i<alpha.length;i++){
+    alpha[i]=rgba[4*i+3];
+    skeletonInput[i]=alpha[i]>45?1:0;
+  }
+  const skeleton=skeletonizeInk(skeletonInput,W,H);
   const segments=inkTracks(skeleton,W,H);
-  return {mask,W,H,right,baseline,width,segments,total:segments.reduce((a,s)=>a+s.length,0)};
+  const plan=buildInkPlan(alpha,segments,W,H,o.size);
+  return {mask,W,H,right,baseline,width,segments,rgba,plan,
+    total:segments.reduce((a,s)=>a+s.length,0)};
 };
 
 export const drawPersianTrace = (ctx: Ctx, env: Env, o: TraceOptions): TraceResult => {
@@ -116,60 +124,46 @@ export const drawPersianTrace = (ctx: Ctx, env: Env, o: TraceOptions): TraceResu
   let text=o.normalize===false?o.text:o.text.normalize("NFC");
   if(o.normalize!==false)text=normalizeIranianPersian(text);
   if(o.digits==="persian")text=persianDigits(text);
-  // A new cache entry for a font/weight/size/color/text combination; never reuse
-  // an atlas across incompatible faces. Cache persists across timeline frames.
-  const key=JSON.stringify(["persian-trace-v2",text,o.family,o.size,o.weight??400,o.color??"#17496b"]);
+  // Final color and every individual ink pixel are immutable across frames.
+  // Only the ink-arrival time and the pen position depend on progress.
+  const key=JSON.stringify(["persian-ink-deposit-v3",text,o.family,o.size,
+    o.weight??400,o.color??"#17496b"]);
   let p=env.cache.get(key) as Prepared|undefined;
   if(!p){p=prepare(ctx,env,o,text);env.cache.set(key,p);}
   const destX=o.x-p.right,destY=o.y-p.baseline;
-  let pen:P|null=null;
-  if(progress>=1 || p.total===0){
-    if(progress>0)ctx.drawImage(p.mask.canvas,destX,destY);
-  }else if(progress>0){
-    const paint=env.canvas(p.W,p.H), c=paint.ctx;
-    c.clearRect(0,0,p.W,p.H);
-    c.lineCap="round";c.lineJoin="round";c.strokeStyle="#fff";
-    // Hairline first, then naturally broaden the traced skeleton as the nib
-    // deposits ink; a drawn character must not appear fully filled instantly.
-    const thickening=Math.max(0,Math.min(1,(progress-.53)/.47));
-    c.lineWidth=o.strokeWidth??Math.max(1.6,o.size*(.075+.19*thickening*thickening));
-    let budget=p.total*progress;
-    for(const seg of p.segments){
-      if(budget<=0)break;
-      const pts=seg.points;
-      if(!pts.length)continue;
-      if(pts.length===1){
-        c.beginPath();c.arc(pts[0][0],pts[0][1],c.lineWidth/2,0,Math.PI*2);c.fillStyle="#fff";c.fill();
-        pen=pts[0];budget-=seg.length;continue;
+  if(progress>0){
+    if(progress>=.99){
+      // Every final ink pixel has already appeared by .987; this is pixel-identical
+      // to the scheduled raster, NOT an end-frame fill/snap.
+      ctx.drawImage(p.mask.canvas,destX,destY);
+    }else{
+      const paint=env.canvas(p.W,p.H),c=paint.ctx,im=c.createImageData(p.W,p.H);
+      const d=im.data,src=p.rgba,times=p.plan.times;
+      for(let i=0;i<times.length;i++){
+        const a=src[4*i+3];
+        if(a===0)continue;
+        const opacity=inkOpacity(times[i],progress);
+        if(opacity<=0)continue;
+        const o4=i*4;d[o4]=src[o4];d[o4+1]=src[o4+1];
+        d[o4+2]=src[o4+2];d[o4+3]=Math.round(a*opacity);
       }
-      c.beginPath();c.moveTo(...pts[0]);
-      let left=Math.min(budget,seg.length);
-      for(let i=1;i<pts.length;i++){
-        const [ax,ay]=pts[i-1], [bx,by]=pts[i], len=Math.hypot(bx-ax,by-ay);
-        if(left<=0)break;
-        if(len<=left){c.lineTo(bx,by);pen=[bx,by];left-=len;}
-        else{const t=left/len;pen=[ax+(bx-ax)*t,ay+(by-ay)*t];c.lineTo(...pen);left=0;}
-      }
-      c.stroke();budget-=seg.length;
-      if(budget<=0)break;
+      c.putImageData(im,0,0);
+      ctx.drawImage(paint.canvas,destX,destY);
     }
-    // Mask physically painted tracks against the completed shaped glyph contours:
-    // accurate joining, diacritics, ligatures and crisp end-state with no raster sweep.
-    c.globalCompositeOperation="source-in";
-    c.drawImage(p.mask.canvas,0,0);
-    c.globalCompositeOperation="source-over";
-    ctx.drawImage(paint.canvas,destX,destY);
   }
-  if(pen && o.pen!==false && progress>0 && progress<1){
+  const pen=progress>0&&progress<.96?nibPosition(p.plan.tracks,progress):null;
+  if(pen && o.pen!==false){
     ctx.save();ctx.translate(destX+pen[0],destY+pen[1]);
+    // The visible nib is placed at the exact pixel that seeds ink deposition;
+    // it is hidden on genuine pen lifts between disconnected strokes.
     ctx.rotate(-Math.PI*.23);
+    const k=Math.max(.85,o.size/78);
+    ctx.strokeStyle="#80582c";ctx.lineWidth=1.5*k;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-19*k);ctx.stroke();
     ctx.fillStyle=o.penColor??"#d39b4e";
-    // Visible nib and upper barrel anchored to the ACTUAL trace point.
-    const scale=Math.max(1,o.size/78);
-    ctx.strokeStyle="#80582c";ctx.lineWidth=1.5*scale;
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-19*scale);ctx.stroke();
-    ctx.beginPath();ctx.ellipse(0,-5*scale,4*scale,10*scale,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,-5*k,4*k,10*k,0,0,Math.PI*2);ctx.fill();
     ctx.restore();
   }
-  return {width:p.width,totalPath:p.total,pen:pen?[destX+pen[0],destY+pen[1]]:null,tracks:p.segments.length};
+  return {width:p.width,totalPath:p.total,pen:pen?[destX+pen[0],destY+pen[1]]:null,
+    tracks:p.segments.length,marks:p.plan.markComponents,inkPixels:p.plan.inkPixels};
 };
