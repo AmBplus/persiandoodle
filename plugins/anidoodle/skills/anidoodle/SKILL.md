@@ -18,24 +18,29 @@ was an icon of itself, because a style was only a palette swap, because the musi
 or because the person spent their patience approving fragments. This skill carries the craft
 that prevents each of those.
 
-## PersianDoodle: Persian/RTL text (built-in extension)
+## PersianDoodle: native Persian, handwriting and ready-made examples
 
-When rendering Persian or Urdu text, **do not rediscover or redownload fonts every time**.
-The engine already vendors 14 licensed typefaces in `engine/assets/fonts/` (Vazirmatn,
-Shabnam, Sahel, Samim, Gandom, Tanha, Parastoo, Nahid, Vazir Code, Estedad,
-Lalezar, Gulzar, Noto Nastaliq Urdu and rounded Vazirmatn). Read
-`../../docs/PERSIAN-TYPOGRAPHY.md` from this skill directory's repository root
-or `docs/PERSIAN-TYPOGRAPHY.md` from the repository itself for provenance and licensing.
+There are **25 original licensed font families** already installed in `engine/assets/fonts`:
+see `docs/PERSIAN-TYPOGRAPHY.md` at repository root for each author, source and license.
+Never download or re-research these for every render.
 
-Use `engine/src/canvas-core/persianText.ts` `drawPersianText(ctx, { text, x, y,
-size, family, progress, mode: "ink", pen: true })`; include the selected family
-in `film.assets.fonts`. The standard HTML host embeds and preloads every font
-before frame zero. Use original whole-script shaping, right alignment and
-preserve ZWNJ. For native Urdu, set `normalize: false`.
-Never animate Persian by `fillText` on isolated codepoints, which breaks joining.
-The current "ink" mode is a shaped-ink reveal, **not true outline stroke tracing**.
-For quality assurance run `cd engine && node tools/persian-qa.mjs` to test and
-produce sixteen real frames as a grid. Do not claim the visual gate passes without viewing it.
+For Persian title animation use `engine/src/canvas-core/persianTrace.ts`:
+`drawPersianTrace(ctx, env, { text, x, y, size, family: "Vazirmatn", progress, pen: true })`.
+It shapes the entire RTL phrase *first*, keeps joining/ZWNJ and draws a moving
+pen along the actual shaped ink skeleton. Small lightweight revealing type
+can still use `persianText.ts`. Always declare the chosen `FontFace` through
+`film.assets.fonts` before frame zero.
+
+**The flagship examples are Persian by default:** `persianShowcase` (four pen-drawn
+scenes and a film), `persianGallery` (25 original fonts), `launchExample` (product
+launch with Persian prompts), `launchExampleClean` (Persian UI).
+Do not silently substitute their old English placeholder content.
+
+Run `cd engine && node tools/persian-qa.mjs`: it tests Persian shaping
+and produces real frame grids, a video and launch-example screenshots.
+Review intermediary frames for incomplete joins and all final frames for
+text overflow. Urdu variants still require specialist native glyph review.
+The skeleton is a visual approximation, not a calligraphy pen-order model.
 
 ## Start by asking, then build
 
