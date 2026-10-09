@@ -1,81 +1,56 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f1f3f1">
-  <meta name="description" content="کتابخانه فارسیِ شات‌ها، سبک‌ها، موسیقی، فونت، پرامپت، قلم و انیمیشن PersianDoodle">
-  <title>کتابخانه حرکت — PersianDoodle</title>
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f5f1"><meta name="description" content="کتابخانهٔ نمونه‌های فارسی موشن: از تایپوگرافی و شات تا دوربین و ریتم و صدا">
+<title>کتابخانهٔ حرکت | پرشین دودل</title><link rel="stylesheet" href="./v2.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="https://github.com/AmBplus/persiandoodle#readme" aria-label="پروژه PersianDoodle"><span class="brand-mark">پ</span><span><strong>PersianDoodle</strong><small>استودیوی طراحیِ فارسی</small></span></a>
-    <nav aria-label="ناوبری"><a class="is-active" href="./index.html">کتابخانه</a><a href="https://github.com/AmBplus/persiandoodle/blob/main/docs/MOTION-LIBRARY-ARCHITECTURE.md">معماری</a><a href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener">GitHub ↗</a></nav>
-  </header>
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="eyebrow">خانهٔ طراحی موشن فارسی • نسخهٔ یکپارچه</span>
-        <h1>از یک ایده، <em>هزار حرکت.</em></h1>
-        <p>شات‌های سینمایی، سبک‌های موشن، فونت‌های فارسی، پرامپت‌های دقیق، موسیقی و صدای قلم؛ همه در یک کتابخانهٔ جست‌وجوپذیر، با هستهٔ اصلی دست‌نخورده.</p>
-        <div class="hero-actions"><a href="#library" class="primary">کاوش در کتابخانه <span>↙</span></a><a href="#studio" class="secondary">نمونه‌های فارسی</a><a href="#composer" class="secondary">ترکیب صحنه</a></div>
-        <div class="stats"><div><strong id="stat-all">—</strong><small>مورد ثبت‌شده</small></div><div><strong id="stat-rtl">—</strong><small>نمونهٔ فارسی</small></div><div><strong>۶</strong><small>منبع تخصصی</small></div></div>
-      </div>
-      <div class="hero-art" aria-label="پیش‌نمایش طراحی با قلم">
-        <span class="art-chip">حرکت قلم • فارسی</span>
-        <video autoplay muted playsinline loop preload="metadata" poster="../assets/persian/hero.png"><source src="../assets/persian/handwriting-demo.mp4" type="video/mp4"></video>
-        <div class="art-footer"><span>قلم → مسیر → فریم</span><span>۳۰ فریم</span></div>
-      </div>
-    </section>
-    <section class="studio" id="studio">
-      <div class="section-head"><div><span class="eyebrow">پیش‌نمایش زندهٔ طراحی</span><h2>آزمایشگاه خط و صدا</h2></div><p>قلم و پس‌زمینه را تغییر بده؛ صدا با حرکتِ نوشتن هماهنگ می‌شود.</p></div>
-      <div class="lab">
-        <div class="lab-controls">
-          <label for="writingText">متن فارسی</label><input id="writingText" maxlength="75" value="ایده‌ها با قلم جان می‌گیرند">
-          <label for="penStyle">مدل قلم</label><select id="penStyle"><option value="qalam">قلم نی</option><option value="fountain">خودنویس</option><option value="pencil">مداد</option><option value="marker">ماژیک</option><option value="brush">قلم‌مو</option><option value="none">بدون قلم</option></select>
-          <label for="paperStyle">پس‌زمینه</label><select id="paperStyle"><option value="paper">کاغذ گرم</option><option value="blueprint">آبیِ مهندسی</option><option value="parchment">دست‌نوشتهٔ قدیمی</option><option value="night">مرکبِ شب</option><option value="washi">کاغذ بافت‌دار</option></select>
-          <label for="soundMode">صدای قلم</label><select id="soundMode"><option value="on">همگام با حرکت</option><option value="off">بی‌صدا</option></select>
-          <button id="replay" class="primary wide">▶ اجرای نمونه</button>
-          <p class="helper">این پیش‌نمایش تعاملیِ سبک است؛ برای ردگیری دقیق فرم حروف و ویدیوی تولیدی، نمونه‌های رندرشدهٔ موتور را ببین.</p>
-        </div>
-        <div class="lab-canvas">
-          <canvas id="writingCanvas" width="1000" height="530" aria-label="نمونه فارسی"></canvas>
-          <div class="canvas-bottom"><span>نمونهٔ زنده • جهت نوشتن راست‌به‌چپ</span><span id="progressLabel">آماده</span></div>
-        </div>
-      </div>
-    </section>
-    <section id="composer" class="composer-section">
-  <div class="section-head"><div><span class="eyebrow">طراحی ترکیبی صحنه</span><h2>صحنهٔ خودت را بساز</h2></div><p>روی «افزودن به صحنه» در کارت‌ها کلیک کن، تایپوگرافی، پس‌زمینه، نحوهٔ ورود، حرکت، قلم و صدا را ترکیب کن؛ نتیجه یک دستور اجرایی قابل‌ارائه به Agent خواهد بود.</p></div>
-  <div class="composer-grid">
-    <div class="composer-panel"><div class="composer-tools"><strong>اجزای انتخاب‌شده</strong><button type="button" id="resetScene">پاک‌سازی</button></div>
-      <div id="sceneSlots" class="scene-slots"></div>
-      <div class="composer-actions"><button type="button" class="primary" id="downloadScene">دریافت مشخصات JSON</button><button type="button" class="secondary" id="copyScene">کپی دستور ساخت فارسی</button><button type="button" class="secondary" id="copySceneJSON">کپی JSON برای ساخت آنلاین</button><a class="secondary" href="https://github.com/AmBplus/persiandoodle/actions/workflows/render-scene.yml" target="_blank" rel="noopener">ساخت ویدیو در GitHub ↗</a></div>
-      <p class="helper" id="sceneStatus" role="status"></p>
-    </div>
-    <div class="composer-output"><div class="preview-head"><strong>مشخصات قابل‌اجرا</strong><span>انتخاب‌های شما، با شناسه و وضعیت واقعی</span></div>
-      <textarea dir="ltr" id="sceneOutput" readonly spellcheck="false" aria-label="پیکربندی صحنه"></textarea>
-      <p class="helper">برای اجرای نهایی در موتور، این فایل را به Agent پروژه بده، با ابزار خط فرمان اجرا کن، یا دکمه «کپی JSON» را بزن و در فرم GitHub Actions بخش Run workflow قرار بده. مواردی که صرفاً «مرجع» هستند، ابتدا باید به‌صورت مستقل و فارسی پیاده‌سازی شوند.</p>
-    </div>
-  </div>
-</section>
-<section class="catalog-section" id="library">
-      <div class="section-head"><div><span class="eyebrow">نمونه‌های منتخب و قابل‌ردیابی</span><h2>کتابخانهٔ یکپارچه</h2></div><p>اصل و نسخهٔ فارسی، پیش‌نمایش و مجوز هر مورد جدا مشخص شده است.</p></div>
-      <div class="catalog-toolbar">
-        <label class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="جست‌وجوی حرکت، فونت، صدا، سبک، پرامپت…" autocomplete="off" aria-label="جستجو"></label>
-        <select id="sourceFilter" aria-label="فیلتر منبع"><option value="">تمام منابع</option></select>
-        <select id="typeFilter" aria-label="فیلتر نوع"><option value="">تمام دسته‌ها</option></select>
-        <select id="statusFilter" aria-label="فیلتر فارسی‌سازی"><option value="">همه وضعیت‌ها</option><option value="rendered-persian">رندر فارسی</option><option value="available-native">موجود در موتور</option><option value="source-prompt-ready">پرامپت آماده</option><option value="original-reference">مرجع اصلی</option><option value="reference-only">فقط مرجع</option><option value="license-review">نیازمند بررسی مجوز</option></select>
-      </div>
-      <div class="results-head"><span id="resultCount">دریافت فهرست…</span><span>هر کارت پیش‌نمایش و قابلیت افزودن به صحنه دارد.</span></div>
-      <div class="cards" id="cards"></div>
-      <div class="paging"><button id="more" type="button">نمایش موارد بیشتر ↓</button></div>
-      <div id="empty" class="empty" hidden>موردی با این مشخصات پیدا نشد؛ فیلترها را تغییر بده.</div>
-    </section>
-    <section class="license-notice"><strong>شفافیت مجوزها</strong><p>آثار MIT و Apache با اعلام منبع و حفظ مجوز قابل استفاده‌اند. آثار PolyForm Noncommercial صرفاً به‌صورت فهرست و لینک مرجع معرفی شده‌اند؛ کد و دارایی‌شان وارد پروژه نشده است. فایل‌های صوتی با مجوز اختصاصی تا تأیید منبع اجازهٔ استفادهٔ تجاری ندارند.</p></section>
+<div class="site">
+<header class="topbar">
+  <a href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener" class="brand"><span class="mark">پ</span><span class="brand-copy"><b>پرشین دودل</b><small>کتابخانهٔ طراحی و موشن</small></span></a>
+  <div class="top-center"><span class="live-dot"></span> نمونه‌های برگزیده • فارسی</div>
+  <div class="header-actions"><button id="globalSearchButton" title="جست‌وجو در دسته‌ها">⌕ <span>جست‌وجو</span> <kbd>Ctrl K</kbd></button><button id="composerToggle" class="primary">ترکیب صحنه <span id="composerCount">۰</span></button></div>
+</header>
+<div class="workspace">
+  <aside class="nav-shell" aria-label="دسته‌بندی‌های کتابخانه">
+    <div class="nav-heading"><b>دسته‌بندی‌ها</b><small>انتخاب و مقایسه</small></div>
+    <nav id="categoryNav" class="nav-list" aria-label="دسته‌های حرکت"></nav>
+    <div class="nav-tip"><b>از مشاهده تا ساخت</b><p>یک دسته را باز کن، نمونه‌ها را ببین و هر قسمت را به صحنهٔ خودت اضافه کن.</p></div>
+  </aside>
+  <main class="explorer" id="explorer">
+    <div class="explorer-top"><div><div class="eyebrow" id="categoryEyebrow">کتابخانهٔ طراحی</div><h1 id="categoryTitle">انتخاب دسته</h1><p id="categorySubtitle">دسته را از منوی کناری انتخاب کنید.</p></div><div class="explorer-top-actions"><span class="count" id="familyCount">—</span><button id="showAllReferences" class="ghost">نمایهٔ کامل منابع ↗</button></div></div>
+    <div class="toolbar"><label class="searchbox" for="searchFamily"><span>⌕</span><input id="searchFamily" type="search" placeholder="جست‌وجوی سبک، خانواده یا تکنیک…" autocomplete="off"></label><span class="toolbar-note">هر خانواده حداکثر دو اجرای منتخب دارد.</span></div>
+    <div class="family-grid" id="familyGrid" aria-live="polite"></div>
+    <div id="noResults" class="empty" hidden>نمونه‌ای برای این جست‌وجو پیدا نشد.</div>
+    <div class="explorer-foot">منابع اصلی در مخزن حفظ شده‌اند؛ نمایش فارسی به‌معنای کپی ویدیوی خارجی نیست.</div>
   </main>
-  <div class="modal-backdrop" id="modal" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="close" id="close" aria-label="بستن">✕</button><div id="modalBody"></div></section></div>
-  <footer>ساخته‌شده برای <strong>PersianDoodle</strong> · کتابخانهٔ فارسی، قابل‌ردیابی و قابل‌گسترش · <a href="../docs/MOTION-LIBRARY-ARCHITECTURE.md">معماری و مجوزها</a></footer>
-  <script type="module" src="./app.js"></script>
-</body>
-</html>
+  <aside class="inspector" id="inspector" aria-label="پیش‌نمایش و جزئیات تکنیک">
+    <div class="inspect-title"><div><span class="eyebrow">پیش‌نمایش انتخابی</span><h2 id="inspectHeading">یک مدل انتخاب کن</h2></div><button id="closeInspector" class="icon-button" title="بستن پیش‌نمایش">✕</button></div>
+    <div class="inspect-stage"><video id="inspectVideo" playsinline preload="metadata" controls hidden></video><canvas id="inspectCanvas" width="960" height="540" aria-label="انیمیشن فارسی نمونه"></canvas><span class="stage-tag" id="previewKind">پیش‌نمایش فارسی</span></div>
+    <div class="transport"><button id="playPreview" class="player-primary">▶ پخش نمونه با صدا</button><button id="toggleSound" class="sound-button" aria-pressed="true">◖)) صدا روشن</button></div>
+    <div class="variation-head"><b>مدل‌های همین تکنیک</b><small>حداکثر ۲ مدل</small></div><div id="variants" class="variants"></div>
+    <div class="inspect-info"><p id="inspectExplanation"></p><div class="tags" id="inspectTags"></div></div>
+    <div id="fontOptions" class="font-options" hidden><input id="fontSample" value="طراحیِ فارسی، دقیق و زیبا" aria-label="متن تست فونت"><div id="fontRender" dir="rtl"></div></div>
+    <audio id="assetAudio" controls preload="none" hidden></audio>
+    <div class="inspector-actions"><button class="primary" id="addSelected">+ افزودن به صحنه</button><button class="outline" id="promptSelected">پرامپت و روش ساخت</button></div>
+    <div id="promptPanel" hidden class="prompt-panel"><h3>دستور ساخت فارسی</h3><textarea readonly id="promptText"></textarea><div class="prompt-actions"><button id="copyPrompt" class="outline">کپی دستور</button><a id="viewOriginal" target="_blank" rel="noopener">منبع اصلی ↗</a></div></div>
+    <p class="inspect-disclaimer" id="inspectDisclaimer"></p>
+  </aside>
+</div>
+<div class="mobile-categories" id="mobileCategories" aria-label="دسترسی سریع به دسته‌ها"></div>
+<div class="drawer-scrim" id="drawerScrim" hidden></div>
+<aside id="composer" class="composer-drawer" role="dialog" aria-label="ترکیب صحنه" aria-modal="true" hidden>
+  <div class="drawer-head"><div><span class="eyebrow">استودیوی انتخاب</span><h2>صحنهٔ خودت را بساز</h2></div><button id="closeComposer" class="icon-button">✕</button></div>
+  <p>هر جزء انتخاب‌شده با شناسه و مجوز واقعی ذخیره می‌شود. می‌توانی به موتور خروجی ویدیو بدهی.</p>
+  <label for="writingText" class="field-label">متن اصلی صحنه</label><input id="writingText" value="زیباییِ فارسی در حرکت" maxlength="75">
+  <div id="sceneSlots" class="scene-slots"></div>
+  <div class="scene-actions"><button id="downloadScene" class="primary">دریافت JSON</button><button id="copySceneJSON" class="outline">کپی JSON</button><button id="copyScene" class="outline">کپی پرامپت</button><button id="resetScene" class="light-button">پاک‌کردن انتخاب‌ها</button></div>
+  <a class="run-online" href="https://github.com/AmBplus/persiandoodle/actions/workflows/render-scene.yml" target="_blank" rel="noopener">ساخت ویدیو در GitHub Actions ↗</a>
+  <p role="status" id="sceneStatus" class="status-note"></p>
+  <textarea id="sceneOutput" readonly spellcheck="false" dir="ltr"></textarea>
+</aside>
+<dialog id="archiveDialog" class="archive-dialog"><form method="dialog"><button class="icon-button close-archive">✕</button></form><span class="eyebrow">آرشیو منبع</span><h2>نمایهٔ کامل، جدا از ویترین منتخب</h2><p>کتابخانهٔ کامل شامل منابع و تکنیک‌های اصلی است. برای جلوگیری از صدها کارت شبیه هم، آن‌ها را در ویترین تکرار نکرده‌ایم. داده‌های خام، پرامپت‌های قابل‌بازتوزیع و حق نشر هر مرجع در این فایل موجود است.</p><div class="archive-actions"><a href="./data/catalog.json" target="_blank" rel="noopener">فهرست کامل منابع ↗</a><a href="https://github.com/AmBplus/persiandoodle/tree/main/library/vendor" target="_blank" rel="noopener">پرامپت‌های اصلی و مجوزها ↗</a></div></dialog>
+<script type="module" src="./v2.js"></script>
+</div>
+</body></html>
