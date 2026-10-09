@@ -10,6 +10,17 @@ const fontFiles: Record<string, string> = {
   Tanha: "Tanha-Regular.ttf", Parastoo: "Parastoo-Regular.ttf",
   Nahid: "Nahid-Regular.ttf", "Vazir Code": "Vazir-Code-Regular.ttf",
   Estedad: "Estedad-Variable.ttf", Lalezar: "Lalezar-Regular.ttf",
+  Amiri: "Amiri-Regular.ttf",
+  "Aref Ruqaa": "ArefRuqaa-Regular.ttf",
+  Katibeh: "Katibeh-Regular.ttf",
+  "Markazi Text": "MarkaziText-Variable.ttf",
+  Lemonada: "Lemonada-Variable.ttf",
+  "Noto Kufi Arabic": "NotoKufiArabic-Variable.ttf",
+  "Noto Naskh Arabic": "NotoNaskhArabic-Variable.ttf",
+  "Baloo Bhaijaan 2": "BalooBhaijaan2-Variable.ttf",
+  "Reem Kufi": "ReemKufi-Variable.ttf",
+  "Scheherazade New": "ScheherazadeNew-Regular.ttf",
+  Lateef: "Lateef-Regular.ttf",
   Gulzar: "Gulzar-Regular.ttf",
   "Noto Nastaliq Urdu": "NotoNastaliqUrdu-Variable.ttf",
 };
@@ -33,6 +44,21 @@ const groups = [
     ["Estedad", "فارسیِ پیوسته، درست و خوانا"],
     ["Lalezar", "جسور و پرانرژی"],
   ],
+  [
+    ["Amiri", "کتاب فارسی و شکوه قلم"],
+    ["Aref Ruqaa", "طراحی خط؛ خوانا و زیبا"],
+    ["Katibeh", "هنر کلاسیک، خلاقیت امروز"],
+    ["Markazi Text", "راهی تازه برای نوشتن"],
+    ["Lemonada", "داستان خلاقیت و تصویر"],
+    ["Noto Kufi Arabic", "هندسه، ریتم و رنگ"],
+  ],
+  [
+    ["Noto Naskh Arabic", "منظره‌ای از واژه‌های فارسی"],
+    ["Baloo Bhaijaan 2", "رویای شیرینِ تصویرسازی"],
+    ["Reem Kufi", "فرم‌های مدرن و خلاقانه"],
+    ["Scheherazade New", "ادبیات، نقطه و نیم‌فاصله"],
+    ["Lateef", "زمزمهٔ شعرِ نازک‌اندیش"],
+  ],
 ] as const;
 const W = 1280, H = 820, D = 80;
 const C = { ink: "#173e5c", blue: "#326bac", pale: "#eef4f8", gold: "#e7a45f", muted: "#657d90" };
@@ -43,12 +69,12 @@ const scene = (ctx: Ctx, local: number, env: Env, page: number) => {
   ctx.fillStyle = C.blue; ctx.fillRect(0, 0, 9, H);
   for (let i = 0; i < 44; i++) { ctx.fillStyle = i % 3 ? "#dde8ef" : "#d1e3ed"; ctx.fillRect(18 + i * 29, 160, 1, H - 160); }
   ctx.fillStyle = C.blue; ctx.fillRect(1110, 49, 99, 5);
-  drawPersianText(ctx, { text: page === 2 ? "آزمایشِ خوشنویسی نستعلیق" : "کتابخانهٔ فونت‌های آزاد فارسی",
+  drawPersianText(ctx, { text: page === 4 ? "آزمایشِ خوشنویسی نستعلیق" : "کتابخانهٔ فونت‌های آزاد فارسی",
     x: 1208, y: 98, size: 39, family: "Vazirmatn", weight: 700 });
   ctx.textAlign = "left"; ctx.direction = "ltr"; ctx.font = '17px "Vazirmatn"'; ctx.fillStyle = C.muted;
-  ctx.fillText(page === 2 ? "URDU NASTALIQ · PERSIAN AUDIT" : `FONT GALLERY · PAGE ${page + 1}/3`, 57, 114);
+  ctx.fillText(page === 4 ? "URDU NASTALIQ · PERSIAN AUDIT" : `FONT GALLERY · PAGE ${page + 1}/5`, 57, 114);
   const progress = Math.max(0, Math.min(1, local / 65));
-  if (page < 2) {
+  if (page < 4) {
     groups[page].forEach(([family, sample], i) => {
       const y = 222 + i * 94;
       ctx.fillStyle = i % 2 ? "#ffffff" : "#f1f5f6";
@@ -76,9 +102,9 @@ const scene = (ctx: Ctx, local: number, env: Env, page: number) => {
 };
 export const persianGallery: Film = {
   meta: { title: "PersianDoodle · Persian font and RTL reveal QA", W, H,
-    fps: 30, bpm: 90, durationFrames: D * 3, kind: "drawing", holds: [[70, 80, "read"], [150, 160, "read"], [230, 240, "read"]] },
+    fps: 30, bpm: 90, durationFrames: D * 5, kind: "drawing", holds: Array.from({ length: 5 }, (_, i) => [80*i+70,80*i+80,"read"] as [number,number,string]) },
   assets: { images: {}, fonts: persianFontFiles },
-  shots: [0, 1, 2].map(page => ({
+  shots: [0, 1, 2, 3, 4].map(page => ({
     id: `font-group-${page + 1}`, start: D * page, end: D * (page + 1),
     draw: (ctx: Ctx, local: number, env: Env) => scene(ctx, local, env, page),
   })),
