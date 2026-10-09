@@ -95,7 +95,7 @@ function selectVariant(v){
 }
 async function loadFont(v){
  const fontName=(v?.name||"").replace(/[^\w -]/g,"");
- const path="../skills/anidoodle/engine/assets/fonts/"+(v?.name||"");
+ const path="../skills/anidoodle/engine/assets/fonts/"+(v?.name||"").replace(/\.ttf$/i,"")+".ttf";
  if(!v||!v.name)return;
  const family="preview-"+fontName;
  try{const face=new FontFace(family,`url("${path}")`,/Variable/i.test(fontName)?{weight:"100 900"}:{});
