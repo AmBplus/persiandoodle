@@ -220,6 +220,11 @@ function updatePreview(){
  video.pause();video.removeAttribute("src");video.load();
  const media=originalMedia(x,v);
  const playable=media&&(x.kind!=="music"&&x.kind!=="sfx");
+ const separate=$("#sampleSound"),player=$("#sampleSoundPlayer");
+ player.pause();player.removeAttribute("src");player.load();
+ separate.hidden=!playable;
+ if(playable){player.src=media;player.load();$("#sampleSoundStatus").textContent="در این بخش فقط صدای فایل ویدیوی انتخاب‌شده پخش می‌شود؛ اگر نمونه فاقد ترک صوتی باشد، پلیر آن را نشان می‌دهد.";}
+
  video.hidden=!playable;empty.hidden=!!playable;
  if(playable){video.src=media;video.poster=poster(x)||"";video.load();}
  $("#previewStatus").textContent=playable?"ویدیوی مرجع اصلی — هنوز فارسی نشده":x.source==="native"?"کامپوننت فارسی":"مرجع تصویری در این فهرست موجود نیست";
