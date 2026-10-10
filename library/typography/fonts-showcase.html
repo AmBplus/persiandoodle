@@ -19,243 +19,111 @@
   canvas { width: 100%; height: auto; display: block; border-radius: 10px; background: #111827; }
   @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
   .note { color: #8a97ab; font-size: 13px; line-height: 1.8; margin-top: 8px; }
+  .note a { color: #9fb6e8; }
 </style>
 </head>
 <body>
 <header>
-  <h1>نمایش فونت‌های فارسی در شش روش انیمیشن متن</h1>
+  <h1>نمایش فونت‌های فارسی در روش‌های انیمیشن متن</h1>
   <button id="play">توقف</button>
 </header>
 
 <main>
   <p class="note">
-    هر بخش یک روش نمایش متن است و زیر آن همهٔ فونت‌های فارسی و عربی کتابخانه با همان متن نشان داده می‌شوند.
-    همهٔ ردیف‌ها با یک زمان مشترک حرکت می‌کنند تا مقایسه ساده باشد. فونت‌ها از پوشهٔ
-    <code>skills/anidoodle/engine/assets/fonts</code> بارگذاری می‌شوند و لایسنس هر کدام در همان پوشه است.
+    هر بخش یک مدل تایپوگرافی بومی است و زیر آن همهٔ فونت‌های فارسی و عربی کتابخانه با همان متن نشان داده می‌شوند.
+    همهٔ ردیف‌ها با یک زمان مشترک حرکت می‌کنند تا مقایسه ساده باشد. کد افکت‌ها همان ماژول مشترک
+    <a href="effects.js"><code>library/typography/effects.js</code></a> است که کارت‌های زندهٔ کتابخانه و ویدیوهای مرجع هم از آن اجرا می‌شوند.
+    فونت‌ها از <code>skills/anidoodle/engine/assets/fonts</code> بارگذاری می‌شوند و لایسنس هر کدام در همان پوشه است.
   </p>
   <div id="sections"></div>
 </main>
 
-<script>
-(() => {
-  // ----- fonts: file under the engine's font folder, label shown in the list -----
-  // Fonts sit in ./fonts next to this page (copied from the engine's font folder).
-  const BASE = "../../skills/anidoodle/engine/assets/fonts/";
-  const FONTS = [
-    ["Vazirmatn", "Vazirmatn-Variable.ttf"],
-    ["Vazirmatn RD", "Vazirmatn-RD-Regular.ttf"],
-    ["Shabnam", "Shabnam-Regular.ttf"],
-    ["Sahel", "Sahel-Variable.ttf"],
-    ["Samim", "Samim-Regular.ttf"],
-    ["Gandom", "Gandom-Regular.ttf"],
-    ["Tanha", "Tanha-Regular.ttf"],
-    ["Parastoo", "Parastoo-Regular.ttf"],
-    ["Nahid", "Nahid-Regular.ttf"],
-    ["Vazir Code", "Vazir-Code-Regular.ttf"],
-    ["Estedad", "Estedad-Variable.ttf"],
-    ["Lalezar", "Lalezar-Regular.ttf"],
-    ["Amiri", "Amiri-Regular.ttf"],
-    ["Aref Ruqaa", "ArefRuqaa-Regular.ttf"],
-    ["Katibeh", "Katibeh-Regular.ttf"],
-    ["Markazi Text", "MarkaziText-Variable.ttf"],
-    ["Lemonada", "Lemonada-Variable.ttf"],
-    ["Noto Kufi Arabic", "NotoKufiArabic-Variable.ttf"],
-    ["Noto Naskh Arabic", "NotoNaskhArabic-Variable.ttf"],
-    ["Baloo Bhaijaan 2", "BalooBhaijaan2-Variable.ttf"],
-    ["Reem Kufi", "ReemKufi-Variable.ttf"],
-    ["Scheherazade New", "ScheherazadeNew-Regular.ttf"],
-    ["Lateef", "Lateef-Regular.ttf"],
-    ["Gulzar", "Gulzar-Regular.ttf"],
-    ["Noto Nastaliq Urdu", "NotoNastaliqUrdu-Variable.ttf"],
-  ];
+<script type="module">
+import { drawEffect, fitSize, TYPO_FONTS } from "./effects.js";
 
-  // ----- the six effects (same logic as the single-demo page) -----
-  const EFFECTS = [
-    { key: "reveal",    title: "بازشدن از راست",       desc: "متن از ابتدای خواندن فارسی (سمت راست) باز می‌شود و نشانگر کوچک حرکت می‌کند." },
-    { key: "mask",      title: "بالا آمدن با ماسک",    desc: "خط از پشت یک پنجرهٔ برش بالا می‌آید." },
-    { key: "wordfade",  title: "محو کلمه‌به‌کلمه",     desc: "هر کلمه با محو شدن و کمی حرکت عمودی ظاهر می‌شود." },
-    { key: "wordpop",   title: "پاپ کلمات",            desc: "هر کلمه با بزرگ‌تر شدن و برگشت با کمی برآمدگی ظاهر می‌شود." },
-    { key: "highlight", title: "هایلایت",              desc: "رنگ تأکید از راست به چپ روی متن می‌آید." },
-    { key: "counter",   title: "شمارنده",              desc: "عدد با ارقام فارسی تا ۱۴۰۵ بالا می‌رود و نوار پیشرفت پر می‌شود." },
-  ];
+const MODELS_URL = "../data/typography-models.json";
+const BASE = "../../skills/anidoodle/engine/assets/fonts/";
+const W = 1000, H = 150;
+const SCENE = 3.6;
+const COLORS = { bg: "#111827", ink: "#f2f5fa", accent: "#ffb547", muted: "#4a5873" };
 
-  const TEXT = "می‌توانیم روی طرح‌ها کار کنیم";
-  const WORDS = TEXT.split(" ");
-  const W = 1000, H = 150, SIZE = 56;
-  const COLOR = "#f2f5fa", ACCENT = "#ffb547", MUTED = "#4a5873", BG = "#111827";
-  const SCENE = 3.6, ANIM = 2.4;
+const catalog = await fetch(MODELS_URL).then(r => r.json());
+const MODELS = catalog.models;
 
-  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
-  const easeOut = t => 1 - Math.pow(1 - t, 3);
-  const easeBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
-  const toFa = n => String(n).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
-
-  // Draw one effect for a given font family at local progress t in [0,1].
-  function drawEffect(ctx, fam, key, t) {
-    const cx = W / 2, cy = H / 2, base = cy + SIZE * 0.35;
-    ctx.fillStyle = BG;
-    ctx.fillRect(0, 0, W, H);
-
-    const setF = (size = SIZE) => {
-      ctx.font = `${size}px "${fam}"`;
-      ctx.direction = "rtl";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "alphabetic";
-    };
-    const fullWidth = () => { setF(); return ctx.measureText(TEXT).width; };
-    const wordLayout = () => {
-      setF();
-      const widths = WORDS.map(w => ctx.measureText(w).width);
-      const sp = ctx.measureText(" ").width;
-      const total = widths.reduce((a, b) => a + b, 0) + sp * (WORDS.length - 1);
-      let xr = cx + total / 2;
-      return WORDS.map((w, i) => {
-        const x = xr - widths[i] / 2;
-        xr -= widths[i] + sp;
-        return { w, x };
-      });
-    };
-
-    if (key === "reveal") {
-      const p = easeOut(t), tw = fullWidth(), right = cx + tw / 2;
-      ctx.save();
-      ctx.beginPath(); ctx.rect(right - tw * p, 0, tw * p + 1, H); ctx.clip();
-      setF(); ctx.fillStyle = COLOR; ctx.fillText(TEXT, cx, base);
-      ctx.restore();
-      if (p < 1) { ctx.fillStyle = ACCENT; ctx.fillRect(right - tw * p - 3, base - SIZE * 0.85, 4, SIZE * 1.1); }
-    }
-
-    if (key === "mask") {
-      const e = easeOut(t);
-      const off = (1 - e) * 40;
-      const top = base + SIZE * 0.35 - SIZE * 1.6 * e;
-      const bottom = base + SIZE * 0.35;
-      ctx.save();
-      ctx.beginPath(); ctx.rect(0, top, W, bottom - top); ctx.clip();
-      setF(); ctx.fillStyle = COLOR; ctx.fillText(TEXT, cx, base + off);
-      ctx.restore();
-    }
-
-    if (key === "wordfade") {
-      const layout = wordLayout(), n = layout.length;
-      setF(); ctx.fillStyle = COLOR;
-      layout.forEach((it, i) => {
-        const s = (i / n) * 0.55;
-        const k = easeOut(clamp((t - s) / 0.45));
-        if (k <= 0) return;
-        ctx.globalAlpha = k;
-        ctx.fillText(it.w, it.x, base + (1 - k) * 22);
-      });
-      ctx.globalAlpha = 1;
-    }
-
-    if (key === "wordpop") {
-      const layout = wordLayout(), n = layout.length;
-      setF(); ctx.fillStyle = COLOR;
-      layout.forEach((it, i) => {
-        const s = (i / n) * 0.6;
-        const k = easeBack(clamp((t - s) / 0.4));
-        if (k <= 0) return;
-        ctx.save();
-        ctx.translate(it.x, base);
-        ctx.scale(k, k);
-        ctx.globalAlpha = clamp(k);
-        ctx.fillText(it.w, 0, 0);
-        ctx.restore();
-      });
-      ctx.globalAlpha = 1;
-    }
-
-    if (key === "highlight") {
-      const p = easeOut(t), tw = fullWidth(), right = cx + tw / 2;
-      setF(); ctx.fillStyle = MUTED; ctx.fillText(TEXT, cx, base);
-      ctx.save();
-      ctx.beginPath(); ctx.rect(right - tw * p, 0, tw * p + 1, H); ctx.clip();
-      ctx.fillStyle = ACCENT; ctx.fillText(TEXT, cx, base);
-      ctx.restore();
-    }
-
-    if (key === "counter") {
-      const e = easeOut(t), value = Math.round(e * 1405);
-      setF(SIZE * 1.4);
-      ctx.fillStyle = ACCENT;
-      ctx.fillText(toFa(value), cx, cy + SIZE * 0.45);
-      const barW = 380;
-      ctx.fillStyle = MUTED;
-      ctx.fillRect(cx - barW / 2, cy + SIZE * 0.95, barW, 6);
-      ctx.fillStyle = ACCENT;
-      ctx.fillRect(cx + barW / 2 - barW * e, cy + SIZE * 0.95, barW * e, 6);
-    }
-  }
-
-  // ----- build the page -----
-  const sectionsEl = document.getElementById("sections");
-  const canvases = [];
-  EFFECTS.forEach(eff => {
-    const sec = document.createElement("section");
-    sec.innerHTML = `<h2>${eff.title}</h2><p>${eff.desc}</p>`;
-    FONTS.forEach(([label, file], i) => {
-      const row = document.createElement("div");
-      row.className = "row";
-      const lbl = document.createElement("div");
-      lbl.className = "lbl";
-      lbl.innerHTML = `${label}<small>${file}</small>`;
-      const c = document.createElement("canvas");
-      c.width = W; c.height = H;
-      row.appendChild(lbl);
-      row.appendChild(c);
-      sec.appendChild(row);
-      canvases.push({ c, ctx: c.getContext("2d"), fam: `PDF${i}`, key: eff.key, visible: false });
-    });
-    sectionsEl.appendChild(sec);
+const sectionsEl = document.getElementById("sections");
+const canvases = [];
+for (const model of MODELS) {
+  const sec = document.createElement("section");
+  sec.innerHTML = `<h2>${model.titleFa}</h2><p>${model.descFa}</p>`;
+  TYPO_FONTS.forEach(([label, file], i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const lbl = document.createElement("div");
+    lbl.className = "lbl";
+    lbl.innerHTML = `${label}<small>${file}</small>`;
+    const c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    row.appendChild(lbl);
+    row.appendChild(c);
+    sec.appendChild(row);
+    canvases.push({ c, ctx: c.getContext("2d"), famIdx: i, model, visible: false });
   });
+  sectionsEl.appendChild(sec);
+}
 
-  // Only draw rows that are on screen, so 150 canvases stay light.
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      const item = canvases.find(x => x.c === en.target);
-      if (item) item.visible = en.isIntersecting;
-    });
-  }, { rootMargin: "200px 0px" });
-  canvases.forEach(x => io.observe(x.c));
+// Only draw rows that are on screen, so the grid stays light.
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    const item = canvases.find(x => x.c === en.target);
+    if (item) item.visible = en.isIntersecting;
+  });
+}, { rootMargin: "200px 0px" });
+canvases.forEach(x => io.observe(x.c));
 
-  // ----- fonts: register each file under a private family name -----
-  // Declared as CSS @font-face rules (works from a plain file:// page as well as over http).
-  async function loadFonts() {
-    const css = FONTS.map(([, file], i) =>
-      `@font-face { font-family: "PDF${i}"; src: url("${BASE}${file}") format("truetype"); font-display: block; }`
-    ).join("\n");
-    const style = document.createElement("style");
-    style.textContent = css;
-    document.head.appendChild(style);
-    await Promise.all(FONTS.map(async ([, file], i) => {
-      try { await document.fonts.load(`56px "PDF${i}"`, "ا"); }
-      catch (e) { console.warn("font failed:", file, e); }
-    }));
-  }
+// Register each file under its real family name (Vazirmatn already ships via the library CSS).
+async function loadFonts() {
+  const css = TYPO_FONTS.filter(([l]) => l !== "Vazirmatn").map(([label, file]) =>
+    `@font-face { font-family: "${label}"; src: url("${BASE}${file}") format("truetype"); font-display: block; }`
+  ).join("\n");
+  const style = document.createElement("style");
+  style.textContent = css;
+  document.head.appendChild(style);
+  await Promise.race([
+    Promise.all(TYPO_FONTS.map(async ([label]) => { try { await document.fonts.load(`56px "${label}"`, "ا"); } catch (e) { console.warn("font failed:", label, e); } })),
+    new Promise(r => setTimeout(r, 4000)),
+  ]);
+}
 
-  // ----- clock + loop -----
-  let time = 0, playing = true, last = performance.now();
-  const playBtn = document.getElementById("play");
-  playBtn.onclick = () => { playing = !playing; playBtn.textContent = playing ? "توقف" : "پخش"; };
+let time = 0, playing = true, last = performance.now();
+const playBtn = document.getElementById("play");
+playBtn.onclick = () => { playing = !playing; playBtn.textContent = playing ? "توقف" : "پخش"; };
 
-  function frame(now) {
-    const dt = (now - last) / 1000;
-    last = now;
-    if (playing) time = (time + dt) % SCENE;
-    const t = clamp(time / ANIM);
-    canvases.forEach(x => {
-      if (!x.visible) return;
-      const dpr = window.devicePixelRatio || 1;
-      if (x.c.width !== W * dpr) { x.c.width = W * dpr; x.c.height = H * dpr; }
-      x.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      drawEffect(x.ctx, x.fam, x.key, t);
-    });
-    requestAnimationFrame(frame);
-  }
+function draw(item, t) {
+  const { ctx, c, famIdx, model } = item;
+  const dpr = window.devicePixelRatio || 1;
+  if (c.width !== W * dpr) { c.width = W * dpr; c.height = H * dpr; }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const family = TYPO_FONTS[famIdx][0];
+  let o = {
+    key: model.effectKey, t, w: W, h: H,
+    size: model.effectKey === "counter" ? 76 : 56,
+    family, text: model.defaultText, target: model.target, sub: model.sub,
+    colors: COLORS,
+  };
+  o.size = fitSize(ctx, { ...o, size: o.size, weight: 700 });
+  drawEffect(ctx, o);
+}
 
-  loadFonts().then(() => requestAnimationFrame(now => { last = now; requestAnimationFrame(frame); }));
-})();
+function frame(now) {
+  const dt = (now - last) / 1000;
+  last = now;
+  if (playing) time = (time + dt) % SCENE;
+  const t = Math.min(1, time / (SCENE * 0.78));
+  canvases.forEach(x => { if (x.visible) draw(x, t); });
+  requestAnimationFrame(frame);
+}
+
+loadFonts().then(() => requestAnimationFrame(now => { last = now; requestAnimationFrame(frame); }));
 </script>
 </body>
 </html>

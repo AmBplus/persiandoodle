@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/reveal",
+  "variantKey": "reveal",
+  "effectKey": "reveal",
+  "family": "Vazirmatn",
+  "text": "می‌توانیم روی طرح‌ها کار کنیم",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "150"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "236"
+      }
+    ],
+    "format": {
+      "duration": "5.013000",
+      "size": "242981"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/reveal",
+    "variantKey": "reveal",
+    "effectKey": "reveal",
+    "titleFa": "بازشدن از راست",
+    "text": "می‌توانیم روی طرح‌ها کار کنیم",
+    "family": "Vazirmatn",
+    "accent": "#ffb547",
+    "durationFrames": 150,
+    "fps": 30,
+    "withSound": true
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/glitch",
+  "variantKey": "glitch",
+  "effectKey": "glitch",
+  "family": "Noto Kufi Arabic",
+  "text": "سیستم، لحظه‌ای جلو می‌زند",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "150"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "236"
+      }
+    ],
+    "format": {
+      "duration": "5.013000",
+      "size": "321979"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/glitch",
+    "variantKey": "glitch",
+    "effectKey": "glitch",
+    "titleFa": "گلیچ متن",
+    "text": "سیستم، لحظه‌ای جلو می‌زند",
+    "family": "Noto Kufi Arabic",
+    "accent": "#37d3c8",
+    "durationFrames": 150,
+    "fps": 30,
+    "withSound": true
+  }
+}

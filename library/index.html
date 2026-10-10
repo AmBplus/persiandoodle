@@ -12,7 +12,7 @@
   <nav class="workspace-tabs" role="tablist" aria-label="بخش‌های اصلی">
     <button class="tab active" type="button" role="tab" aria-selected="true" data-section="designs">طرح‌های آماده <span id="countDesigns"></span></button>
     <button class="tab" type="button" role="tab" aria-selected="false" data-section="components">کامپوننت‌ها <span id="countComponents"></span></button>
-    <button class="tab" type="button" role="tab" aria-selected="false" data-section="typography">تایپوگرافی موشن</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-section="typography">تایپوگرافی موشن <span id="countTypo"></span></button>
   </nav>
   <div class="global-actions"><button id="searchButton" class="top-action" title="جست‌وجو">⌕ <kbd>Ctrl K</kbd></button><button id="openScene" class="create-action">انتخاب‌های من <span id="selectionCount">۰</span></button></div>
 </header>
@@ -49,6 +49,16 @@
    <p id="detailDescription" class="description"></p>
    <div class="metadata" id="detailMeta"></div>
    <div id="mediaAudio" class="audio-area" hidden><p>صدای داخلی پروژه</p><audio id="audioPlayer" controls preload="none"></audio><div class="rights-note" id="rightsNote"></div></div>
+   <div id="typoPlayground" class="typo-playground" hidden>
+    <div class="playground-head"><b>آزمایشگاه زندهٔ کانواس</b><small>همان کدی که ویدیوی مرجع از آن رندر شده — فونت و متن را عوض کنید</small></div>
+    <canvas id="typoCanvas" width="1000" height="240"></canvas>
+    <div class="playground-controls">
+      <label>فونت <select id="typoFont" aria-label="فونت آزمایشگاه"></select></label>
+      <label class="grow">متن <input id="typoText" type="text" dir="rtl" autocomplete="off"></label>
+      <label>سرعت <input id="typoSpeed" type="range" min="0.4" max="2" step="0.1" value="1"></label>
+      <button type="button" id="typoReplay">اجرای دوباره</button>
+    </div>
+   </div>
    <div id="sampleSound" class="audio-area" hidden><p>شنیدن مستقل صدای همراه همین نمونه</p><audio id="sampleSoundPlayer" controls preload="none" aria-label="صدای همراه نمونه"></audio><div class="rights-note" id="sampleSoundStatus">صدا مستقیماً از فایل ویدیوی مرجع پخش می‌شود.</div></div>
    <div id="fontTester" class="font-tester" hidden><label for="fontText">متن آزمایشی فارسی</label><input id="fontText" value="طراحی زیبا با خط فارسی"><div id="fontDisplay"></div></div>
    <div class="detail-buttons"><button type="button" id="addToScene" class="button-main">+ افزودن به صحنه</button><button type="button" id="showPrompt" class="button-secondary">پرامپت اورجینال و متن فارسی صحنه</button></div>

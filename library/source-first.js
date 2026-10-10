@@ -1,4 +1,5 @@
 import {faTitle,faDescription} from "./localization.js";
+import {drawEffect,fitSize,TYPO_FONTS,FONT_FILES} from "./typography/effects.js";
 const $=q=>document.querySelector(q),all=q=>[...document.querySelectorAll(q)];
 const t={shotcraft:"ویدیو شات‌کرافت",mg:"۱۵ سبک موشن",talkcraft:"ویدیو تاک‌کرافت",explainer:"توضیح تصویری",onetake:"وان‌تیک",native:"قلم و فونت"};
 const groups={designs:"طرح‌های آماده",components:"کامپوننت‌ها"};
@@ -22,8 +23,8 @@ const norm=x=>String(x??"").normalize("NFKC").toLocaleLowerCase("en");
 const prs=n=>Number(n).toLocaleString("fa-IR");
 const sourceName=x=>t[x]||x;
 const faTag=x=>extraTagFa[x]||synonyms[norm(x)]||x;
-const modelIcon=x=>({shot:"◫",style:"◈",motion:"↝",explainer:"☷",font:"آ",pen:"✒",music:"♫",sfx:"♪"})[x.kind]||"◈";
-let S={section:"designs",source:"",cat:"all",tag:"",q:"",sort:"source",visible:36,items:[],selection:[],current:null,variant:0,cache:new Map(),audio:null,renderManifest:null};
+const modelIcon=x=>({shot:"◫",style:"◈",motion:"↝",explainer:"☷",font:"آ",pen:"✒",music:"♫",sfx:"♪",typography:"آ"})[x.kind]||"◈";
+let S={section:"designs",source:"",cat:"all",tag:"",q:"",sort:"source",visible:36,items:[],selection:[],current:null,variant:0,cache:new Map(),audio:null,renderManifest:null,typo:[],typoRecords:[],typoFontIdx:0,typoText:"",typoSpeed:1,typoClock:0};
 function classify(x){
  if(x.kind==="music"||x.kind==="sfx"||x.kind==="font"||x.kind==="pen"||x.source==="onetake")return"components";
  return"designs";
@@ -61,7 +62,6 @@ function record(x){
  return{...x,section:classify(x),facet:categoryOf(x),titleFaDisplay:title,tags,variants:x.styleVariants?.length?x.styleVariants.map((name,i)=>({name,url:i===0?x.preview:null})):x.variants||[{name:x.name,url:x.preview||null}]};
 }
 function initData(cat,audio,shots,visuals,manifest){
- S.renderManifest=manifest;
  const shotIndex=new Map(shots.items.map(item=>[item.id,item]));
  const arr=cat.entries.filter(x=>!["example","audio"].includes(x.kind)&&x.source!=="native").map(x=>{
   const visual=visuals.entries[x.id];
@@ -123,10 +123,19 @@ function selectCat(id){S.cat=id;S.tag="";S.visible=36;refreshFilters();renderGal
 function selectSection(section){
  S.section=section;S.source="";S.cat="all";S.tag="";S.q="";S.visible=36;$("#searchInput").value="";
  all(".tab").forEach(x=>{const active=x.dataset.section===section;x.classList.toggle("active",active);x.setAttribute("aria-selected",String(active))});
- const typo=section==="typography";document.querySelector(".layout").classList.toggle("typo-mode",typo);
- const frame=$("#typoFrame");if(typo&&!frame.getAttribute("src"))frame.src=frame.dataset.src;frame.hidden=!typo;
- if(typo){$("#pageTitle").textContent="تایپوگرافی موشن با فونت‌های فارسی";$("#pageDescription").textContent="شش روش نمایش متن، هرکدام زیر هم با همهٔ فونت‌های فارسی و عربی کتابخانه.";refreshFilters();return}
- $("#pageTitle").textContent=section==="designs"?"طرح‌های آماده و پرامپت‌ها":"کامپوننت‌ها و ابزارهای آماده";
+ const typo=section==="typography";
+ document.querySelector(".layout").classList.toggle("typo-mode",typo);
+ const frame=$("#typoFrame");frame.hidden=true;if(!typo&&frame.getAttribute("src"))frame.removeAttribute("src");
+ if(typo){
+  $("#pageTitle").textContent="تایپوگرافی موشن فارسی · کامپوننت‌های بومی";
+  $("#pageDescription").textContent="هر مدل یک روش نمایش متن است: کارت‌ها همان کدی را زنده اجرا می‌کنند که ویدیوی مرجع از آن رندر شده؛ در پنل جزئیات ویدیوی مرجع با موسیقی داخلی، و آزمایشگاه فونت و متن در اختیار شماست.";
+  loadTypoFonts().then(()=>{if(S.section==="typography")renderTypoGallery()});
+  renderTypoGallery();
+  return;
+ }
+ for(const [canvas] of typoCardLoops)typoCardLoops.get(canvas).visible=false;
+ $("#typoPlayground").hidden=true;
+ $("#pageTitle").textContent=section==="designs"?"طرح‌های آماده، با پرامپت ساخت":"کامپوننت‌ها و ابزارهای آماده";
  $("#pageDescription").textContent=section==="designs"?"تمام مدل‌های کتابخانه‌های اصلی؛ پرامپت فارسی، نسخهٔ منبع و نمونه‌های متنوع هر طرح. هیچ سقف دو مدلی وجود ندارد.":"موسیقی، افکت صوتی، فونت، قلم و تکنیک‌های قابل ترکیب؛ فیلتر منبع و تگ برای انتخاب سریع.";
  refreshFilters();renderGallery();
 }
@@ -198,6 +207,141 @@ function originalPromptPath(x){
 function localizationPath(x){
  return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.localization||null;
 }
+// ---------------------------------------------------------------- typography studio
+// Native motion-typography components: the SAME shared effect code runs live in
+// these canvases and inside the engine's rendered reference videos (no drift).
+const FONT_BASE="../skills/anidoodle/engine/assets/fonts/";
+const typoCardLoops=new Map();   // canvas → {model, visible}
+let typoFontReady=null;
+function loadTypoFonts(){
+ if(typoFontReady)return typoFontReady;
+ typoFontReady=(async()=>{
+  const jobs=[];
+  for(const [label,file] of TYPO_FONTS){
+   if(label==="Vazirmatn")continue; // already registered by source-first.css
+   try{const face=new FontFace(label,`url("${FONT_BASE}${file}")`);document.fonts.add(face);jobs.push(face.load().catch(()=>{}));}catch{}
+  }
+  await Promise.all(jobs);
+  await Promise.race([Promise.all(TYPO_FONTS.map(([l])=>document.fonts.load(`700 56px "${l}"`,"آ").catch(()=>{}))),new Promise(r=>setTimeout(r,4000))]);
+ })();
+ return typoFontReady;
+}
+function buildTypoRecords(){
+ S.typoRecords=S.typo.map(m=>({
+  id:"native/typography/"+m.key,name:m.key,source:"native",kind:"typography",
+  category:"تایپوگرافی موشن",facet:"typography",section:"typography",
+  titleFa:m.titleFa,titleFaDisplay:m.titleFa,description:m.descFa,tags:m.tags||[],
+  typo:m,media:m.media,accent:m.accent,
+  variants:TYPO_FONTS.map(([label,file],i)=>({name:label,file,i})),
+  defaultFontIdx:Math.max(0,TYPO_FONTS.findIndex(([l])=>l===m.defaultFont)),
+ }));
+ $("#countTypo").textContent=prs(S.typoRecords.length);
+}
+function typoFiltered(){
+ let arr=S.typoRecords;
+ if(S.q){const q=norm(S.q);arr=arr.filter(x=>norm([x.titleFaDisplay,x.description,x.id,x.typo.defaultFont,(x.tags||[]).join(" "),x.typo.effectKey].join(" ")).includes(q));}
+ if(S.sort==="title")arr=[...arr].sort((a,b)=>a.titleFaDisplay.localeCompare(b.titleFaDisplay,"fa"));
+ return arr;
+}
+const TYPO_CARD={w:640,h:360,scene:3.4};
+function drawTypoFrame(canvas,model,fontIdx,text,t){
+ const ctx=canvas.getContext("2d"),dpr=Math.min(2,window.devicePixelRatio||1);
+ const W=TYPO_CARD.w,H=TYPO_CARD.h;
+ if(canvas.width!==W*dpr){canvas.width=W*dpr;canvas.height=H*dpr;}
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ const family=TYPO_FONTS[fontIdx]?.[0]||model.defaultFont;
+ let o={key:model.effectKey,t,w:W,h:H,size:model.effectKey==="counter"?86:56,family,text:text||model.defaultText,
+  target:model.target,sub:model.sub,
+  colors:{bg:"#0e1624",ink:"#f2f5fa",accent:model.accent||"#ffb547",muted:"#54637e"}};
+ o.size=fitSize(ctx,{...o,size:o.size,weight:700});
+ drawEffect(ctx,o);
+}
+function renderTypoGallery(){
+ const arr=typoFiltered(),gallery=$("#gallery");gallery.replaceChildren();
+ for(const [,loop] of typoCardLoops)loop.visible=false;
+ $("#resultCount").textContent=prs(arr.length)+" مدل";
+ $("#resultSubtitle").textContent="تایپوگرافی بومی";
+ $("#empty").hidden=arr.length>0;
+ for(const x of arr){
+  const el=document.createElement("article");el.className="model typo-card";
+  el.innerHTML='<div class="model-cover typo-cover"><canvas class="typo-canvas" width="640" height="360" aria-label="نمونهٔ زندهٔ '+escapeHtml(x.titleFa)+'"></canvas><span class="badge">اجرای زندهٔ کانواس</span><span class="variants-pill">'+escapeHtml(x.typo.defaultFont)+'</span></div>'+
+  '<div class="model-body"><h3>'+escapeHtml(x.titleFaDisplay)+'</h3><p>'+escapeHtml(x.description||"")+'</p><div class="model-bottom"><span class="source-logo">بومی پروژه</span><button type="button">مشاهده و انتخاب ←</button></div></div>';
+  const canvas=el.querySelector("canvas"),loop={model:x.typo,fontIdx:x.defaultFontIdx,text:x.typo.defaultText,visible:true,offset:Math.random()*TYPO_CARD.scene};
+  typoCardLoops.set(canvas,loop);
+  el.querySelector("button").addEventListener("click",()=>detail(x));
+  el.querySelector(".model-cover").addEventListener("click",()=>detail(x));
+  gallery.append(el);
+ }
+ $("#showMore").hidden=true;
+}
+function typoFrameLoop(now){
+ if(S.section==="typography"){
+  const scene=TYPO_CARD.scene,t=((now/1000)%scene)/scene;
+  for(const [canvas,loop] of typoCardLoops){
+   if(!loop.visible||!canvas.isConnected)continue;
+   drawTypoFrame(canvas,loop.model,loop.fontIdx,loop.text,(t+loop.offset)%1);
+  }
+ }
+ requestAnimationFrame(typoFrameLoop);
+}
+requestAnimationFrame(typoFrameLoop);
+function typoDetailVariants(x){
+ const holder=$("#variants");holder.replaceChildren();
+ $("#variantCount").textContent=prs(x.variants.length)+" فونت";
+ x.variants.forEach((v,i)=>{
+  const b=document.createElement("button");b.type="button";b.className=i===S.variant?"active":"";
+  b.textContent=v.name;b.title=v.file;
+  b.addEventListener("click",()=>{S.variant=i;S.typoFontIdx=i;typoDetailVariants(x);syncPlayground();});
+  holder.append(b);
+ });
+}
+function typoSpec(x,fontIdx){
+ const m=x.typo,fam=TYPO_FONTS[fontIdx]?.[0]||m.defaultFont;
+ return{schema:"persiandoodle/native-typography/v1",id:x.id,effectKey:m.effectKey,titleFa:m.titleFa,
+  font:fam,fontFile:FONT_FILES[fam]||null,text:S.typoText||m.defaultText,accent:m.accent,
+  durationFrames:m.durationFrames||150,fps:m.fps||30,
+  canvasModule:"library/typography/effects.js — drawEffect(ctx,{key:\""+m.effectKey+"\",…})",
+  engineFilm:"skills/anidoodle/engine/src/canvas-core/typographyLibrary.ts",
+  referenceVideo:x.media?.video?("./"+x.media.video):null,
+  note:"کامپوننت بومی پرشین‌دودل؛ برای اجرا در پروژهٔ خود، ماژول مشترک effects.js را با همین پارامترها صدا بزنید."};
+}
+function syncPlayground(){
+ const x=S.current;if(!x||x.kind!=="typography")return;
+ const m=x.typo,fam=TYPO_FONTS[S.typoFontIdx]?.[0]||m.defaultFont;
+ $("#typoFont").value=String(S.typoFontIdx);
+ const wrap=$("#typoPlayground"),canvas=$("#typoCanvas"),ctx=canvas.getContext("2d");
+ const text=$("#typoText").value||m.defaultText;S.typoText=$("#typoText").value;
+ const draw=tt=>{
+  const dpr=Math.min(2,window.devicePixelRatio||1),W=1000,H=240;
+  if(canvas.width!==W*dpr){canvas.width=W*dpr;canvas.height=H*dpr;}
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  let o={key:m.effectKey,t:tt,w:W,h:H,size:m.effectKey==="counter"?96:64,family:fam,text,
+   target:m.target,sub:m.sub,
+   colors:{bg:"#0e1624",ink:"#f2f5fa",accent:m.accent||"#ffb547",muted:"#54637e"}};
+  o.size=fitSize(ctx,{...o,size:o.size,weight:700});
+  drawEffect(ctx,o);
+ };
+ draw(Math.min(1,(S.typoClock%3.4)/3.4*1.0));
+ if(!wrap.hidden){
+  const scene=3.4,speed=S.typoSpeed,base=performance.now()-S.typoClock*1000;
+  const tick=now=>{
+   if(S.current!==x||wrap.hidden)return;
+   S.typoClock=(now-base)/1000*speed;
+   draw(Math.min(1,(S.typoClock%scene)/scene));
+   requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+ }
+}
+function detailTypo(x){
+ $("#typoPlayground").hidden=false;
+ $("#typoText").value=x.typo.defaultText;S.typoText=x.typo.defaultText;
+ S.typoFontIdx=S.variant=x.defaultFontIdx;S.typoClock=0;S.typoSpeed=Number($("#typoSpeed").value)||1;
+ const sel=$("#typoFont");sel.replaceChildren();
+ TYPO_FONTS.forEach(([label],i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=label;sel.append(o);});
+ typoDetailVariants(x);syncPlayground();
+}
+
 function sourceDocumentUrl(x){
  return S.renderManifest?.renders?.[x.id]?.variants?.[S.variant]?.originalPromptUrl||x.sourceUrl||"";
 }
@@ -244,6 +388,18 @@ async function showFont(x){
 function updatePreview(){
  const x=S.current,v=S.variant,video=$("#previewVideo"),img=$("#previewImage"),empty=$("#previewEmpty");
  video.pause();video.removeAttribute("src");video.load();
+ if(x.kind==="typography"){
+  const media=localPath(x.media?.video),still=localPath(x.media?.poster),thumb=localPath(x.media?.thumb);
+  const playable=Boolean(media);
+  video.hidden=!playable;img.hidden=playable||!still;empty.hidden=playable||!!still;
+  if(playable){video.src=media;video.poster=thumb||still||"";video.load();}
+  else if(still)img.src=still;
+  $("#originalPreviewLink").hidden=true;
+  $("#sampleSound").hidden=true;
+  $("#previewStatus").textContent=playable?"رندر بومی + موسیقی داخلی پروژه":"ویدیوی مرجع این مدل هنوز رندر نشده";
+  $("#detailCaveat").textContent=playable?"این ویدیو با موتور رندر خود پروژه و موسیقی سنتزشدهٔ داخلی خروجی گرفته شده است؛ هیچ رسانهٔ خارجی در آن نیست. کد افکت همان است که در کارت‌ها زنده اجرا می‌شود.":"ویدیوی مرجع این کامپوننت هنوز تولید نشده؛ نسخهٔ زندهٔ کانواس در پایین قابل اجراست.";
+  return;
+ }
  const media=originalMedia(x,v);
  const playable=Boolean(media)&&(x.kind!=="music"&&x.kind!=="sfx");
  const separate=$("#sampleSound"),player=$("#sampleSoundPlayer");
@@ -261,14 +417,16 @@ function updatePreview(){
   $("#detailCaveat").textContent=playable?"نسخهٔ فارسی در خود پروژه میزبانی شده است.":"این مدل هنوز رندر فارسیِ منتشرشده ندارد؛ مرجع خارجی در سایت پخش نمی‌شود.";
 }
 function detail(x){
- S.current=x;S.variant=0;
+ S.current=x;S.variant=x.kind==="typography"?x.defaultFontIdx:0;
  $("#detailTitle").textContent=x.titleFaDisplay;
- $("#detailCategory").textContent=sourceName(x.source)+" / "+(catFa[x.facet]||x.category||"");
- $("#detailDescription").textContent=(x.description&&/[\u0600-\u06ff]/.test(x.description))?x.description:(concepts[x.category]||catFa[x.facet]||"دستور ساخت و مدل اصلی در جزئیات مرجع موجود است.");
- const metas=[sourceName(x.source),...(x.tags||[]).slice(0,6).map(faTag)];
+ $("#detailCategory").textContent=x.kind==="typography"?"کامپوننت بومی / تایپوگرافی موشن":sourceName(x.source)+" / "+(catFa[x.facet]||x.category||"");
+ $("#detailDescription").textContent=x.kind==="typography"?x.description:(x.description&&/[\u0600-\u06ff]/.test(x.description))?x.description:(concepts[x.category]||catFa[x.facet]||"دستور ساخت و مدل اصلی در جزئیات مرجع موجود است.");
+ const metas=x.kind==="typography"?["بومی پروژه",...x.variants[S.variant]?[x.variants[S.variant].name]:[],...(x.tags||[]).slice(0,5).map(faTag)]:[sourceName(x.source),...(x.tags||[]).slice(0,6).map(faTag)];
  $("#detailMeta").innerHTML=metas.map(v=>'<span>'+escapeHtml(v)+'</span>').join("");
  $("#promptBox").hidden=true;
+ if(x.kind==="typography"){detailTypo(x);updatePreview();showAudio(x);$("#fontTester").hidden=true;$("#detail").classList.add("open");return}
  variants(x);updatePreview();showAudio(x);showFont(x);renderGallery();
+ $("#typoPlayground").hidden=true;
  $("#detail").classList.add("open");
 }
 async function prompt(){
@@ -276,6 +434,17 @@ async function prompt(){
  const index=S.variant;
  $("#promptBox").hidden=false;
  const output=$("#promptText"),localization=$("#localizationText");
+ if(x.kind==="typography"){
+  $(".prompt-head b").textContent="مشخصات اجرای این کامپوننت";
+  $("#copyPrompt").textContent="کپی مشخصات JSON";
+  output.value=JSON.stringify(typoSpec(x,S.typoFontIdx),null,2);
+  localization.value="کامپوننت بومی است؛ متن روی فریم همان متن آزمایشگاه است و نگاشت ترجمه لازم ندارد.";
+  $("#sourceLink").href="https://github.com/AmBplus/persiandoodle/blob/main/library/typography/effects.js";
+  $("#sourceLink").textContent="مشاهدهٔ کد مشترک افکت‌ها در مخزن ↗";
+  return;
+ }
+ $(".prompt-head b").textContent="دستور ساخت و منبع";
+ $("#copyPrompt").textContent="کپی متن اصلی";
  const loc=localizationPath(x);
  output.value="در حال بارگذاری متن اصلی، بدون بازنویسی…";
  localization.value="در حال بارگذاری نگاشت متن داخل تصویر…";
@@ -286,12 +455,15 @@ async function prompt(){
  catch{if(S.current===x&&S.variant===index)output.value="متن اصلی از سرور مرجع قابل بارگیری نبود؛ دستور حدسی تولید نشده است. از پیوند منبع اصلی استفاده کنید."}
 }
 function selectedRecord(x){
- return{id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",originalPromptPath:originalPromptPath(x),originalPromptUrl:sourceDocumentUrl(x),localizationPath:localizationPath(x),audio:x.playUrl||null};
+ const base={id:x.id,name:x.titleFaDisplay,source:x.source,kind:x.kind,category:x.facet,variant:x.variants[S.variant]?.name||null,sourceUrl:x.sourceUrl||null,license:x.license||null,implementation:x.source==="native"?"native":"reference",originalPromptPath:originalPromptPath(x),originalPromptUrl:sourceDocumentUrl(x),localizationPath:localizationPath(x),audio:x.playUrl||null};
+ if(x.kind==="typography")base.typoSpec=typoSpec(x,S.typoFontIdx);
+ return base;
 }
 async function saveSelection(){
  if(!S.current)return;
  const x=S.current,index=S.variant,next=selectedRecord(x);
  if(S.selection.some(item=>item.id===next.id&&item.variant===next.variant)){openDrawer();return}
+ if(x.kind==="typography"){S.selection.push(next);$("#selectionCount").textContent=prs(S.selection.length);openDrawer();renderSelection();return}
  try{next.originalPrompt=await loadExactOriginal(x,index)}catch{next.originalPrompt=null}
  const loc=localizationPath(x);
  if(loc)try{const response=await fetch("./"+loc);if(response.ok)next.onScreenLocalization=await response.json()}catch{}
@@ -321,13 +493,17 @@ async function copy(s){try{await navigator.clipboard.writeText(s);return true}ca
 function attach(){
  all(".tab").forEach(b=>b.addEventListener("click",()=>selectSection(b.dataset.section)));
  $("#sourceFilter").addEventListener("change",e=>{S.source=e.target.value;S.cat="all";S.tag="";S.visible=36;refreshFilters();renderGallery()});
- $("#searchInput").addEventListener("input",e=>{S.q=e.target.value;S.visible=36;renderGallery()});
- $("#sortSelect").addEventListener("change",e=>{S.sort=e.target.value;renderGallery()});
- $("#resetFilters").addEventListener("click",()=>{S.source="";S.cat="all";S.tag="";S.q="";$("#searchInput").value="";S.visible=36;refreshFilters();renderGallery()});
+ $("#searchInput").addEventListener("input",e=>{S.q=e.target.value;S.visible=36;if(S.section==="typography")renderTypoGallery();else renderGallery()});
+ $("#sortSelect").addEventListener("change",e=>{S.sort=e.target.value;if(S.section==="typography")renderTypoGallery();else renderGallery()});
+ $("#resetFilters").addEventListener("click",()=>{S.source="";S.cat="all";S.tag="";S.q="";$("#searchInput").value="";S.visible=36;if(S.section==="typography"){renderTypoGallery();return}refreshFilters();renderGallery()});
  $("#showMore").addEventListener("click",()=>{S.visible+=36;renderGallery()});
  $("#searchButton").addEventListener("click",()=>$("#searchInput").focus());
  document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();$("#searchInput").focus()}if(e.key==="Escape"){closeDrawer();$("#detail").classList.remove("open")}});
  $("#showPrompt").addEventListener("click",prompt);
+ $("#typoFont").addEventListener("change",e=>{S.typoFontIdx=Number(e.target.value)||0;if(S.current?.kind==="typography"){S.variant=S.typoFontIdx;typoDetailVariants(S.current);syncPlayground();}});
+ $("#typoText").addEventListener("input",()=>{S.typoText=$("#typoText").value;syncPlayground();});
+ $("#typoSpeed").addEventListener("input",e=>{S.typoSpeed=Number(e.target.value)||1;});
+ $("#typoReplay").addEventListener("click",()=>{S.typoClock=0;syncPlayground();});
  $("#copyPrompt").addEventListener("click",async()=>{if(await copy($("#promptText").value))$("#copyPrompt").textContent="کپی شد ✓";else{$("#promptText").focus();$("#promptText").select()}});
  $("#addToScene").addEventListener("click",saveSelection);
  $("#closeDetail").addEventListener("click",()=>$("#detail").classList.remove("open"));
@@ -340,7 +516,7 @@ function attach(){
  $("#copyDirector").addEventListener("click",async()=>{const scene=outputScene();await copy("صحنهٔ فارسی زیر را بساز؛ از منابع و پرامپت‌های هر مورد استفاده کن، تمام نوشته‌ها را فارسی و طبیعی بازآفرینی کن، از ویدیوهای مرجع به جای خروجی استفاده نکن، و MP4 با صدای مجاز و مشبک فریم‌های QC تحویل بده.\n"+JSON.stringify(scene,null,2))});
 }
 async function init(){
- attach();try{const [catalog,audio,shots,visuals,manifest]=await Promise.all([fetch("./data/catalog.json").then(r=>r.json()),fetch("./data/source-audio.json").then(r=>r.json()),fetch("./data/shotcraft-full.json").then(r=>r.json()),fetch("./data/source-visuals.json").then(r=>r.json()),fetch("./data/persian-renders.json").then(r=>r.json())]);initData(catalog,audio,shots,visuals,manifest);selectSection("designs");
+ attach();try{const [catalog,audio,shots,visuals,manifest,typoModels]=await Promise.all([fetch("./data/catalog.json").then(r=>r.json()),fetch("./data/source-audio.json").then(r=>r.json()),fetch("./data/shotcraft-full.json").then(r=>r.json()),fetch("./data/source-visuals.json").then(r=>r.json()),fetch("./data/persian-renders.json").then(r=>r.json()),fetch("./data/typography-models.json").then(r=>r.json())]);S.renderManifest=manifest;S.typo=typoModels.models||[];buildTypoRecords();initData(catalog,audio,shots,visuals,manifest);selectSection("designs");
  }catch(e){console.error(e);$("#resultCount").textContent="خطا در بارگذاری داده‌ها";$("#empty").hidden=false;$("#empty").textContent="بارگذاری ناموفق بود؛ صفحه را دوباره بارگذاری کنید."}
 }
 init();
