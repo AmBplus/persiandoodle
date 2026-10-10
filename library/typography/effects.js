@@ -179,7 +179,7 @@ const wordLayout = (ctx, o, scale = 1, weight = 700) => {
 const fullWidth = (ctx, o, scale = 1, weight = 700) => { setFont(ctx, o, scale, weight); return ctx.measureText(o.text).width; };
 
 // ---------------------------------------------------------------- the ten effects
-const EFFECTS = {
+export const EFFECTS = {
   // بازشدن از راست — RTL clip reveal with a traveling cursor.
   reveal(ctx, o) {
     const t = clamp01(o.t / SETTLE), p = easeOut(t), tw = fullWidth(ctx, o), right = o.w / 2 + tw / 2, base = baseLine(o);
