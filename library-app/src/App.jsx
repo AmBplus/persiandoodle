@@ -3,6 +3,8 @@ import { loadLibrary, SOURCE_FA, faNum } from "./lib/data.js";
 import Card from "./components/Card.jsx";
 import Drawer from "./components/Drawer.jsx";
 import SelectionBar from "./components/SelectionBar.jsx";
+import CompoCard from "./components/CompoCard.jsx";
+import { COMPOS, CompoAudio } from "./lib/compositions.js";
 
 const PAGE = 48;
 
@@ -16,6 +18,9 @@ export default function App() {
   const [sel, setSel] = useState(null);
   const [pickMode, setPickMode] = useState(false);
   const [picked, setPicked] = useState(() => new Set());
+  const [view, setView] = useState("components"); // components | compo
+  const audioRef = useRef(null);
+  if (!audioRef.current) audioRef.current = new CompoAudio();
   const searchRef = useRef(null);
 
   const togglePick = (id) =>
@@ -78,11 +83,11 @@ export default function App() {
       <div className="aurora" aria-hidden="true" />
 
       <header className="topbar">
-        <a className="brand" href="https://github.com/AmBplus/persiandoodle" target="_blank" rel="noopener noreferrer">
+        <a className="brand" href="https://github.com/AmBplus/PersianArts" target="_blank" rel="noopener noreferrer">
           <span className="brand-mark">پ</span>
           <span className="brand-text">
-            <b>کتابخانهٔ موشن فارسی</b>
-            <small>PersianDoodle · کامپوننت‌های آمادهٔ موشن‌گرافیک</small>
+            <b>PersianArts — هنرهای پارسی</b>
+            <small>هنر و موشن به زبان کد · کامپوننت‌های آمادهٔ فارسی</small>
           </span>
         </a>
         <div className="topbar-stats">
@@ -98,9 +103,18 @@ export default function App() {
       <section className="hero">
         <h1>هر حرکتی که برای ویدیوی فارسی‌ات لازم داری، <em>یک‌جا</em></h1>
         <p>
-          تایپوگرافی متحرک با ۲۵ فونت فارسی، پیش‌نمایش زندهٔ کانواس، کد آمادهٔ React و کد خام کنار هر رندر —
-          همه در یک منوی واحد؛ فیلتر کن، کلیک کن، استفاده کن.
+          PersianArts — هنرهای پارسی: تایپوگرافی متحرک با ۲۵ فونت فارسی، پیش‌نمایش زندهٔ کانواس، ویدیو و موسیقی رندرشدهٔ خودمان،
+          کد آمادهٔ React و کد خام کنار هر رندر؛ همه در یک منوی واحد — فیلتر کن، کلیک کن، استفاده کن.
         </p>
+        <div className="view-tabs" role="tablist" aria-label="بخش‌ها">
+          <button role="tab" aria-selected={view === "components"} className={`view-tab ${view === "components" ? "on" : ""}`} onClick={() => setView("components")}>
+            کامپوننت‌ها
+          </button>
+          <button role="tab" aria-selected={view === "compo"} className={`view-tab ${view === "compo" ? "on" : ""}`} onClick={() => setView("compo")}>
+            ✦ استفادهٔ عملی — ترکیب‌ها
+          </button>
+        </div>
+        {view === "components" && (
         <label className="search">
           <span aria-hidden="true">⌕</span>
           <input
@@ -111,8 +125,11 @@ export default function App() {
             onChange={(e) => setQ(e.target.value)}
           />
         </label>
+        )}
       </section>
 
+      {view === "components" ? (
+        <>
       <nav className="filterbar" aria-label="فیلترها">
         <button
           type="button"
@@ -180,24 +197,41 @@ export default function App() {
         )}
         {filtered.length === 0 && <div className="empty">چیزی مطابق فیلترها پیدا نشد.</div>}
       </main>
+        </>
+      ) : (
+        <main className="grid-wrap compo-wrap">
+          <div className="result-line">
+            <b>{faNum(COMPOS.length)}</b> ترکیب عملی
+            <span className="live-note"> · هر ترکیب، چند کامپوننت را در یک صحنهٔ واحد زنجیر می‌کند · برای شنیدن صدا، دکمهٔ ♪ روی کارت</span>
+          </div>
+          <div className="grid">
+            {COMPOS.map((c) => (
+              <CompoCard key={c.id} compo={c} audio={audioRef.current} items={lib.items} onOpenItem={setSel} />
+            ))}
+          </div>
+        </main>
+      )}
 
       <footer className="footer">
         <div>
-          بازسازی بومی فارسی بر پایهٔ منابع آزاد:
+          PersianArts — هنرهای پارسی · بازسازی بومی فارسی بر پایهٔ منابع آزاد:
           <a href="https://github.com/Vincentwei1021/video-shotcraft" target="_blank" rel="noopener noreferrer"> Vincentwei1021/video-shotcraft </a>
           و
           <a href="https://github.com/atmirrr/persian-motion-director" target="_blank" rel="noopener noreferrer"> atmirrr/persian-motion-director</a>
         </div>
-        <div>رندرها موتور اختصاصی همین پروژه‌اند · مجوزها در مخزن</div>
+        <div>همهٔ رندرها و صداها با موتور اختصاصی همین پروژه ساخته شده‌اند · مجوزها در مخزن</div>
       </footer>
 
-      <SelectionBar
-        items={lib.items}
-        picked={picked}
-        onClear={() => setPicked(new Set())}
-        onPickAllFiltered={pickAllFiltered}
-        filteredCount={filtered.length}
-      />
+      {view === "components" && (
+        <SelectionBar
+          items={lib.items}
+          picked={picked}
+          onClear={() => setPicked(new Set())}
+          onPickAllFiltered={pickAllFiltered}
+          filteredCount={filtered.length}
+        />
+      )}
+
 
       <Drawer item={sel} onClose={() => setSel(null)} />
     </div>

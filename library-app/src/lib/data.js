@@ -35,7 +35,12 @@ export async function loadLibrary() {
   const R = (renders && renders.renders) || {};
   for (const [id, r] of Object.entries(R)) {
     const v = (r.variants || []).find((x) => x && (x.poster || x.thumbnail || x.video));
-    if (v) mediaOf[id] = { poster: v.poster, thumbnail: v.thumbnail, video: v.video };
+    if (v) mediaOf[id] = {
+      poster: v.poster,
+      thumbnail: v.thumbnail,
+      video: v.video,
+      audio: v.video ? String(v.video).replace(/preview\.mp4$/, "music.m4a") : null,
+    };
   }
 
   const typoItems = typo.models.map((m) => ({
@@ -49,7 +54,7 @@ export async function loadLibrary() {
     font: m.defaultFont,
     text: m.defaultText,
     accent: m.accent,
-    media: m.media || null,
+    media: m.media ? { ...m.media, audio: m.media.video ? m.media.video.replace(/preview\.mp4$/, "music.m4a") : null } : null,
     frames: m.durationFrames || 150,
     fps: m.fps || 30,
     sub: m.sub || null,

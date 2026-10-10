@@ -177,6 +177,37 @@ const wordLayout = (ctx, o, scale = 1, weight = 700) => {
   return words.map((w, i) => { const x = xr - widths[i] / 2; xr -= widths[i] + sp; return { w, x, width: widths[i] }; });
 };
 const fullWidth = (ctx, o, scale = 1, weight = 700) => { setFont(ctx, o, scale, weight); return ctx.measureText(o.text).width; };
+/** تایپِ واژه‌به‌واژه — هر واژه جداگانه رسم می‌شود تا اتصال حروف هرگز نشکند.
+ *  (برش clip که از روی جوهر حروف فارسی رد شود، شکل‌دهی کل خط را در کروم می‌شکند؛
+ *  پس افکت‌های «تایپ‌شدنی» با فید واژه‌ها کار می‌کنند، نه با clip روی رشتهٔ کامل.)
+ *  برمی‌گرداند: لبهٔ چپِ متنِ نمایان (جای نشانگر) و عرض کل. */
+const wordReveal = (ctx, o, { p, xRight, y, scale = 1, weight = 700, color, rise = 0.14 }) => {
+  setFont(ctx, o, scale, weight);
+  const words = String(o.text).split(" ").filter(Boolean);
+  const ws = words.map((w) => ctx.measureText(w).width);
+  const spw = ctx.measureText(" ").width;
+  const n = words.length;
+  const prog = clamp01(p) * n;
+  ctx.save();
+  ctx.direction = "rtl"; ctx.textAlign = "right";
+  let xr = xRight;
+  for (let i = 0; i < n; i++) {
+    const k = clamp01(prog - i);
+    if (k > 0) {
+      const kk = k >= 1 ? 1 : easeOut(k);
+      ctx.globalAlpha = kk;
+      ctx.fillStyle = color;
+      ctx.fillText(words[i], xr, y + (1 - kk) * o.size * scale * rise);
+      ctx.globalAlpha = 1;
+    }
+    xr -= ws[i] + spw;
+  }
+  ctx.restore();
+  const shown = Math.min(n, Math.ceil(prog - 1e-6) || (prog > 0 ? 1 : 0));
+  let edge = xRight;
+  for (let i = 0; i < shown; i++) edge -= ws[i] + spw;
+  return { edge, totalW: ws.reduce((a, b) => a + b, 0) + spw * Math.max(0, n - 1), n };
+};
 
 // ---------------------------------------------------------------- the ten effects
 export const EFFECTS = {
@@ -257,28 +288,32 @@ export const EFFECTS = {
     if (o.sub) { setFont(ctx, o, 0.32, 500); ctx.fillStyle = o.colors.muted; ctx.fillText(o.sub, o.w / 2, y + o.size * 0.62); }
   },
 
-  // ماشین‌نویس — grapheme-stepped reveal of the already-shaped string, with a block caret.
+  // ماشین‌نویس — word-stepped reveal (اتصال حروف هرگز نمی‌شکند) با نشانگر بلوکی عمودی روی لبهٔ تایپ.
   typewriter(ctx, o) {
-    const p = clamp01(o.t / SETTLE), tw = fullWidth(ctx, o), right = o.w / 2 + tw / 2, base = baseLine(o);
-    const steps = Math.max(8, Math.round(String(o.text).length * 1.6));
-    const stepped = Math.ceil(p * steps) / steps;
-    ctx.save(); ctx.beginPath(); ctx.rect(right - tw * stepped - 1, 0, tw * stepped + 2, o.h); ctx.clip();
-    setFont(ctx, o); ctx.fillStyle = o.colors.ink; ctx.fillText(o.text, o.w / 2, base); ctx.restore();
-    if (p < 1) { ctx.fillStyle = o.colors.accent; ctx.fillRect(right - tw * stepped - o.size * 0.05, base - o.size * 0.82, o.size * 0.5, o.size * 0.1); }
-    else if (o.t < HOLD_BLINK && Math.sin(o.t * Math.PI * 6) > 0) { ctx.fillStyle = o.colors.accent; ctx.fillRect(right - o.size * 0.05, base - o.size * 0.82, o.size * 0.5, o.size * 0.1); }
+    const p = clamp01(o.t / SETTLE), base = baseLine(o);
+    const tw = fullWidth(ctx, o), xRight = o.w / 2 + tw / 2;
+    const caretW = o.size * 0.09, caretH = o.size * 1.04;
+    const { edge, totalW } = wordReveal(ctx, o, { p, xRight, y: base, color: o.colors.ink });
+    const blinkOn = Math.sin(o.t * Math.PI * 7) > -0.25;
+    if (p < 1) {
+      if (blinkOn) { ctx.fillStyle = o.colors.accent; ctx.fillRect(edge - caretW - o.size * 0.05, base - caretH * 0.78, caretW, caretH); }
+    } else if (o.t < HOLD_BLINK && blinkOn) {
+      ctx.fillStyle = o.colors.accent;
+      ctx.fillRect(o.w / 2 - totalW / 2 - caretW - o.size * 0.05, base - caretH * 0.78, caretW, caretH);
+    }
   },
 
-  // نوشتن با قلم — an ink sweep with a nib riding the reveal edge.
+  // نوشتن با قلم — ink fade واژه‌به‌واژه با نوک قلم سوار بر لبهٔ نمایان (بدون clip روی متن).
   inktrace(ctx, o) {
-    const t = clamp01(o.t / SETTLE), p = easeInOut(t), tw = fullWidth(ctx, o), right = o.w / 2 + tw / 2, base = baseLine(o);
-    ctx.save(); ctx.beginPath(); ctx.rect(right - tw * p - 1, 0, tw * p + 2, o.h); ctx.clip();
-    setFont(ctx, o, 1, 500); ctx.fillStyle = o.colors.ink; ctx.fillText(o.text, o.w / 2, base); ctx.restore();
-    if (p > 0 && p < 1) {
-      const x = right - tw * p, wob = Math.sin(t * Math.PI * 5) * o.size * 0.05;
+    const t = clamp01(o.t / SETTLE), p = easeInOut(t), base = baseLine(o);
+    const tw = fullWidth(ctx, o, 1, 500), xRight = o.w / 2 + tw / 2;
+    const { edge } = wordReveal(ctx, o, { p, xRight, y: base, scale: 1, weight: 500, color: o.colors.ink, rise: 0.07 });
+    if (p > 0.02 && p < 1) {
+      const wob = Math.sin(t * Math.PI * 5) * o.size * 0.05;
       ctx.save(); ctx.globalAlpha = 0.16; ctx.strokeStyle = o.colors.ink; ctx.lineWidth = o.size * 0.05; ctx.lineCap = "round";
-      ctx.beginPath(); ctx.moveTo(x, base - o.size * 0.55); ctx.quadraticCurveTo(x - tw * 0.02, base - o.size * 0.2 + wob, x, base + o.size * 0.18); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(edge, base - o.size * 0.55); ctx.quadraticCurveTo(edge - tw * 0.02, base - o.size * 0.2 + wob, edge, base + o.size * 0.18); ctx.stroke();
       ctx.globalAlpha = 1; ctx.fillStyle = o.colors.accent; ctx.strokeStyle = o.colors.ink; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(x, base - o.size * 0.34, o.size * 0.075, o.size * 0.14, -0.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(edge - o.size * 0.1, base - o.size * 0.34, o.size * 0.075, o.size * 0.14, -0.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.restore();
     }
   },
@@ -348,9 +383,11 @@ export const EFFECTS = {
     const on = o.t >= 0.07 ? 1 : 0;
     const ex = easeBack(clamp01((o.t - 0.13) / 0.21));
     const sc = 0.6 + 0.4 * ex;
-    const HALF = o.w * 0.36, x = HALF * ex * sc;
-    const bsize = o.size * 0.9;
-    const clipW = Math.max(0, x * 2 - bsize * 0.9);
+    // آکولادها به عرضِ واقعیِ متن می‌چسبند (نه فاصلهٔ ثابت از لبه)
+    const tw = fullWidth(ctx, o, 1, 700) * sc;
+    const x = tw / 2 + o.size * 0.34 * sc;
+    const bsize = o.size * 1.02 * sc;
+    const clipW = Math.max(0, x * 2 - bsize * 1.2);
     ctx.save(); ctx.beginPath();
     ctx.rect(o.w / 2 - clipW / 2, baseLine(o) - o.size * 1.5, clipW, o.size * 2.2);
     ctx.clip(); ctx.globalAlpha = on;
@@ -361,9 +398,9 @@ export const EFFECTS = {
     for (const [ch, dx] of [["{", -x], ["}", x]]) {
       if (!on) continue;
       ctx.save();
-      ctx.font = `${800} ${bsize * sc}px "${o.family}"`; ctx.direction = "ltr";
+      ctx.font = `${800} ${bsize}px "${o.family}"`; ctx.direction = "ltr";
       ctx.textAlign = "center"; ctx.fillStyle = o.colors.accent;
-      ctx.fillText(ch, o.w / 2 + dx, baseLine(o) + bsize * sc * 0.36);
+      ctx.fillText(ch, o.w / 2 + dx, baseLine(o) + bsize * 0.35);
       ctx.restore();
     }
   },
@@ -425,13 +462,25 @@ export const EFFECTS = {
     const POOL = "ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹";
     const rndS = (a) => { const x = Math.sin(a * 127.3) * 43758.5453; return x - Math.floor(x); };
     const garble = (i, k) => POOL[Math.floor(rndS(i * 7.13 + k * 3.71 + 1) * POOL.length)];
-    const cells = groupLayout(ctx, o, 0.78).filter(it => it.g !== " ");
+    const groups = groupLayout(ctx, o, 0.78).filter(it => it.g !== " ");
     const cellH = o.size * 1.5, cy = o.h / 2 - cellH / 2 + o.size * 0.18;
     const START = 0.16, STAGGER = 0.028, FLIP = 0.036, NFLIP = 3;
-    cells.forEach((it, i) => {
-      const cw = Math.max(it.w + o.size * 0.44, o.size * 0.78);
-      const cx = it.x - cw / 2;
-      const seq = [garble(i, 0), garble(i, 1), garble(i, 2), it.g];
+    // چیدمان دوبارهٔ سلول‌ها با گپ واقعی — پس‌زمینهٔ سلولِ بعدی هرگز روی حرفِ سلولِ قبل نمی‌نشیند
+    const PAD = o.size * 0.3, GAP = Math.max(3, o.size * 0.055);
+    const cws = groups.map((it) => Math.max(it.w + PAD, o.size * 0.82));
+    const totalW = cws.reduce((a, b) => a + b, 0) + GAP * (groups.length - 1);
+    let xr = o.w / 2 + totalW / 2;
+    const cells = groups.map((it, i) => { const cw = cws[i]; const cx = xr - cw; xr -= cw + GAP; return { ...it, cx, cw, i }; });
+    // گذر ۱ — همهٔ بدنه‌های سلول
+    for (const c of cells) {
+      ctx.fillStyle = "#141412"; ctx.fillRect(c.cx - 1.5, cy - 1.5, c.cw + 3, cellH + 3);
+      ctx.fillStyle = "#232320"; ctx.fillRect(c.cx, cy, c.cw, cellH);
+      ctx.fillStyle = "#0d0d0b"; ctx.fillRect(c.cx, cy + cellH / 2 - 1.5, c.cw, 3);
+    }
+    // گذر ۲ — نیمه‌های حروف و برگهٔ فلپ
+    for (const c of cells) {
+      const { g: fin, cx, cw, i } = c;
+      const seq = [garble(i, 0), garble(i, 1), garble(i, 2), fin];
       const local = o.t - (START + i * STAGGER);
       const done = local >= NFLIP * FLIP;
       let clickY = 0;
@@ -440,24 +489,22 @@ export const EFFECTS = {
         clickY = cp < 0.5 ? cp * 2 * o.size * 0.06 : Math.max(0, (1 - (cp - 0.5) * 2)) * o.size * 0.06 - o.size * 0.015 * Math.max(0, 1 - Math.abs(cp - 0.75) * 4);
       }
       let topCh = seq[0], botCh = seq[0], leaf = null;
-      if (done) topCh = botCh = it.g;
+      if (done) topCh = botCh = fin;
       else if (local > 0) {
         const k = Math.min(NFLIP - 1, Math.floor(local / FLIP));
-        const p = Math.pow(clamp01((local - k * FLIP) / FLIP), 2); // gravity: Easing.in(quad)
+        const p = Math.pow(clamp01((local - k * FLIP) / FLIP), 2);
         topCh = seq[k + 1]; botCh = seq[k];
         const isTop = p < 0.5;
         const ang = isTop ? p * 2 * Math.PI / 2 : Math.PI / 2 - (p - 0.5) * 2 * Math.PI / 2;
         leaf = { ch: isTop ? seq[k] : seq[k + 1], isTop, cos: Math.cos(ang), bright: isTop ? 1 - p * 2 * 0.45 : 0.55 + (p - 0.5) * 2 * 0.45 };
       }
       ctx.save(); ctx.translate(0, clickY);
-      ctx.fillStyle = "#141412"; ctx.fillRect(cx - 2, cy - 2, cw + 4, cellH + 4);
       const drawHalf = (ch, top) => {
         ctx.save(); ctx.beginPath();
         ctx.rect(cx, top ? cy : cy + cellH / 2, cw, cellH / 2 + 1);
         ctx.clip();
-        ctx.fillStyle = "#232320"; ctx.fillRect(cx, top ? cy : cy + cellH / 2, cw, cellH / 2);
         setFont(ctx, o, 0.78, 700); ctx.fillStyle = o.colors.ink;
-        ctx.fillText(ch, it.x, cy + cellH / 2 + o.size * 0.34);
+        ctx.fillText(ch, cx + cw / 2, cy + cellH / 2 + o.size * 0.34);
         ctx.restore();
       };
       drawHalf(topCh, true); drawHalf(botCh, false);
@@ -468,21 +515,21 @@ export const EFFECTS = {
         ctx.translate(0, hinge); ctx.scale(1, Math.max(0.04, Math.abs(leaf.cos))); ctx.translate(0, -hinge);
         setFont(ctx, o, 0.78, 700);
         ctx.fillStyle = o.colors.ink; ctx.globalAlpha = 0.35 + 0.65 * leaf.bright;
-        ctx.fillText(leaf.ch, it.x, cy + cellH / 2 + o.size * 0.34);
+        ctx.fillText(leaf.ch, cx + cw / 2, cy + cellH / 2 + o.size * 0.34);
         ctx.restore();
       }
-      ctx.fillStyle = "#0d0d0b"; ctx.fillRect(cx, cy + cellH / 2 - 1.5, cw, 3);
       ctx.restore();
-    });
+    }
   },
 
   // پرکردن دورخط — dashed circle shrinks in, outlined word pops to solid with a flash (outline-word-fill).
   outlinefill(ctx, o) {
     const light = { bg: "#f5f6f8", ink: "#17181c", accent: o.colors.accent, muted: "#7d838e" };
     ctx.fillStyle = light.bg; ctx.fillRect(0, 0, o.w, o.h);
-    const shrink = easeOut(clamp01(o.t / 0.25)), born = easeOut(clamp01((o.t - 0.3) / 0.15));
-    const zoom = lerpK(shrink, 3.2, 1), pop = easeOut(clamp01((o.t - 0.55) / 0.13));
-    const flash = 1 - clamp01((o.t - 0.68) / 0.12), ext = easeOut(clamp01((o.t - 0.12) / 0.2));
+    // ورود زودتر: دایره و واژهٔ دورخط از همان ابتدا حاضرند؛ پرشدن با ضربِ کوتاه
+    const shrink = easeOut(clamp01(o.t / 0.22)), born = easeOut(clamp01((o.t - 0.08) / 0.16));
+    const zoom = lerpK(shrink, 3.2, 1), pop = easeOut(clamp01((o.t - 0.52) / 0.13));
+    const flash = 1 - clamp01((o.t - 0.65) / 0.12), ext = easeOut(clamp01((o.t - 0.1) / 0.2));
     ctx.save(); ctx.translate(o.w / 2, o.h / 2);
     ctx.strokeStyle = light.muted; ctx.lineWidth = Math.max(1, o.size * 0.02);
     ctx.setLineDash([o.size * 0.12, o.size * 0.16]);
@@ -497,11 +544,11 @@ export const EFFECTS = {
     }
     ctx.restore();
     const base = baseLine(o) + o.size * 0.36;
-    ctx.save(); ctx.translate(o.w / 2, base); ctx.scale(zoom, zoom); ctx.globalAlpha = born;
+    ctx.save(); ctx.translate(o.w / 2, base); ctx.scale(zoom, zoom);
     setFont(ctx, o, 1.1, 500);
     ctx.strokeStyle = light.ink; ctx.lineWidth = Math.max(1, o.size * 0.022); ctx.lineJoin = "round";
-    ctx.globalAlpha *= (1 - pop * 0.85); ctx.strokeText(o.text, 0, 0);
-    ctx.globalAlpha = born * pop === 0 ? born : 1;
+    // دورخط با ورود محو می‌شود و پرشدن جای آن را می‌گیرد (بدون دو‌نمایی)
+    ctx.globalAlpha = born * (1 - pop); ctx.strokeText(o.text, 0, 0);
     if (pop > 0) {
       if (flash > 0.02) { ctx.shadowColor = "#ffffff"; ctx.shadowBlur = flash * o.size * 0.35; }
       ctx.globalAlpha = born * pop; ctx.fillStyle = light.ink; ctx.fillText(o.text, 0, 0);
@@ -683,7 +730,7 @@ export const EFFECTS = {
     });
   },
 
-  // سندِ تایپ‌شونده — a paper sheet types its title, then stub rows file in beneath (document-typewriter-reveal).
+  // سندِ تایپ‌شونده — paper types its title word-by-word near the top, stub rows file in beneath.
   docwrite(ctx, o) {
     const cardW = o.w * 0.6, cardH = o.h * 0.72, cx = o.w / 2, cy = o.h / 2;
     const inP = easeOut(clamp01(o.t / 0.14));
@@ -693,28 +740,24 @@ export const EFFECTS = {
     ctx.beginPath(); ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, 10); ctx.fill();
     ctx.shadowBlur = 0;
     ctx.fillStyle = "#d8d2c4"; ctx.fillRect(-cardW / 2 + 24, -cardH / 2 + 22, cardW * 0.22, 8);
-    // typed title with block caret
-    const p = clamp01((o.t - 0.14) / 0.4), txt = o.text || "گزارش فصل سوم";
-    const steps = Math.max(8, Math.round(txt.length * 1.6)), stepped = Math.ceil(p * steps) / steps;
-    const tw = fullWidth(ctx, { ...o, size: o.size * 0.42 }, 1, 700);
-    const ty = -cardH * 0.12;
-    ctx.save(); ctx.beginPath(); ctx.rect(cardW / 2 - 24 - (cardW - 48) * stepped, ty - o.size * 0.6, (cardW - 48) * stepped, o.size * 0.9); ctx.clip();
-    ctx.direction = "rtl"; ctx.textAlign = "right"; ctx.font = `700 ${o.size * 0.42}px "${o.family}"`;
-    ctx.fillStyle = "#26241f"; ctx.fillText(txt, cardW / 2 - 24, ty + o.size * 0.3);
-    ctx.restore();
-    if (p < 1 && Math.sin(o.t * 30) > 0) {
+    // عنوانِ تایپی نزدیک بالای برگه — واژه‌به‌واژه با نشانگرِ خطیِ هم‌ارزِ متن
+    const p = clamp01((o.t - 0.16) / 0.4), txt = o.text || "گزارش فصل سوم";
+    const tSize = o.size * 0.42, right = cardW / 2 - 24, ty = -cardH * 0.3;
+    const { edge } = wordReveal(ctx, { ...o, text: txt, size: tSize }, { p, xRight: right, y: ty + tSize * 0.3, color: "#26241f", rise: 0.1 });
+    const caretW = tSize * 0.085;
+    if (p < 1 && Math.sin(o.t * 26) > -0.3) {
       ctx.fillStyle = o.colors.accent;
-      ctx.fillRect(cardW / 2 - 24 - tw * stepped - 3, ty - o.size * 0.26, o.size * 0.05, o.size * 0.34);
+      ctx.fillRect(edge - caretW - tSize * 0.06, ty + tSize * 0.3 - tSize * 0.82, caretW, tSize * 0.98);
     }
-    // stub rows file in
+    // ردیف‌های شاهد
     const rows = [[0.62, 0.9], [0.68, 0.72], [0.74, 0.55]];
     rows.forEach(([s, wFrac], i) => {
       const rp = easeOut(clamp01((o.t - s) / 0.12));
       if (rp <= 0) return;
-      const y = ty + o.size * 0.75 + i * o.size * 0.4;
+      const y = ty + tSize * 0.95 + i * tSize * 0.95;
       ctx.globalAlpha = rp * 0.9;
       ctx.fillStyle = i === 0 ? o.colors.accent : "#cfc9ba";
-      ctx.beginPath(); ctx.roundRect(-cardW / 2 + 24, y, (cardW - 48) * wFrac * rp, o.size * 0.14, o.size * 0.07); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(-cardW / 2 + 24, y, (cardW - 48) * wFrac * rp, tSize * 0.16, tSize * 0.08); ctx.fill();
       ctx.globalAlpha = 1;
     });
     ctx.restore();
@@ -780,51 +823,61 @@ export const EFFECTS = {
     ctx.restore(); ctx.restore();
   },
 
-  // برچسبِ دسته‌دار — icon chips cycle with a roll, then lay out as a row (pill-chip-slot-cycle-handled).
+  // برچسبِ دسته‌دار — icon chips roll through a masked window, then park into one row (real widths, no overlap).
   chipcycle(ctx, o) {
     const words = (o.words && o.words.length ? o.words : ["طراحی", "رندر", "انتشار"]);
     const base = baseLine(o), entry = easeOut(clamp01(o.t / 0.1));
     const cycles = words.length, per = (0.8 - 0.14) / cycles;
     const idx = Math.min(cycles - 1, Math.max(0, Math.floor((o.t - 0.14) / per)));
     const rollT = clamp01(((o.t - 0.14) - idx * per) / (per * 0.4));
+    const chipWpx = (label) => { setFont(ctx, o, 0.52, 700); return ctx.measureText(label).width + o.size * 1.15; };
     const chip = (label, x, y, sc = 1, alpha = 1, blur = 0) => {
-      const cw = o.size * (label.length * 0.5 + 1.5) * sc, chh = o.size * 1.1 * sc;
+      const cw = chipWpx(label) * sc, chh = o.size * 1.06 * sc;
       ctx.save(); ctx.translate(x, y); ctx.globalAlpha = alpha;
       if (blur > 0.5) ctx.filter = `blur(${blur.toFixed(1)}px)`;
       ctx.fillStyle = o.colors.accent; ctx.globalAlpha = alpha * 0.16;
       ctx.beginPath(); ctx.roundRect(-cw / 2, -chh / 2, cw, chh, chh / 2); ctx.fill();
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = o.colors.accent;
-      ctx.beginPath(); ctx.arc(-cw / 2 + chh * 0.42, 0, chh * 0.13, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = alpha; ctx.fillStyle = o.colors.accent;
+      ctx.beginPath(); ctx.arc(cw / 2 - chh * 0.42, 0, chh * 0.13, 0, Math.PI * 2); ctx.fill();
       setFont(ctx, o, 0.52 * sc, 700); ctx.fillStyle = o.colors.ink; ctx.textAlign = "center";
-      ctx.fillText(label, chh * 0.2, chh * 0.18);
+      ctx.fillText(label, -chh * 0.14, chh * 0.18);
       ctx.restore();
     };
-    // stem
+    // ساقه — بالا و راست، خارج از میدان چیپ‌ها
     ctx.save(); ctx.globalAlpha = entry; setFont(ctx, o, 0.72, 700);
     ctx.fillStyle = o.colors.muted; ctx.direction = "rtl"; ctx.textAlign = "right";
-    ctx.fillText(o.text || "مسیر ساخت:", o.w / 2 + o.w * 0.28, base - o.size * 0.7);
+    ctx.fillText(o.text || "مسیر ساخت:", o.w * 0.82, base - o.size * 1.05);
     ctx.restore();
+    const cy = base + o.size * 0.5;
     if (o.t < 0.82) {
-      // active chip centre-stage with roll; past chips park on the left
-      const cx = o.w / 2, cy = base + o.size * 0.35;
-      const outY = -rollT * o.size * 1.2, ib = (1 - rollT) * o.size * 0.16, ob = rollT * o.size * 0.16;
-      if (idx > 0) chip(words[idx - 1], o.w / 2 - o.w * 0.24, cy, 0.72, 0.55);
-      chip(words[idx], cx, cy + outY * 0.4, 1, 1 - rollT * 0.9, ob);
-      chip(words[idx], cx, cy + (1 - rollT) * o.size * 1.2, 1, rollT, ib);
+      // پنجرهٔ غلتک — برش فقط عمودی است و لبه‌ها از جوهرِ چیپ دورند
+      const winW = Math.max(...words.map(chipWpx)) + o.size * 0.6, cx = o.w / 2;
+      // چیپ‌های ردشده پشت پنجره پارک می‌شوند (عرض واقعی، گپ ثابت)
+      let px = cx - winW / 2 - o.size * 0.55;
+      for (let k = idx - 1; k >= 0; k--) {
+        const w2 = chipWpx(words[k]) * 0.72;
+        chip(words[k], px - w2 / 2, cy, 0.72, 0.5);
+        px -= w2 + o.size * 0.3;
+      }
+      ctx.save(); ctx.beginPath(); ctx.rect(cx - winW / 2, cy - o.size * 1.6, winW, o.size * 3.2); ctx.clip();
+      const outY = -rollT * o.size * 1.5, ib = (1 - rollT) * o.size * 0.14, ob = rollT * o.size * 0.14;
+      if (rollT < 1) chip(words[idx], cx, cy + outY, 1, 1 - rollT, ob);
+      const nxt = words[Math.min(idx + 1, cycles - 1)];
+      chip(nxt, cx, cy + (1 - rollT) * o.size * 1.5, 1, rollT, ib);
+      ctx.restore();
       ctx.save(); ctx.strokeStyle = o.colors.accent; ctx.globalAlpha = 0.5; ctx.lineWidth = 2;
-      const hw = o.size * (words[idx].length * 0.5 + 1.5);
-      ctx.beginPath(); ctx.roundRect(cx - hw / 2, cy - o.size * 0.55, hw, o.size * 1.1, o.size * 0.55); ctx.stroke(); ctx.restore();
+      ctx.beginPath(); ctx.roundRect(cx - winW / 2, cy - o.size * 0.53, winW, o.size * 1.06, o.size * 0.53); ctx.stroke(); ctx.restore();
     } else {
-      // finale: all chips row up
-      const finP = easeOut(clamp01((o.t - 0.84) / 0.12));
-      const total = words.length;
+      // فینال: ردیف چیپ‌ها با عرض واقعی، داخل کادر
+      setFont(ctx, o, 0.52, 700);
+      const widths = words.map(chipWpx), gap = o.size * 0.35;
+      const total = widths.reduce((a, b) => a + b, 0) + gap * (words.length - 1);
+      let xr = Math.min(o.w * 0.92, o.w / 2 + total / 2);
       words.forEach((wd, i) => {
         const ap = easeOut(clamp01((o.t - (0.84 + i * 0.03)) / 0.1));
-        const span = o.w * 0.2;
-        chip(wd, o.w / 2 + span * ((total - 1) / 2 - i), base + o.size * 0.35, 0.85, ap, (1 - ap) * o.size * 0.12);
+        chip(wd, xr - widths[i] / 2, base + o.size * 0.5, 0.85, ap, (1 - ap) * o.size * 0.1);
+        xr -= widths[i] + gap;
       });
-      void finP;
     }
   },
 
@@ -863,7 +916,7 @@ export const EFFECTS = {
     }
   },
 
-  // تنزل عنوان — the hero title reads, gets selected, then shrinks into a corner label chip (title-demote-to-label).
+  // تنزل عنوان — hero reads, gets selected, then shrinks into a corner chip that exactly fits the text.
   demote(ctx, o) {
     const title = o.text || "اجرای همزمان عوامل";
     const words = wordLayout(ctx, { ...o, text: title }, 1, 800);
@@ -871,15 +924,19 @@ export const EFFECTS = {
     const rev = easeOut(clamp01(o.t / 0.22));
     const sel0 = clamp01((o.t - 0.3) / 0.14), dem = easeInOut(clamp01((o.t - 0.5) / 0.2));
     const skel = easeOut(clamp01((o.t - 0.68) / 0.16));
-    // target label geometry (top-right corner chip)
-    const chipW = o.w * 0.3, chipH = o.size * 0.62, chipX = o.w - chipW / 2 - o.w * 0.07, chipY = o.h * 0.14;
-    const scale = lerpK(dem, 1, chipW / (fullWidth(ctx, o, 1, 800) + o.size * 0.5));
+    // هندسهٔ چیپ مقصد — زیر برچسب گوشه، با اندازهٔ دقیق از عرض واقعی متن
+    const tw = fullWidth(ctx, o, 1, 800);
+    const tagScale = Math.min(0.4, (o.w * 0.28) / (tw + o.size * 0.6));
+    const pad = o.size * 0.3 * tagScale;
+    const chipW = tw * tagScale + pad * 2, chipH = o.size * 0.78 * tagScale + pad * 0.7;
+    const chipX = o.w - o.w * 0.065 - chipW / 2, chipY = o.h * 0.24;
+    const scale = lerpK(dem, 1, tagScale);
     const tx = lerpK(dem, o.w / 2, chipX), ty = lerpK(dem, base - o.size * 0.4, chipY);
     ctx.save(); ctx.translate(tx, ty); ctx.scale(scale, scale); ctx.translate(-o.w / 2, -(base - o.size * 0.4));
     // selection band behind the middle word before demotion
     if (sel0 > 0 && dem < 1) {
       const it = words[Math.min(1, words.length - 1)];
-      ctx.save(); ctx.globalAlpha = 0.85 * (dem < 0.5 ? 1 : 1 - dem);
+      ctx.save(); ctx.globalAlpha = 0.85;
       ctx.fillStyle = o.colors.accent;
       ctx.beginPath(); ctx.roundRect(it.x - it.width / 2 - o.size * 0.12, base - o.size * 0.92, it.width + o.size * 0.24, o.size * 1.14, o.size * 0.1); ctx.fill();
       ctx.restore();
@@ -890,19 +947,19 @@ export const EFFECTS = {
     words.forEach((it, i) => ctx.fillText(it.w, it.x, base));
     ctx.restore();
     ctx.restore();
-    // resting chip frame after demotion
+    // resting chip frame after demotion — دقیقاً هم‌اندازهٔ متنِ تنزل‌یافته
     if (dem > 0.6) {
       ctx.save(); ctx.globalAlpha = (dem - 0.6) / 0.4;
-      ctx.strokeStyle = o.colors.accent; ctx.lineWidth = Math.max(1.5, o.size * 0.03);
+      ctx.strokeStyle = o.colors.accent; ctx.lineWidth = Math.max(1.5, o.size * 0.03 * tagScale + 1);
       ctx.beginPath(); ctx.roundRect(chipX - chipW / 2, chipY - chipH / 2, chipW, chipH, chipH / 2); ctx.stroke(); ctx.restore();
     }
     // skeleton content fades in below
     if (skel > 0) {
-      ctx.save(); ctx.globalAlpha = skel * 0.9;
+      ctx.save();
       for (let i = 0; i < 3; i++) {
-        ctx.fillStyle = i === 0 ? o.colors.muted : o.colors.muted;
+        ctx.fillStyle = o.colors.muted;
         ctx.globalAlpha = skel * (i === 0 ? 0.9 : 0.45);
-        ctx.beginPath(); ctx.roundRect(o.w * 0.08, o.h * 0.34 + i * o.size * 0.5, o.w * (0.5 - i * 0.12), o.size * 0.16, o.size * 0.08); ctx.fill();
+        ctx.beginPath(); ctx.roundRect(o.w * 0.08, o.h * 0.36 + i * o.size * 0.5, o.w * (0.5 - i * 0.12), o.size * 0.16, o.size * 0.08); ctx.fill();
       }
       ctx.restore();
     }
@@ -1089,25 +1146,33 @@ export const EFFECTS = {
     });
   },
 
-  // غلتک عمودی — a three-row window rolls through words with directional blur; centre row is inked (vertical-roll-blur-cycle).
+  // غلتک عمودی — stem right, roller window left of it (measured), rows never collide.
   rollcycle(ctx, o) {
     const words = (o.words && o.words.length ? o.words : ["آموزش", "تبلیغات", "داستان"]);
-    const base = baseLine(o), ROW = o.size * 1.15;
+    const base = baseLine(o), ROW = o.size * 1.12;
     const stemP = easeOut(clamp01(o.t / 0.1));
     const roll = clamp01((o.t - 0.12) / 0.72) * (words.length - 1);
     const fade = 1 - clamp01((o.t - 0.9) / 0.09);
+    const stemTxt = o.text || "ساخته‌شده برای";
+    setFont(ctx, o, 0.62, 800);
+    const stemW = ctx.measureText(stemTxt).width;
+    const stemX = o.w * 0.94;
     ctx.save(); ctx.globalAlpha = stemP * fade;
-    setFont(ctx, o, 0.62, 800); ctx.fillStyle = o.colors.ink; ctx.direction = "rtl"; ctx.textAlign = "right";
-    ctx.fillText(o.text || "ساخته‌شده برای", o.w * 0.72, base);
+    ctx.direction = "rtl"; ctx.textAlign = "right"; ctx.fillStyle = o.colors.ink;
+    ctx.fillText(stemTxt, stemX, base);
     ctx.restore();
-    const winX = o.w * 0.16, winW = o.w * 0.42;
+    // پنجرهٔ غلتک سمت چپ ساقه — برش فقط عمودی و لبه‌ها از جوهر دورند
+    const maxW = Math.max(...words.map((w) => { setFont(ctx, o, 0.62, 800); return ctx.measureText(w).width; }));
+    const winW = maxW + o.size * 0.55;
+    const winRight = stemX - stemW - o.size * 0.55;
+    const winX = winRight - winW;
     ctx.save();
-    ctx.beginPath(); ctx.rect(winX, base - ROW * 1.55, winW, ROW * 3); ctx.clip();
+    ctx.beginPath(); ctx.rect(winX - o.size * 0.25, base - ROW * 1.52, winW + o.size * 0.5, ROW * 3.04); ctx.clip();
     words.forEach((wd, i) => {
       const d = i - roll;
       if (Math.abs(d) > 1.6) return;
       const blur = Math.abs(d) < 1 ? 3 * Math.abs(d) * (o.size / 56) : 3 + 2 * Math.min(Math.abs(d) - 1, 1);
-      const op = Math.abs(d) < 1 ? 1 - 0.65 * Math.abs(d) : Math.max(0.1, 0.35 - 0.23 * (Math.abs(d) - 1));
+      const op = Math.abs(d) < 1 ? 1 - 0.6 * Math.abs(d) : Math.max(0.08, 0.3 - 0.2 * (Math.abs(d) - 1));
       const mixC = clamp01(1 - Math.abs(d) * 2.4);
       ctx.save();
       ctx.globalAlpha = op * fade;
@@ -1120,19 +1185,19 @@ export const EFFECTS = {
     ctx.restore();
   },
 
-  // نوار فیلم و اسباب‌کشی واژه — card strip steps vertically while the verb swaps in place, greying out (word-relay-filmstrip).
+  // نوار فیلم و اسباب‌کشی واژه — card strip steps vertically; the verb relays: old lifts out, new lands in (no superimpose).
   filmstrip(ctx, o) {
     const WORDS = (o.words && o.words.length ? o.words : ["پژوهش می‌کند", "می‌سازد", "کد می‌زند"]);
-    const SWITCHES = [0.1, 0.42, 0.72], SW = 0.14;
+    const SWITCHES = [0.16, 0.44, 0.72], SW = 0.16;
     const smooth = (x) => x * x * (3 - 2 * x);
     let stepF = 0;
     SWITCHES.forEach((s) => { stepF += smooth(clamp01((o.t - s) / SW)); });
-    const scroll = stepF * 1; // in card units
-    // vertical card strip (left side)
-    const CARD_H = o.h * 0.16, CARD_W = o.w * 0.3, STEP = CARD_H + o.h * 0.02, X = o.w * 0.06;
+    const scroll = stepF; // in card units
+    // vertical card strip (left side) — گام یکنواخت و فاصلهٔ تمیز
+    const CARD_H = o.h * 0.145, CARD_W = o.w * 0.27, STEP = CARD_H + o.h * 0.035, X = o.w * 0.075;
     for (let rep = -1; rep <= 1; rep++) {
       for (let i = 0; i < 6; i++) {
-        const y = o.h * 0.1 + i * STEP + rep * 6 * STEP - scroll * STEP;
+        const y = o.h * 0.08 + i * STEP + rep * 6 * STEP - scroll * STEP;
         if (y > o.h + CARD_H || y < -CARD_H * 1.5) continue;
         ctx.save();
         const dark = i % 2 === 0;
@@ -1146,30 +1211,32 @@ export const EFFECTS = {
         ctx.restore();
       }
     }
-    // word column (right): fixed head + swapping verb
+    // ستون واژه (راست): سرخطِ ثابت یک خط کامل بالاتر، فعل با اسباب‌کشی متوالی
     const headW = "رایانه";
+    const verbBase = baseLine(o);
     ctx.save();
-    setFont(ctx, o, 0.8, 500);
+    setFont(ctx, o, 0.68, 500);
     ctx.direction = "rtl"; ctx.textAlign = "right";
-    ctx.fillStyle = o.colors.ink;
-    ctx.fillText(headW, o.w * 0.94, baseLine(o) - o.size * 0.55);
+    ctx.fillStyle = o.colors.muted;
+    ctx.fillText(headW, o.w * 0.94, verbBase - o.size * 1.45);
     ctx.restore();
-    WORDS.forEach((wd, i) => {
-      const sIn = SWITCHES[i], sOut = i + 1 < SWITCHES.length ? SWITCHES[i + 1] : null;
-      const pIn = i === 0 ? clamp01((o.t - sIn) / 0.12) : smooth(clamp01((o.t - (sIn + 0.06)) / (SW - 0.06)));
-      if (i > 0 && pIn <= 0) return;
-      const grey = sOut ? smooth(clamp01((o.t - (sOut - 0.12)) / 0.1)) : 0;
-      const pOut = sOut ? 1 - smooth(clamp01((o.t - sOut) / 0.08)) : 1;
-      const op = pIn * pOut;
-      if (op <= 0.01) return;
-      const mixC = grey;
-      const lerp = (a, b) => Math.round(a + (b - a) * mixC);
-      ctx.save(); ctx.globalAlpha = op;
+    const relay = (wd, alpha, dy, grey) => {
+      if (alpha <= 0.01) return;
+      const lerp = (a, b) => Math.round(a + (b - a) * grey);
+      ctx.save(); ctx.globalAlpha = alpha;
       setFont(ctx, o, 0.95, 700);
       ctx.direction = "rtl"; ctx.textAlign = "right";
       ctx.fillStyle = `rgb(${lerp(242, 120)},${lerp(245, 118)},${lerp(250, 126)})`;
-      ctx.fillText(wd, o.w * 0.94, baseLine(o));
+      ctx.fillText(wd, o.w * 0.94, verbBase + dy);
       ctx.restore();
+    };
+    WORDS.forEach((wd, i) => {
+      const sIn = i === 0 ? 0.02 : SWITCHES[i] + SW * 0.32;
+      const sOut = i + 1 < WORDS.length ? SWITCHES[i + 1] : null;
+      const pIn = easeOut(clamp01((o.t - sIn) / (i === 0 ? 0.1 : SW * 0.55)));
+      const grey = sOut ? smooth(clamp01((o.t - (sOut - 0.05)) / 0.09)) : 0;
+      const pOut = sOut ? smooth(clamp01((o.t - sOut) / (SW * 0.3))) : 0;
+      relay(wd, pIn * (1 - pOut), (1 - pIn) * o.size * 0.4 - pOut * o.size * 0.5, grey);
     });
   },
 

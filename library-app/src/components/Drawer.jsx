@@ -79,9 +79,19 @@ function TypoDetail({ item }) {
 
       <div className="detail-actions">
         {item.media?.video && (
-          <button type="button" className="ghost-btn" onClick={() => setShowVideo((v) => !v)}>
-            {showVideo ? "بستن ویدیو" : "🎬 ویدیوی نمونه (با موسیقی)"}
-          </button>
+          <>
+            <button type="button" className="ghost-btn" onClick={() => setShowVideo((v) => !v)}>
+              {showVideo ? "بستن ویدیو" : "▶ ویدیوی نمونه"}
+            </button>
+            <a className="ghost-btn" href={item.media.video} download target="_blank" rel="noopener noreferrer">
+              ⬇ دانلود ویدیو (با موسیقی)
+            </a>
+            {item.media.audio && (
+              <a className="ghost-btn" href={item.media.audio} download target="_blank" rel="noopener noreferrer">
+                ♫ دانلود موسیقی (مجزا)
+              </a>
+            )}
+          </>
         )}
         <a className="ghost-btn" href="typography/effects.js" download="effects.js">
           ⬇ دانلود موتور رندر (effects.js)
@@ -150,10 +160,20 @@ function EntryDetail({ item }) {
       )}
 
       <div className="detail-actions">
-        {item.sourceUrl && (
-          <a className="ghost-btn" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">
-            ↗ مرجع اصلی
-          </a>
+        {item.media?.video && (
+          <>
+            <button type="button" className="ghost-btn" onClick={() => setShowVideo((v) => !v)}>
+              {showVideo ? "بستن ویدیو" : "▶ ویدیوی نمونه"}
+            </button>
+            <a className="ghost-btn" href={item.media.video} download target="_blank" rel="noopener noreferrer">
+              ⬇ دانلود ویدیو
+            </a>
+            {item.media.audio && (
+              <a className="ghost-btn" href={item.media.audio} download target="_blank" rel="noopener noreferrer">
+                ♫ دانلود موسیقی (مجزا)
+              </a>
+            )}
+          </>
         )}
       </div>
 
