@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { loadLibrary, SOURCE_FA, faNum } from "./lib/data.js";
 import Card from "./components/Card.jsx";
 import Drawer from "./components/Drawer.jsx";
+import SelectionBar from "./components/SelectionBar.jsx";
 
 const PAGE = 48;
 
@@ -13,7 +14,23 @@ export default function App() {
   const [src, setSrc] = useState("");
   const [visible, setVisible] = useState(PAGE);
   const [sel, setSel] = useState(null);
+  const [pickMode, setPickMode] = useState(false);
+  const [picked, setPicked] = useState(() => new Set());
   const searchRef = useRef(null);
+
+  const togglePick = (id) =>
+    setPicked((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const pickAllFiltered = () =>
+    setPicked((prev) => {
+      const next = new Set(prev);
+      filtered.forEach((it) => next.add(it.id));
+      return next;
+    });
 
   useEffect(() => {
     loadLibrary().then(setLib).catch((e) => setError(String(e)));
@@ -97,6 +114,14 @@ export default function App() {
       </section>
 
       <nav className="filterbar" aria-label="فیلترها">
+        <button
+          type="button"
+          className={`fchip pick-toggle ${pickMode ? "on" : ""}`}
+          onClick={() => setPickMode((m) => !m)}
+          title="حالت انتخاب چندگانه — چند مورد را تیک بزن و پرامنت/نام‌شان را کپی کن"
+        >
+          ☑ انتخاب چندگانه
+        </button>
         <div className="chips" role="tablist" aria-label="دسته‌ها">
           <button className={`fchip ${cat === "" ? "on" : ""}`} onClick={() => setCat("")}>
             همه <b>{faNum(lib.stats.total)}</b>
@@ -136,7 +161,14 @@ export default function App() {
         </div>
         <div className="grid">
           {shown.map((it) => (
-            <Card key={it.id} item={it} onSelect={setSel} />
+            <Card
+              key={it.id}
+              item={it}
+              onSelect={setSel}
+              picked={picked.has(it.id)}
+              onTogglePick={togglePick}
+              pickMode={pickMode}
+            />
           ))}
         </div>
         {filtered.length > visible && (
@@ -158,6 +190,14 @@ export default function App() {
         </div>
         <div>رندرها موتور اختصاصی همین پروژه‌اند · مجوزها در مخزن</div>
       </footer>
+
+      <SelectionBar
+        items={lib.items}
+        picked={picked}
+        onClear={() => setPicked(new Set())}
+        onPickAllFiltered={pickAllFiltered}
+        filteredCount={filtered.length}
+      />
 
       <Drawer item={sel} onClose={() => setSel(null)} />
     </div>

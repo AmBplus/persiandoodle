@@ -28,23 +28,48 @@ function PlaceholderArt({ item }) {
   );
 }
 
-export default function Card({ item, onSelect }) {
+export default function Card({ item, onSelect, picked = false, onTogglePick, pickMode = false }) {
   const [hover, setHover] = useState(false);
   const live = item.kind === "typo";
 
+  const toggle = (e) => {
+    e.stopPropagation();
+    onTogglePick?.(item.id);
+  };
+
+  const open = () => {
+    if (pickMode) onTogglePick?.(item.id);
+    else onSelect(item);
+  };
+
   return (
     <article
-      className={`card ${live ? "card-typo" : "card-entry"}`}
+      className={`card ${live ? "card-typo" : "card-entry"} ${picked ? "picked" : ""} ${pickMode ? "pick-mode" : ""}`}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onClick={() => onSelect(item)}
+      onClick={open}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect(item)}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && open()}
+      aria-pressed={pickMode ? picked : undefined}
     >
+      <button
+        type="button"
+        className={`pickbox ${picked ? "on" : ""}`}
+        role="checkbox"
+        aria-checked={picked}
+        aria-label={picked ? `حذف ${item.title} از انتخاب` : `افزودن ${item.title} به انتخاب`}
+        onClick={toggle}
+        title={picked ? "حذف از انتخاب" : "انتخاب"}
+      >
+        <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+          <path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
       {live ? (
         <div className="card-media">
-          <TypeCanvas model={item.model} font={item.font} text={item.text} accent={item.accent} playing={hover} />
+          <TypeCanvas model={item.model} font={item.font} text={item.text} accent={item.accent} playing={hover && !pickMode} />
           <span className="live-dot" title="پیش‌نمایش زنده">زنده</span>
         </div>
       ) : (
