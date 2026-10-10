@@ -12,6 +12,7 @@
   <nav class="workspace-tabs" role="tablist" aria-label="بخش‌های اصلی">
     <button class="tab active" type="button" role="tab" aria-selected="true" data-section="designs">طرح‌های آماده <span id="countDesigns"></span></button>
     <button class="tab" type="button" role="tab" aria-selected="false" data-section="components">کامپوننت‌ها <span id="countComponents"></span></button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-section="typography">تایپوگرافی موشن</button>
   </nav>
   <div class="global-actions"><button id="searchButton" class="top-action" title="جست‌وجو">⌕ <kbd>Ctrl K</kbd></button><button id="openScene" class="create-action">انتخاب‌های من <span id="selectionCount">۰</span></button></div>
 </header>
@@ -32,6 +33,7 @@
     <div class="gallery" id="gallery" aria-live="polite"></div>
     <div id="empty" class="empty" hidden>مدلی با فیلترهای انتخابی پیدا نشد. جست‌وجو یا تگ را تغییر بده.</div>
     <button id="showMore" class="more" type="button" hidden>نمایش موارد بیشتر ↓</button>
+    <iframe id="typoFrame" class="typo-frame" title="نمایش انیمیشن متن با فونت‌های فارسی" data-src="typography/fonts-showcase.html" hidden></iframe>
     <div class="footer-note">پیش‌نمایش غیرفارسیِ منابع با برچسب «مرجع اصلی» مشخص می‌شود و هرگز به‌عنوان رندر فارسی معرفی نمی‌شود.</div>
   </main>
   <aside class="detail" id="detail" aria-label="جزئیات و دستور مدل">

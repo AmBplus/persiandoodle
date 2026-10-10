@@ -123,6 +123,9 @@ function selectCat(id){S.cat=id;S.tag="";S.visible=36;refreshFilters();renderGal
 function selectSection(section){
  S.section=section;S.source="";S.cat="all";S.tag="";S.q="";S.visible=36;$("#searchInput").value="";
  all(".tab").forEach(x=>{const active=x.dataset.section===section;x.classList.toggle("active",active);x.setAttribute("aria-selected",String(active))});
+ const typo=section==="typography";document.querySelector(".layout").classList.toggle("typo-mode",typo);
+ const frame=$("#typoFrame");if(typo&&!frame.getAttribute("src"))frame.src=frame.dataset.src;frame.hidden=!typo;
+ if(typo){$("#pageTitle").textContent="تایپوگرافی موشن با فونت‌های فارسی";$("#pageDescription").textContent="شش روش نمایش متن، هرکدام زیر هم با همهٔ فونت‌های فارسی و عربی کتابخانه.";refreshFilters();return}
  $("#pageTitle").textContent=section==="designs"?"طرح‌های آماده و پرامپت‌ها":"کامپوننت‌ها و ابزارهای آماده";
  $("#pageDescription").textContent=section==="designs"?"تمام مدل‌های کتابخانه‌های اصلی؛ پرامپت فارسی، نسخهٔ منبع و نمونه‌های متنوع هر طرح. هیچ سقف دو مدلی وجود ندارد.":"موسیقی، افکت صوتی، فونت، قلم و تکنیک‌های قابل ترکیب؛ فیلتر منبع و تگ برای انتخاب سریع.";
  refreshFilters();renderGallery();
