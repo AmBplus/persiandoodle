@@ -39,7 +39,8 @@
 <script>
 (() => {
   // ----- fonts: file under the engine's font folder, label shown in the list -----
-  const BASE = "../../skills/anidoodle/engine/assets/fonts/";
+  // Fonts sit in ./fonts next to this page (copied from the engine's font folder).
+  const BASE = "fonts/";
   const FONTS = [
     ["Vazirmatn", "Vazirmatn-Variable.ttf"],
     ["Vazirmatn RD", "Vazirmatn-RD-Regular.ttf"],
@@ -219,10 +220,16 @@
   canvases.forEach(x => io.observe(x.c));
 
   // ----- fonts: register each file under a private family name -----
+  // Declared as CSS @font-face rules (works from a plain file:// page as well as over http).
   async function loadFonts() {
+    const css = FONTS.map(([, file], i) =>
+      `@font-face { font-family: "PDF${i}"; src: url("${BASE}${file}") format("truetype"); font-display: block; }`
+    ).join("\n");
+    const style = document.createElement("style");
+    style.textContent = css;
+    document.head.appendChild(style);
     await Promise.all(FONTS.map(async ([, file], i) => {
-      const ff = new FontFace(`PDF${i}`, `url("${BASE}${file}")`);
-      try { await ff.load(); document.fonts.add(ff); }
+      try { await document.fonts.load(`56px "PDF${i}"`, "ا"); }
       catch (e) { console.warn("font failed:", file, e); }
     }));
   }
