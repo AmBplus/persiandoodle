@@ -1,133 +1,814 @@
 {
-  "schemaVersion": "1.0.0",
-  "schema": "persiandoodle/typography-models/v1",
-  "locale": "fa-IR",
-  "direction": "rtl",
-  "source": "native",
-  "note": "کامپوننت‌های بومی تایپوگرافی موشن فارسی. هر مدل یک روش نمایش متن است؛ نمایش زندهٔ کانواس در صفحه اجرا می‌شود و ویدیوی مرجع از همان کد مشترک (library/typography/effects.js) با موتور رندر پروژه تولید شده است.",
-  "policy": "همهٔ رندرها بازسازی بومی خود پروژه‌اند؛ بدون هیچ رسانهٔ خارجی. فونت‌ها با مجوزهای اصلی‌شان در skills/anidoodle/engine/assets/fonts نگهداری می‌شوند.",
-  "models": [
-    {
-      "key": "reveal",
-      "titleFa": "بازشدن از راست",
-      "descFa": "متن از ابتدای خواندن فارسی (سمت راست) با یک نشانگر متحرک باز می‌شود؛ مناسب شروع جمله و عنوان اول صحنه.",
-      "effectKey": "reveal",
-      "defaultFont": "Vazirmatn",
-      "defaultText": "می‌توانیم روی طرح‌ها کار کنیم",
-      "accent": "#ffb547",
-      "tags": ["تایپوگرافی", "ورود عناصر", "عنوان"],
-      "media": { "video": "media/typography/reveal/preview.mp4", "poster": "media/typography/reveal/poster.webp", "thumb": "media/typography/reveal/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "mask",
-      "titleFa": "بالا آمدن با ماسک",
-      "descFa": "خط از پشت یک پنجرهٔ برش بالا می‌آید؛ حس ورود آرام و سرهم‌بندی لایه‌ها را می‌دهد.",
-      "effectKey": "mask",
-      "defaultFont": "Estedad",
-      "defaultText": "هر داستان از یک جمله آغاز می‌شود",
-      "accent": "#7cc4b8",
-      "tags": ["تایپوگرافی", "ورود عناصر", "ماسک"],
-      "media": { "video": "media/typography/mask/preview.mp4", "poster": "media/typography/mask/poster.webp", "thumb": "media/typography/mask/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "wordfade",
-      "titleFa": "محو کلمه‌به‌کلمه",
-      "descFa": "هر کلمه با محو شدن و کمی حرکت عمودی ظاهر می‌شود؛ ریتم ملایم برای روایت آموزشی.",
-      "effectKey": "wordfade",
-      "defaultFont": "Shabnam",
-      "defaultText": "یادگیری با تصویر سریع‌تر اتفاق می‌افتد",
-      "accent": "#8fb7e8",
-      "tags": ["تایپوگرافی", "ریتم و تدوین", "روایت"],
-      "media": { "video": "media/typography/wordfade/preview.mp4", "poster": "media/typography/wordfade/poster.webp", "thumb": "media/typography/wordfade/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "wordpop",
-      "titleFa": "پاپ کلمات",
-      "descFa": "هر کلمه با بزرگ شدن و برگشت فنری ظاهر می‌شود؛ انرژی بالا برای تأکید و شعار.",
-      "effectKey": "wordpop",
-      "defaultFont": "Lalezar",
-      "defaultText": "ایدهٔ تازه، اجرای دقیق",
-      "accent": "#ffb547",
-      "tags": ["تایپوگرافی", "ورود عناصر", "انرژی"],
-      "media": { "video": "media/typography/wordpop/preview.mp4", "poster": "media/typography/wordpop/poster.webp", "thumb": "media/typography/wordpop/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "highlight",
-      "titleFa": "هایلایت",
-      "descFa": "رنگ تأکید از راست به چپ روی متن می‌آید و خط زیرین پر می‌شود؛ برای برجسته کردن کلیدواژه.",
-      "effectKey": "highlight",
-      "defaultFont": "Sahel",
-      "defaultText": "نکتهٔ کلیدی همین‌جاست",
-      "accent": "#ffb547",
-      "tags": ["تایپوگرافی", "نور و تأکید", "کلیدواژه"],
-      "media": { "video": "media/typography/highlight/preview.mp4", "poster": "media/typography/highlight/poster.webp", "thumb": "media/typography/highlight/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "counter",
-      "titleFa": "شمارنده",
-      "descFa": "عدد با ارقام فارسی بالا می‌رود و نوار پیشرفت پر می‌شود؛ برای آمار، سال و هدف عددی.",
-      "effectKey": "counter",
-      "defaultFont": "Vazirmatn",
-      "defaultText": "۱۴۰۵",
-      "target": 1405,
-      "sub": "سال پیش رو",
-      "accent": "#ffb547",
-      "tags": ["تایپوگرافی", "داده و نمودار", "عدد"],
-      "media": { "video": "media/typography/counter/preview.mp4", "poster": "media/typography/counter/poster.webp", "thumb": "media/typography/counter/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "typewriter",
-      "titleFa": "ماشین‌نویس",
-      "descFa": "نوشته گام‌به‌گام با نشانگر بلوکی تایپ می‌شود؛ شکل اتصال حروف فارسی حفظ می‌شود و هرگز حرف‌به‌حرف جدا نمی‌شود.",
-      "effectKey": "typewriter",
-      "defaultFont": "Vazir Code",
-      "defaultText": "پیش‌نویس زنده می‌شود",
-      "accent": "#8fe8b5",
-      "tags": ["تایپوگرافی", "ماشین‌نویس", "روایت"],
-      "media": { "video": "media/typography/typewriter/preview.mp4", "poster": "media/typography/typewriter/poster.webp", "thumb": "media/typography/typewriter/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "inktrace",
-      "titleFa": "نوشتن با قلم",
-      "descFa": "حرکت قلم روی خط را شبیه‌سازی می‌کند؛ نوک قلم روی لبهٔ مرئی شدن متن می‌نشیند و اثر مرکبی می‌گذارد.",
-      "effectKey": "inktrace",
-      "defaultFont": "Amiri",
-      "defaultText": "با خط، فکر را می‌نویسیم",
-      "accent": "#c9a86a",
-      "tags": ["تایپوگرافی", "قلم و نوشتن", "مرکب"],
-      "media": { "video": "media/typography/inktrace/preview.mp4", "poster": "media/typography/inktrace/poster.webp", "thumb": "media/typography/inktrace/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "flyingwords",
-      "titleFa": "کلمات پرنده",
-      "descFa": "کلمات از عمق صحنه با چرخش و مقیاس وارد می‌شوند و سر جای خود می‌نشینند؛ برای جمع‌بندی چندکلمه‌ای.",
-      "effectKey": "flyingwords",
-      "defaultFont": "Estedad",
-      "defaultText": "طراحی حرکت برای فارسی",
-      "accent": "#8fb7e8",
-      "tags": ["تایپوگرافی", "دوربین", "عمق"],
-      "media": { "video": "media/typography/flyingwords/preview.mp4", "poster": "media/typography/flyingwords/poster.webp", "thumb": "media/typography/flyingwords/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    },
-    {
-      "key": "glitch",
-      "titleFa": "گلیچ متن",
-      "descFa": "پالس‌های جداشدگی رنگی (RGB Split) روی متن می‌آید و در پایان خط پایدار می‌شود؛ برای فناوری و هیجان.",
-      "effectKey": "glitch",
-      "defaultFont": "Noto Kufi Arabic",
-      "defaultText": "سیستم، لحظه‌ای جلو می‌زند",
-      "accent": "#37d3c8",
-      "tags": ["تایپوگرافی", "افکت‌ها", "فناوری"],
-      "media": { "video": "media/typography/glitch/preview.mp4", "poster": "media/typography/glitch/poster.webp", "thumb": "media/typography/glitch/thumb.webp" },
-      "durationFrames": 150, "fps": 30
-    }
-  ]
+ "schemaVersion": "1.0.0",
+ "schema": "persiandoodle/typography-models/v1",
+ "locale": "fa-IR",
+ "direction": "rtl",
+ "source": "native",
+ "note": "همهٔ رندرها بازسازی بومی خود پروژه‌اند؛ ۲۷ مدل افزودهٔ ۲۰۲۶-۱۰ از اسپک‌های video-shotcraft (ترجمه و تطبیق RTL) و تکنیک‌های persian-motion-director (بازسازی کانواسِ بومی بدون هیچ رسانهٔ خارجی).",
+ "policy": "همهٔ رندرها بازسازی بومی خود پروژه‌اند؛ بدون هیچ رسانهٔ خارجی. فونت‌ها با مجوزهای اصلی‌شان در skills/anidoodle/engine/assets/fonts نگهداری می‌شوند.",
+ "models": [
+  {
+   "key": "reveal",
+   "titleFa": "بازشدن از راست",
+   "descFa": "متن از ابتدای خواندن فارسی (سمت راست) با یک نشانگر متحرک باز می‌شود؛ مناسب شروع جمله و عنوان اول صحنه.",
+   "effectKey": "reveal",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "می‌توانیم روی طرح‌ها کار کنیم",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "ورود عناصر",
+    "عنوان"
+   ],
+   "media": {
+    "video": "media/typography/reveal/preview.mp4",
+    "poster": "media/typography/reveal/poster.webp",
+    "thumb": "media/typography/reveal/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "mask",
+   "titleFa": "بالا آمدن با ماسک",
+   "descFa": "خط از پشت یک پنجرهٔ برش بالا می‌آید؛ حس ورود آرام و سرهم‌بندی لایه‌ها را می‌دهد.",
+   "effectKey": "mask",
+   "defaultFont": "Estedad",
+   "defaultText": "هر داستان از یک جمله آغاز می‌شود",
+   "accent": "#7cc4b8",
+   "tags": [
+    "تایپوگرافی",
+    "ورود عناصر",
+    "ماسک"
+   ],
+   "media": {
+    "video": "media/typography/mask/preview.mp4",
+    "poster": "media/typography/mask/poster.webp",
+    "thumb": "media/typography/mask/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "wordfade",
+   "titleFa": "محو کلمه‌به‌کلمه",
+   "descFa": "هر کلمه با محو شدن و کمی حرکت عمودی ظاهر می‌شود؛ ریتم ملایم برای روایت آموزشی.",
+   "effectKey": "wordfade",
+   "defaultFont": "Shabnam",
+   "defaultText": "یادگیری با تصویر سریع‌تر اتفاق می‌افتد",
+   "accent": "#8fb7e8",
+   "tags": [
+    "تایپوگرافی",
+    "ریتم و تدوین",
+    "روایت"
+   ],
+   "media": {
+    "video": "media/typography/wordfade/preview.mp4",
+    "poster": "media/typography/wordfade/poster.webp",
+    "thumb": "media/typography/wordfade/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "wordpop",
+   "titleFa": "پاپ کلمات",
+   "descFa": "هر کلمه با بزرگ شدن و برگشت فنری ظاهر می‌شود؛ انرژی بالا برای تأکید و شعار.",
+   "effectKey": "wordpop",
+   "defaultFont": "Lalezar",
+   "defaultText": "ایدهٔ تازه، اجرای دقیق",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "ورود عناصر",
+    "انرژی"
+   ],
+   "media": {
+    "video": "media/typography/wordpop/preview.mp4",
+    "poster": "media/typography/wordpop/poster.webp",
+    "thumb": "media/typography/wordpop/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "highlight",
+   "titleFa": "هایلایت",
+   "descFa": "رنگ تأکید از راست به چپ روی متن می‌آید و خط زیرین پر می‌شود؛ برای برجسته کردن کلیدواژه.",
+   "effectKey": "highlight",
+   "defaultFont": "Sahel",
+   "defaultText": "نکتهٔ کلیدی همین‌جاست",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "نور و تأکید",
+    "کلیدواژه"
+   ],
+   "media": {
+    "video": "media/typography/highlight/preview.mp4",
+    "poster": "media/typography/highlight/poster.webp",
+    "thumb": "media/typography/highlight/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "counter",
+   "titleFa": "شمارنده",
+   "descFa": "عدد با ارقام فارسی بالا می‌رود و نوار پیشرفت پر می‌شود؛ برای آمار، سال و هدف عددی.",
+   "effectKey": "counter",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "۱۴۰۵",
+   "target": 1405,
+   "sub": "سال پیش رو",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "داده و نمودار",
+    "عدد"
+   ],
+   "media": {
+    "video": "media/typography/counter/preview.mp4",
+    "poster": "media/typography/counter/poster.webp",
+    "thumb": "media/typography/counter/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "typewriter",
+   "titleFa": "ماشین‌نویس",
+   "descFa": "نوشته گام‌به‌گام با نشانگر بلوکی تایپ می‌شود؛ شکل اتصال حروف فارسی حفظ می‌شود و هرگز حرف‌به‌حرف جدا نمی‌شود.",
+   "effectKey": "typewriter",
+   "defaultFont": "Vazir Code",
+   "defaultText": "پیش‌نویس زنده می‌شود",
+   "accent": "#8fe8b5",
+   "tags": [
+    "تایپوگرافی",
+    "ماشین‌نویس",
+    "روایت"
+   ],
+   "media": {
+    "video": "media/typography/typewriter/preview.mp4",
+    "poster": "media/typography/typewriter/poster.webp",
+    "thumb": "media/typography/typewriter/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "inktrace",
+   "titleFa": "نوشتن با قلم",
+   "descFa": "حرکت قلم روی خط را شبیه‌سازی می‌کند؛ نوک قلم روی لبهٔ مرئی شدن متن می‌نشیند و اثر مرکبی می‌گذارد.",
+   "effectKey": "inktrace",
+   "defaultFont": "Amiri",
+   "defaultText": "با خط، فکر را می‌نویسیم",
+   "accent": "#c9a86a",
+   "tags": [
+    "تایپوگرافی",
+    "قلم و نوشتن",
+    "مرکب"
+   ],
+   "media": {
+    "video": "media/typography/inktrace/preview.mp4",
+    "poster": "media/typography/inktrace/poster.webp",
+    "thumb": "media/typography/inktrace/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "flyingwords",
+   "titleFa": "کلمات پرنده",
+   "descFa": "کلمات از عمق صحنه با چرخش و مقیاس وارد می‌شوند و سر جای خود می‌نشینند؛ برای جمع‌بندی چندکلمه‌ای.",
+   "effectKey": "flyingwords",
+   "defaultFont": "Estedad",
+   "defaultText": "طراحی حرکت برای فارسی",
+   "accent": "#8fb7e8",
+   "tags": [
+    "تایپوگرافی",
+    "دوربین",
+    "عمق"
+   ],
+   "media": {
+    "video": "media/typography/flyingwords/preview.mp4",
+    "poster": "media/typography/flyingwords/poster.webp",
+    "thumb": "media/typography/flyingwords/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "glitch",
+   "titleFa": "گلیچ متن",
+   "descFa": "پالس‌های جداشدگی رنگی (RGB Split) روی متن می‌آید و در پایان خط پایدار می‌شود؛ برای فناوری و هیجان.",
+   "effectKey": "glitch",
+   "defaultFont": "Noto Kufi Arabic",
+   "defaultText": "سیستم، لحظه‌ای جلو می‌زند",
+   "accent": "#37d3c8",
+   "tags": [
+    "تایپوگرافی",
+    "افکت‌ها",
+    "فناوری"
+   ],
+   "media": {
+    "video": "media/typography/glitch/preview.mp4",
+    "poster": "media/typography/glitch/poster.webp",
+    "thumb": "media/typography/glitch/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "blurslide",
+   "titleFa": "ورود از محو",
+   "descFa": "هر کلمه از دل تاری واضح می‌شود؛ جابه‌جایی و محو و شفافیت روی یک منحنی مشترک سوارند و زیرنویس با اختلاف فاز می‌رسد. پاسخ پیش‌فرض برای هر تیتری که نمی‌خواهد دزد صحنه باشد.",
+   "effectKey": "blurslide",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "هر داستان از یک کلمه آغاز می‌شود",
+   "accent": "#8fb7e8",
+   "tags": [
+    "تایپوگرافی",
+    "ورود عناصر",
+    "عنوان"
+   ],
+   "media": {
+    "video": "media/typography/blurslide/preview.mp4",
+    "poster": "media/typography/blurslide/poster.webp",
+    "thumb": "media/typography/blurslide/thumb.webp"
+   },
+   "durationFrames": 114,
+   "fps": 30,
+   "sub": "پیش‌نمایش زندهٔ تایپوگرافی"
+  },
+  {
+   "key": "brace",
+   "titleFa": "پردهٔ آکولاد",
+   "descFa": "دو آکولاد کوچک وسط کادر با یک اضافه‌شدنِ حدود هشت‌درصدی از هم باز می‌شوند و عرض متن دقیقاً به فاصلهٔ آن‌ها گره خورده است؛ حس پرده‌گشایی، نه تایپ.",
+   "effectKey": "brace",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "کتابخانهٔ موشن فارسی",
+   "accent": "#7cc4b8",
+   "tags": [
+    "تایپوگرافی",
+    "ورود عناصر"
+   ],
+   "media": {
+    "video": "media/typography/brace/preview.mp4",
+    "poster": "media/typography/brace/poster.webp",
+    "thumb": "media/typography/brace/thumb.webp"
+   },
+   "durationFrames": 114,
+   "fps": 30
+  },
+  {
+   "key": "stomp",
+   "titleFa": "کوبش سلیولویدی",
+   "descFa": "هر کلمه روی یک ضربِ سخت با لرزش کوچک فرود می‌آید و پس‌زمینه دو فریم استروب می‌زند؛ متن هیچ‌وقت تکان نمی‌خورد. برای شعار سه‌تکه و لحظه‌های انرژی بالا.",
+   "effectKey": "stomp",
+   "defaultFont": "Lalezar",
+   "defaultText": "سریع زیبا فارسی",
+   "accent": "#ff5470",
+   "tags": [
+    "تایپوگرافی",
+    "ریتم و تدوین",
+    "ضربه"
+   ],
+   "media": {
+    "video": "media/typography/stomp/preview.mp4",
+    "poster": "media/typography/stomp/poster.webp",
+    "thumb": "media/typography/stomp/thumb.webp"
+   },
+   "durationFrames": 144,
+   "fps": 30,
+   "words": [
+    "سریع",
+    "زیبا",
+    "فارسی"
+   ]
+  },
+  {
+   "key": "scramble",
+   "titleFa": "رمزگشایی",
+   "descFa": "حروف به‌صورت گروه‌های اتصالی پرت می‌زنند و راست‌به‌چپ قفل می‌شوند؛ لحظهٔ قفل هر گروه یک درخشش کوتاه دارد. حس هکری و رمزگشایی، بدون شکستن اتصال حروف.",
+   "effectKey": "scramble",
+   "defaultFont": "Vazir Code",
+   "defaultText": "رمزگشایی زنده",
+   "accent": "#37d3c8",
+   "tags": [
+    "تایپوگرافی",
+    "افکت‌ها"
+   ],
+   "media": {
+    "video": "media/typography/scramble/preview.mp4",
+    "poster": "media/typography/scramble/poster.webp",
+    "thumb": "media/typography/scramble/thumb.webp"
+   },
+   "durationFrames": 96,
+   "fps": 30
+  },
+  {
+   "key": "splitflap",
+   "titleFa": "تابلوی فرودگاه",
+   "descFa": "هر گروه یک سلول تابلویSplit-Flap است: سه بار با حس سنگین می‌چرخد، دو حرفِ نامربا می‌گذرد و با کوبشِ فرود روی حرف اصلی می‌ایستد؛ موج از راست شروع می‌شود.",
+   "effectKey": "splitflap",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "نسخهٔ ۱۴۰۵",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "مکانیکی",
+    "عنوان"
+   ],
+   "media": {
+    "video": "media/typography/splitflap/preview.mp4",
+    "poster": "media/typography/splitflap/poster.webp",
+    "thumb": "media/typography/splitflap/thumb.webp"
+   },
+   "durationFrames": 140,
+   "fps": 30
+  },
+  {
+   "key": "outlinefill",
+   "titleFa": "پرکردن دورخط",
+   "descFa": "دایرهٔ خط‌چین از بیرون جمع می‌شود، واژه ابتدا فقط دورخط است و در یک ضربِ کوتاه پر می‌شود و فلش می‌زند. برای تأکید تک‌واژه‌ای روی پس‌زمینهٔ روشن.",
+   "effectKey": "outlinefill",
+   "defaultFont": "Markazi Text",
+   "defaultText": "سریع‌تر از همیشه",
+   "accent": "#e07b39",
+   "tags": [
+    "تایپوگرافی",
+    "عنوان"
+   ],
+   "media": {
+    "video": "media/typography/outlinefill/preview.mp4",
+    "poster": "media/typography/outlinefill/poster.webp",
+    "thumb": "media/typography/outlinefill/thumb.webp"
+   },
+   "durationFrames": 90,
+   "fps": 30
+  },
+  {
+   "key": "papercard",
+   "titleFa": "کارت کاغذی",
+   "descFa": "واژه‌ها با مقیاس بزرگ‌تر و تاری محو روی کاغذ گرم می‌نشینند، خط اُخرایی زیرشان کشیده می‌شود و زیرنویس کوچک دنباله‌رو می‌آید؛ «زمزمهٔ جوهر روی کاغذ».",
+   "effectKey": "papercard",
+   "defaultFont": "Amiri",
+   "defaultText": "قصه‌های کاغذی",
+   "accent": "#a4552f",
+   "tags": [
+    "تایپوگرافی",
+    "کاغذ",
+    "عنوان"
+   ],
+   "media": {
+    "video": "media/typography/papercard/preview.mp4",
+    "poster": "media/typography/papercard/poster.webp",
+    "thumb": "media/typography/papercard/thumb.webp"
+   },
+   "durationFrames": 90,
+   "fps": 30,
+   "sub": "فصل اول — کتاب صوتی"
+  },
+  {
+   "key": "markerline",
+   "titleFa": "خط ماژیک",
+   "descFa": "عنوان اول می‌نشیند، یک ضرب مکث می‌کند و بعد ماژیک از راست زیر واژهٔ کلیدی خط می‌کشد؛ ضخامت نوک ماژیک کمی نفس می‌کشد تا دستی به نظر برسد.",
+   "effectKey": "markerline",
+   "defaultFont": "Estedad",
+   "defaultText": "نسخهٔ جدید پرشین‌دودل",
+   "accent": "#e0764a",
+   "tags": [
+    "تایپوگرافی",
+    "تأکید"
+   ],
+   "media": {
+    "video": "media/typography/markerline/preview.mp4",
+    "poster": "media/typography/markerline/poster.webp",
+    "thumb": "media/typography/markerline/thumb.webp"
+   },
+   "durationFrames": 90,
+   "fps": 30
+  },
+  {
+   "key": "sweep",
+   "titleFa": "موج گرادیان",
+   "descFa": "پُرشدن نورانی گرادیان از راست با سرِ موجِ درخشان؛ سه لایهٔ هاله پشت سرش می‌مانند و گاه‌به‌گاه آذرخشی میان حروف می‌جهد. برای نام محصول در لحظهٔ اوج.",
+   "effectKey": "sweep",
+   "defaultFont": "Lalezar",
+   "defaultText": "ابرقدرت",
+   "accent": "#d86ee8",
+   "tags": [
+    "تایپوگرافی",
+    "نور و تأکید"
+   ],
+   "media": {
+    "video": "media/typography/sweep/preview.mp4",
+    "poster": "media/typography/sweep/poster.webp",
+    "thumb": "media/typography/sweep/thumb.webp"
+   },
+   "durationFrames": 120,
+   "fps": 30
+  },
+  {
+   "key": "leadzoom",
+   "titleFa": "زوم کلمهٔ پیشرو",
+   "descFa": "کلمهٔ اول از دل زومِ سنگین عقب می‌نشیند و بقیهٔ جمله با فاصلهٔ منظم پشتش سرهم می‌شوند؛ فرم کامل یک لحظه نفس می‌کشد و بعد با کِرَش‌زوم بیرون می‌پرد.",
+   "effectKey": "leadzoom",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "ساخت ویدیو با متن فارسی",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "ورود عناصر"
+   ],
+   "media": {
+    "video": "media/typography/leadzoom/preview.mp4",
+    "poster": "media/typography/leadzoom/poster.webp",
+    "thumb": "media/typography/leadzoom/thumb.webp"
+   },
+   "durationFrames": 90,
+   "fps": 30,
+   "sub": "بدون فونت شکسته، بدون نیم‌فاصلهٔ گم‌شده"
+  },
+  {
+   "key": "countdown",
+   "titleFa": "شمارش معکوس قوسی",
+   "descFa": "رقم‌های فارسی روی یک قوس می‌چرخند و می‌ایستند، رقمِ هدف به سرِ تیتر می‌نشیند و بقیه محو و تار پرت می‌شوند؛ یک‌ضربِ کوتاه برای موعد و موعدخواهی.",
+   "effectKey": "countdown",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "ثانیه تا انتشار",
+   "accent": "#e05656",
+   "tags": [
+    "تایپوگرافی",
+    "داده",
+    "شمارش"
+   ],
+   "media": {
+    "video": "media/typography/countdown/preview.mp4",
+    "poster": "media/typography/countdown/poster.webp",
+    "thumb": "media/typography/countdown/thumb.webp"
+   },
+   "durationFrames": 90,
+   "fps": 30
+  },
+  {
+   "key": "docwrite",
+   "titleFa": "سند تایپ‌شونده",
+   "descFa": "برگه‌ای کاغذی جا باز می‌کند، تیتر با نشانگر بلوکی تایپ می‌شود و سه ردیف شاهد پشت سرش می‌آیند؛ حسِ «سندی که همین حالا نوشته شد».",
+   "effectKey": "docwrite",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "گزارش فصل سوم",
+   "accent": "#7cc4b8",
+   "tags": [
+    "تایپوگرافی",
+    "سند",
+    "ماشین‌نویس"
+   ],
+   "media": {
+    "video": "media/typography/docwrite/preview.mp4",
+    "poster": "media/typography/docwrite/poster.webp",
+    "thumb": "media/typography/docwrite/thumb.webp"
+   },
+   "durationFrames": 120,
+   "fps": 30
+  },
+  {
+   "key": "pillslot",
+   "titleFa": "جای‌گردان قرصی",
+   "descFa": "بنِ ثابت جمله کنار یک قرص می‌نشیند؛ واژه‌ها داخل قرص با غلتک عمودی و تارِ جهت‌دار عوض می‌شوند و در پایان قرص می‌پرد و واژهٔ پایانی می‌نشیند.",
+   "effectKey": "pillslot",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "یک ابزار برای",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "رابط کاربری"
+   ],
+   "media": {
+    "video": "media/typography/pillslot/preview.mp4",
+    "poster": "media/typography/pillslot/poster.webp",
+    "thumb": "media/typography/pillslot/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30,
+   "words": [
+    "طراحی",
+    "رندر",
+    "انتشار"
+   ],
+   "finale": "همه‌چیز."
+  },
+  {
+   "key": "chipcycle",
+   "titleFa": "برچسب دسته‌دار",
+   "descFa": "چیپ‌های برچسب‌دار با نقطهٔ آیکن، پشت هم با غلتک تعویض می‌شوند و در پایان کنار هم یک ردیفِ دستاورد می‌سازند؛ برای فهرست‌کردن قابلیت‌ها.",
+   "effectKey": "chipcycle",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "مسیر ساخت:",
+   "accent": "#7cc4b8",
+   "tags": [
+    "تایپوگرافی",
+    "رابط کاربری"
+   ],
+   "media": {
+    "video": "media/typography/chipcycle/preview.mp4",
+    "poster": "media/typography/chipcycle/poster.webp",
+    "thumb": "media/typography/chipcycle/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30,
+   "words": [
+    "طراحی",
+    "رندر",
+    "انتشار"
+   ]
+  },
+  {
+   "key": "converge",
+   "titleFa": "همگرایی ستون‌ها",
+   "descFa": "برچسب «جدید» سر جایش می‌ماند و واژهٔ ویژه جلویش می‌چرخد؛ بعد دو ستون در یک حرکتِ نرم به هم می‌رسند و زیرنویس زیر خطِ تازه می‌نشیند.",
+   "effectKey": "converge",
+   "defaultFont": "Estedad",
+   "defaultText": "جدید",
+   "accent": "#8fb7e8",
+   "tags": [
+    "تایپوگرافی",
+    "عنوان"
+   ],
+   "media": {
+    "video": "media/typography/converge/preview.mp4",
+    "poster": "media/typography/converge/poster.webp",
+    "thumb": "media/typography/converge/thumb.webp"
+   },
+   "durationFrames": 135,
+   "fps": 30,
+   "words": [
+    "رندر فارسی",
+    "موسیقی",
+    "تدوین"
+   ],
+   "sub": "۲۰۲۶"
+  },
+  {
+   "key": "demote",
+   "titleFa": "تنزل عنوان",
+   "descFa": "عنوانِ بزرگ خوانده می‌شود، واژه‌اش انتخاب می‌شود و بعد با یک نفسِ کوچک به برچسبِ گوشهٔ صفحه تنزل می‌کند تا محتوا نفس بکشد؛ کاربردی برای انتقال از تیتر به بدنه.",
+   "effectKey": "demote",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "اجرای همزمان عوامل",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "رابط کاربری"
+   ],
+   "media": {
+    "video": "media/typography/demote/preview.mp4",
+    "poster": "media/typography/demote/poster.webp",
+    "thumb": "media/typography/demote/thumb.webp"
+   },
+   "durationFrames": 120,
+   "fps": 30
+  },
+  {
+   "key": "assembly",
+   "titleFa": "بازشدن گروه‌ها",
+   "descFa": "گروه‌های اتصالی از دلِ هم فشرده بیرون می‌آیند و تا رسیدن به فاصلهٔ طبیعی‌شان باز می‌شوند؛ ترکیب‌بندی از تنفسِ فاصله‌ها ساخته می‌شود، نه از حرکت واژه‌ها.",
+   "effectKey": "assembly",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "پیام‌رسان فارسی",
+   "accent": "#7cc4b8",
+   "tags": [
+    "تایپوگرافی",
+    "ورود عناصر"
+   ],
+   "media": {
+    "video": "media/typography/assembly/preview.mp4",
+    "poster": "media/typography/assembly/poster.webp",
+    "thumb": "media/typography/assembly/thumb.webp"
+   },
+   "durationFrames": 135,
+   "fps": 30
+  },
+  {
+   "key": "letterdrop",
+   "titleFa": "سقوط گروه‌ها",
+   "descFa": "گروه‌های سنگین با گرانش سقوط می‌کنند، دو بار می‌پرند، کج می‌مانند و در پایان همه با یک ضربِ «مرتب‌شدن» سرِ خط می‌نشینند؛ فیزیکِ بازیگوش با اتصالِ سالم.",
+   "effectKey": "letterdrop",
+   "defaultFont": "Lalezar",
+   "defaultText": "کلمات سنگین",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "فیزیک",
+    "ورود عناصر"
+   ],
+   "media": {
+    "video": "media/typography/letterdrop/preview.mp4",
+    "poster": "media/typography/letterdrop/poster.webp",
+    "thumb": "media/typography/letterdrop/thumb.webp"
+   },
+   "durationFrames": 135,
+   "fps": 30
+  },
+  {
+   "key": "karaoke",
+   "titleFa": "کارائوکهٔ ضرب‌بسته",
+   "descFa": "هر واژه روی ضرب خودش از راست پر می‌شود و خطِ زیرِ خواندن دنبال پیشانیِ پرشدن می‌آید؛ راهنمای خواندنِ هم‌زمان برای روایت و زیرنویس آموزشی.",
+   "effectKey": "karaoke",
+   "defaultFont": "Estedad",
+   "defaultText": "حالا وقت خواندن است",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "ریتم و تدوین"
+   ],
+   "media": {
+    "video": "media/typography/karaoke/preview.mp4",
+    "poster": "media/typography/karaoke/poster.webp",
+    "thumb": "media/typography/karaoke/thumb.webp"
+   },
+   "durationFrames": 120,
+   "fps": 30
+  },
+  {
+   "key": "fonthymp",
+   "titleFa": "پمپ وزن قلم",
+   "descFa": "وزن قلمِ متغیر روی هر ضرب نفس می‌کشد؛ متن جابه‌جا نمی‌شود، فقط «ماهیتچه» می‌زند. مخصوص فونت‌های متغیر فارسی مثل استعداد و وزیرمتن.",
+   "effectKey": "fonthymp",
+   "defaultFont": "Estedad",
+   "defaultText": "ضرب‌آهنگ",
+   "accent": "#ff5470",
+   "tags": [
+    "تایپوگرافی",
+    "ریتم",
+    "فونت"
+   ],
+   "media": {
+    "video": "media/typography/fonthymp/preview.mp4",
+    "poster": "media/typography/fonthymp/poster.webp",
+    "thumb": "media/typography/fonthymp/thumb.webp"
+   },
+   "durationFrames": 120,
+   "fps": 30
+  },
+  {
+   "key": "terminal",
+   "titleFa": "ترمینال",
+   "descFa": "پنجرهٔ ترمینال باز می‌شود، فرمانِ رندر حرف‌به‌حرف تایپ می‌شود و جوابِ فارسی سبز می‌آید؛ فونت مونوی فارسی، حسِ «خط فرمانِ هم‌زبان».",
+   "effectKey": "terminal",
+   "defaultFont": "Vazir Code",
+   "defaultText": "رندر فارسی کامل شد",
+   "accent": "#67d3b2",
+   "tags": [
+    "تایپوگرافی",
+    "فرمان",
+    "کد"
+   ],
+   "media": {
+    "video": "media/typography/terminal/preview.mp4",
+    "poster": "media/typography/terminal/poster.webp",
+    "thumb": "media/typography/terminal/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30,
+   "sub": "۲۷ کامپوننت آمادهٔ موشن"
+  },
+  {
+   "key": "codeblock",
+   "titleFa": "بلوک کد",
+   "descFa": "دو پنل کنار هم: راست خط‌به‌خط محو می‌شود، چپ حرف‌به‌حرف با ماژیکِ رنگِ نحو تایپ می‌کند؛ برای آموزش برنامه‌نویسیِ فارسی.",
+   "effectKey": "codeblock",
+   "defaultFont": "Vazir Code",
+   "defaultText": "خوش‌آمد",
+   "accent": "#8fb7e8",
+   "tags": [
+    "تایپوگرافی",
+    "کد",
+    "آموزش"
+   ],
+   "media": {
+    "video": "media/typography/codeblock/preview.mp4",
+    "poster": "media/typography/codeblock/poster.webp",
+    "thumb": "media/typography/codeblock/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "rollcycle",
+   "titleFa": "غلتک عمودی",
+   "descFa": "پنجرهٔ سه‌خطی واژه‌ها را مثل قرصِ انتخاب عمودی می‌غلتاند؛ خطوط مجاور تار می‌شوند و خط مرکزی به رنگ تأکید می‌نشیند. برای «ساخته‌شده برای ...».",
+   "effectKey": "rollcycle",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "ساخته‌شده برای",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "ریتم و تدوین"
+   ],
+   "media": {
+    "video": "media/typography/rollcycle/preview.mp4",
+    "poster": "media/typography/rollcycle/poster.webp",
+    "thumb": "media/typography/rollcycle/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30,
+   "words": [
+    "آموزش",
+    "تبلیغات",
+    "داستان"
+   ]
+  },
+  {
+   "key": "filmstrip",
+   "titleFa": "نوار فیلم و اسباب‌کشی واژه",
+   "descFa": "نوارِ کارت‌ها قدم‌قدم می‌غلتد و در سمت راست، فعل جمله سرِ جایش عوض می‌شود: واژهٔ قدیمی خاکستری، واژهٔ تازه جای آن. ریتمِ تدوینیِ بدون جابه‌جایی.",
+   "effectKey": "filmstrip",
+   "defaultFont": "Markazi Text",
+   "defaultText": "پژوهش می‌کند",
+   "accent": "#c9a227",
+   "tags": [
+    "تایپوگرافی",
+    "ریتم و تدوین"
+   ],
+   "media": {
+    "video": "media/typography/filmstrip/preview.mp4",
+    "poster": "media/typography/filmstrip/poster.webp",
+    "thumb": "media/typography/filmstrip/thumb.webp"
+   },
+   "durationFrames": 180,
+   "fps": 30,
+   "words": [
+    "پژوهش می‌کند",
+    "می‌سازد",
+    "کد می‌زند"
+   ]
+  },
+  {
+   "key": "cutout",
+   "titleFa": "حروف کاغذی",
+   "descFa": "هر گروهِ اتصالی یک تکهٔ کاغذِ صلب است که با سنجاق روی خط کرسی می‌چرخد؛ هشت پوز در ثانیه، یک نور، سایه‌های هماهنگ و هل‌های ریزِ دستی. الهام از انیمیشن کاغذی.",
+   "effectKey": "cutout",
+   "defaultFont": "Lalezar",
+   "defaultText": "پیام‌رسان",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "کاغذ",
+    "استاپ‌موشن"
+   ],
+   "media": {
+    "video": "media/typography/cutout/preview.mp4",
+    "poster": "media/typography/cutout/poster.webp",
+    "thumb": "media/typography/cutout/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30,
+   "source": "persian-motion-director · 06-paper-cutout"
+  },
+  {
+   "key": "nuqta",
+   "titleFa": "نقطه‌ها آخر",
+   "descFa": "بدنهٔ واژه‌ها اول از راست پَرد می‌آیند و بعد نقطه‌ها یکی‌یکی فرود می‌آیند: نقطه‌های بالا از بالا، نقطه‌های پایین از پایین، با له‌شدنِ لحظهٔ فرود. بازپخِ تاریخِ خطِ فارسی.",
+   "effectKey": "nuqta",
+   "defaultFont": "Noto Naskh Arabic",
+   "defaultText": "تپش بی‌قرار",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "بومی فارسی"
+   ],
+   "media": {
+    "video": "media/typography/nuqta/preview.mp4",
+    "poster": "media/typography/nuqta/poster.webp",
+    "thumb": "media/typography/nuqta/thumb.webp"
+   },
+   "durationFrames": 165,
+   "fps": 30,
+   "source": "persian-motion-director · 07-nuqta-dots"
+  },
+  {
+   "key": "kashida",
+   "titleFa": "کشیده، نه فاصله",
+   "descFa": "کشیدهٔ میان حروف مثل قلمِ خوشنویس بیرون کشیده می‌شود، خط‌کشِ لوزی‌های کوچک زیرش می‌شمارد و بعد با فنر برمی‌گردد؛ ریتمِ فارسی با کشیدگی، نه با فاصله‌اندازی.",
+   "effectKey": "kashida",
+   "defaultFont": "Amiri",
+   "defaultText": "هرمس",
+   "accent": "#ffb547",
+   "tags": [
+    "تایپوگرافی",
+    "خوشنویسی",
+    "بومی فارسی"
+   ],
+   "media": {
+    "video": "media/typography/kashida/preview.mp4",
+    "poster": "media/typography/kashida/poster.webp",
+    "thumb": "media/typography/kashida/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30,
+   "source": "persian-motion-director · 08-kashida"
+  }
+ ]
 }

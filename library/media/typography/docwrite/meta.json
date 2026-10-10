@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/docwrite",
+  "variantKey": "docwrite",
+  "effectKey": "docwrite",
+  "family": "Vazirmatn",
+  "text": "گزارش فصل سوم",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "120"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "189"
+      }
+    ],
+    "format": {
+      "duration": "4.010000",
+      "size": "189727"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/docwrite",
+    "variantKey": "docwrite",
+    "effectKey": "docwrite",
+    "titleFa": "سند تایپ‌شونده",
+    "text": "گزارش فصل سوم",
+    "family": "Vazirmatn",
+    "accent": "#7cc4b8",
+    "durationFrames": 120,
+    "fps": 30,
+    "withSound": true
+  }
+}

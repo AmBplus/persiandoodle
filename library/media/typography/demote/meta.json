@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/demote",
+  "variantKey": "demote",
+  "effectKey": "demote",
+  "family": "Vazirmatn",
+  "text": "اجرای همزمان عوامل",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "120"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "189"
+      }
+    ],
+    "format": {
+      "duration": "4.010000",
+      "size": "305232"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/demote",
+    "variantKey": "demote",
+    "effectKey": "demote",
+    "titleFa": "تنزل عنوان",
+    "text": "اجرای همزمان عوامل",
+    "family": "Vazirmatn",
+    "accent": "#ffb547",
+    "durationFrames": 120,
+    "fps": 30,
+    "withSound": true
+  }
+}

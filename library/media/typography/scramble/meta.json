@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/scramble",
+  "variantKey": "scramble",
+  "effectKey": "scramble",
+  "family": "Vazir Code",
+  "text": "رمزگشایی زنده",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "96"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "151"
+      }
+    ],
+    "format": {
+      "duration": "3.200000",
+      "size": "253824"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/scramble",
+    "variantKey": "scramble",
+    "effectKey": "scramble",
+    "titleFa": "رمزگشایی",
+    "text": "رمزگشایی زنده",
+    "family": "Vazir Code",
+    "accent": "#37d3c8",
+    "durationFrames": 96,
+    "fps": 30,
+    "withSound": true
+  }
+}

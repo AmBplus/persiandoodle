@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/brace",
+  "variantKey": "brace",
+  "effectKey": "brace",
+  "family": "Vazirmatn",
+  "text": "کتابخانهٔ موشن فارسی",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "114"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "180"
+      }
+    ],
+    "format": {
+      "duration": "3.818000",
+      "size": "251863"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/brace",
+    "variantKey": "brace",
+    "effectKey": "brace",
+    "titleFa": "پردهٔ آکولاد",
+    "text": "کتابخانهٔ موشن فارسی",
+    "family": "Vazirmatn",
+    "accent": "#7cc4b8",
+    "durationFrames": 114,
+    "fps": 30,
+    "withSound": true
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/nuqta",
+  "variantKey": "nuqta",
+  "effectKey": "nuqta",
+  "family": "Noto Naskh Arabic",
+  "text": "تپش بی‌قرار",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "165"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "259"
+      }
+    ],
+    "format": {
+      "duration": "5.504000",
+      "size": "267328"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/nuqta",
+    "variantKey": "nuqta",
+    "effectKey": "nuqta",
+    "titleFa": "نقطه‌ها آخر",
+    "text": "تپش بی‌قرار",
+    "family": "Noto Naskh Arabic",
+    "accent": "#ffb547",
+    "durationFrames": 165,
+    "fps": 30,
+    "withSound": true
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "modelId": "native/typography/leadzoom",
+  "variantKey": "leadzoom",
+  "effectKey": "leadzoom",
+  "family": "Vazirmatn",
+  "text": "ساخت ویدیو با متن فارسی",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "90"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "142"
+      }
+    ],
+    "format": {
+      "duration": "3.008000",
+      "size": "332294"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/leadzoom",
+    "variantKey": "leadzoom",
+    "effectKey": "leadzoom",
+    "titleFa": "زوم کلمهٔ پیشرو",
+    "text": "ساخت ویدیو با متن فارسی",
+    "family": "Vazirmatn",
+    "accent": "#ffb547",
+    "sub": "بدون فونت شکسته، بدون نیم‌فاصلهٔ گم‌شده",
+    "durationFrames": 90,
+    "fps": 30,
+    "withSound": true
+  }
+}

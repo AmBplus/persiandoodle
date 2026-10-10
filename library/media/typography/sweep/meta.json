@@ -1,0 +1,49 @@
+{
+  "modelId": "native/typography/sweep",
+  "variantKey": "sweep",
+  "effectKey": "sweep",
+  "family": "Lalezar",
+  "text": "ابرقدرت",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "120"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "189"
+      }
+    ],
+    "format": {
+      "duration": "4.010000",
+      "size": "228292"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/sweep",
+    "variantKey": "sweep",
+    "effectKey": "sweep",
+    "titleFa": "موج گرادیان",
+    "text": "ابرقدرت",
+    "family": "Lalezar",
+    "accent": "#d86ee8",
+    "durationFrames": 120,
+    "fps": 30,
+    "withSound": true
+  }
+}

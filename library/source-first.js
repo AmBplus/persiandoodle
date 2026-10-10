@@ -251,7 +251,7 @@ function drawTypoFrame(canvas,model,fontIdx,text,t){
  ctx.setTransform(dpr,0,0,dpr,0,0);
  const family=TYPO_FONTS[fontIdx]?.[0]||model.defaultFont;
  let o={key:model.effectKey,t,w:W,h:H,size:model.effectKey==="counter"?86:56,family,text:text||model.defaultText,
-  target:model.target,sub:model.sub,
+  target:model.target,sub:model.sub,words:model.words,finale:model.finale,
   colors:{bg:"#0e1624",ink:"#f2f5fa",accent:model.accent||"#ffb547",muted:"#54637e"}};
  o.size=fitSize(ctx,{...o,size:o.size,weight:700});
  drawEffect(ctx,o);
@@ -316,7 +316,7 @@ function syncPlayground(){
   if(canvas.width!==W*dpr){canvas.width=W*dpr;canvas.height=H*dpr;}
   ctx.setTransform(dpr,0,0,dpr,0,0);
   let o={key:m.effectKey,t:tt,w:W,h:H,size:m.effectKey==="counter"?96:64,family:fam,text,
-   target:m.target,sub:m.sub,
+   target:m.target,sub:m.sub,words:m.words,finale:m.finale,
    colors:{bg:"#0e1624",ink:"#f2f5fa",accent:m.accent||"#ffb547",muted:"#54637e"}};
   o.size=fitSize(ctx,{...o,size:o.size,weight:700});
   drawEffect(ctx,o);

@@ -1,0 +1,54 @@
+{
+  "modelId": "native/typography/filmstrip",
+  "variantKey": "filmstrip",
+  "effectKey": "filmstrip",
+  "family": "Markazi Text",
+  "text": "پژوهش می‌کند",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "180"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "283"
+      }
+    ],
+    "format": {
+      "duration": "6.016000",
+      "size": "439562"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/filmstrip",
+    "variantKey": "filmstrip",
+    "effectKey": "filmstrip",
+    "titleFa": "نوار فیلم و اسباب‌کشی واژه",
+    "text": "پژوهش می‌کند",
+    "family": "Markazi Text",
+    "accent": "#c9a227",
+    "words": [
+      "پژوهش می‌کند",
+      "می‌سازد",
+      "کد می‌زند"
+    ],
+    "durationFrames": 180,
+    "fps": 30,
+    "withSound": true
+  }
+}

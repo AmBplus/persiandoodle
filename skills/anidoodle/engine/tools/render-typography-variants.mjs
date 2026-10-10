@@ -42,6 +42,8 @@ for (const model of models) {
     accent: model.accent,
     target: model.target,
     sub: model.sub,
+    words: model.words,
+    finale: model.finale,
     durationFrames: model.durationFrames ?? 150,
     fps: model.fps ?? 30,
     withSound: true,

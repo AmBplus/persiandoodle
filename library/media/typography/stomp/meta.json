@@ -1,0 +1,54 @@
+{
+  "modelId": "native/typography/stomp",
+  "variantKey": "stomp",
+  "effectKey": "stomp",
+  "family": "Lalezar",
+  "text": "سریع زیبا فارسی",
+  "output": "preview.mp4",
+  "poster": "poster.webp",
+  "thumbnail": "thumb.webp",
+  "encoding": {
+    "codec": "h264",
+    "audio": "aac",
+    "crf": 22,
+    "preset": "slow",
+    "fastStart": true
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "nb_frames": "144"
+      },
+      {
+        "codec_name": "aac",
+        "nb_frames": "226"
+      }
+    ],
+    "format": {
+      "duration": "4.800000",
+      "size": "401722"
+    }
+  },
+  "provenance": {
+    "modelId": "native/typography/stomp",
+    "variantKey": "stomp",
+    "effectKey": "stomp",
+    "titleFa": "کوبش سلیولویدی",
+    "text": "سریع زیبا فارسی",
+    "family": "Lalezar",
+    "accent": "#ff5470",
+    "words": [
+      "سریع",
+      "زیبا",
+      "فارسی"
+    ],
+    "durationFrames": 144,
+    "fps": 30,
+    "withSound": true
+  }
+}
