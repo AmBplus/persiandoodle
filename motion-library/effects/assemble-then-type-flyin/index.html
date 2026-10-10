@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>assemble-then-type-flyin | کتابخانهٔ موشن</title>
+<style>
+  @font-face {
+    font-family: "Vazirmatn";
+    src: url("Vazirmatn-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+  }
+  html, body { margin: 0; background: #0b0f16; color: #e8ecf2; font-family: system-ui, sans-serif; }
+  .wrap { padding: 16px; }
+  .stage {
+    position: relative; width: 1280px; height: 720px; overflow: hidden;
+    background-color: #0d1320;
+    background-image:
+      linear-gradient(rgba(159,182,232,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(159,182,232,.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    border-radius: 12px;
+    transform-origin: top right;
+  }
+  .sk {
+    position: absolute; background: #18223a; border: 1px solid #2d3b52;
+    border-radius: 14px; will-change: transform, opacity, filter;
+  }
+  .pill { border-radius: 999px; }
+  .dots {
+    background-image: radial-gradient(#9fb6e8 2px, transparent 2.5px);
+    background-size: 14px 14px; background-color: transparent; border: none;
+  }
+  .cta { background: #ffb547; border-color: #ffb547; }
+  .tx {
+    position: absolute; white-space: nowrap; color: #f2f5fa;
+    font-family: "Vazirmatn", system-ui, sans-serif; line-height: 1.25;
+  }
+  .tx.mono { font-family: ui-monospace, Menlo, Consolas, monospace; color: #9fb6e8; letter-spacing: .08em; }
+  .tx .plain { display: inline-block; white-space: pre; visibility: hidden; }
+  .u { will-change: transform, opacity; }
+  .bar { display: flex; gap: 12px; align-items: center; margin-top: 12px; direction: ltr; }
+  button {
+    background: #1d2838; color: #e8ecf2; border: 1px solid #2d3b52;
+    border-radius: 8px; padding: 8px 14px; cursor: pointer; font: inherit;
+  }
+  .note { color: #8a97ab; font-size: 13px; margin-top: 12px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage" id="stage"></div>
+  <div class="bar">
+    <button id="play">توقف</button>
+    <span id="clock">0.00s</span>
+  </div>
+  <p class="note">
+    ابتدا قاب‌های بدون متن می‌نشینند، سپس هر حرف فارسی جدا با چرخش سه‌بعدی می‌آید.
+    شکل حروف فارسی از روی یک خط کامل شکل‌دهی‌شده برش می‌خورد، بنابراین اتصال حروف در حالت ثابت حفظ می‌شود.
+    وقتی همهٔ حروف نشستند، متن اصلی یکپارچه نشان داده می‌شود.
+  </p>
+</div>
+
+<script>
+(() => {
+  const DUR = 5.2;               // total length in seconds (156f @ 30fps)
+  const stage = document.getElementById("stage");
+  const clockEl = document.getElementById("clock");
+  const playBtn = document.getElementById("play");
+
+  // ---------- easing + helpers ----------
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const outCubic = t => 1 - Math.pow(1 - t, 3);
+  const outBack = t => {
+    const c1 = 1.70158, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  };
+  // Deterministic pseudo-random in [0,1): same seed => same motion, safe to seek.
+  const rand = i => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+  const graphemes = str => (window.Intl && Intl.Segmenter)
+    ? [...new Intl.Segmenter("fa", { granularity: "grapheme" }).segment(str)].map(s => s.segment)
+    : [...str];
+
+  // ---------- skeleton pieces (no text), arrive first ----------
+  // ft = start time, fx/fy = start offset in px, fr = start rotation in deg
+  const SKELETON = [
+    { cls: "sk pill", l: 40,   t: 24,  w: 260, h: 36,  ft: 0.04, fx: -220, fy: -60,  fr: -8 },
+    { cls: "sk",      l: 1100, t: 40,  w: 120, h: 3,   ft: 0.07, fx: 200,  fy: 0,    fr: 8  },
+    { cls: "sk dots", l: 40,   t: 96,  w: 56,  h: 56,  ft: 0.10, fx: -150, fy: 80,   fr: 8  },
+    { cls: "sk",      l: 40,   t: 200, w: 520, h: 300, ft: 0.13, fx: 0,    fy: 220,  fr: -4, r: 18 },
+    { cls: "sk pill cta", l: 40, t: 540, w: 220, h: 52, ft: 0.17, fx: -100, fy: 120, fr: 6 },
+    { cls: "sk",      l: 1000, t: 540, w: 120, h: 120, ft: 0.20, fx: 150,  fy: 100,  fr: -6, r: 16 },
+  ];
+
+  // ---------- text blocks, fly in one after another ----------
+  // mono: letter-by-letter in LTR. Persian: letter-by-letter via sliced shaped line.
+  const BLOCKS = [
+    { text: "ساخت صفحه، یک‌بار با هم", x: 620, y: 200, size: 84, start: 0.34, color: "#f2f5fa" },
+    { text: "پرشین دودل",              x: 120, y: 104, size: 30, start: 0.40, color: "#ffb547" },
+    { text: "هر بخش در جای خودش می‌نشیند", x: 620, y: 330, size: 28, start: 0.46, color: "#c9d4e8" },
+    { text: "STEP 01 · LAYOUT",        x: 70,  y: 222, size: 13, start: 0.52, mono: true },
+    { text: "خط‌ها و کارت‌ها اول می‌آیند", x: 70, y: 300, size: 28, start: 0.58, color: "#f2f5fa" },
+    { text: "شروع کنید",               x: 86,  y: 553, size: 22, start: 0.66, color: "#111827" },
+    { text: "@persian",                x: 1015, y: 600, size: 14, start: 0.70, mono: true },
+    { text: "V1 · 2026",               x: 620, y: 650, size: 13, start: 0.76, mono: true },
+  ];
+
+  // ---------- build skeleton DOM ----------
+  const skEls = SKELETON.map(s => {
+    const el = document.createElement("div");
+    el.className = s.cls;
+    Object.assign(el.style, {
+      left: s.l + "px", top: s.t + "px", width: s.w + "px", height: s.h + "px",
+      borderRadius: s.r ? s.r + "px" : "",
+    });
+    stage.appendChild(el);
+    return { el, s };
+  });
+
+  // ---------- build text DOM ----------
+  let unitCounter = 0;
+
+  function motionFor(b, n) {
+    const step = clamp((0.94 - b.start - 0.13) / n, 0.002, 0.012);
+    return Array.from({ length: n }, (_, j) => {
+      const k = unitCounter++ * 7;
+      return {
+        s: b.start + j * step,
+        dx: (rand(k) * 2 - 1) * 170,
+        dy: (rand(k + 1) * 2 - 1) * 130,
+        dz: -120 - rand(k + 2) * 300,
+        rx: (rand(k + 3) * 2 - 1) * 170,
+        ry: (rand(k + 4) * 2 - 1) * 190,
+        rz: (rand(k + 5) * 2 - 1) * 120,
+      };
+    });
+  }
+
+  function buildBlock(b) {
+    const container = document.createElement("div");
+    container.className = "tx" + (b.mono ? " mono" : "");
+    Object.assign(container.style, {
+      left: b.x + "px", top: b.y + "px", fontSize: b.size + "px",
+      direction: b.mono ? "ltr" : "rtl",
+      color: b.color || "",
+    });
+    stage.appendChild(container);
+
+    // Latin / mono labels: each character is its own unit (no shaping issue).
+    if (b.mono) {
+      const chars = [...b.text];
+      container.innerHTML = chars.map(c =>
+        `<span class="u" style="display:inline-block">${c === " " ? "&nbsp;" : c}</span>`
+      ).join("");
+      const spans = [...container.querySelectorAll(".u")];
+      return { container, spans, motion: motionFor(b, spans.length), plain: null };
+    }
+
+    // Persian: the whole line is shaped once in a plain span (kept hidden while animating).
+    const plain = document.createElement("span");
+    plain.className = "plain";
+    plain.textContent = b.text;
+    container.appendChild(plain);
+    const node = plain.firstChild;
+    const h = plain.offsetHeight;
+    const scale = stage.getBoundingClientRect().width / 1280;   // stage uses CSS zoom
+    const origin = plain.getBoundingClientRect().left;
+    const pad = b.size * 0.2;   // overlap so joined strokes are not cut mid-flight
+
+    // Measure each letter's box in the shaped line using Range rects.
+    const range = document.createRange();
+    const items = [];
+    let idx = 0;
+    for (const g of graphemes(b.text)) {
+      const s = idx, e = idx + g.length;
+      idx = e;
+      if (!g.trim()) continue;                        // spaces are not animated
+      range.setStart(node, s);
+      range.setEnd(node, e);
+      const r = range.getBoundingClientRect();
+      if (r.width / scale < 0.5) continue;            // zero-width joiners etc.
+      items.push({ x: (r.left - origin) / scale, w: r.width / scale });
+    }
+
+    // One slice per letter: the full shaped line is positioned inside it,
+    // so every letter keeps its joined form and can move on its own.
+    const spans = items.map(it => {
+      const d = document.createElement("span");
+      d.className = "u";
+      d.style.cssText =
+        `position:absolute;top:0;display:block;overflow:hidden;` +
+        `left:${it.x - pad}px;width:${it.w + pad * 2}px;height:${h}px;`;
+      const inner = document.createElement("span");
+      inner.textContent = b.text;
+      inner.style.cssText =
+        `position:absolute;top:0;left:${-(it.x - pad)}px;white-space:pre;`;
+      d.appendChild(inner);
+      container.appendChild(d);
+      return d;
+    });
+
+    return { container, spans, motion: motionFor(b, spans.length), plain };
+  }
+
+  // ---------- frame render ----------
+  function render(time, blocks) {
+    const t = clamp(time / DUR);
+
+    // Phase 1: skeleton
+    skEls.forEach(({ el, s }) => {
+      const a = outBack(seg(t, s.ft, s.ft + 0.14));
+      el.style.opacity = clamp(a);
+      el.style.transform = a >= 1
+        ? "none"
+        : `translate(${s.fx * (1 - a)}px, ${s.fy * (1 - a)}px) rotate(${s.fr * (1 - a)}deg)`;
+      el.style.filter = a < 0.97 ? `blur(${2 * (1 - clamp(a))}px)` : "none";
+    });
+
+    // Phase 2: letters, unit by unit in 3D
+    blocks.forEach(B => {
+      let allDone = true;
+      B.spans.forEach((span, j) => {
+        const m = B.motion[j];
+        const a = outCubic(seg(t, m.s, m.s + 0.13));
+        if (a < 1) allDone = false;
+        if (a >= 1) {
+          span.style.transform = "none";
+          span.style.opacity = 1;
+        } else {
+          const k = 1 - a;
+          span.style.opacity = a;
+          span.style.transform =
+            `perspective(600px) translate3d(${m.dx * k}px, ${m.dy * k}px, ${m.dz * k}px) ` +
+            `rotateX(${m.rx * k}deg) rotateY(${m.ry * k}deg) rotateZ(${m.rz * k}deg)`;
+        }
+      });
+
+      // When every letter has landed, swap to the single unsliced line.
+      if (B.plain) {
+        B.plain.style.visibility = allDone ? "visible" : "hidden";
+        B.spans.forEach(sp => { sp.style.display = allDone ? "none" : "block"; });
+      }
+    });
+
+    clockEl.textContent = time.toFixed(2) + "s";
+  }
+
+  // ---------- fit + loop ----------
+  function fit() {
+    const s = Math.min(1, (window.innerWidth - 32) / 1280);
+    stage.style.zoom = s;
+  }
+  window.addEventListener("resize", fit);
+  fit();
+
+  let blocks = [];
+  let time = 0, playing = true, last = performance.now();
+  playBtn.onclick = () => {
+    playing = !playing;
+    playBtn.textContent = playing ? "توقف" : "پخش";
+  };
+
+  function frame(now) {
+    const dt = (now - last) / 1000;
+    last = now;
+    if (playing) time = (time + dt) % (DUR + 0.8); // hold final frame briefly
+    render(Math.min(time, DUR), blocks);
+    requestAnimationFrame(frame);
+  }
+
+  const ready = document.fonts && document.fonts.load
+    ? document.fonts.load('84px "Vazirmatn"', BLOCKS[0].text).catch(() => {})
+    : Promise.resolve();
+  ready.then(() => {
+    // Build after the font is ready so measurements match the final shaping.
+    blocks = BLOCKS.map(buildBlock);
+    requestAnimationFrame(now => { last = now; requestAnimationFrame(frame); });
+  });
+})();
+</script>
+</body>
+</html>
