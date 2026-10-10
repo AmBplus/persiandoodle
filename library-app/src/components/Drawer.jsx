@@ -169,15 +169,18 @@ function EntryDetail({ item }) {
 }
 
 export default function Drawer({ item, onClose }) {
+  // قفل اسکرول فقط وقتی دراور واقعاً باز است — وگرنه صفحه اسکرول نمی‌شد
   useEffect(() => {
+    if (!item) return;
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      document.body.style.overflow = prev;
     };
-  }, [onClose]);
+  }, [item, onClose]);
 
   if (!item) return null;
 
