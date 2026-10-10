@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/color-block-step-wipe",
+  "archetype": "transition",
+  "titleFa": "گام بلوک رنگ",
+  "line1": "از این‌جا به آن‌جا",
+  "seed": 339561586,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

@@ -19,6 +19,7 @@ export type TypographySpec = {
   sub?: string;          // counter sub-caption
   words?: string[];      // cycling/stomping word list (stomp, pillslot, chipcycle, …)
   finale?: string;       // ending word for slot cycles
+  pen?: boolean;         // inktrace: false = بدون قلم (هالهٔ مرکب)
   durationFrames?: number;
   fps?: number;
   withSound?: boolean;
@@ -53,7 +54,7 @@ export const makeTypographyFilm = (input: TypographySpec): Film => {
     // the effect itself, centered, auto-fitted
     let opts = {
       key: spec.effectKey, t, w: W, h: H, size: size0, family: spec.family, text: spec.text,
-      target: spec.target, sub: spec.sub, words: spec.words, finale: spec.finale,
+      target: spec.target, sub: spec.sub, words: spec.words, finale: spec.finale, pen: spec.pen,
       colors: { bg: "transparent", ink: palette.ink, accent, muted: palette.inkSoft ?? palette.ink },
       paintBg: false,
     };

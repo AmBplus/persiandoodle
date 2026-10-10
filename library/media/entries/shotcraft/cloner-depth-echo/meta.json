@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/cloner-depth-echo",
+  "archetype": "particles",
+  "titleFa": "echo عمق cloner",
+  "line1": "هوای صحنه پر می‌شود",
+  "seed": 2688192287,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/assemble-then-type-flyin",
+  "archetype": "skeleton",
+  "titleFa": "سرهم‌بندی، سپس تایپِ پروازی",
+  "line1": "صفحه خودش را می‌سازد",
+  "seed": 1717291994,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

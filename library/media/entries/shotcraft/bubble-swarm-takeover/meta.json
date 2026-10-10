@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/bubble-swarm-takeover",
+  "archetype": "transition",
+  "titleFa": "takeover swarm حباب",
+  "line1": "گذر روی ضرب",
+  "seed": 2120607257,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

@@ -29,6 +29,7 @@ function TypoDetail({ item }) {
       sub: item.sub,
       target: item.target,
       finale: item.finale,
+      pen: item.pen,
     }),
     [item]
   );
@@ -131,12 +132,22 @@ function TypoDetail({ item }) {
 
 function EntryDetail({ item }) {
   const m = item.media;
+  const [showVideo, setShowVideo] = useState(false);
+  const isSound = item.kind === "entry" && !m?.video && !!m?.audio;
   return (
     <>
       {m && (m.poster || m.thumbnail) && (
         <img className="entry-poster" src={m.poster || m.thumbnail} alt={item.title} />
       )}
-      {m?.video && <video className="sample-video" src={m.video} controls loop playsInline />}
+      {m?.video && (
+        <video className="sample-video" src={m.video} poster={m.poster} controls loop playsInline />
+      )}
+      {isSound && (
+        <div className="sound-player">
+          <span className="sound-ico" aria-hidden="true">♫</span>
+          <audio controls src={m.audio} style={{ width: "100%" }} />
+        </div>
+      )}
       {!m && (
         <div className="entry-empty">
           رندر تصویری این طرح هنوز تولید نشده — پیش‌نمایش زنده به‌زودی برای مدل‌های منتخب اضافه می‌شود.
@@ -147,37 +158,45 @@ function EntryDetail({ item }) {
         {item.duration && <div><dt>مدت</dt><dd>{item.duration}</dd></div>}
         {item.energy && <div><dt>انرژی</dt><dd>{item.energy}</dd></div>}
         <div><dt>منبع</dt><dd>{SOURCE_FA[item.source] || item.source}</dd></div>
-        <div><dt>وضعیت</dt><dd>{item.status}</dd></div>
+        {item.status && <div><dt>وضعیت</dt><dd>رندر محلی فارسی</dd></div>}
         {item.license && <div><dt>مجوز</dt><dd>{item.license}</dd></div>}
       </dl>
 
       {item.desc && (
         <div className="entry-desc">
-          <h4>توضیح منبع</h4>
-          <p lang="zh" dir="ltr">{item.desc}</p>
-          <small>ترجمهٔ فارسی این توضیحات در نسخه‌های بعدی کامل می‌شود.</small>
+          <h4>توضیح</h4>
+          <p>{item.desc}</p>
         </div>
       )}
 
       <div className="detail-actions">
-        {item.media?.video && (
+        {m?.video && (
           <>
             <button type="button" className="ghost-btn" onClick={() => setShowVideo((v) => !v)}>
               {showVideo ? "بستن ویدیو" : "▶ ویدیوی نمونه"}
             </button>
-            <a className="ghost-btn" href={item.media.video} download target="_blank" rel="noopener noreferrer">
+            <a className="ghost-btn" href={m.video} download target="_blank" rel="noopener noreferrer">
               ⬇ دانلود ویدیو
             </a>
-            {item.media.audio && (
-              <a className="ghost-btn" href={item.media.audio} download target="_blank" rel="noopener noreferrer">
+            {m.audio && (
+              <a className="ghost-btn" href={m.audio} download target="_blank" rel="noopener noreferrer">
                 ♫ دانلود موسیقی (مجزا)
               </a>
             )}
           </>
         )}
+        {isSound && (
+          <a className="ghost-btn" href={m.audio} download target="_blank" rel="noopener noreferrer">
+            ⬇ دانلود صدا
+          </a>
+        )}
       </div>
 
-      {item.tags.length > 0 && (
+      {showVideo && m?.video && (
+        <video className="sample-video" src={m.video} poster={m.poster} controls loop playsInline />
+      )}
+
+      {item.tags && item.tags.length > 0 && (
         <div className="detail-meta">
           {item.tags.map((t) => (
             <span key={t} className="tag">{t}</span>

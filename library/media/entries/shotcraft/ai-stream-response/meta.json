@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/ai-stream-response",
+  "archetype": "cursorui",
+  "titleFa": "پاسخ زندهٔ هوش مصنوعی",
+  "line1": "رابط واقعی، کارگردانی‌شده",
+  "seed": 801146089,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/chart-live-moves",
+  "archetype": "chart",
+  "titleFa": "نمودار زنده",
+  "line1": "اعداد که می‌آیند",
+  "seed": 2608776900,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

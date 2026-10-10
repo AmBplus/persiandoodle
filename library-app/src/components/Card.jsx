@@ -15,6 +15,20 @@ const HUES = [212, 262, 22, 162, 335, 192];
 function PlaceholderArt({ item }) {
   const h = HUES[hash(item.id) % HUES.length];
   const letter = (item.title || "؟").trim().charAt(0);
+  if (item.media?.soundOnly) {
+    // کارت صدا — موج نرم به‌جای حرف
+    const bars = Array.from({ length: 22 }, (_, i) => {
+      const a = 16 + 62 * Math.abs(Math.sin(i * 1.7 + (hash(item.id) % 7)));
+      const y = (90 - a) / 2;
+      return `<rect x="${8 + i * 13}" y="${y.toFixed(1)}" width="6" height="${a.toFixed(1)}" rx="3" fill="hsl(${h} 70% 62%)" opacity="${i % 5 === 2 ? 1 : 0.55}"/>`;
+    }).join("");
+    return (
+      <div className="ph-art sound-art" style={{ background: `radial-gradient(120% 120% at 85% 15%, hsl(${h} 60% 24%) 0%, hsl(${(h + 40) % 360} 55% 12%) 55%, #0b0f1a 100%)` }}>
+        <svg viewBox="0 0 300 90" className="sound-wave" aria-hidden="true" dangerouslySetInnerHTML={{ __html: bars }} />
+        <span className="ph-cat">♫ افکت صوتی · پخش در جزئیات</span>
+      </div>
+    );
+  }
   return (
     <div
       className="ph-art"

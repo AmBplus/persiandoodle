@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/cel-flash-stomp",
+  "archetype": "native",
+  "titleFa": "stomp فلاش سل",
+  "line1": "فارسی، راست‌به‌چپ",
+  "seed": 1253779233,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

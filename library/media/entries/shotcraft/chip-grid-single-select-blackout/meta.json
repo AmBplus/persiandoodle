@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/chip-grid-single-select-blackout",
+  "archetype": "cursorui",
+  "titleFa": "select شبکه چیپ تکی",
+  "line1": "نشانگر می‌رود و انتخاب می‌کند",
+  "seed": 3335858437,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/chip-lift-to-user-pill",
+  "archetype": "cursorui",
+  "titleFa": "به lift چیپ",
+  "line1": "نشانگر می‌رود و انتخاب می‌کند",
+  "seed": 3300804708,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

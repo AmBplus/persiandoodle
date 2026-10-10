@@ -15,6 +15,7 @@ export function reactCode(model, opts = {}) {
   const dur = Math.round(((model.frames || 150) / (model.fps || 30)) * 1000);
   const key = model.effectKey;
   const Comp = pascal(key) + "Title";
+  const extra = model.pen === false ? `\n        pen: false, // نسخهٔ بی‌قلم` : "";
   return `import { useEffect, useRef } from "react";
 import { drawEffect, fitSize } from "./effects.js";
 
@@ -36,7 +37,7 @@ export default function ${Comp}({ text = ${JSON.stringify(text)} }) {
       const size = fitSize(ctx, { text, w: W, size: 104, family: ${JSON.stringify(font)} });
       drawEffect(ctx, {
         key: ${JSON.stringify(key)}, t, w: W, h: H, size,
-        family: ${JSON.stringify(font)}, text, colors: COLORS,
+        family: ${JSON.stringify(font)}, text, colors: COLORS,${extra}
       });
     };
 

@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/countdown-arc-scatter",
+  "archetype": "native",
+  "titleFa": "scatter arc شمارش معکوس",
+  "line1": "فارسی، راست‌به‌چپ",
+  "seed": 3607947079,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/carousel-3d",
+  "archetype": "cursorui",
+  "titleFa": "3d چرخان",
+  "line1": "نشانگر می‌رود و انتخاب می‌کند",
+  "seed": 2301325356,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

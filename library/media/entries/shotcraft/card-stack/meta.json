@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/card-stack",
+  "archetype": "skeleton",
+  "titleFa": "پشته کارت",
+  "line1": "صفحه خودش را می‌سازد",
+  "seed": 2037055993,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

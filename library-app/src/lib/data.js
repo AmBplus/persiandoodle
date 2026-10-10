@@ -1,4 +1,6 @@
 // لایهٔ دادهٔ کتابخانه — تایپوگرافی + کاتالوگ + رندرهای فارسی، یکپارچه در یک منو
+import { faBlurb } from "../../../library/typography/shots.js";
+
 const j = (u) => fetch(u).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${u} → ${r.status}`))));
 
 export const SOURCE_FA = {
@@ -24,10 +26,11 @@ function countBy(items, key) {
 }
 
 export async function loadLibrary() {
-  const [typo, catalog, renders] = await Promise.all([
+  const [typo, catalog, renders, entryMedia] = await Promise.all([
     j("./data/typography-models.json"),
     j("./data/catalog.json"),
     j("./data/persian-renders.json").catch(() => null),
+    j("./data/entry-media.json").catch(() => null),
   ]);
 
   // پوستر/ویدیوی رندرشده برای entryهای کاتالوگ (اگر وجود داشته باشد)
@@ -42,6 +45,10 @@ export async function loadLibrary() {
       audio: v.video ? String(v.video).replace(/preview\.mp4$/, "music.m4a") : null,
     };
   }
+  // رندرهای محلیِ جدید (entry-media.json): ویدیو + پوستر + صدا برای همهٔ آیتم‌هایی که رندر شده‌اند
+  for (const [id, m] of Object.entries((entryMedia && entryMedia.items) || {})) {
+    mediaOf[id] = { ...mediaOf[id], ...m };
+  }
 
   const typoItems = typo.models.map((m) => ({
     kind: "typo",
@@ -54,6 +61,7 @@ export async function loadLibrary() {
     font: m.defaultFont,
     text: m.defaultText,
     accent: m.accent,
+    pen: m.pen,
     media: m.media ? { ...m.media, audio: m.media.video ? m.media.video.replace(/preview\.mp4$/, "music.m4a") : null } : null,
     frames: m.durationFrames || 150,
     fps: m.fps || 30,
@@ -63,21 +71,26 @@ export async function loadLibrary() {
     model: m,
   }));
 
-  const entryItems = catalog.entries.map((e) => ({
-    kind: "entry",
-    id: e.id,
-    title: e.titleFa && e.titleFa !== e.name ? e.titleFa : e.name,
-    desc: e.description || "",
-    category: e.category || "سایر",
-    source: e.source,
-    tags: e.tags || [],
-    duration: e.duration,
-    energy: e.energy,
-    license: e.license,
-    sourceUrl: e.sourceUrl,
-    status: e.status,
-    media: mediaOf[e.id] || null,
-  }));
+  const entryItems = catalog.entries
+    .filter((e) => !(e.source === "native" && e.kind !== "audio")) // فونت‌ها/نمونه‌ها از گالری خارج‌اند
+    .map((e) => {
+      const fa = faBlurb(e);
+      return {
+        kind: "entry",
+        id: e.id,
+        title: e.titleFa && e.titleFa !== e.name ? e.titleFa : fa.title,
+        desc: fa.blurb,
+        category: e.category || "سایر",
+        source: e.source,
+        tags: e.tags || [],
+        duration: e.duration,
+        energy: e.energy,
+        license: e.license,
+        sourceUrl: e.sourceUrl,
+        status: e.status,
+        media: mediaOf[e.id] || null,
+      };
+    });
 
   const items = [...typoItems, ...entryItems];
   return {

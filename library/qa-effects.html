@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>QA — فریم‌های مشخص افکت‌ها</title>
+<style>
+  body { background: #0a0e18; color: #dfe6f2; font-family: sans-serif; margin: 16px; }
+  .row { margin-bottom: 18px; }
+  canvas { display: block; width: 640px; height: 360px; border-radius: 10px; background: #0d1424; }
+  h3 { margin: 6px 0 4px; font-size: 14px; }
+</style>
+<style id="dyn-fonts"></style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import { drawEffect, fitSize, TYPO_FONTS } from "/library/typography/effects.js";
+
+// فونت‌ها از پوشهٔ انجین
+document.getElementById("dyn-fonts").textContent = TYPO_FONTS.map(
+  ([fam, file]) => `@font-face{font-family:"${fam}";src:url("/skills/anidoodle/engine/assets/fonts/${file}") format("truetype");font-display:swap;}`
+).join("\n");
+
+const CASES = [
+  ["typewriter",  { text: "پیش‌نویس زنده می‌شود", family: "Vazir Code", accent: "#8fe8b5" }, [0.3, 0.55, 0.9]],
+  ["inktrace",    { text: "مرکب تازه می‌نشیند", family: "Sahel", accent: "#ffb547" }, [0.25, 0.5, 0.92]],
+  ["inktrace-P",  { text: "مرکب تازه می‌نشیند", family: "Sahel", accent: "#7cc4b8", pen: false }, [0.35, 0.92]],
+  ["brace",       { text: "پردهٔ آکولاد", family: "Vazirmatn", accent: "#ffb547" }, [0.06, 0.18, 0.35, 0.92]],
+  ["splitflap",   { text: "تابلوی فرودگاه", family: "Vazirmatn", accent: "#ffb547" }, [0.2, 0.45, 0.92]],
+  ["demote",      { text: "اجرای همزمان عوامل", family: "Vazirmatn", accent: "#ffb547" }, [0.35, 0.62, 0.92]],
+  ["dotsword",    { text: "نقطه‌ها کلمه می‌شوند", family: "Vazirmatn", accent: "#a78bfa" }, [0.2, 0.42, 0.6, 0.92]],
+  ["docwrite",    { text: "گزارش فصل سوم", family: "Vazirmatn", accent: "#ffb547" }, [0.3, 0.92]],
+];
+
+const W = 960, H = 540;
+const stage = document.getElementById("stage");
+for (const [name, opts, times] of CASES) {
+  for (const t of times) {
+    const wrap = document.createElement("div");
+    wrap.className = "row";
+    const h = document.createElement("h3");
+    h.textContent = `${name} — t=${t}`;
+    const cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    wrap.appendChild(h); wrap.appendChild(cv);
+    stage.appendChild(wrap);
+    const paint = () => {
+      const ctx = cv.getContext("2d");
+      const size = fitSize(ctx, { text: opts.text, w: W, size: 96, family: opts.family });
+      drawEffect(ctx, {
+        key: name.replace("-P", ""), t, w: W, h: H, size,
+        family: opts.family, text: opts.text,
+        colors: { bg: "#0d1424", ink: "#f2f6fc", accent: opts.accent },
+        pen: opts.pen,
+      });
+    };
+    document.fonts.ready.then(paint);
+    setTimeout(paint, 400);
+  }
+}
+</script>
+</body>
+</html>

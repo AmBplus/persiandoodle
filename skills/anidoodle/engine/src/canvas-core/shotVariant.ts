@@ -1,0 +1,2 @@
+import { makeShotFilm } from "./shotLibrary";
+export const shotVariant = makeShotFilm({"id":"shotcraft/counter-confetti","archetype":"chart","effectKey":null,"seed":212872525,"frames":135,"fps":30,"titleFa":"کاغذرنگی شمارنده","line1":"اعداد که می‌آیند","line2":"نمودار خودش را می‌بندد","accent":"#ff5f8f","ink":"#f6f1f8","bg":"#14101a","panel":"#231a2e","muted":"#554a63","duration":"约 4.6s（138f@30fps；计数 0.3–2.6s · 纸屑 2.4s 起 · 落定 3.3s）","energy":"高（计数蓄力 + 爆点释放，标准的情绪峰值镜头）"});

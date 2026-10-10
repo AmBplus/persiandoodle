@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/bezier-source-converge-merge",
+  "archetype": "skeleton",
+  "titleFa": "همگرایی source bezier",
+  "line1": "صفحه خودش را می‌سازد",
+  "seed": 448428124,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

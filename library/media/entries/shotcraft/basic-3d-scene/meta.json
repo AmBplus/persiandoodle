@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/basic-3d-scene",
+  "archetype": "cameramove",
+  "titleFa": "صحنهٔ سه‌بعدی ساده",
+  "line1": "دوربین نفس می‌کشد",
+  "seed": 1443450813,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

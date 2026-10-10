@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/circle-match-iris",
+  "archetype": "transition",
+  "titleFa": "دریچه match circle",
+  "line1": "گذر روی ضرب",
+  "seed": 2623704042,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/command-palette-summon",
+  "archetype": "cursorui",
+  "titleFa": "summon palette command",
+  "line1": "هر کلیک یک بازخورد",
+  "seed": 4196278123,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

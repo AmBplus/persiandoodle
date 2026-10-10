@@ -809,6 +809,52 @@
    "durationFrames": 150,
    "fps": 30,
    "source": "persian-motion-director · 08-kashida"
+  },
+  {
+   "key": "inktrace-penless",
+   "titleFa": "نوشتن بی‌قلم",
+   "descFa": "همان نوشتار حرف‌به‌حرفِ «نوشتن با قلم»، اما بدون قلم: مرکب با هاله‌ای نرم روی لبهٔ تازه می‌نشیند و حروف دانه‌دانه با اتصال کامل ظاهر می‌شوند.",
+   "effectKey": "inktrace",
+   "defaultFont": "Sahel",
+   "defaultText": "مرکب تازه می‌نشیند",
+   "accent": "#7cc4b8",
+   "pen": false,
+   "tags": [
+    "تایپوگرافی",
+    "نوشتار",
+    "مرکب"
+   ],
+   "media": {
+    "video": "media/typography/inktrace-penless/preview.mp4",
+    "poster": "media/typography/inktrace-penless/poster.webp",
+    "thumb": "media/typography/inktrace-penless/thumb.webp"
+   },
+   "durationFrames": 150,
+   "fps": 30
+  },
+  {
+   "key": "dotsword",
+   "titleFa": "نقطه‌نگار",
+   "descFa": "واژه از صدها نقطه ساخته می‌شود؛ نقطه‌ها از پخشِ دور می‌آیند، باز و جمع می‌شوند و کلمهٔ کامل را شکل می‌دهند.",
+   "effectKey": "dotsword",
+   "defaultFont": "Vazirmatn",
+   "defaultText": "نقطه‌ها کلمه می‌شوند",
+   "accent": "#a78bfa",
+   "tags": [
+    "تایپوگرافی",
+    "نقطه",
+    "ذره‌ای"
+   ],
+   "media": {
+    "video": "media/typography/dotsword/preview.mp4",
+    "poster": "media/typography/dotsword/poster.webp",
+    "thumb": "media/typography/dotsword/thumb.webp"
+   },
+   "durationFrames": 165,
+   "fps": 30
   }
- ]
+ ],
+ "stats": {
+  "models": 39
+ }
 }

@@ -1,0 +1,12 @@
+{
+ "schema": "persianarts/entry-media/v1",
+ "generatedAt": "2026-10-10T15:17:11.105Z",
+ "items": {
+  "shotcraft/assemble-then-type-flyin": {
+   "video": "media/entries/shotcraft/assemble-then-type-flyin/preview.mp4",
+   "poster": "media/entries/shotcraft/assemble-then-type-flyin/poster.webp",
+   "thumb": "media/entries/shotcraft/assemble-then-type-flyin/thumb.webp",
+   "audio": "media/entries/shotcraft/assemble-then-type-flyin/music.m4a"
+  }
+ }
+}

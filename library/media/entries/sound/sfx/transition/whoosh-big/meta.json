@@ -1,0 +1,8 @@
+{
+  "modelId": "sound/sfx/transition/whoosh-big.mp3",
+  "archetype": "audio",
+  "sfxKind": "whoosh",
+  "sfxVariant": "soft",
+  "titleFa": "ووش بزرگ",
+  "audio": "sfx.m4a"
+}

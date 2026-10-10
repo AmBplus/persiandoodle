@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/card-flip-reveal",
+  "archetype": "transition",
+  "titleFa": "آشکارسازی فلیپ کارت",
+  "line1": "صحنه عوض می‌شود",
+  "seed": 1433535966,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

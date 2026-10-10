@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/blur-slide",
+  "archetype": "native",
+  "titleFa": "سُرش محو",
+  "line1": "موشن با کد، حرف‌به‌حرف",
+  "seed": 1036287975,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

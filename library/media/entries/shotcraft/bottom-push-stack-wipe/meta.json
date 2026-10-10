@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/bottom-push-stack-wipe",
+  "archetype": "transition",
+  "titleFa": "وایپ پشته رانش پایین",
+  "line1": "گذر روی ضرب",
+  "seed": 723606239,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

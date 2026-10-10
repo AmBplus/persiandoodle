@@ -44,6 +44,7 @@ for (const model of models) {
     sub: model.sub,
     words: model.words,
     finale: model.finale,
+    pen: model.pen,
     durationFrames: model.durationFrames ?? 150,
     fps: model.fps ?? 30,
     withSound: true,

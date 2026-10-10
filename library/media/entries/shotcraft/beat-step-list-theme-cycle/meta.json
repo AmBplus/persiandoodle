@@ -1,0 +1,11 @@
+{
+  "modelId": "shotcraft/beat-step-list-theme-cycle",
+  "archetype": "beatgrid",
+  "titleFa": "فهرست گام ضرب",
+  "line1": "ضرب‌بستهٔ سلیولویدی",
+  "seed": 2603672777,
+  "video": "preview.mp4",
+  "poster": "poster.webp",
+  "thumb": "thumb.webp",
+  "audio": "music.m4a"
+}

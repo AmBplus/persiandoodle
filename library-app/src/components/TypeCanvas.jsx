@@ -53,6 +53,7 @@ export default function TypeCanvas({
         target: model.target,
         sub: model.sub,
         finale: model.finale,
+        pen: model.pen,
       });
     };
 
